@@ -43,6 +43,10 @@ body {
   color: var(--vc-white);
   font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
+  /* Scroll performance optimizations */
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Custom Scrollbar */
@@ -205,16 +209,22 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, var(--vc-accent), var(--vc-accent-light));
+  background: linear-gradient(90deg, #0f2873 0%, #1e5a8e 25%, #2d8b6e 50%, #39cc89 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  background-size: 200% auto;
+  transition: background-position 0.5s ease;
+}
+
+.gradient-text:hover {
+  background-position: right center;
 }
 
 /* Button styles */
 .btn-primary {
-  background: linear-gradient(135deg, var(--vc-accent), var(--vc-accent-light));
-  color: var(--vc-dark);
+  background: linear-gradient(90deg, #0f2873 0%, #1e5a8e 25%, #2d8b6e 50%, #39cc89 100%);
+  color: white;
   padding: 14px 32px;
   border-radius: 50px;
   font-weight: 600;
@@ -226,33 +236,60 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  background-size: 200% auto;
 }
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px var(--vc-accent-glow);
+  box-shadow: 0 10px 30px rgba(57, 204, 137, 0.4);
+  background-position: right center;
 }
 
 .btn-secondary {
   background: transparent;
-  color: var(--vc-white);
+  color: white;
   padding: 14px 32px;
   border-radius: 50px;
   font-weight: 600;
   font-size: 1rem;
-  border: 2px solid var(--vc-accent);
+  border: none;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #0f2873 0%, #1e5a8e 25%, #2d8b6e 50%, #39cc89 100%);
+  background-size: 200% auto;
+  transition: background-position 0.5s ease;
+  z-index: -1;
+}
+
+.btn-secondary:hover::before {
+  background-position: right center;
+}
+
+.btn-secondary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 48px;
+  background: var(--vc-dark);
+  z-index: -1;
 }
 
 .btn-secondary:hover {
-  background: var(--vc-accent);
-  color: var(--vc-dark);
   transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(57, 204, 137, 0.3);
 }
 
 /* Card styles */

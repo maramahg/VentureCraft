@@ -2,17 +2,24 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import WorldMap from '@/components/WorldMap';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 export default function Home() {
+  // Ensure page starts at top on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <>
       <Navbar />
 
       <main className="relative z-20 bg-[#0A1F1F] min-h-screen shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0A1F1F]">
+        {/* Hero Section with gradient transition */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0A1F1F] via-[#0A1F1F] to-[#1a4d4d]">
           {/* Geometric Background - CSS ONLY, NO IMAGES */}
           {/* Large angular shape left */}
 
@@ -29,8 +36,8 @@ export default function Home() {
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-6xl mx-auto text-center pt-20">
 
-              {/* Main Title */}
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-4 animate-fade-in-up delay-100 tracking-tight" style={{ fontFamily: 'var(--font-poppins)' }}>
+              {/* Main Title - Only element with hover animation */}
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-4 animate-fade-in-up delay-100 tracking-tight transition-all duration-500 hover:text-[#39cc89] hover:scale-105 hover:drop-shadow-[0_0_30px_rgba(57,204,137,0.5)] cursor-default inline-block" style={{ fontFamily: 'var(--font-poppins)' }}>
                 VENTURE CRAFT
               </h1>
 
@@ -68,7 +75,7 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </Link>
-                <a href="#overview" className="btn-secondary text-lg px-8 py-4">
+                <a href="#overview" className="btn-secondary text-lg">
                   Learn More
                 </a>
               </div>
@@ -78,56 +85,47 @@ export default function Home() {
           </div>
 
 
-          {/* Partner Logos Strip */}
-          <div className="absolute bottom-8 left-0 right-0 w-full px-4">
-            <div className="flex justify-center items-center gap-4 md:gap-8 animate-fade-in-up delay-700 max-w-7xl mx-auto">
-              {/* DTV Logo */}
-              <div className="relative h-20 w-auto aspect-[3/1] opacity-90 hover:opacity-100 transition-opacity">
-                <Image
-                  src="/images/dtv-logo-v2.png"
-                  alt="Dhahran Techno Valley"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+
+
+
+
+        </section >
+
+        {/* About Section - Overview with World Map */}
+        <section id="overview" className="min-h-[80vh] flex items-center bg-[#1a4d4d] py-24 scroll-mt-[15vh]">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
+
+              {/* Left: Text Content */}
+              <div className="space-y-8">
+                <h2
+                  className="text-3xl md:text-5xl font-bold text-white tracking-wide text-left transition-all duration-500 hover:bg-gradient-to-r hover:from-[#0f2873] hover:via-[#2d8b6e] hover:to-[#39cc89] hover:bg-clip-text hover:text-transparent hover:bg-[length:200%_auto] hover:[background-position:right_center] cursor-default inline-block"
+                  style={{
+                    marginBottom: '30px',
+                    backgroundSize: '200% auto',
+                    transition: 'all 0.5s ease'
+                  }}
+                >
+                  OVERVIEW
+                </h2>
+                <div className="space-y-6 text-[#9CA3AF] text-lg leading-relaxed text-left">
+                  <p>
+                    The KFUPM <span className="text-[#39cc89] font-semibold">VentureCraft Challenge</span> is an international deep-tech startup competition by King Fahad University of Petroleum & Minerals in collaboration with Dhahran Techno Valley (DTV).
+                  </p>
+                  <p>
+                    It supports student-led startups developing science- and technology-based solutions with <span className="text-[#39cc89] font-semibold">global impact</span>.
+                  </p>
+                  <p>
+                    Each year, it focuses on a theme aligned with <span className="text-[#39cc89] font-semibold">Saudi Arabia&apos;s innovation priorities</span> and global challenges, positioning KFUPM and DTV as a global hub for engineering innovation and technology transfer.
+                  </p>
+                </div>
               </div>
 
-              {/* KFUPM Logo */}
-              <div className="relative h-16 w-auto aspect-[3/1] opacity-90 hover:opacity-100 transition-opacity pl-8">
-                <Image
-                  src="/images/kfupm-logo-v2.png"
-                  alt="KFUPM"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+              {/* Right: World Map */}
+              <div className="relative h-[400px] lg:h-[500px]">
+                <WorldMap />
               </div>
-            </div>
-          </div>
 
-        </section>
-
-        {/* About Section - Overview Only */}
-        <section id="overview" className="min-h-[80vh] flex items-center bg-[#0D2B2B] py-24 scroll-mt-[15vh]">
-          <div className="container mx-auto px-6 flex justify-center">
-            <div className="max-w-3xl w-full">
-              <h2
-                className="text-3xl md:text-5xl font-bold text-white tracking-wide text-left"
-                style={{ marginBottom: '50px' }}
-              >
-                OVERVIEW
-              </h2>
-              <div className="space-y-6 text-[#9CA3AF] text-lg leading-relaxed text-left">
-                <p>
-                  The KFUPM <span className="text-[#39cc89] font-semibold">VentureCraft Challenge</span> is an international deep-tech startup competition by King Fahad University of Petroleum & Minerals in collaboration with Dhahran Techno Valley (DTV).
-                </p>
-                <p>
-                  It supports student-led startups developing science- and technology-based solutions with <span className="text-[#39cc89] font-semibold">global impact</span>.
-                </p>
-                <p>
-                  Each year, it focuses on a theme aligned with <span className="text-[#39cc89] font-semibold">Saudi Arabia&apos;s innovation priorities</span> and global challenges, positioning KFUPM and DTV as a global hub for engineering innovation and technology transfer.
-                </p>
-              </div>
             </div>
           </div>
         </section>
