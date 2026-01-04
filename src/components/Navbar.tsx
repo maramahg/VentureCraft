@@ -55,7 +55,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Center - Navigation */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="hidden lg:flex">
+                    <div style={{ alignItems: 'center', gap: '32px' }} className="hidden lg:flex">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
@@ -86,7 +86,6 @@ export default function Navbar() {
                                 height: '36px',
                                 borderRadius: '50%',
                                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 color: 'rgba(255, 255, 255, 0.85)',
@@ -116,9 +115,18 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile Menu */}
-                {isMobileMenuOpen && (
-                    <div className="lg:hidden" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: '16px 40px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div
+                    className={`lg:hidden grid transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                        }`}
+                >
+                    <div className="overflow-hidden">
+                        <div style={{
+                            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                            padding: '16px 40px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px'
+                        }}>
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}
@@ -128,7 +136,9 @@ export default function Navbar() {
                                         fontSize: '14px',
                                         fontWeight: 500,
                                         padding: '8px 0',
-                                        textDecoration: 'none'
+                                        textDecoration: 'none',
+                                        textAlign: 'center',
+                                        display: 'block'
                                     }}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
@@ -137,7 +147,7 @@ export default function Navbar() {
                             ))}
                         </div>
                     </div>
-                )}
+                </div>
             </nav>
         </div>
     );
