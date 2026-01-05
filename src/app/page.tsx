@@ -17,7 +17,7 @@ export default function Home() {
     <>
       <Navbar />
 
-      <main className="relative z-20 bg-[#0A1F1F] min-h-screen shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <main className="relative min-h-screen">
         {/* Hero Section with gradient transition */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0A1F1F] via-[#0A1F1F] to-[#1a4d4d]">
           {/* Geometric Background - CSS ONLY, NO IMAGES */}
@@ -92,7 +92,7 @@ export default function Home() {
         </section >
 
         {/* About Section - Overview with World Map */}
-        <section id="overview" className="min-h-[80vh] flex items-center bg-[#1a4d4d] py-24 scroll-mt-[15vh]">
+        <section id="overview" className="min-h-[80vh] flex items-center bg-[#1a4d4d] py-12 lg:py-24 scroll-mt-[15vh]">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
 
@@ -121,8 +121,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right: World Map */}
-              <div className="relative h-[400px] lg:h-[500px]">
+              {/* Right: World Map - Desktop Only */}
+              <div className="hidden lg:block relative h-[500px] rounded-2xl bg-[#0A1F1F]/40 border border-[#39cc89]/20 p-4 backdrop-blur-sm">
                 <WorldMap />
               </div>
 
@@ -130,10 +130,7 @@ export default function Home() {
           </div>
         </section>
 
-      </main >
-
-      {/* Spacer for Footer Reveal */}
-      < div className="relative z-0 h-[250px] w-full" />
+      </main>
 
       <Footer />
     </>
