@@ -6,8 +6,13 @@ import WorldMap from '@/components/WorldMap';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect } from 'react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function Home() {
+  // Scroll animations
+  const overviewLeft = useScrollAnimation(0.2);
+  const overviewRight = useScrollAnimation(0.2);
+
   // Ensure page starts at top on load
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -97,7 +102,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
 
               {/* Left: Text Content */}
-              <div className="space-y-8">
+              <div ref={overviewLeft.ref} className={`space-y-8 scroll-fade-in-left ${overviewLeft.isVisible ? 'visible' : ''}`}>
                 <h2
                   className="text-3xl md:text-5xl font-bold tracking-wide text-left cursor-default inline-block gradient-text-hover"
                   style={{
@@ -120,7 +125,7 @@ export default function Home() {
               </div>
 
               {/* Right: World Map - Desktop Only */}
-              <div className="hidden lg:block relative h-[500px] rounded-2xl bg-[#0A1F1F]/40 border border-[#39cc89]/20 p-4 backdrop-blur-sm">
+              <div ref={overviewRight.ref} className={`hidden lg:block relative h-[500px] rounded-2xl bg-[#0A1F1F]/40 border border-[#39cc89]/20 p-4 backdrop-blur-sm scroll-fade-in-right ${overviewRight.isVisible ? 'visible' : ''}`}>
                 <WorldMap />
               </div>
 
