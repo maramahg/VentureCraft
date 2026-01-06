@@ -45,8 +45,6 @@ body {
   overflow-x: hidden;
   /* Scroll performance optimizations */
   -webkit-overflow-scrolling: touch;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 /* Custom Scrollbar */
