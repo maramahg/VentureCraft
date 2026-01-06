@@ -39,11 +39,12 @@ export default function WorldMap() {
                 }}
             >
                 <defs>
-                    {/* Animated mint green gradient */}
+                    {/* Animated ombre gradient */}
                     <linearGradient id="continentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#39cc89" stopOpacity="0.9" />
-                        <stop offset="50%" stopColor="#2dd4bf" stopOpacity="0.7" />
-                        <stop offset="100%" stopColor="#5eead4" stopOpacity="0.6" />
+                        <stop offset="0%" stopColor="#0f2873" stopOpacity="0.9" />
+                        <stop offset="33%" stopColor="#1e5a8e" stopOpacity="0.8" />
+                        <stop offset="66%" stopColor="#2d8b6e" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#39cc89" stopOpacity="0.9" />
                     </linearGradient>
 
                     {/* Dense, bold dot pattern */}

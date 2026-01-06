@@ -219,6 +219,35 @@ body {
   background-position: right center;
 }
 
+/* Gradient text on hover - starts white, transitions to ombre gradient */
+.gradient-text-hover {
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.gradient-text-hover:hover {
+  background: linear-gradient(90deg, #0f2873 0%, #1e5a8e 25%, #2d8b6e 50%, #39cc89 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+  background-position: left center;
+  animation: gradient-slide 2s ease-in-out infinite;
+}
+
+@keyframes gradient-slide {
+
+  0%,
+  100% {
+    background-position: left center;
+  }
+
+  50% {
+    background-position: right center;
+  }
+}
+
+
 /* Button styles */
 .btn-primary {
   background: linear-gradient(90deg, #0f2873 0%, #1e5a8e 25%, #2d8b6e 50%, #39cc89 100%);

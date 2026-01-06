@@ -99,11 +99,9 @@ export default function Home() {
               {/* Left: Text Content */}
               <div className="space-y-8">
                 <h2
-                  className="text-3xl md:text-5xl font-bold text-white tracking-wide text-left transition-all duration-500 hover:bg-gradient-to-r hover:from-[#0f2873] hover:via-[#2d8b6e] hover:to-[#39cc89] hover:bg-clip-text hover:text-transparent hover:bg-[length:200%_auto] hover:[background-position:right_center] cursor-default inline-block"
+                  className="text-3xl md:text-5xl font-bold tracking-wide text-left cursor-default inline-block gradient-text-hover"
                   style={{
-                    marginBottom: '30px',
-                    backgroundSize: '200% auto',
-                    transition: 'all 0.5s ease'
+                    marginBottom: '30px'
                   }}
                 >
                   OVERVIEW
