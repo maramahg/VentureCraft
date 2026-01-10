@@ -72,10 +72,10 @@ export default function AboutPage() {
                                     <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0f2873] via-[#2d8b6e] to-[#39cc89] rounded-3xl opacity-30 group-hover:opacity-50 blur transition duration-500 animate-gradient" />
 
                                     {/* Main card */}
-                                    <div className="relative bg-gradient-to-br from-[#0D2B2B]/90 to-[#0A1F1F]/90 backdrop-blur-xl border border-[#39cc89]/20 rounded-2xl md:rounded-3xl px-6 py-12 md:p-16 lg:p-20 min-h-[300px] md:min-h-[260px] flex items-center">
-                                        {/* Quote icon - Top Left */}
+                                    <div className="relative bg-gradient-to-br from-[#0D2B2B]/90 to-[#0A1F1F]/90 backdrop-blur-xl border border-[#39cc89]/20 rounded-2xl md:rounded-3xl px-6 py-12 md:p-16 lg:p-20 min-h-[240px] md:min-h-[260px] flex items-center">
+                                        {/* Quote icon - Top Left - Hidden on Mobile */}
                                         <svg
-                                            className="absolute top-6 left-6 md:top-8 md:left-8 w-6 h-6 md:w-8 md:h-8 text-[#39cc89]/30"
+                                            className="hidden md:block absolute top-6 left-6 md:top-8 md:left-8 w-6 h-6 md:w-8 md:h-8 text-[#39cc89]/30"
                                             fill="currentColor"
                                             viewBox="0 0 24 24"
                                         >
@@ -84,9 +84,12 @@ export default function AboutPage() {
 
                                         {/* Mission text - centered container */}
                                         <div className="flex justify-center w-full">
-                                            <div className="max-w-2xl">
+                                            <div className="max-w-2xl w-[85%] md:w-full mx-auto md:px-0">
                                                 <blockquote className="space-y-4 md:space-y-6">
-                                                    <p className="text-white/90 text-lg md:text-2xl lg:text-3xl font-medium leading-relaxed tracking-wide text-center md:text-left">
+                                                    <p
+                                                        className="text-[#9CA3AF] text-xl md:text-2xl lg:text-3xl font-medium leading-normal tracking-wide text-left"
+                                                        style={{ fontFamily: 'var(--font-poppins)' }}
+                                                    >
                                                         Our mission is to{' '}
                                                         <span className="text-[#39cc89] font-semibold relative inline-block group/word">
                                                             inspire
@@ -97,8 +100,8 @@ export default function AboutPage() {
                                                             empower
                                                             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#39cc89]/40 transform origin-left scale-x-0 group-hover/word:scale-x-100 transition-transform duration-300" />
                                                         </span>{' '}
-                                                        emerging founders to reimagine how energy and operate —{' '}
-                                                        <span className="text-white font-semibold">
+                                                        emerging founders to reimagine how energy and operate -{' '}
+                                                        <span className="text-[#9CA3AF] font-semibold">
                                                             making sustainability a driver of{' '}
                                                             <span className="relative inline-block whitespace-nowrap">
                                                                 <span className="gradient-text font-bold">innovation</span>
@@ -111,9 +114,9 @@ export default function AboutPage() {
                                             </div>
                                         </div>
 
-                                        {/* Quote icon - Bottom Right */}
+                                        {/* Quote icon - Bottom Right - Hidden on Mobile */}
                                         <svg
-                                            className="absolute bottom-6 right-6 md:bottom-8 md:right-8 w-6 h-6 md:w-8 md:h-8 text-[#39cc89]/30 transform rotate-180"
+                                            className="hidden md:block absolute bottom-6 right-6 md:bottom-8 md:right-8 w-6 h-6 md:w-8 md:h-8 text-[#39cc89]/30 transform rotate-180"
                                             fill="currentColor"
                                             viewBox="0 0 24 24"
                                         >
