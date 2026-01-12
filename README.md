@@ -5,7 +5,7 @@
 
 ## About
 
-Venture Craft is KFUPM's premier international deep-tech startup competition designed to inspire and empower emerging founders to reimagine how energy and technology operate - making sustainability a driver of innovation, not a constraint.
+Venture Craft is KFUPM's international deep-tech startup competition designed to inspire and empower emerging founders to reimagine how energy and technology operate - making sustainability a driver of innovation, not a constraint.
 
 ## Prerequisites
 
