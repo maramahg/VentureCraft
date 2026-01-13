@@ -1,8 +1,3 @@
-![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.3-61DAFB?style=flat-square&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=flat-square&logo=tailwind-css)
-
 ## About
 
 Venture Craft is KFUPM's international deep-tech startup competition designed to inspire and empower emerging founders to reimagine how energy and technology operate - making sustainability a driver of innovation, not a constraint.
