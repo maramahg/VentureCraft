@@ -187,10 +187,11 @@ export default function AboutPage() {
 
                             {/* Tablet and Desktop: Grid layout */}
                             <div className="hidden md:flex md:flex-col md:gap-6">
-                                {/* First 4 objectives - 2x2 on tablet, 3+1 on desktop */}
-                                <div className="grid grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-8">
-                                    {/* Objective 1 */}
-                                    <div className="group relative">
+                                {/* First row - 2 on tablet, 3 on desktop */}
+                                {/* Combined Grid for Tablet (2-col) and Desktop (6-col) */}
+                                <div className="grid grid-cols-2 lg:grid-cols-6 gap-6 lg:gap-8">
+                                    {/* Objective 1 - Tablet: Col 1, Desktop: Cols 1-2 */}
+                                    <div className="lg:col-span-2 group relative">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
@@ -208,8 +209,8 @@ export default function AboutPage() {
                                         </div>
                                     </div>
 
-                                    {/* Objective 2 */}
-                                    <div className="group relative">
+                                    {/* Objective 2 - Tablet: Col 2, Desktop: Cols 3-4 */}
+                                    <div className="lg:col-span-2 group relative">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
@@ -227,8 +228,8 @@ export default function AboutPage() {
                                         </div>
                                     </div>
 
-                                    {/* Objective 3 */}
-                                    <div className="group relative">
+                                    {/* Objective 3 - Tablet: Col 1 (Row 2), Desktop: Cols 5-6 */}
+                                    <div className="lg:col-span-2 group relative">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
@@ -246,8 +247,8 @@ export default function AboutPage() {
                                         </div>
                                     </div>
 
-                                    {/* Objective 4 */}
-                                    <div className="group relative">
+                                    {/* Objective 4 - Tablet: Col 2 (Row 2), Desktop: Cols 2-3 (Centered Row 2) */}
+                                    <div className="lg:col-start-2 lg:col-span-2 group relative">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
@@ -264,11 +265,9 @@ export default function AboutPage() {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Objective 5 - Centered below on tablet, normal flow on desktop */}
-                                <div className="flex justify-center">
-                                    <div className="group relative w-full md:max-w-md xl:max-w-md">
+                                    {/* Objective 5 - Tablet: Cols 1-2 (Centered Row 3), Desktop: Cols 4-5 (Centered Row 2) */}
+                                    <div className="col-span-2 lg:col-span-2 lg:col-start-auto group relative w-full max-w-md mx-auto lg:max-w-none lg:mx-0">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
