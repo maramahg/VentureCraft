@@ -80,7 +80,7 @@ export default function Navbar() {
                     {/* Sign In Button (Desktop) */}
                     <Link
                         href="/signin"
-                        className="hidden lg:block btn-primary"
+                        className="hidden lg:block btn-secondary"
                         style={{
                             padding: '8px 20px',
                             fontSize: '14px',
