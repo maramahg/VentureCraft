@@ -39,7 +39,7 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-vc-mint transition-all group-hover:w-full" />
               </a>
             ))}
-            <button className="btn-primary px-5 py-2 rounded-full text-sm">
+            <button className="bg-gradient-to-r from-vc-teal to-vc-teal/90 text-white font-semibold px-5 py-2 rounded-full text-sm hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-vc-teal/50">
               Apply Now
             </button>
           </div>
@@ -72,7 +72,7 @@ export default function Navbar() {
                 </a>
               ))}
               <hr className="border-white/10" />
-              <button className="btn-primary w-full py-3 rounded-xl font-medium">
+              <button className="bg-gradient-to-r from-vc-teal to-vc-teal/90 text-white font-semibold w-full py-3 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-vc-teal/50">
                 Submit Your Idea
               </button>
             </div>

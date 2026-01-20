@@ -37,10 +37,10 @@ export default function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-            <button className="btn-primary px-8 py-4 rounded-full text-lg w-full sm:w-auto hover:scale-105 active:scale-95 transition-transform">
+            <button className="bg-gradient-to-r from-vc-teal to-vc-teal/90 text-white font-semibold px-8 py-4 rounded-full text-lg w-full sm:w-auto hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-vc-teal/50">
               Submit Your Idea
             </button>
-            <button className="btn-glass px-8 py-4 rounded-full text-lg w-full sm:w-auto hover:bg-white/10">
+            <button className="bg-white/5 backdrop-blur-sm border border-vc-mint/30 text-vc-mint px-8 py-4 rounded-full text-lg w-full sm:w-auto hover:bg-vc-mint/10 hover:border-vc-mint hover:text-white transition-all duration-300">
               Learn More
             </button>
           </div>
