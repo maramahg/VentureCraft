@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollReveal } from '@/components/ScrollReveal';
+import { ScrollReveal } from './ScrollReveal';
 
 const targetAudience = [
   "Bachelor's, Master's, and PhD Students",

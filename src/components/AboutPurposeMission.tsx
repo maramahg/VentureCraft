@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollReveal } from '@/components/ScrollReveal';
+import { ScrollReveal } from './ScrollReveal';
 
 const AboutPurposeMission = () => (
   <section className="relative min-h-[70vh] flex items-center justify-center section-pad">
