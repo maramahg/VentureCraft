@@ -7,8 +7,8 @@ import { useState } from 'react';
 const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Our Team', href: '/team' },
-    { name: 'Join Us', href: '/join' },
+    { name: 'Registration', href: '/register' },
+    { name: 'Ambassadors', href: '/team' },
 ];
 
 export default function Navbar() {
@@ -75,26 +75,19 @@ export default function Navbar() {
                     ))}
                 </div>
 
-                {/* Right - User Icon & Mobile Toggle */}
+                {/* Right - Sign In Button & Mobile Toggle */}
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px' }}>
-                    {/* User Icon (Desktop) */}
+                    {/* Sign In Button (Desktop) */}
                     <Link
-                        href="/profile"
-                        className="hidden lg:flex"
+                        href="/signin"
+                        className="hidden lg:block btn-primary"
                         style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'rgba(255, 255, 255, 0.85)',
-                            transition: 'all 0.2s'
+                            padding: '8px 20px',
+                            fontSize: '14px',
+                            fontWeight: 500
                         }}
                     >
-                        <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                        Sign in
                     </Link>
 
                     {/* Mobile Menu Button */}

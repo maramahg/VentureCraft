@@ -28,14 +28,7 @@ export default function Home() {
           {/* Geometric Background - CSS ONLY, NO IMAGES */}
           {/* Large angular shape left */}
 
-          {/* Small accent shapes */}
-          {/* Small accent shapes */}
-          <div className="absolute right-[10%] top-[20%] w-20 h-20 rounded-full bg-[#39cc89]/10 animate-float" />
-          <div className="absolute right-[25%] bottom-[30%] w-32 h-32 rounded-full bg-[#39cc89]/5 animate-float-slow delay-300" />
-          <div className="absolute left-[40%] bottom-[10%] w-16 h-16 rounded-full bg-[#39cc89]/10 animate-float-fast delay-500" />
-          <div className="absolute left-[15%] top-[15%] w-24 h-24 rounded-full bg-[#39cc89]/5 animate-float-slow delay-700" />
-          <div className="absolute left-[5%] bottom-[40%] w-12 h-12 rounded-full bg-[#39cc89]/10 animate-float delay-200" />
-          <div className="absolute right-[35%] top-[10%] w-14 h-14 rounded-full bg-[#39cc89]/5 animate-float-fast delay-100" />
+
 
 
           <div className="container mx-auto px-6 relative z-10">

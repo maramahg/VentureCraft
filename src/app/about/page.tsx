@@ -187,7 +187,7 @@ export default function AboutPage() {
 
                             {/* Tablet and Desktop: Grid layout */}
                             <div className="hidden md:flex md:flex-col md:gap-6">
-                                {/* Top row: 3 objectives on desktop, 2 on tablet */}
+                                {/* First 4 objectives - 2x2 on tablet, 3+1 on desktop */}
                                 <div className="grid grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-8">
                                     {/* Objective 1 */}
                                     <div className="group relative">
@@ -245,12 +245,9 @@ export default function AboutPage() {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Bottom row: 2 objectives centered on desktop */}
-                                <div className="grid grid-cols-2 gap-6 md:gap-6 xl:flex xl:justify-center xl:gap-8">
                                     {/* Objective 4 */}
-                                    <div className="group relative xl:max-w-md xl:w-full">
+                                    <div className="group relative">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
@@ -267,9 +264,11 @@ export default function AboutPage() {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    {/* Objective 5 */}
-                                    <div className="group relative xl:max-w-md xl:w-full">
+                                {/* Objective 5 - Centered below on tablet, normal flow on desktop */}
+                                <div className="flex justify-center">
+                                    <div className="group relative w-full md:max-w-md xl:max-w-md">
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
                                         <div className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl p-8 hover:border-[#39cc89]/40 transition-all duration-300 h-full">
                                             <div className="flex items-start gap-5">
