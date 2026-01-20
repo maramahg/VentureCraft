@@ -18,6 +18,7 @@
     "clsx": "^2.1.1",
     "cobe": "^0.6.5",
     "framer-motion": "^12.26.2",
+    "globe.gl": "^2.45.0",
     "lucide-react": "^0.562.0",
     "maath": "^0.10.8",
     "next": "16.1.2",

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Globe } from "./ui/globe";
+import { GlobeGL } from "./ui/globe-gl";
 import { motion } from "framer-motion";
 
 export function HeroScrollDemo() {
@@ -116,14 +116,14 @@ export function HeroScrollDemo() {
           </motion.div>
         </motion.div>
         
-        {/* Globe Section */}
+        {/* Globe.GL Section */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full order-first lg:order-last"
+          className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full order-first lg:order-last flex items-center justify-center"
         >
-          <Globe className="absolute inset-0 scale-75 md:scale-90 lg:scale-100" />
+          <GlobeGL className="scale-75 md:scale-90 lg:scale-100" />
         </motion.div>
       </div>
     </section>
