@@ -1,3 +1,95 @@
+/* Orb floating keyframes */
+@keyframes float-diagonal {
+  0%, 100% { transform: translate3d(0, -110px, 0); }
+  25% { transform: translate3d(110px, 0, 0); }
+  50% { transform: translate3d(0, 110px, 0); }
+  75% { transform: translate3d(-110px, 0, 0); }
+}
+
+@keyframes float-around {
+  0%, 100% { transform: translate3d(0, -140px, 0); }
+  25% { transform: translate3d(140px, 0, 0); }
+  50% { transform: translate3d(0, 140px, 0); }
+  75% { transform: translate3d(-140px, 0, 0); }
+}
+
+@keyframes float-up {
+  0%, 100% { transform: translate3d(0, -90px, 0); }
+  25% { transform: translate3d(90px, 0, 0); }
+  50% { transform: translate3d(0, 90px, 0); }
+  75% { transform: translate3d(-90px, 0, 0); }
+}
+
+@keyframes float-side {
+  0%, 100% { transform: translate3d(0, -160px, 0); }
+  25% { transform: translate3d(160px, 0, 0); }
+  50% { transform: translate3d(0, 160px, 0); }
+  75% { transform: translate3d(-160px, 0, 0); }
+}
+
+@keyframes float-circle {
+  0%, 100% { transform: translate3d(0, -70px, 0); }
+  25% { transform: translate3d(70px, 0, 0); }
+  50% { transform: translate3d(0, 70px, 0); }
+  75% { transform: translate3d(-70px, 0, 0); }
+}
+
+/* Utility classes to keep orb animations alive and GPU-backed */
+.orb-motion {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.orb-float-diagonal { animation: float-diagonal 14s ease-in-out infinite; }
+.orb-float-around { animation: float-around 16s ease-in-out infinite; }
+.orb-float-up { animation: float-up 12s ease-in-out infinite; }
+.orb-float-side { animation: float-side 18s ease-in-out infinite; }
+.orb-float-circle { animation: float-circle 15s ease-in-out infinite; }
+
+/* Fluid typography and spacing utilities */
+.font-poppins {
+  font-family: var(--font-poppins), var(--font-inter), sans-serif;
+}
+
+.fluid-display {
+  font-size: clamp(36px, 7vw, 84px);
+  line-height: 1.05;
+}
+
+.fluid-h2 {
+  font-size: clamp(28px, 5vw, 56px);
+  line-height: 1.1;
+}
+
+.fluid-title {
+  font-size: clamp(18px, 2.5vw, 26px);
+  line-height: 1.4;
+}
+
+.fluid-body-lg {
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 1.6;
+}
+
+.section-pad {
+  padding-block: clamp(3.5rem, 6vw, 7rem);
+}
+
+.section-pad-lg {
+  padding-block: clamp(4rem, 7vw, 8.5rem);
+}
+
+.spacer-md {
+  height: clamp(2.5rem, 5vw, 4rem);
+}
+
+.spacer-lg {
+  height: clamp(3.5rem, 6vw, 6rem);
+}
+
+.spacer-xl {
+  height: clamp(5rem, 8vw, 10rem);
+}
 @import "tailwindcss";
 
 :root {
