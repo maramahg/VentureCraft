@@ -15,25 +15,11 @@ const GLOBE_CONFIG: COBEOptions = {
   dark: 0,
   diffuse: 0.4,
   mapSamples: 16000,
-  mapBrightness: 1.2,
+  mapBrightness: 15,
   baseColor: [1, 1, 1],
-  markerColor: [0 / 255, 163 / 255, 131 / 255], // vc-teal color
-  glowColor: [1, 1, 1],
-  markers: [
-    // Major sustainable energy innovation hubs
-    { location: [37.7749, -122.4194], size: 0.08 }, // San Francisco (Silicon Valley)
-    { location: [40.7128, -74.006], size: 0.1 }, // New York
-    { location: [51.5074, -0.1278], size: 0.09 }, // London
-    { location: [52.5200, 13.4050], size: 0.07 }, // Berlin
-    { location: [55.7558, 37.6173], size: 0.06 }, // Moscow
-    { location: [39.9042, 116.4074], size: 0.08 }, // Beijing
-    { location: [35.6762, 139.6503], size: 0.07 }, // Tokyo
-    { location: [1.3521, 103.8198], size: 0.06 }, // Singapore
-    { location: [-33.8688, 151.2093], size: 0.05 }, // Sydney
-    { location: [-23.5505, -46.6333], size: 0.09 }, // São Paulo
-    { location: [19.4326, -99.1332], size: 0.07 }, // Mexico City
-    { location: [25.2048, 55.2708], size: 0.06 }, // Dubai
-  ],
+  markerColor: [1, 1, 1], // Pure white for maximum visibility
+  glowColor: [0.1, 0.2, 0.18],
+  markers: [],
 }
 
 export function Globe({
