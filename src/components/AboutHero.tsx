@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollReveal } from '@/components/ScrollReveal';
+import { ScrollReveal } from './ScrollReveal';
 
 const prizes = [
   { place: '1st', amount: '100K' },
@@ -27,7 +27,7 @@ const AboutHero = () => (
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
 
                 {/* Main card container */}
-                <div 
+                <div
                   className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl hover:border-[#39cc89]/40 transition-all duration-300"
                   style={{ padding: '20px 40px' }}
                 >

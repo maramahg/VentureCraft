@@ -1,84 +1,58 @@
-import React from 'react';
-import { ScrollReveal } from './ScrollReveal';
+'use client';
 
-const targetAudience = [
-  "Bachelor's, Master's, and PhD Students",
-  "Post-doctoral researchers",
-  "Recent graduates (up to 5 years post-graduation)"
+import { motion } from 'framer-motion';
+import { GraduationCap, Microscope, Briefcase } from 'lucide-react';
+
+const audience = [
+  {
+    icon: GraduationCap,
+    title: 'Students',
+    description: "Bachelor's, Master's, and PhD Students currently enrolled in academic programs."
+  },
+  {
+    icon: Microscope,
+    title: 'Researchers',
+    description: "Post-doctoral researchers advancing frontiers in science and deep-tech."
+  },
+  {
+    icon: Briefcase,
+    title: 'Recent Grads',
+    description: "Recent graduates (up to 5 years post-graduation) ready to launch."
+  }
 ];
 
-// 1. Extract the Card UI
-const AudienceCard = ({ text, index }: { text: string, index: number }) => (
-  <div className="group relative h-full">
-    {/* Background Glow */}
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#39cc89] to-[#2d8b6e] rounded-2xl opacity-0 group-hover:opacity-30 blur transition duration-500" />
-    
-    {/* Card Content */}
-    <div 
-      className="relative bg-[#0D2B2B]/50 backdrop-blur-sm border border-[#39cc89]/20 rounded-2xl hover:border-[#39cc89]/40 transition-all duration-300 h-full" 
-      style={{ padding: '18px' }}
-    >
-      <div className="flex items-center gap-4 md:gap-5">
-        <div className="flex-shrink-0">
-          <div className="relative w-10 h-10 md:w-12 md:h-12">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#39cc89] to-[#2d8b6e] opacity-20 rotate-45 rounded-lg" />
-            <div className="absolute inset-0 border-2 border-[#39cc89] rotate-45 rounded-lg" />
-            <span className="absolute inset-0 flex items-center justify-center text-xl md:text-2xl font-bold text-[#39cc89]">
-              {index + 1}
-            </span>
-          </div>
-        </div>
-        <div className="flex-1">
-          <h3 className="fluid-body-lg font-semibold text-[#9CA3AF] group-hover:text-white leading-relaxed transition-colors duration-300 font-poppins">
-            {text}
-          </h3>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const AboutTargetAudience = () => {
+export default function AboutTargetAudience() {
   return (
-    <section className="relative section-pad-lg">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
-          
-          {/* Section Header */}
-          <ScrollReveal>
-            <div className="mb-16 text-center flex flex-col items-center gap-6">
-              <h2 className="fluid-h2 font-bold text-white tracking-tight font-poppins">
-                Target Audience
-              </h2>
-              <div className="h-1 w-full max-w-md bg-gradient-to-r from-transparent via-[#39cc89] to-transparent rounded-full" />
-            </div>
-          </ScrollReveal>
+    <section className="py-24 relative z-20">
+      <div className="container mx-auto px-4">
+        <div className="mb-16 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Target Audience</h2>
+          <p className="text-white/60 max-w-2xl mx-auto">
+            Open to innovators and visionaries at all stages of their academic and professional journey.
+          </p>
+        </div>
 
-          {/* Spacer */}
-          <div className="spacer-md" />
-
-          {/* Target Audience Grid - Mobile Layout */}
-          <div className="flex flex-col gap-4 md:hidden">
-            {targetAudience.map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <AudienceCard text={item} index={i} />
-              </ScrollReveal>
-            ))}
-          </div>
-
-          {/* Tablet and Desktop: Grid layout */}
-          <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-8">
-            {targetAudience.map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.15}>
-                <AudienceCard text={item} index={i} />
-              </ScrollReveal>
-            ))}
-          </div>
-          
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {audience.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="glass-card p-8 rounded-2xl group border border-white/5 hover:border-vc-teal/50 hover:shadow-[0_0_30px_rgba(0,163,131,0.2)] transition-all duration-300"
+            >
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                <item.icon size={28} />
+              </div>
+              <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+              <p className="text-white/60 leading-relaxed">
+                {item.description}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
   );
-};
-
-export default AboutTargetAudience;
+}
