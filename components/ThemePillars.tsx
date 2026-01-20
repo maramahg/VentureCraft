@@ -64,12 +64,12 @@ function Card({
     const x = useTransform(progress, [start, end], [0, finalX], { ease: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 });
     const rotateY = useTransform(progress, [start, end], [180, finalRotateY], { ease: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t }); 
     
-    const rotateZ = useTransform(progress, [0, start], [ (Math.random() - 0.5) * 15, 0 ]); 
+    const rotateZ = useTransform(progress, [0, start], [ (index - 1.5) * 3, 0 ]); 
     const z = useTransform(progress, [start, end], [-index * 50, 0]); // Use standard Z spacing
 
-    // Continuous Float Animation
-    const floatDuration = 4 + Math.random() * 2; 
-    const floatDelay = Math.random() * 2;
+    // Continuous Float Animation - use deterministic values based on index
+    const floatDuration = 4 + (index * 0.5); 
+    const floatDelay = index * 0.5;
 
     return (
         <motion.div

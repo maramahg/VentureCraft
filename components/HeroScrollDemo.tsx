@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Globe } from "@/components/ui/globe-feature-section";
+import { Globe } from "./ui/globe";
 import { motion } from "framer-motion";
 
 export function HeroScrollDemo() {
