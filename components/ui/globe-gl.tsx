@@ -20,9 +20,29 @@ export function GlobeGL({ className }: GlobeGLProps) {
       .height(500)
       .showGlobe(true)
       .showAtmosphere(true)
-      .atmosphereColor('#4FD1C5')
-      .atmosphereAltitude(0.1)
+      .atmosphereColor('#FF8C42')
+      .atmosphereAltitude(0.12)
       .enablePointerInteraction(true)
+
+    // Load and configure country polygons with warm colors
+    fetch('//unpkg.com/world-atlas/countries-50m.json')
+      .then(res => res.json())
+      .then(countries => {
+        const warmColors = ['#F39C12', '#E67E22', '#D68910', '#CA6F1E', '#E74C3C', '#C0392B', '#FF8C42', '#B7950B', '#A04000', '#DC7633'];
+        
+        const countriesWithColors = countries.objects.countries.geometries.map((country: any) => ({
+          ...country,
+          color: warmColors[Math.floor(Math.random() * warmColors.length)]
+        }));
+
+        world.hexPolygonsData(countriesWithColors)
+          .hexPolygonResolution(3)
+          .hexPolygonMargin(0.4)
+          .hexPolygonColor('color')
+          .hexPolygonAltitude(0.01)
+          .hexPolygonUseDots(false);
+      })
+      .catch(error => console.error('Error loading country data:', error))
 
     // Auto-rotate
     world.controls().autoRotate = true
