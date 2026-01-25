@@ -255,10 +255,6 @@ export default function ThemePillars() {
         restDelta: 0.001
     });
 
-    // Header Animation
-    const headerOpacity = useTransform(smoothProgress, [0, 0.2], [1, 0]);
-    const headerY = useTransform(smoothProgress, [0, 0.2], [0, -50]);
-    const headerScale = useTransform(smoothProgress, [0, 0.2], [1, 0.9]);
 
     // Deck Animation (Whole deck moving or scaling)
     // We can scale the whole deck slightly as it fans out
@@ -274,10 +270,7 @@ export default function ThemePillars() {
             <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden perspective-1000" style={{ perspective: '1500px' }}>
 
                 {/* Header */}
-                <motion.div
-                    className="absolute top-[10vh] text-center z-20 pointer-events-none px-4"
-                    style={{ opacity: headerOpacity, y: headerY, scale: headerScale }}
-                >
+                <div className="absolute top-[10vh] text-center z-20 pointer-events-none px-4">
                     <h2 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tight text-white mb-4 font-poppins">
                         Theme Pillars
                     </h2>
