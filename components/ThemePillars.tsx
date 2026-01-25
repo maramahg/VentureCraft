@@ -269,14 +269,13 @@ export default function ThemePillars() {
 
             <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden perspective-1000" style={{ perspective: '1500px' }}>
 
-                {/* Header */}
                 <div className="absolute top-[10vh] text-center z-20 pointer-events-none px-4">
                     <h2 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tight text-white mb-4 font-poppins">
                         Theme Pillars
                     </h2>
                     <p className="text-white/60 text-sm md:text-base hidden md:block">Scroll to explore strategic themes</p>
                     <p className="text-white/60 text-sm md:text-base md:hidden">Tap to explore strategic themes</p>
-                </motion.div>
+                </div>
 
                 {/* Desktop: Card Deck Animation */}
                 <div className="hidden md:flex relative w-full max-w-7xl h-[500px] items-center justify-center preserve-3d">
