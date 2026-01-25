@@ -16,7 +16,7 @@ const AboutPurposeMission = () => (
               </h2>
               <div className="h-px w-8 md:w-12 bg-gradient-to-l from-transparent to-[#39cc89]" />
             </div>
-            <h3 className="fluid-h2 font-bold text-white tracking-tight font-poppins">
+            <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight font-poppins uppercase">
               Purpose <span className="text-white/40">&</span> Mission
             </h3>
           </div>

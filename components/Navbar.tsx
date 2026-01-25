@@ -1,51 +1,65 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { name: 'About', href: '#about' },
-  { name: 'Theme', href: '#theme' },
-  { name: 'Timeline', href: '#timeline' },
-  { name: 'Prizes', href: '#prizes' },
+  { name: 'Home', href: '/' },
+  { name: 'Registration', href: '/registration' },
+  { name: 'Ambassadors', href: '/ambassadors' },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname === '/registration' || pathname === '/ambassadors') return null;
 
   return (
     <nav className="fixed top-0 w-full z-50 px-4 py-4 md:py-6">
       <div className="max-w-7xl mx-auto">
         <div className="glass-panel px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-vc-teal to-vc-mint">
-              VentureCraft
-            </span>
-            <span className="text-white/50 text-sm hidden sm:inline-block border-l border-white/20 pl-2">
-              2026
-            </span>
+          <div className="flex-shrink-0">
+            <Image
+              src="/logo.png"
+              alt="VentureCraft Logo"
+              width={160}
+              height={40}
+              className="h-7 md:h-8 w-auto object-contain"
+              priority
+            />
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-10 ml-auto mr-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-white/80 hover:text-vc-mint transition-colors relative group"
+                className="text-sm font-semibold text-white/90 hover:text-vc-mint transition-colors"
               >
                 {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-vc-mint transition-all group-hover:w-full" />
-              </a>
+              </Link>
             ))}
-            <button className="bg-gradient-to-r from-vc-teal to-vc-teal/90 text-white font-semibold px-5 py-2 rounded-full text-sm hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-vc-teal/50">
-              Apply Now
+          </div>
+
+          <div className="hidden md:block">
+            <button className="group relative p-[1.5px] rounded-full overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
+              <div className="relative px-8 py-2 rounded-full bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-colors">
+                <span className="text-sm font-bold text-white group-hover:text-vc-mint transition-colors">
+                  Sign in
+                </span>
+              </div>
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             className="md:hidden text-white"
             onClick={() => setIsOpen(!isOpen)}
           >
@@ -60,20 +74,25 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             className="md:hidden absolute top-20 left-4 right-4"
           >
-            <div className="glass-panel p-6 flex flex-col gap-4 bg-vc-green-dark/95 backdrop-blur-xl">
+            <div className="glass-panel p-6 flex flex-col gap-4 bg-white/5 backdrop-blur-xl">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className="text-lg font-medium text-white/90 hover:text-vc-mint"
                   onClick={() => setIsOpen(false)}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
               <hr className="border-white/10" />
-              <button className="bg-gradient-to-r from-vc-teal to-vc-teal/90 text-white font-semibold w-full py-3 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-vc-teal/50">
-                Submit Your Idea
+              <button className="group relative p-[1.5px] rounded-xl overflow-hidden transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
+                <div className="relative w-full py-3 rounded-xl bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-colors">
+                  <span className="text-lg font-bold text-white group-hover:text-vc-mint transition-colors">
+                    Sign in
+                  </span>
+                </div>
               </button>
             </div>
           </motion.div>

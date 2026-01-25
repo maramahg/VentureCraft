@@ -2,128 +2,104 @@
 import React from "react";
 import { Globe } from "./ui/globe";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export function HeroScrollDemo() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-20 z-20">
-      {/* Background Gradient Splash */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-vc-teal/20 blur-[120px] rounded-full pointer-events-none" />
-      
-      {/* Top Section - Registration Badge */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="absolute top-8 left-1/2 transform -translate-x-1/2 z-30"
-      >
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-vc-teal/10 border border-vc-teal/20 text-vc-teal text-sm font-medium backdrop-blur-sm">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-vc-teal opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-vc-teal"></span>
-          </span>
-          Registration Open for 2026
-        </div>
-      </motion.div>
-      
-      <div className="container px-4 mx-auto z-10 grid lg:grid-cols-2 gap-12 items-center">
-        <motion.div 
+    <section className="relative min-h-[100svh] flex items-center justify-center pt-20 pb-12 lg:py-0 z-20 bg-transparent overflow-hidden">
+      <div className="container px-6 sm:px-8 lg:px-16 mx-auto z-10 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center lg:text-left relative z-30"
+          className="text-center lg:text-left relative z-30 lg:pl-10 order-last lg:order-first"
         >
-          {/* Simplified Lamp Effect */}
-          <div className="relative w-full flex items-center justify-center lg:justify-start mb-8">
-            <div className="relative flex items-center justify-center">
-              {/* Light beam */}
-              <motion.div
-                initial={{ width: "2rem", opacity: 0.3 }}
-                animate={{ width: "12rem", opacity: 0.6 }}
-                transition={{
-                  delay: 0.2,
-                  duration: 0.8,
-                  ease: "easeInOut",
-                }}
-                className="absolute h-0.5 bg-gradient-to-r from-transparent via-vc-teal to-transparent -translate-y-4"
-              />
-              
-              {/* Central glow */}
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0.3 }}
-                animate={{ scale: 1, opacity: 0.4 }}
-                transition={{
-                  delay: 0.3,
-                  duration: 0.8,
-                  ease: "easeInOut",
-                }}
-                className="absolute w-24 h-24 -translate-y-4 rounded-full bg-gradient-to-r from-vc-teal/30 via-vc-mint/15 to-transparent blur-xl"
-              />
-            </div>
-          </div>
-
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-[5rem] font-bold tracking-tighter mb-4 font-poppins uppercase leading-[1.1] lg:leading-none"
           >
-            <span className="block text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-vc-mint/50">
-              VentureCraft
+            <span className="block text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-vc-mint/50 xs:whitespace-nowrap">
+              Venture Craft
             </span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-vc-teal via-vc-mint to-white mt-2 drop-shadow-[0_0_15px_rgba(0,163,131,0.5)]">
-              100K 
+            <span className="block mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal mr-3 sm:mr-4">
+                100K
+              </span>{" "}
+              <span className="font-light tracking-[0.2em] text-white/60">
+                COMPETITION
+              </span>
             </span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-white/60 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-white/60 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed font-poppins"
           >
             The global deep-tech startup competition powering sustainable energy innovation.
           </motion.p>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start mb-12"
+            className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start mb-10 lg:mb-12 relative z-50"
           >
-            <button className="bg-gradient-to-r from-vc-teal to-vc-teal/90 text-white font-semibold px-8 py-4 rounded-full text-lg w-full sm:w-auto hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-vc-teal/50">
-              Submit Your Idea
-            </button>
-            <button className="bg-white/5 backdrop-blur-sm border border-vc-mint/30 text-vc-mint px-8 py-4 rounded-full text-lg w-full sm:w-auto hover:bg-vc-mint/10 hover:border-vc-mint hover:text-white transition-all duration-300">
-              Learn More
-            </button>
+            <Link href="/registration" className="group relative px-8 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold text-white transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(33,66,143,0.3)] hover:scale-105 active:scale-95 w-full sm:w-auto hover:shadow-vc-mint/40 hover:text-vc-green-dark inline-block text-center cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] via-[#21428f]/90 to-vc-teal group-hover:bg-vc-mint group-hover:bg-none transition-all duration-300" />
+              <span className="relative flex items-center justify-center gap-2">
+                Submit Your Idea <span className="text-xl sm:text-2xl group-hover:translate-x-1 transition-transform">→</span>
+              </span>
+            </Link>
+
+            <a
+              href="#objectives"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('objectives')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="group relative p-[1.5px] rounded-full overflow-hidden w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95 inline-block cursor-pointer font-bold z-[100] pointer-events-auto"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
+              <div className="relative px-8 py-3 sm:py-3.5 rounded-full bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-all duration-300">
+                <span className="text-base sm:text-lg text-white group-hover:text-vc-mint transition-colors relative z-10">
+                  Learn More
+                </span>
+              </div>
+            </a>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex items-center justify-center lg:justify-start gap-8 text-white/40"
+            className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 text-white/40 lg:ml-6"
           >
-            <div className="text-sm">
-              <span className="block text-2xl font-bold text-white mb-1">$200K+</span>
+            <div className="text-xs sm:text-sm">
+              <span className="block text-xl sm:text-2xl font-bold text-white mb-0.5">$200K+</span>
               Prize Pool
             </div>
-            <div className="w-px h-12 bg-white/10"></div>
-            <div className="text-sm">
-              <span className="block text-2xl font-bold text-white mb-1">Global</span>
+            <div className="w-px h-10 sm:h-12 bg-white/10"></div>
+            <div className="text-xs sm:text-sm">
+              <span className="block text-xl sm:text-2xl font-bold text-white mb-0.5">Global</span>
               Exposure
             </div>
           </motion.div>
         </motion.div>
-        
+
         {/* Globe Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full order-first lg:order-last"
+          className="relative h-[250px] sm:h-[350px] md:h-[400px] lg:h-[500px] w-full flex items-center justify-center"
         >
-          <Globe className="absolute inset-0 scale-75 md:scale-90 lg:scale-100" />
+          {/* Light hue emanating from the globe */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-vc-mint/15 blur-[60px] sm:blur-[80px] rounded-full pointer-events-none" />
+          <Globe className="absolute inset-0 scale-90 sm:scale-100 md:scale-110 lg:scale-110" />
         </motion.div>
       </div>
     </section>

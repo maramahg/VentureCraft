@@ -41,7 +41,7 @@ export default function Pillars() {
         <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
           <div>
             <span className="text-vc-teal font-medium mb-2 block">The Theme</span>
-            <h2 className="text-3xl md:text-5xl font-bold">Sustainable Energy</h2>
+            <h2 className="text-4xl md:text-6xl font-extrabold font-poppins uppercase tracking-tight">Sustainable Energy</h2>
           </div>
           <p className="text-white/60 max-w-md text-right md:text-left">
             We are looking for breakthrough technologies in four key strategic pillars.
@@ -60,12 +60,12 @@ export default function Pillars() {
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <span className="text-9xl font-bold">{pillar.id}</span>
               </div>
-              
+
               <div className="relative z-10">
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${pillar.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
                   <pillar.icon size={32} className="text-white" />
                 </div>
-                
+
                 <h3 className="text-2xl font-bold mb-4">{pillar.title}</h3>
                 <p className="text-white/60 text-lg">
                   {pillar.description}

@@ -8,6 +8,7 @@
   --color-vc-white: #ffffff;
 
   --font-sans: var(--font-inter);
+  --font-poppins: var(--font-poppins);
 }
 
 /* Custom Scrollbar */
@@ -28,11 +29,21 @@
   background: var(--color-vc-teal);
 }
 
-/* Base Styles */
+html {
+  height: 100%;
+  background-color: #051111;
+  scroll-behavior: smooth !important;
+}
+
 body {
-  background-color: var(--color-vc-green-dark);
-  /* Radial gradient for depth */
-  background: radial-gradient(circle at 50% 0%, #003833 0%, #00201D 60%, #000000 100%);
+  background: linear-gradient(to bottom,
+      #001a18 0%,
+      #00423d 12%,
+      #006961 30%,
+      #008f84 50%,
+      #00A383 75%,
+      #4FD1C5 100%);
+  background-attachment: scroll;
   color: var(--color-vc-white);
   overflow-x: hidden;
   font-family: var(--font-sans);
@@ -41,20 +52,17 @@ body {
 
 /* Glassmorphism Utilities */
 .glass-panel {
-  background: rgba(0, 163, 131, 0.05);
-  /* Slight teal tint */
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(79, 209, 197, 0.2);
-  /* Mint border */
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(200px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 }
 
 .glass-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 163, 131, 0.05) 100%);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(79, 209, 197, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -129,4 +137,17 @@ body {
   height: 60px;
   background-color: var(--color-vc-teal);
   opacity: 0.3;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
