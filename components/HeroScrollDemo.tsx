@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function HeroScrollDemo() {
   return (
-    <section className="relative min-h-[100svh] flex items-center justify-center pt-20 pb-12 lg:py-0 z-20 bg-transparent overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-center pt-24 pb-12 lg:pt-32 lg:pb-16 z-20 bg-transparent overflow-hidden">
       <div className="container px-6 sm:px-8 lg:px-16 mx-auto z-10 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
