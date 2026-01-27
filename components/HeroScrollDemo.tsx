@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function HeroScrollDemo() {
   return (
-    <section className="relative min-h-[100svh] flex items-center justify-center pt-20 pb-12 xl:pt-32 xl:pb-16 z-20 bg-transparent overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-center pt-20 pb-24 md:pb-40 xl:pt-32 z-20 bg-transparent overflow-hidden">
       <div className="container px-6 sm:px-8 xl:px-16 mx-auto z-10 grid xl:grid-cols-2 gap-4 md:gap-8 xl:gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -48,7 +48,7 @@ export function HeroScrollDemo() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row items-center gap-4 justify-center xl:justify-start mb-10 xl:mb-12 relative z-50"
           >
-            <Link href="/registration" className="group relative px-8 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold text-white transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(33,66,143,0.3)] hover:scale-105 active:scale-95 w-full sm:w-auto hover:shadow-vc-mint/40 hover:text-vc-green-dark inline-block text-center cursor-pointer">
+            <Link href="/apply" className="group relative px-8 py-3.5 sm:py-4 rounded-full text-base sm:text-lg font-bold text-white transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(33,66,143,0.3)] hover:scale-105 active:scale-95 w-full sm:w-auto hover:shadow-vc-mint/40 hover:text-vc-green-dark inline-block text-center cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] via-[#21428f]/90 to-vc-teal group-hover:bg-vc-mint group-hover:bg-none transition-all duration-300" />
               <span className="relative flex items-center justify-center gap-2">
                 Submit Your Idea <span className="text-xl sm:text-2xl group-hover:translate-x-1 transition-transform">→</span>
@@ -95,11 +95,11 @@ export function HeroScrollDemo() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[250px] sm:h-[400px] md:h-[500px] xl:h-[550px] w-full flex items-center justify-center"
+          className="relative h-[250px] sm:h-[400px] md:h-[500px] xl:h-[580px] w-full flex items-center justify-center"
         >
           {/* Light hue emanating from the globe */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] bg-vc-mint/10 blur-[80px] sm:blur-[100px] rounded-full pointer-events-none" />
-          <Globe className="absolute inset-0 scale-[1.1] sm:scale-[1.2] md:scale-[1.3] xl:scale-[1.1]" />
+          <Globe className="absolute inset-0 scale-[1.1] sm:scale-[1.2] md:scale-[1.3] xl:scale-[1.25]" />
         </motion.div>
       </div>
     </section>

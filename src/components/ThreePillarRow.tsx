@@ -25,7 +25,7 @@ export default function ThreePillarRow() {
     const [activeId, setActiveId] = useState(2);
 
     return (
-        <section className="relative z-20 py-10 md:py-20">
+        <section className="relative z-20 py-24 md:py-40">
             <div className="w-full max-w-6xl mx-auto px-4">
                 <div className="mb-16 text-center">
                     <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Theme</h2>

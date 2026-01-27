@@ -127,7 +127,7 @@ export default function Timeline() {
   const currentTitle = nodes[safeNode]?.top?.title || nodes[safeNode]?.bottom?.title || '—';
 
   return (
-    <section id="timeline" className="py-24 relative z-20 overflow-hidden">
+    <section id="timeline" className="py-24 md:py-40 relative z-20 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Timeline</h2>

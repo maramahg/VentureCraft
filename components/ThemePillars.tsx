@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, useScroll, useTransform, useSpring, MotionValue, useTime } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, MotionValue, useTime, AnimatePresence } from 'framer-motion';
 import { Leaf, Recycle, Battery, Cpu } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
 const pillars = [
@@ -58,8 +58,8 @@ function Card({
     const finalRotateY = (index - 1.5) * 5;
 
     // 2. Map Scroll Progress -> Animation Values with Easing
-    const start = 0.15 + (index * 0.05);
-    const end = 0.85;
+    const start = index * 0.05;
+    const end = 0.4; // Complete animation very early (40% of scroll)
 
     // Use cubic-bezier easing for X and Rotate to give that "swing" feel
     const x = useTransform(progress, [start, end], [0, finalX], { ease: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 });
@@ -178,9 +178,8 @@ function MobileStack({ pillars }: { pillars: any[] }) {
                 return (
                     <motion.div
                         key={pillar.id}
-                        className="absolute w-[280px] h-[400px] rounded-3xl p-8 flex flex-col justify-start gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border backdrop-blur-xl"
+                        className="absolute w-[85vw] max-w-[320px] h-[350px] sm:h-[400px] rounded-3xl p-8 flex flex-col justify-start gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border backdrop-blur-xl bg-[#004b44]/90 border-white/10"
                         style={{
-                            background: 'rgba(0, 75, 68, 0.9)',
                             borderColor: `${pillar.color}44`,
                             zIndex: pillars.length - index,
                         }}
@@ -261,24 +260,25 @@ export default function ThemePillars() {
     const deckY = useTransform(smoothProgress, [0, 1], [100, -50]);
 
     return (
-        <section ref={containerRef} className="relative h-[150vh] z-10 mb-10">
+        <section ref={containerRef} className="relative xl:h-[120vh] z-10 overflow-visible py-24 md:py-40 xl:py-0">
             {/* 
-            Reduced height to 150vh to eliminate "Dead Zone" completely.
-            Reduced mb-20 to mb-10 for tighter, more continuous flow.
-        */}
+            Height: Auto on Mobile/Tablet (with padding), 120vh on Desktop (for scroll animation).
+            Spacing: Uniform py-16/24 on non-desktop to match other sections.
+            */}
 
-            <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden perspective-1000" style={{ perspective: '1500px' }}>
+            <div className="relative xl:sticky xl:top-0 xl:h-screen flex flex-col items-center justify-center perspective-1000" style={{ perspective: '1500px' }}>
 
-                <div className="absolute top-[10vh] text-center z-20 pointer-events-none px-4">
+                <div className="relative xl:absolute xl:top-8 text-center z-20 pointer-events-none px-4 mt-8 xl:mt-0">
                     <h2 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tight text-white mb-4 font-poppins">
                         Theme Pillars
                     </h2>
-                    <p className="text-white/60 text-sm md:text-base hidden md:block">Scroll to explore strategic themes</p>
-                    <p className="text-white/60 text-sm md:text-base md:hidden">Tap to explore strategic themes</p>
+                    <p className="text-white/60 text-sm md:text-base hidden xl:block">Scroll to explore strategic themes</p>
+                    <p className="text-white/60 text-sm md:text-base hidden md:block xl:hidden">Swipe to explore strategic themes</p>
+                    <p className="text-white/60 text-sm md:text-base md:hidden">Tap card to cycle</p>
                 </div>
 
-                {/* Desktop: Card Deck Animation */}
-                <div className="hidden md:flex relative w-full max-w-7xl h-[500px] items-center justify-center preserve-3d">
+                {/* Desktop: Card Deck Animation (XL and up) */}
+                <div className="hidden xl:flex relative w-full max-w-7xl h-[500px] items-center justify-center preserve-3d">
                     <motion.div
                         className="relative w-full h-full flex items-center justify-center preserve-3d"
                         style={{ y: deckY }}
@@ -294,11 +294,81 @@ export default function ThemePillars() {
                     </motion.div>
                 </div>
 
-                {/* Mobile: Interactive Card Stack */}
-                <div className="md:hidden relative w-full h-[500px] flex items-center justify-center mt-12">
-                    <div className="relative w-full max-w-[300px] h-full flex items-center justify-center">
-                        <MobileStack pillars={pillars} />
+                {/* iPad Pro / Small Laptop: 2x2 Grid (LG to XL) - 1024px+ */}
+                <div className="hidden lg:grid xl:hidden relative w-full grid-cols-2 gap-6 mt-8 px-8 max-w-4xl mx-auto">
+                    {pillars.map((pillar) => (
+                        <div
+                            key={pillar.id}
+                            className="w-full relative rounded-3xl p-6 flex flex-col justify-start gap-4 shadow-2xl border backdrop-blur-xl bg-[#004b44]/90 border-white/10"
+                            style={{
+                                borderColor: `${pillar.color}44`,
+                            }}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                    <pillar.icon style={{ color: pillar.color }} size={20} />
+                                </div>
+                                <h3 className="text-lg font-bold text-white leading-tight uppercase font-poppins">{pillar.title}</h3>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                {pillar.points.map((point: string, i: number) => (
+                                    <div key={i} className="flex items-center gap-3 text-xs text-white/70">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint" />
+                                        {point}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-auto flex justify-between items-center text-white/30 text-[10px] font-mono uppercase tracking-widest">
+                                <span>{pillar.id}</span>
+                                <span>/ 04</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Tablet: Horizontal Scroll (MD to LG) - iPADS ONLY */}
+                <div className="hidden md:flex lg:hidden relative w-full flex items-center justify-center mt-8 px-8">
+                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 w-full pb-8 hide-scrollbar">
+                        {pillars.map((pillar) => (
+                            <div
+                                key={pillar.id}
+                                className="snap-center shrink-0 w-[40vw] min-w-[320px] max-w-[400px] relative rounded-3xl p-8 flex flex-col justify-start gap-6 shadow-2xl border backdrop-blur-xl bg-[#004b44]/90 border-white/10"
+                                style={{
+                                    borderColor: `${pillar.color}44`,
+                                }}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                                        <pillar.icon style={{ color: pillar.color }} size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white leading-tight uppercase font-poppins">{pillar.title}</h3>
+                                </div>
+
+                                <div className="flex flex-col gap-3">
+                                    {pillar.points.map((point: string, i: number) => (
+                                        <div key={i} className="flex items-center gap-3 text-sm text-white/70">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-vc-mint" />
+                                            {point}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-auto flex justify-between items-center text-white/30 text-xs font-mono uppercase tracking-widest">
+                                    <span>{pillar.id}</span>
+                                    <span>/ 04</span>
+                                </div>
+                            </div>
+                        ))}
+                        {/* Spacer for right padding */}
+                        <div className="w-4 shrink-0" />
                     </div>
+                </div>
+
+                {/* Phone: Vertical Mobile Stack (Hidden on MD+) - PHONES ONLY */}
+                <div className="md:hidden relative w-full h-[500px] flex items-center justify-center mt-12">
+                    <MobileStack pillars={pillars} />
                 </div>
 
             </div>

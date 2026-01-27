@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'Registration', href: '/registration' },
+  { name: 'Apply Now', href: '/apply' },
   { name: 'Ambassadors', href: '/ambassadors' },
 ];
 
@@ -19,8 +20,10 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -29,6 +32,23 @@ export default function Navbar() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      try {
+        const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+        setIsAdmin(adminDoc.exists());
+      } catch (error) {
+        console.error('Admin check failed:', error);
+        setIsAdmin(false);
+      }
+    };
+    checkAdmin();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -40,7 +60,8 @@ export default function Navbar() {
     }
   };
 
-  if (pathname === '/registration' || pathname === '/ambassadors' || pathname === '/signin' || pathname === '/signup' || pathname === '/verify-email') return null;
+  const isApplying = pathname === '/apply' && searchParams.get('step') !== null;
+  if (isApplying || pathname === '/ambassadors' || pathname === '/signin' || pathname === '/signup' || pathname === '/verify-email') return null;
 
   return (
     <motion.nav
@@ -105,27 +126,47 @@ export default function Navbar() {
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute right-0 mt-3 w-56 glass-panel overflow-hidden bg-[#0D1B1A]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50"
+                          className="absolute right-0 mt-3 w-64 bg-[#0D1B1A] border border-white/10 shadow-2xl z-50 rounded-2xl overflow-hidden"
                         >
-                          <div className="p-4 border-b border-white/10">
-                            <p className="text-xs font-semibold text-vc-mint uppercase tracking-wider mb-1">Signed in as</p>
-                            <p className="text-sm font-medium text-white truncate text-xs">{user.email}</p>
+                          <div className="p-5 border-b border-white/10 bg-white/[0.02]">
+                            <p className="text-base font-bold text-white mb-0.5">{user.displayName || 'User'}</p>
+                            <p className="text-xs font-medium text-white/50 truncate">{user.email}</p>
                           </div>
-                          <div className="p-2">
+
+                          <div className="py-2">
                             <Link
                               href="/profile"
                               onClick={() => setIsProfileOpen(false)}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                              className="flex items-center gap-3 px-5 py-3 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
                             >
-                              <User size={18} className="text-vc-mint" />
+                              <User size={18} />
                               My Profile
                             </Link>
+
+                            {isAdmin && (
+                              <div className="mt-1 pt-1 border-t border-white/10">
+                                <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Admin</p>
+                                <Link
+                                  href="/admin"
+                                  onClick={() => setIsProfileOpen(false)}
+                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                >
+                                  <div className="w-[18px] flex justify-center">
+                                    <div className="w-1.5 h-1.5 bg-vc-mint rounded-full" />
+                                  </div>
+                                  Applications
+                                </Link>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="p-2 border-t border-white/10 mt-1">
                             <button
                               onClick={handleSignOut}
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-400/5 transition-all"
+                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all group"
                             >
-                              <LogOut size={18} />
-                              Sign Out
+                              <LogOut size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                              Logout
                             </button>
                           </div>
                         </motion.div>
@@ -196,6 +237,17 @@ export default function Navbar() {
                         <User size={20} className="text-vc-mint" />
                         My Profile
                       </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center gap-3 text-lg font-bold text-vc-mint"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Shield size={20} />
+                          Admin Panel
+                        </Link>
+                      )}
                       <button
                         onClick={handleSignOut}
                         className="flex items-center gap-3 text-lg font-medium text-red-400 hover:text-red-300"
