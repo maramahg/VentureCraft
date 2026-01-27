@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { auth, db, storage } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Footer from '@/components/Footer';
 
@@ -213,7 +213,27 @@ export default function ApplyPage() {
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
+    const [regLoading, setRegLoading] = useState(true);
     const router = useRouter();
+
+    useEffect(() => {
+        // Fetch global settings for registration status
+        const fetchRegStatus = async () => {
+            try {
+                const regDoc = await getDoc(doc(db, 'settings', 'registration'));
+                if (regDoc.exists()) {
+                    setIsRegistrationOpen(regDoc.data().isOpen ?? true);
+                }
+            } catch (error) {
+                console.error("Error fetching registration status:", error);
+            } finally {
+                setRegLoading(false);
+            }
+        };
+
+        fetchRegStatus();
+    }, []);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -471,16 +491,35 @@ export default function ApplyPage() {
 
 
                                 <div className="flex flex-col items-center pt-8 space-y-6">
-                                    <p className="text-white/60 text-sm text-center max-w-md">
-                                        Review the criteria above to proceed to the application form.
-                                    </p>
-                                    <button
-                                        onClick={() => setStep(1)}
-                                        className="btn-primary !px-16 !py-5 !text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20"
-                                    >
-                                        <span>Apply Now</span>
-                                        <Rocket className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                    </button>
+                                    {isRegistrationOpen ? (
+                                        <>
+                                            <p className="text-white/60 text-sm text-center max-w-md">
+                                                Review the criteria above to proceed to the application form.
+                                            </p>
+                                            <button
+                                                onClick={() => setStep(1)}
+                                                className="btn-primary !px-16 !py-5 !text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20"
+                                            >
+                                                <span>Apply Now</span>
+                                                <Rocket className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="bg-vc-mint/5 border border-vc-mint/20 p-8 rounded-[2rem] text-center max-w-lg w-full space-y-4">
+                                            <div className="w-16 h-16 bg-vc-mint/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                <Clock className="text-vc-mint w-8 h-8" />
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-white">Registration Opens Soon</h3>
+                                            <p className="text-white/60 text-sm leading-relaxed">
+                                                Thank you for your interest in Venture Craft. Registration is currently unavailable and will officially open on <span className="text-vc-mint font-bold text-base block mt-2">February 1, 2026</span>
+                                            </p>
+                                            <div className="pt-4">
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-white/40 uppercase tracking-widest">
+                                                    Official Launch Pending
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

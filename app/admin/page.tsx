@@ -51,6 +51,8 @@ export default function AdminDashboard() {
     const [teamSizeFilter, setTeamSizeFilter] = useState<string>('all');
     const [ageFilter, setAgeFilter] = useState<string>('all');
     const [nationalityFilter, setNationalityFilter] = useState<string>('all');
+    const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
+    const [updatingReg, setUpdatingReg] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -78,6 +80,33 @@ export default function AdminDashboard() {
 
         return () => unsubscribeAuth();
     }, [router]);
+
+    useEffect(() => {
+        if (!isAdmin) return;
+        const fetchRegStatus = async () => {
+            const regDoc = await getDoc(doc(db, 'settings', 'registration'));
+            if (regDoc.exists()) {
+                setIsRegistrationOpen(regDoc.data().isOpen ?? true);
+            }
+        };
+        fetchRegStatus();
+    }, [isAdmin]);
+
+    const toggleRegistration = async () => {
+        setUpdatingReg(true);
+        try {
+            const newStatus = !isRegistrationOpen;
+            await updateDoc(doc(db, 'settings', 'registration'), {
+                isOpen: newStatus
+            });
+            setIsRegistrationOpen(newStatus);
+        } catch (error) {
+            console.error("Error toggling registration:", error);
+            alert("Failed to update registration status. Make sure the 'settings/registration' document exists.");
+        } finally {
+            setUpdatingReg(false);
+        }
+    };
 
     useEffect(() => {
         if (!isAdmin) return;
@@ -168,6 +197,17 @@ export default function AdminDashboard() {
                         <p className="text-white/50">Manage and review Venture Craft applications</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-4">
+                        <button
+                            onClick={toggleRegistration}
+                            disabled={updatingReg}
+                            className={`px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-3 border shadow-xl ${isRegistrationOpen
+                                ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
+                                : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                }`}
+                        >
+                            {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                            <span>Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
+                        </button>
                         <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
                             <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total</span>
                             <span className="text-2xl font-bold text-white">{applications.length}</span>
