@@ -6,32 +6,38 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
     try {
-        const { email, fullName } = await request.json();
+        const body = await request.json();
+        const { email, fullName } = body;
 
         if (!email) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
         }
 
-        console.log(`Generating verification link for: ${email}`);
+        // Get the current URL dynamically (works on localhost AND production)
+        const host = request.headers.get('host');
+        const protocol = host?.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${host}`;
 
-        // Generate the official Firebase verification link
+        console.log(`Sending verification to: ${email} via ${baseUrl}`);
+
+        // 1. Generate the official Firebase verification link
         const firebaseLink = await adminAuth.generateEmailVerificationLink(email, {
-            url: process.env.NEXT_PUBLIC_URL || 'http://localhost:3000/signin',
+            url: `${baseUrl}/signin`,
         });
 
-        // Rewrite the link to point to our custom themed page
+        // 2. Rewrite the link to point to our custom themed page
         const urlObj = new URL(firebaseLink);
         const oobCode = urlObj.searchParams.get('oobCode');
         const apiKey = urlObj.searchParams.get('apiKey');
+        const customLink = `${baseUrl}/verify-email?mode=verifyEmail&oobCode=${oobCode}&apiKey=${apiKey}`;
 
-        const customLink = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/verify-email?mode=verifyEmail&oobCode=${oobCode}&apiKey=${apiKey}`;
-
-        console.log('Sending custom themed email via Resend...');
+        // 3. Add timestamp to subject
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         const { data, error } = await resend.emails.send({
-            from: 'Venture Craft Team <onboarding@resend.dev>', // You can change this after verifying venturecraft.com
+            from: 'Venture Craft Team <onboarding@resend.dev>',
             to: [email],
-            subject: 'Verify your Venture Craft account',
+            subject: `Verify your Venture Craft account (${timestamp})`,
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
                     <h2 style="color: #39cc89;">Welcome to Venture Craft, ${fullName}!</h2>
@@ -51,13 +57,15 @@ export async function POST(request: Request) {
         });
 
         if (error) {
-            console.error('Resend error:', error);
+            console.error('Resend error:', error.message);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
+        console.log(`✅ Verification sent to ${email} at ${timestamp}`);
         return NextResponse.json({ success: true, data });
+
     } catch (err: any) {
-        console.error('Full verification API error:', err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        console.error('Verification API error:', err.message);
+        return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
     }
 }

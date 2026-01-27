@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,17 +14,20 @@ const firebaseConfig = {
 // Initialize Firebase
 let app: FirebaseApp;
 let auth: Auth;
+let db: Firestore;
 
 if (typeof window !== 'undefined' && getApps().length > 0) {
     app = getApp();
     auth = getAuth(app);
+    db = getFirestore(app);
 } else if (firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
 } else {
     // Prevent build error when env vars are missing
-    // This allows the app to build, but auth will be undefined until env vars are set
     auth = {} as Auth;
+    db = {} as Firestore;
 }
 
-export { auth };
+export { auth, db };

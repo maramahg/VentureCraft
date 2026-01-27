@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
 
 export default function SignUp() {
     const [fullName, setFullName] = useState('');
@@ -22,6 +24,8 @@ export default function SignUp() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        console.log('🖱️ SUBMIT CLICKED - Starting Sign Up process');
+        // alert('Sign Up button clicked!'); // Uncomment if console is hard to see
 
         if (!fullName.trim()) {
             setError('Please enter your full name.');
@@ -41,15 +45,16 @@ export default function SignUp() {
         setLoading(true);
 
         try {
-            console.log('Attempting to create user with:', email);
+            console.log('Attempting to create user...');
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            console.log('User created successfully, updating profile...');
-            await updateProfile(userCredential.user, {
+            await updateProfile(user, {
                 displayName: fullName
             });
 
-            console.log('Sending custom verification email via Resend...');
+            // 1. SEND EMAIL FIRST (Crucial)
+            console.log('Sending verification link...');
             const response = await fetch('/api/send-verification', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -59,20 +64,47 @@ export default function SignUp() {
             const result = await response.json();
 
             if (!response.ok) {
+                console.error('Email API Error:', result.error);
                 throw new Error(result.error || 'Failed to send verification email');
             }
 
-            console.log('✅ Custom verification email sent.');
-            setVerificationSent(true);
-        } catch (err: any) {
-            console.error('❌ Sign Up Error:', err.code, err.message);
-            if (err.code === 'auth/email-already-in-use') {
-                setError('This email is already registered. Try signing in!');
-            } else {
-                setError(err.message || 'Failed to sign up. Please try again.');
+            // 1. FIRESTORE (Must happen BEFORE signOut for permissions)
+            try {
+                console.log('Updating users database...');
+                await setDoc(doc(db, 'users', user.uid), {
+                    id: user.uid,
+                    email: email.toLowerCase(),
+                    displayName: fullName,
+                    photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=39cc89&color=fff`,
+                    createdAt: serverTimestamp(),
+                    lastLogin: serverTimestamp(),
+                    role: 'user',
+                    preferences: {
+                        emailNotifications: true,
+                        eventReminders: true
+                    }
+                });
+                console.log('✅ Firestore updated.');
+            } catch (dbErr: any) {
+                console.error('Firestore Error:', dbErr.message);
+                // We keep going so the email still sends, but we log the error
             }
-        } finally {
-            setLoading(false);
+
+            // 2. SIGN OUT (Security- crucial to prevent accidental login before verification)
+            // This happens AFTER Firestore is safe
+            await signOut(auth);
+            console.log('✅ User signed out until verified.');
+
+            setVerificationSent(true);
+
+        } catch (err: any) {
+            console.error('Sign Up Error:', err.message);
+            if (err.code === 'auth/email-already-in-use') {
+                setError('This email is already registered.');
+            } else {
+                setError(err.message || 'Failed to sign up.');
+            }
+            setLoading(false); // Reset loading so they can try again if it failed
         }
     };
 

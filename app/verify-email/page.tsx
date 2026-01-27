@@ -13,16 +13,26 @@ function VerifyEmailContent() {
     const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
     const [message, setMessage] = useState('Verifying your email address...');
 
+    const verifyStarted = typeof window !== 'undefined' ? (window as any)._verifyStarted : false;
+
     useEffect(() => {
         const oobCode = searchParams.get('oobCode');
         const mode = searchParams.get('mode');
 
         if (mode === 'verifyEmail' && oobCode) {
-            handleVerification(oobCode);
+            // Prevent double-execution in dev mode
+            if (!(window as any)._verifyStarted) {
+                (window as any)._verifyStarted = true;
+                handleVerification(oobCode);
+            }
         } else {
             setStatus('error');
             setMessage('Invalid verification link or missing code.');
         }
+
+        return () => {
+            // Cleanup on unmount if needed
+        };
     }, [searchParams]);
 
     const handleVerification = async (oobCode: string) => {
