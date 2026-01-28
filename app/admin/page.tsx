@@ -9,7 +9,7 @@ import {
     Check, X, AlertCircle, Shield, FileText, FileCode
 } from 'lucide-react';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
@@ -96,13 +96,13 @@ export default function AdminDashboard() {
         setUpdatingReg(true);
         try {
             const newStatus = !isRegistrationOpen;
-            await updateDoc(doc(db, 'settings', 'registration'), {
+            await setDoc(doc(db, 'settings', 'registration'), {
                 isOpen: newStatus
-            });
+            }, { merge: true });
             setIsRegistrationOpen(newStatus);
         } catch (error) {
             console.error("Error toggling registration:", error);
-            alert("Failed to update registration status. Make sure the 'settings/registration' document exists.");
+            alert("Failed to update registration status. Please try again.");
         } finally {
             setUpdatingReg(false);
         }

@@ -489,6 +489,24 @@ export default function ApplyPage() {
                                     </div>
                                 </div>
 
+                                <div className="space-y-6">
+                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                        Important Details
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {additionalPoints.map((item, idx) => (
+                                            <div key={idx} className="glass-panel p-6 space-y-3 group hover:border-vc-mint/30 transition-all">
+                                                <h4 className="font-bold text-white uppercase tracking-tight flex items-center gap-2">
+                                                    <div className="w-1 h-4 bg-vc-mint/50 rounded-full" />
+                                                    {item.title}
+                                                </h4>
+                                                <p className="text-white/80 text-sm leading-relaxed">{item.detail}</p>
+                                                <p className="text-white/30 text-[10px] italic border-t border-white/5 pt-3">{item.reason}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
 
                                 <div className="flex flex-col items-center pt-8 space-y-6">
                                     {isRegistrationOpen ? (
