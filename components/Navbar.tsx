@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Shield } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -157,6 +157,16 @@ export default function Navbar() {
                                   </div>
                                   Applications
                                 </Link>
+                                <Link
+                                  href="/qr"
+                                  onClick={() => setIsProfileOpen(false)}
+                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                >
+                                  <div className="w-[18px] flex justify-center">
+                                    <QrCode size={14} className="text-vc-mint" />
+                                  </div>
+                                  QR Generator
+                                </Link>
                               </div>
                             )}
                           </div>
@@ -240,14 +250,24 @@ export default function Navbar() {
                       </Link>
 
                       {isAdmin && (
-                        <Link
-                          href="/admin"
-                          className="flex items-center gap-3 text-lg font-bold text-vc-mint"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <Shield size={20} />
-                          Admin Panel
-                        </Link>
+                        <>
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-3 text-lg font-bold text-vc-mint"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <Shield size={20} />
+                            Admin Panel
+                          </Link>
+                          <Link
+                            href="/qr"
+                            className="flex items-center gap-3 text-lg font-bold text-vc-mint"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <QrCode size={20} />
+                            QR Generator
+                          </Link>
+                        </>
                       )}
                       <button
                         onClick={handleSignOut}
