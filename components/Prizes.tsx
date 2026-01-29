@@ -5,17 +5,6 @@ import { Trophy, Users, Plane, Globe, Network } from 'lucide-react';
 
 const prizes = [
     {
-        place: '2nd',
-        amount: '60K',
-        label: 'Silver Prize',
-        color: 'text-slate-300',
-        bg: 'bg-slate-300/10',
-        border: 'border-slate-300/20',
-        height: 'h-[280px]',
-        order: 'order-1',
-        delay: 0.2
-    },
-    {
         place: '1st',
         amount: '100K',
         label: 'Grand Prize',
@@ -23,9 +12,20 @@ const prizes = [
         bg: 'bg-yellow-400/10',
         border: 'border-yellow-400/20',
         height: 'h-[340px]',
-        order: 'order-2',
+        order: 'order-1 md:order-2',
         delay: 0,
         isMain: true
+    },
+    {
+        place: '2nd',
+        amount: '60K',
+        label: 'Silver Prize',
+        color: 'text-slate-300',
+        bg: 'bg-slate-300/10',
+        border: 'border-slate-300/20',
+        height: 'h-[280px]',
+        order: 'order-2 md:order-1',
+        delay: 0.2
     },
     {
         place: '3rd',
@@ -35,7 +35,7 @@ const prizes = [
         bg: 'bg-amber-600/10',
         border: 'border-amber-600/20',
         height: 'h-[240px]',
-        order: 'order-3',
+        order: 'order-3 md:order-3',
         delay: 0.4
     }
 ];
@@ -108,6 +108,34 @@ export default function Prizes() {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Corporate Special Awards */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    className="max-w-4xl mx-auto mb-20 px-4"
+                >
+                    <div className="relative overflow-hidden rounded-3xl border border-vc-mint/30 bg-vc-mint/5 backdrop-blur-xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 group hover:bg-vc-mint/10 transition-all duration-500">
+                        <div className="flex flex-col md:flex-row items-center gap-6">
+                            <div className="w-16 h-16 rounded-2xl bg-vc-mint/20 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(79,209,197,0.2)]">
+                                <svg className="w-8 h-8 text-vc-mint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </div>
+                            <div className="text-center md:text-left">
+                                <h3 className="text-2xl md:text-3xl font-bold text-white font-poppins">Corporate Special Awards</h3>
+                            </div>
+                        </div>
+                        <div className="text-center md:text-right">
+                            <div className="text-4xl md:text-5xl font-black text-white font-poppins">15,000 $</div>
+                            <div className="text-vc-mint font-bold uppercase tracking-tighter text-lg">Per Award (X3)</div>
+                        </div>
+
+                        {/* Decorative background element */}
+                        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-vc-mint/10 rounded-full blur-3xl pointer-events-none" />
+                    </div>
+                </motion.div>
 
                 {/* Additional Benefits */}
                 <div className="max-w-4xl mx-auto">
