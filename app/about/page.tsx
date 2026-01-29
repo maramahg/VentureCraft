@@ -101,11 +101,11 @@ export default function AboutPage() {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 flex flex-col w-[111.11%] -ml-[5.555%] origin-top mb-[-45%] md:mb-[-10%]" style={{ transform: 'scale(0.9)' }}>
+            <div className="relative z-10 flex flex-col w-full">
                 {/* About Section */}
                 <section className="relative min-h-screen flex items-center pt-32 pb-20">
-                    <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 relative z-10">
-                        <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 md:gap-6">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-5xl mx-auto flex flex-col items-center gap-6">
                             <motion.div
                                 initial="hidden"
                                 animate="visible"
@@ -113,7 +113,7 @@ export default function AboutPage() {
                                 className="text-center"
                             >
                                 {/* Title */}
-                                <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 font-poppins uppercase tracking-tighter leading-tight whitespace-nowrap">
+                                <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight">
                                     <span className="block text-xl sm:text-2xl md:text-3xl font-semibold text-vc-mint mb-2 tracking-wide">
                                         What is Venture Craft?
                                     </span>
@@ -122,7 +122,7 @@ export default function AboutPage() {
                                         style={{ backgroundImage: 'linear-gradient(to bottom right, #ffffff, #ffffff, #23bcab)' }}
                                     >
                                         International Deep-Tech
-                                        <br className="hidden md:block" />
+                                        <br className="hidden sm:block" />
                                         Startup Competition
                                     </span>
                                 </motion.h1>
@@ -152,8 +152,8 @@ export default function AboutPage() {
                 <section ref={kfupmSectionRef} className="relative min-h-screen flex items-center py-20 overflow-hidden">
                     {/* Note: Background is now handled by Fixed Scrollytelling layers above */}
 
-                    <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 relative z-10">
-                        <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 md:gap-6">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-5xl mx-auto flex flex-col items-center gap-6">
                             <div className="text-center">
                                 {/* Title */}
                                 <motion.h2
@@ -238,8 +238,8 @@ export default function AboutPage() {
                 {/* DTV Section */}
                 <section ref={dtvSectionRef} className="relative min-h-screen flex items-center py-20 overflow-hidden border-t border-white/5">
 
-                    <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 relative z-10">
-                        <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 md:gap-6">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-5xl mx-auto flex flex-col items-center gap-6">
                             <div className="text-center">
                                 {/* Title */}
                                 <motion.h2
@@ -374,7 +374,7 @@ export default function AboutPage() {
 
                 {/* The Partnership Bridge Section */}
                 <section className="relative min-h-[50vh] flex items-center py-20 overflow-hidden border-t border-white/5 bg-[#001D1B]/50">
-                    <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 relative z-10">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
                         <div className="max-w-4xl mx-auto text-center">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}

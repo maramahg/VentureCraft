@@ -82,7 +82,7 @@ export default function Prizes() {
                             transition={{ duration: 0.8, delay: prize.delay, ease: "easeOut" }}
                             className={`${prize.order} w-full md:w-1/3 px-2`}
                         >
-                            <div className={`relative flex flex-col items-center justify-end ${prize.height} rounded-t-3xl border-t border-x ${prize.border} ${prize.bg} backdrop-blur-xl p-8 group hover:bg-white/5 transition-colors duration-500`}>
+                            <div className={`relative flex flex-col items-center justify-start ${prize.height} rounded-t-3xl border-t border-x ${prize.border} ${prize.bg} backdrop-blur-xl pt-10 pb-8 px-4 group hover:bg-white/5 transition-colors duration-500`}>
                                 {/* Glow Effect */}
                                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-t-3xl bg-gradient-to-t from-transparent to-white/20`} />
 
