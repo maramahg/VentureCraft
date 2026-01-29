@@ -7,6 +7,8 @@ import Timeline from "../components/Timeline";
 import AboutObjectives from "@/src/components/AboutObjectives";
 import AboutTargetAudience from "@/src/components/AboutTargetAudience";
 import Footer from "../components/Footer";
+import Prizes from "../components/Prizes";
+import CallToAction from "../components/CallToAction";
 
 export default function Home() {
   return (
@@ -14,11 +16,13 @@ export default function Home() {
       {/* Content */}
       <div className="relative z-10 flex flex-col">
         <HeroScrollDemo />
+        <Prizes />
+        <ThreePillarRow />
         <AboutObjectives />
         <AboutTargetAudience />
-        <ThreePillarRow />
         <ThemePillars />
         <Timeline />
+        <CallToAction />
 
         <Footer />
       </div>

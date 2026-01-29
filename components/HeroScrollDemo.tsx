@@ -39,7 +39,7 @@ export function HeroScrollDemo() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-base sm:text-lg md:text-xl text-white/60 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-poppins"
           >
-            The global deep-tech startup competition powering sustainable energy innovation.
+            An international deep-tech startup competition by KFUPM in collaboration with Dhahran Techno Valley (DTV)—supporting student-led ventures building science- and technology-based solutions with global impact.
           </motion.p>
 
           <motion.div
@@ -79,7 +79,7 @@ export function HeroScrollDemo() {
             className="flex items-center justify-center xl:justify-start gap-6 sm:gap-8 text-white/40 xl:ml-6"
           >
             <div className="text-xs sm:text-sm">
-              <span className="block text-xl sm:text-2xl font-bold text-white mb-0.5">$200K+</span>
+              <span className="block text-xl sm:text-2xl font-bold text-white mb-0.5">$245K</span>
               Prize Pool
             </div>
             <div className="w-px h-10 sm:h-12 bg-white/10"></div>

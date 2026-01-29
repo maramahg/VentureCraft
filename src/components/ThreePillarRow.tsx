@@ -7,17 +7,23 @@ const pillars = [
     {
         id: 1,
         title: "Mission",
-        content: "Our mission is to inspire and empower emerging founders to reimagine how energy and industry operate — making sustainability a driver of innovation, not a constraint."
+        content: "VentureCraft exists to inspire, equip, and accelerate emerging founders to reimagine how technology and industry operate. We provide a competitive, mentor-driven journey that bridges academia with industry—supporting teams from idea submission to validation, prototyping, and pitching—while holding every venture to clear, credible, and measurable impact standards."
     },
     {
         id: 2,
         title: "Theme",
-        content: "The theme is intentionally broad enough to welcome early-stage startups across disciplines such as AI, hardware, clean tech, yet structured enough to maintain focus."
+        content: (
+            <>
+                This year, we unite under a singular and powerful competition theme: <span className="text-vc-mint font-extrabold uppercase tracking-widest ml-1">Sustainable Energy</span>.
+                <br /><br />
+                The theme is intentionally broad enough to welcome early-stage startups across disciplines such as AI, hardware, and clean tech, yet structured enough to maintain focus.
+            </>
+        )
     },
     {
         id: 3,
-        title: "Goal",
-        content: "This competition centers on entrepreneurship that accelerates sustainability and efficiency across the energy and industrial sectors — from digital tools to physical technologies."
+        title: "Vision",
+        content: "To become a globally recognized deep-tech hub where student-led innovation transforms science and engineering into scalable ventures—delivering measurable and sustainable real-world impact."
     },
 ];
 
@@ -28,9 +34,9 @@ export default function ThreePillarRow() {
         <section className="relative z-20 py-10 md:py-20">
             <div className="w-full max-w-6xl mx-auto px-4">
                 <div className="mb-16 text-center">
-                    <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Theme</h2>
+                    <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Our Identity</h2>
                     <p className="text-white/60 max-w-2xl mx-auto font-poppins">
-                        This year, we unite under a singular and powerful competition theme: <span className="text-vc-mint font-extrabold uppercase tracking-widest ml-1">Sustainability</span>.
+                        The core pillars that define our purpose, our focus, and our future impact.
                     </p>
                 </div>
                 {/* Container: Stacks on mobile, Row on desktop */}
@@ -95,9 +101,9 @@ export default function ThreePillarRow() {
                                                 transition={{ duration: 0.4, delay: 0.1 }}
                                                 className="w-full"
                                             >
-                                                <p className="text-center leading-relaxed text-white/70 text-base md:text-lg max-w-2xl font-poppins mx-auto">
+                                                <div className="text-center leading-relaxed text-white/70 text-base md:text-lg max-w-2xl font-poppins mx-auto">
                                                     {pillar.content}
-                                                </p>
+                                                </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>

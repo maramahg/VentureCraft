@@ -1,0 +1,77 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { ArrowRight, Info, UserPlus } from 'lucide-react';
+
+export default function CallToAction() {
+    return (
+        <section className="relative z-30 py-24 overflow-hidden">
+            <div className="container mx-auto px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+                    {/* Learn More Card */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="relative group overflow-hidden rounded-3xl border border-white/10 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-vc-mint/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                        <div className="w-16 h-16 rounded-2xl bg-vc-mint/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <Info className="w-8 h-8 text-vc-mint" />
+                        </div>
+
+                        <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins">
+                            Want to learn more?
+                        </h3>
+                        <p className="text-white/70 mb-8 font-poppins text-lg">
+                            Discover our mission, vision, and the impact we aim to create in the deep-tech ecosystem.
+                        </p>
+
+                        <Link
+                            href="/about"
+                            className="relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all duration-300 group/btn border border-white/10"
+                        >
+                            Learn More
+                            <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
+
+                    {/* Register Card */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="relative group overflow-hidden rounded-3xl border border-vc-teal/30 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-vc-teal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                        <div className="w-16 h-16 rounded-2xl bg-vc-teal/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(45,212,191,0.3)]">
+                            <UserPlus className="w-8 h-8 text-vc-teal" />
+                        </div>
+
+                        <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins">
+                            Want to register?
+                        </h3>
+                        <p className="text-white/70 mb-8 font-poppins text-lg">
+                            Take the first step towards transforming your deep-tech idea into a global solution.
+                        </p>
+
+                        <Link
+                            href="/apply"
+                            className="relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-teal text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-vc-teal/30 group/btn"
+                        >
+                            Register Now
+                            <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
+
+                </div>
+            </div>
+        </section>
+    );
+}
