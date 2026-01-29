@@ -7,7 +7,6 @@ const prizes = [
     {
         place: '1st',
         amount: '100K',
-        label: 'Grand Prize',
         color: 'text-yellow-400',
         bg: 'bg-yellow-400/10',
         border: 'border-yellow-400/20',
@@ -19,7 +18,6 @@ const prizes = [
     {
         place: '2nd',
         amount: '60K',
-        label: 'Silver Prize',
         color: 'text-slate-300',
         bg: 'bg-slate-300/10',
         border: 'border-slate-300/20',
@@ -30,7 +28,6 @@ const prizes = [
     {
         place: '3rd',
         amount: '40K',
-        label: 'Bronze Prize',
         color: 'text-amber-600',
         bg: 'bg-amber-600/10',
         border: 'border-amber-600/20',
@@ -95,7 +92,7 @@ export default function Prizes() {
                                         {prize.place} Place
                                     </span>
                                     <p className="text-white/40 text-sm mt-2 font-medium uppercase tracking-tighter">
-                                        {prize.label}
+                                        {prize.isMain ? 'Grand Prize' : ''}
                                     </p>
                                 </div>
 
