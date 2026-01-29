@@ -33,7 +33,7 @@ const objectives = [
 
 export default function AboutObjectives() {
   return (
-    <section id="objectives" className="py-24 md:py-40 relative z-20">
+    <section id="objectives" className="py-24 relative z-20">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Objectives</h2>

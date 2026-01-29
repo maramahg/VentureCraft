@@ -23,7 +23,7 @@ const audience = [
 
 export default function AboutTargetAudience() {
   return (
-    <section className="py-24 md:py-40 relative z-20">
+    <section className="py-24 relative z-20">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Target Audience</h2>

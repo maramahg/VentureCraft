@@ -12,6 +12,7 @@ import { doc, getDoc } from 'firebase/firestore';
 
 const navItems = [
   { name: 'Home', href: '/' },
+  { name: 'About', href: '/about' },
   { name: 'Apply Now', href: '/apply' },
   { name: 'Ambassadors', href: '/ambassadors' },
 ];
