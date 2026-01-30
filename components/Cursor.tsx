@@ -60,6 +60,7 @@ export default function Cursor() {
         translateY: cursorYSpring,
         x: '-50%', // Centers the cursor
         y: '-50%', // Centers the cursor
+        display: 'var(--cursor-display, block)'
       }}
     />
   );

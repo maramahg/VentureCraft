@@ -271,111 +271,121 @@ export default function Navbar() {
         {/* Mobile Menu */}
         <AnimatePresence>
           {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className="md:hidden absolute top-20 left-4 right-4 z-50"
-            >
-              <div className="glass-panel p-6 flex flex-col gap-4 bg-[#0D1B1A]/95 !backdrop-blur-lg border border-white/10 shadow-2xl">
-                {navItems.map((item) => (
-                  <div key={item.name} className="flex flex-col gap-2">
-                    {item.subItems ? (
-                      <>
-                        <div className="flex items-center justify-between text-lg font-bold text-vc-mint/50 uppercase tracking-widest px-1">
+            <>
+              {/* Transparent backdrop to close menu when clicking anywhere */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[45] md:hidden"
+                onClick={() => setIsOpen(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                className="md:hidden absolute top-20 left-4 right-4 z-50"
+              >
+                <div className="glass-panel p-6 flex flex-col gap-4 bg-[#0D1B1A]/95 !backdrop-blur-lg border border-white/10 shadow-2xl">
+                  {navItems.map((item) => (
+                    <div key={item.name} className="flex flex-col gap-2">
+                      {item.subItems ? (
+                        <>
+                          <div className="flex items-center justify-between text-lg font-bold text-vc-mint/50 uppercase tracking-widest px-1">
+                            {item.name}
+                          </div>
+                          <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-1">
+                            {item.subItems.map((subItem) => (
+                              <Link
+                                key={subItem.name}
+                                href={subItem.href}
+                                className="text-base font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {subItem.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="text-sm font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                          onClick={() => setIsOpen(false)}
+                        >
                           {item.name}
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                  <hr className="border-white/10" />
+                  {!authLoading && (
+                    user ? (
+                      <>
+                        <div className="flex items-center gap-3 px-2 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#21428f] to-vc-teal flex items-center justify-center text-white">
+                            <User size={20} />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-widest text-white leading-tight">{user.displayName || 'User'}</p>
+                            <p className="text-xs text-white/50">{user.email}</p>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-1">
-                          {item.subItems.map((subItem) => (
+                        <Link
+                          href="/profile"
+                          className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <User size={18} className="text-vc-mint" />
+                          My Profile
+                        </Link>
+
+                        {isAdmin && (
+                          <>
                             <Link
-                              key={subItem.name}
-                              href={subItem.href}
-                              className="text-base font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                              href="/admin"
+                              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
                               onClick={() => setIsOpen(false)}
                             >
-                              {subItem.name}
+                              <Shield size={20} />
+                              Admin Panel
                             </Link>
-                          ))}
-                        </div>
+                            <Link
+                              href="/qr"
+                              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <QrCode size={20} />
+                              QR Generator
+                            </Link>
+                          </>
+                        )}
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-red-400 hover:text-red-300"
+                        >
+                          <LogOut size={18} />
+                          Sign Out
+                        </button>
                       </>
                     ) : (
                       <Link
-                        href={item.href}
-                        className="text-sm font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                        href="/signin"
+                        className="group relative p-[1.5px] rounded-xl overflow-hidden transition-all duration-300"
                         onClick={() => setIsOpen(false)}
                       >
-                        {item.name}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-                <hr className="border-white/10" />
-                {!authLoading && (
-                  user ? (
-                    <>
-                      <div className="flex items-center gap-3 px-2 mb-2">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#21428f] to-vc-teal flex items-center justify-center text-white">
-                          <User size={20} />
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
+                        <div className="relative w-full py-3 rounded-xl bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-colors">
+                          <span className="text-sm font-bold uppercase tracking-widest text-white group-hover:text-vc-mint transition-colors">
+                            Sign in
+                          </span>
                         </div>
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-widest text-white leading-tight">{user.displayName || 'User'}</p>
-                          <p className="text-xs text-white/50">{user.email}</p>
-                        </div>
-                      </div>
-                      <Link
-                        href="/profile"
-                        className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <User size={18} className="text-vc-mint" />
-                        My Profile
                       </Link>
-
-                      {isAdmin && (
-                        <>
-                          <Link
-                            href="/admin"
-                            className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            <Shield size={20} />
-                            Admin Panel
-                          </Link>
-                          <Link
-                            href="/qr"
-                            className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            <QrCode size={20} />
-                            QR Generator
-                          </Link>
-                        </>
-                      )}
-                      <button
-                        onClick={handleSignOut}
-                        className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-red-400 hover:text-red-300"
-                      >
-                        <LogOut size={18} />
-                        Sign Out
-                      </button>
-                    </>
-                  ) : (
-                    <Link
-                      href="/signin"
-                      className="group relative p-[1.5px] rounded-xl overflow-hidden transition-all duration-300"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
-                      <div className="relative w-full py-3 rounded-xl bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-colors">
-                        <span className="text-sm font-bold uppercase tracking-widest text-white group-hover:text-vc-mint transition-colors">
-                          Sign in
-                        </span>
-                      </div>
-                    </Link>
-                  )
-                )}
-              </div>
-            </motion.div>
+                    )
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>

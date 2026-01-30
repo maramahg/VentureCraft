@@ -151,3 +151,9 @@ body {
   scrollbar-width: none;
   /* Firefox */
 }
+
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --cursor-display: none !important;
+  }
+}

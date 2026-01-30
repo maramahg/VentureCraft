@@ -63,6 +63,12 @@ export function Globe({ className }: { className?: string }) {
           controls.enableZoom = false;
           controls.enablePan = false;
           controls.enableRotate = true;
+
+          // Force stable distance to prevent any "size" changes via zoom
+          const dist = controls.getDistance();
+          controls.minDistance = dist;
+          controls.maxDistance = dist;
+          controls.update();
         }
 
         if (typeof globeEl.current.globeMaterial === 'function') {
@@ -75,14 +81,14 @@ export function Globe({ className }: { className?: string }) {
           }
         }
       } catch (e) {
-        console.warn('Globe material initialization failed:', e);
+        console.warn('Globe initialization failed:', e);
       }
     }
   };
 
   return (
     <div ref={containerRef} className={`${className} flex items-center justify-center cursor-default`}>
-      <div style={{ width: dimensions.width, height: dimensions.height }}>
+      <div style={{ width: dimensions.width, height: dimensions.height }} onWheel={(e) => e.stopPropagation()}>
         <GlobeTmpl
           ref={globeEl}
           backgroundColor="rgba(0,0,0,0)"
