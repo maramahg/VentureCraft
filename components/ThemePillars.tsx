@@ -170,7 +170,7 @@ function MobileStack({ pillars }: { pillars: any[] }) {
     };
 
     return (
-        <div className="relative w-full h-full flex items-center justify-center cursor-pointer" onClick={handleCycle}>
+        <div className="relative w-full flex justify-center cursor-pointer min-h-[400px]" onClick={handleCycle}>
             {stack.map((pillar, index) => {
                 // Only show top 3 cards for performance and visual clarity
                 const isHidden = index > 2;
@@ -260,21 +260,21 @@ export default function ThemePillars() {
     const deckY = useTransform(smoothProgress, [0, 1], [500, 100]);
 
     return (
-        <section ref={containerRef} className="relative xl:h-[110vh] z-10 overflow-visible py-16 md:py-32 xl:py-0">
+        <section ref={containerRef} className="relative xl:h-[110vh] z-10 overflow-visible py-8 md:py-32 xl:py-0">
             {/* 
             Height: Auto on Mobile/Tablet (with padding), 120vh on Desktop (for scroll animation).
             Spacing: Uniform py-16/24 on non-desktop to match other sections.
             */}
 
-            <div className="relative xl:sticky xl:top-0 xl:h-screen flex flex-col items-center justify-center perspective-1000" style={{ perspective: '1500px' }}>
+            <div className="relative xl:sticky xl:top-0 xl:h-screen flex flex-col items-center justify-start md:justify-center xl:perspective-1000" style={{ perspective: '1500px' }}>
 
-                <div className="relative xl:absolute xl:top-24 text-center z-20 px-4 mt-8 xl:mt-0 max-w-4xl mx-auto pointer-events-none">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
-                        Theme Pillars
+                <div className="relative xl:absolute xl:top-24 text-center z-20 px-4 mt-0 md:mt-8 xl:mt-0 max-w-4xl mx-auto pointer-events-none">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-2 md:mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-2 md:pb-6 border-b border-vc-mint/20">
+                        Strategic Themes
                     </h2>
                     <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden xl:block">Scroll to explore strategic themes</p>
                     <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden md:block xl:hidden">Swipe to explore strategic themes</p>
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins md:hidden">Tap card to cycle</p>
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-0 md:mb-8 font-poppins md:hidden">Tap card to explore</p>
                 </div>
 
                 {/* Desktop: Card Deck Animation (XL and up) */}
@@ -361,7 +361,7 @@ export default function ThemePillars() {
                 </div>
 
                 {/* Phone: Vertical Mobile Stack (Hidden on MD+) - PHONES ONLY */}
-                <div className="md:hidden relative w-full h-[500px] flex items-center justify-center mt-12">
+                <div className="md:hidden relative w-full -mt-20 mb-20">
                     <MobileStack pillars={pillars} />
                 </div>
 

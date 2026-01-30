@@ -65,15 +65,17 @@ export function Globe({ className }: { className?: string }) {
           controls.enableRotate = true;
         }
 
-        const globeMaterial = globeEl.current.globeMaterial();
-        if (globeMaterial) {
-          globeMaterial.color = new THREE.Color(GLOBE_COLOR);
-          globeMaterial.emissive = new THREE.Color("#00A383");
-          globeMaterial.emissiveIntensity = 0.3;
-          globeMaterial.shininess = 30;
+        if (typeof globeEl.current.globeMaterial === 'function') {
+          const globeMaterial = globeEl.current.globeMaterial();
+          if (globeMaterial) {
+            globeMaterial.color = new THREE.Color(GLOBE_COLOR);
+            globeMaterial.emissive = new THREE.Color("#00A383");
+            globeMaterial.emissiveIntensity = 0.3;
+            globeMaterial.shininess = 30;
+          }
         }
       } catch (e) {
-        console.warn(e);
+        console.warn('Globe material initialization failed:', e);
       }
     }
   };

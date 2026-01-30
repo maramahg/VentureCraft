@@ -39,6 +39,9 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <Navbar />
         </Suspense>
+        <div style={{ position: 'fixed', top: '100px', left: 0, width: '100%', height: '50px', backgroundColor: 'red', color: 'white', zIndex: 9999, textAlign: 'center', fontWeight: 'bold', fontSize: '24px', lineHeight: '50px' }}>
+          PROJECT UPDATED - VERIFICATION BANNER
+        </div>
         <Cursor />
         {children}
       </body>
