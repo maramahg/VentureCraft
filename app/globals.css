@@ -38,12 +38,8 @@ html {
 body {
   background: linear-gradient(to bottom,
       #001a18 0%,
-      #00423d 12%,
-      #006961 30%,
-      #008f84 50%,
-      #00A383 75%,
-      #4FD1C5 100%);
-  background-attachment: scroll;
+      #00423d 100%) !important;
+  background-attachment: fixed !important;
   color: var(--color-vc-white);
   overflow-x: hidden;
   font-family: var(--font-sans);

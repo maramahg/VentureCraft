@@ -107,6 +107,18 @@ export default function ThreePillarRow() {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
+
+                                    {!isActive && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="absolute bottom-1 md:bottom-auto md:top-2 w-full text-center"
+                                        >
+                                            <p className="md:hidden text-white/30 text-[10px] uppercase tracking-widest font-bold">Tap to show</p>
+                                            <p className="hidden md:block text-white/30 text-[10px] uppercase tracking-widest font-bold">Click to view</p>
+                                        </motion.div>
+                                    )}
                                 </div>
 
                             </motion.div>
