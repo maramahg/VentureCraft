@@ -6,7 +6,7 @@ import { Trophy, Users, Plane, Globe, Network } from 'lucide-react';
 const prizes = [
     {
         place: '1st',
-        amount: '100K',
+        amount: '$100K',
         color: 'text-yellow-400',
         bg: 'bg-yellow-400/10',
         border: 'border-yellow-400/20',
@@ -17,7 +17,7 @@ const prizes = [
     },
     {
         place: '2nd',
-        amount: '60K',
+        amount: '$60K',
         color: 'text-slate-300',
         bg: 'bg-slate-300/10',
         border: 'border-slate-300/20',
@@ -27,7 +27,7 @@ const prizes = [
     },
     {
         place: '3rd',
-        amount: '40K',
+        amount: '$40K',
         color: 'text-amber-600',
         bg: 'bg-amber-600/10',
         border: 'border-amber-600/20',
@@ -62,7 +62,7 @@ export default function Prizes() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-white/60 max-w-2xl mx-auto font-poppins"
+                        className="text-vc-mint font-bold max-w-2xl mx-auto font-poppins"
                     >
                         Rewarding excellence in deep-tech innovation and sustainable solutions.
                     </motion.p>
@@ -125,7 +125,7 @@ export default function Prizes() {
                             </div>
                         </div>
                         <div className="text-center md:text-right">
-                            <div className="text-4xl md:text-5xl font-black text-white font-poppins">15,000 $</div>
+                            <div className="text-4xl md:text-5xl font-black text-white font-poppins">$15,000</div>
                             <div className="text-vc-mint font-bold uppercase tracking-tighter text-lg">Per Award (X3)</div>
                         </div>
 

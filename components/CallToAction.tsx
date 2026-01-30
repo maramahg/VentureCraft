@@ -4,41 +4,47 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Info, UserPlus } from 'lucide-react';
 
-export default function CallToAction() {
+interface CallToActionProps {
+    showOnlyRegister?: boolean;
+}
+
+export default function CallToAction({ showOnlyRegister = false }: CallToActionProps) {
     return (
-        <section className="relative z-30 py-24 overflow-hidden">
+        <section className="relative z-30 pt-12 pb-24 overflow-hidden">
             <div className="container mx-auto px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div className={`grid grid-cols-1 ${showOnlyRegister ? 'max-w-2xl' : 'md:grid-cols-2 max-w-5xl'} gap-8 mx-auto`}>
 
                     {/* Learn More Card */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="relative group overflow-hidden rounded-3xl border border-white/10 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-vc-mint/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        <div className="w-16 h-16 rounded-2xl bg-vc-mint/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <Info className="w-8 h-8 text-vc-mint" />
-                        </div>
-
-                        <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins">
-                            Want to learn more?
-                        </h3>
-                        <p className="text-white/70 mb-8 font-poppins text-lg">
-                            Discover our mission, vision, and the impact we aim to create in the deep-tech ecosystem.
-                        </p>
-
-                        <Link
-                            href="/about"
-                            className="relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all duration-300 group/btn border border-white/10"
+                    {!showOnlyRegister && (
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="relative group overflow-hidden rounded-3xl border border-white/10 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
                         >
-                            Learn More
-                            <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-vc-mint/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                            <div className="w-16 h-16 rounded-2xl bg-vc-mint/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <Info className="w-8 h-8 text-vc-mint" />
+                            </div>
+
+                            <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins">
+                                Want to learn more?
+                            </h3>
+                            <p className="text-white/70 mb-8 font-poppins text-lg">
+                                Discover our mission, vision, and the impact we aim to create in the deep-tech ecosystem.
+                            </p>
+
+                            <Link
+                                href="/about/venture-craft"
+                                className="relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all duration-300 group/btn border border-white/10"
+                            >
+                                Learn More
+                                <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                            </Link>
+                        </motion.div>
+                    )}
 
                     {/* Register Card */}
                     <motion.div

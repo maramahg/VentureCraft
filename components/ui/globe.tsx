@@ -62,6 +62,7 @@ export function Globe({ className }: { className?: string }) {
           controls.autoRotateSpeed = 0.8;
           controls.enableZoom = false;
           controls.enablePan = false;
+          controls.enableRotate = true;
         }
 
         const globeMaterial = globeEl.current.globeMaterial();
@@ -78,7 +79,7 @@ export function Globe({ className }: { className?: string }) {
   };
 
   return (
-    <div ref={containerRef} className={`${className} flex items-center justify-center cursor-grab active:cursor-grabbing`}>
+    <div ref={containerRef} className={`${className} flex items-center justify-center cursor-default`}>
       <div style={{ width: dimensions.width, height: dimensions.height }}>
         <GlobeTmpl
           ref={globeEl}

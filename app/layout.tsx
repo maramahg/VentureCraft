@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-// import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import Cursor from "../components/Cursor";
 import Navbar from "../components/Navbar";
@@ -15,11 +15,11 @@ import Navbar from "../components/Navbar";
 //   subsets: ["latin"],
 // });
 
-// const poppins = Poppins({
-//   weight: ["400", "500", "600", "700", "800", "900"],
-//   subsets: ["latin"],
-//   variable: "--font-poppins",
-// });
+const poppins = Poppins({
+  weight: ["400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
   title: "Venture Craft",
@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`antialiased`}
+        className={`${poppins.variable} font-poppins antialiased`}
       >
         <Suspense fallback={null}>
           <Navbar />

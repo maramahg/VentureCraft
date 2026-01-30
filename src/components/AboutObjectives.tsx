@@ -35,9 +35,11 @@ export default function AboutObjectives() {
   return (
     <section id="objectives" className="py-24 relative z-20">
       <div className="container mx-auto px-4">
-        <div className="mb-16 text-center">
-          <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Objectives</h2>
-          <p className="text-white/60 max-w-2xl mx-auto">
+        <div className="mb-16 text-center max-w-4xl mx-auto">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
+            Objectives
+          </h2>
+          <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins">
             Empowering the next generation of deep-tech innovators to solve global challenges.
           </p>
         </div>
@@ -68,8 +70,8 @@ export default function AboutObjectives() {
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                 <objective.icon size={28} />
               </div>
-              <h3 className="text-xl font-bold mb-3">{objective.title}</h3>
-              <p className="text-white/60 leading-relaxed">
+              <h3 className="text-xl font-bold mb-3 font-poppins">{objective.title}</h3>
+              <p className="text-white/60 leading-relaxed font-poppins">
                 {objective.description}
               </p>
             </motion.div>

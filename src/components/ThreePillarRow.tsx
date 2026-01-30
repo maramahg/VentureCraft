@@ -35,7 +35,7 @@ export default function ThreePillarRow() {
             <div className="w-full max-w-6xl mx-auto px-4">
                 <div className="mb-16 text-center">
                     <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Our Identity</h2>
-                    <p className="text-white/60 max-w-2xl mx-auto font-poppins">
+                    <p className="text-vc-mint font-bold max-w-2xl mx-auto font-poppins">
                         The core pillars that define our purpose, our focus, and our future impact.
                     </p>
                 </div>
@@ -107,6 +107,18 @@ export default function ThreePillarRow() {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
+
+                                    {!isActive && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="absolute bottom-1 md:bottom-auto md:top-2 w-full text-center"
+                                        >
+                                            <p className="md:hidden text-white/30 text-[10px] uppercase tracking-widest font-bold">Tap to show</p>
+                                            <p className="hidden md:block text-white/30 text-[10px] uppercase tracking-widest font-bold">Click to view</p>
+                                        </motion.div>
+                                    )}
                                 </div>
 
                             </motion.div>

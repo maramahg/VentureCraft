@@ -25,9 +25,11 @@ export default function AboutTargetAudience() {
   return (
     <section className="py-24 relative z-20">
       <div className="container mx-auto px-4">
-        <div className="mb-16 text-center">
-          <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Target Audience</h2>
-          <p className="text-white/60 max-w-2xl mx-auto">
+        <div className="mb-16 text-center max-w-4xl mx-auto">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
+            Target Audience
+          </h2>
+          <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins">
             Open to innovators and visionaries at all stages of their academic and professional journey.
           </p>
         </div>
@@ -58,8 +60,8 @@ export default function AboutTargetAudience() {
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                 <item.icon size={28} />
               </div>
-              <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-              <p className="text-white/60 leading-relaxed">
+              <h3 className="text-xl font-bold mb-3 font-poppins">{item.title}</h3>
+              <p className="text-white/60 leading-relaxed font-poppins">
                 {item.description}
               </p>
             </motion.div>

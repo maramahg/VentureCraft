@@ -75,7 +75,7 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/about" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
+                                <Link href="/about/venture-craft" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
                                     About
                                 </Link>
                             </li>
@@ -122,7 +122,7 @@ export default function Footer() {
                 <div className="container mx-auto px-6 py-8">
                     <div className="flex flex-col md:flex-row justify-center items-center gap-4">
                         <p className="text-[#9CA3AF] text-sm">
-                            © {new Date().getFullYear()} VentureCraft. All rights reserved.
+                            © {new Date().getFullYear()} Venture Craft. All rights reserved.
                         </p>
                     </div>
                 </div>

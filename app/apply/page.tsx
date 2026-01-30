@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db, storage } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -207,7 +207,7 @@ function SimpleDropdown({
     );
 }
 
-export default function ApplyPage() {
+const ApplyPageContent = () => {
     const [step, setStep] = useState(0); // 0 = Eligibility Info, 1-3 = Form
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -216,6 +216,18 @@ export default function ApplyPage() {
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [regLoading, setRegLoading] = useState(true);
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Sync URL to Step on mount/update
+    useEffect(() => {
+        const s = searchParams.get('step');
+        if (s) {
+            const newStep = parseInt(s);
+            if (!isNaN(newStep) && newStep !== step) {
+                setStep(newStep);
+            }
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         // Fetch global settings for registration status
@@ -274,14 +286,20 @@ export default function ApplyPage() {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            if (!currentUser) {
-                router.push('/signin?redirect=/apply');
-            } else {
-                setUser(currentUser);
-            }
+            setUser(currentUser);
         });
         return () => unsubscribe();
-    }, [router]);
+    }, []);
+
+    // ... (keep existing sync useEffect)
+
+    const handleApplyClick = () => {
+        if (!user) {
+            router.push(`/signin?redirect=${encodeURIComponent('/apply?step=1')}`);
+            return;
+        }
+        setStep(1);
+    };
 
     // Sync step with URL for Navbar/Footer visibility
     useEffect(() => {
@@ -515,7 +533,7 @@ export default function ApplyPage() {
                                                 Review the criteria above to proceed to the application form.
                                             </p>
                                             <button
-                                                onClick={() => setStep(1)}
+                                                onClick={handleApplyClick}
                                                 className="btn-primary !px-16 !py-5 !text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20"
                                             >
                                                 <span>Apply Now</span>
@@ -541,7 +559,6 @@ export default function ApplyPage() {
                                 </div>
                             </motion.div>
                         )}
-
                         {step === 1 && (
                             <motion.div
                                 key="step1"
@@ -677,255 +694,259 @@ export default function ApplyPage() {
                             </motion.div>
                         )}
 
-                        {step === 2 && (
-                            <motion.div
-                                key="step2"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
-                                        <Rocket className="text-vc-mint w-5 h-5" />
+                        {
+                            step === 2 && (
+                                <motion.div
+                                    key="step2"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-8"
+                                >
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
+                                            <Rocket className="text-vc-mint w-5 h-5" />
+                                        </div>
+                                        <h2 className="text-2xl font-bold">Start-up Details</h2>
                                     </div>
-                                    <h2 className="text-2xl font-bold">Start-up Details</h2>
-                                </div>
 
-                                <div className="space-y-4">
-                                    <label className="block text-sm font-medium text-white/70">Which of the following pillars does your startup most closely align with?</label>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {[
-                                            'Decarbonization Technologies',
-                                            'Circular Economy & Resource Efficiency',
-                                            'Energy Efficiency',
-                                            'Process Optimization & Advanced Engineering'
-                                        ].map((p) => (
-                                            <button
-                                                key={p}
-                                                onClick={() => setFormData({ ...formData, pillar: p })}
-                                                className={`p-4 rounded-xl border text-left transition-all ${formData.pillar === p ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
-                                            >
-                                                {p}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
-                                        <label className="block text-sm font-medium text-white/70">Is your startup older than 5 years?</label>
-                                        <div className="flex gap-4">
-                                            {['Yes', 'No'].map((opt) => (
+                                        <label className="block text-sm font-medium text-white/70">Which of the following pillars does your startup most closely align with?</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {[
+                                                'Decarbonization Technologies',
+                                                'Circular Economy & Resource Efficiency',
+                                                'Energy Efficiency',
+                                                'Process Optimization & Advanced Engineering'
+                                            ].map((p) => (
                                                 <button
-                                                    key={opt}
-                                                    onClick={() => setFormData({ ...formData, isOlderThan5Years: opt })}
-                                                    className={`px-8 py-3 rounded-xl border transition-all ${formData.isOlderThan5Years === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                                    key={p}
+                                                    onClick={() => setFormData({ ...formData, pillar: p })}
+                                                    className={`p-4 rounded-xl border text-left transition-all ${formData.pillar === p ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
                                                 >
-                                                    {opt}
+                                                    {p}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <SimpleDropdown
-                                            options={['Ideation', 'Pre-Seed', 'Seed', 'Post-Seed']}
-                                            value={formData.stage}
-                                            onChange={(val) => setFormData({ ...formData, stage: val })}
-                                            label="Startup Stage"
-                                            placeholder="Select stage"
-                                        />
-                                    </div>
-                                </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-4">
+                                            <label className="block text-sm font-medium text-white/70">Is your startup older than 5 years?</label>
+                                            <div className="flex gap-4">
+                                                {['Yes', 'No'].map((opt) => (
+                                                    <button
+                                                        key={opt}
+                                                        onClick={() => setFormData({ ...formData, isOlderThan5Years: opt })}
+                                                        className={`px-8 py-3 rounded-xl border transition-all ${formData.isOlderThan5Years === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                                    >
+                                                        {opt}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
 
-                                <div className="space-y-4">
-                                    <label className="block text-sm font-medium text-white/70">Conflict of Interest Declaration (Required)</label>
-                                    <textarea
-                                        value={formData.coiDeclaration}
-                                        onChange={(e) => setFormData({ ...formData, coiDeclaration: e.target.value })}
-                                        placeholder="Please disclose any relationships or state 'None'."
-                                        rows={4}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-medium text-white/70">Startup Website (Optional)</label>
-                                        <input
-                                            type="url"
-                                            value={formData.website}
-                                            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                            placeholder="https://..."
-                                        />
-                                    </div>
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-medium text-white/70">LinkedIn Page (Optional)</label>
-                                        <input
-                                            type="url"
-                                            value={formData.linkedin}
-                                            onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                            placeholder="https://linkedin.com/company/..."
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <label className="block text-sm font-medium text-white/70">Additional Links (Optional)</label>
-                                    <textarea
-                                        value={formData.additionalLinks}
-                                        onChange={(e) => setFormData({ ...formData, additionalLinks: e.target.value })}
-                                        placeholder="Any other relevant links to your startup..."
-                                        rows={3}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                    />
-                                </div>
-
-                                <div className="flex justify-between pt-8">
-                                    <button onClick={prevStep} className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
-                                        <ArrowLeft className="w-5 h-5" />
-                                        <span>Back</span>
-                                    </button>
-                                    <button
-                                        onClick={nextStep}
-                                        disabled={!formData.pillar || !formData.stage || !formData.coiDeclaration}
-                                        className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl disabled:opacity-50"
-                                    >
-                                        <span>Next Step</span>
-                                        <ArrowRight className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {step === 3 && (
-                            <motion.div
-                                key="step3"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
-                                        <FileText className="text-vc-mint w-5 h-5" />
-                                    </div>
-                                    <h2 className="text-2xl font-bold">Application Material</h2>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-medium text-white/70">Pitch Deck (PDF or PPTX)</label>
-                                        <div className="relative group">
-                                            <input
-                                                type="file"
-                                                accept=".pdf,.pptx"
-                                                onChange={(e) => setFiles({ ...files, pitchDeck: e.target.files?.[0] || null })}
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        <div className="space-y-4">
+                                            <SimpleDropdown
+                                                options={['Ideation', 'Pre-Seed', 'Seed', 'Post-Seed']}
+                                                value={formData.stage}
+                                                onChange={(val) => setFormData({ ...formData, stage: val })}
+                                                label="Startup Stage"
+                                                placeholder="Select stage"
                                             />
-                                            <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : 'text-white/20'}`} />
-                                                <p className="text-sm font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
-                                                <p className="text-xs text-white/40">Drop file here or click to browse</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-medium text-white/70">Conflict of Interest Declaration (Required)</label>
+                                        <textarea
+                                            value={formData.coiDeclaration}
+                                            onChange={(e) => setFormData({ ...formData, coiDeclaration: e.target.value })}
+                                            placeholder="Please disclose any relationships or state 'None'."
+                                            rows={4}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-4">
+                                            <label className="block text-sm font-medium text-white/70">Startup Website (Optional)</label>
+                                            <input
+                                                type="url"
+                                                value={formData.website}
+                                                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                placeholder="https://..."
+                                            />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <label className="block text-sm font-medium text-white/70">LinkedIn Page (Optional)</label>
+                                            <input
+                                                type="url"
+                                                value={formData.linkedin}
+                                                onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                placeholder="https://linkedin.com/company/..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-medium text-white/70">Additional Links (Optional)</label>
+                                        <textarea
+                                            value={formData.additionalLinks}
+                                            onChange={(e) => setFormData({ ...formData, additionalLinks: e.target.value })}
+                                            placeholder="Any other relevant links to your startup..."
+                                            rows={3}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-between pt-8">
+                                        <button onClick={prevStep} className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
+                                            <ArrowLeft className="w-5 h-5" />
+                                            <span>Back</span>
+                                        </button>
+                                        <button
+                                            onClick={nextStep}
+                                            disabled={!formData.pillar || !formData.stage || !formData.coiDeclaration}
+                                            className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl disabled:opacity-50"
+                                        >
+                                            <span>Next Step</span>
+                                            <ArrowRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )
+                        }
+
+                        {
+                            step === 3 && (
+                                <motion.div
+                                    key="step3"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-8"
+                                >
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
+                                            <FileText className="text-vc-mint w-5 h-5" />
+                                        </div>
+                                        <h2 className="text-2xl font-bold">Application Material</h2>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-4">
+                                            <label className="block text-sm font-medium text-white/70">Pitch Deck (PDF or PPTX)</label>
+                                            <div className="relative group">
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf,.pptx"
+                                                    onChange={(e) => setFiles({ ...files, pitchDeck: e.target.files?.[0] || null })}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                />
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                    <p className="text-sm font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
+                                                    <p className="text-xs text-white/40">Drop file here or click to browse</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <label className="block text-sm font-medium text-white/70">Executive Summary (PDF or DOCX)</label>
+                                            <div className="relative group">
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf,.docx"
+                                                    onChange={(e) => setFiles({ ...files, execSummary: e.target.files?.[0] || null })}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                />
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                    <p className="text-sm font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
+                                                    <p className="text-xs text-white/40">Drop file here or click to browse</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-sm font-medium text-white/70">Executive Summary (PDF or DOCX)</label>
-                                        <div className="relative group">
-                                            <input
-                                                type="file"
-                                                accept=".pdf,.docx"
-                                                onChange={(e) => setFiles({ ...files, execSummary: e.target.files?.[0] || null })}
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                            />
-                                            <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : 'text-white/20'}`} />
-                                                <p className="text-sm font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
-                                                <p className="text-xs text-white/40">Drop file here or click to browse</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <label className="block text-sm font-medium text-white/70 flex items-center gap-2">
-                                        <Video className="w-4 h-4 text-vc-mint" />
-                                        Video Pitch (Unlisted YouTube Link)
-                                    </label>
-                                    <input
-                                        type="url"
-                                        value={formData.videoPitchUrl}
-                                        onChange={(e) => setFormData({ ...formData, videoPitchUrl: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                        placeholder="https://youtube.com/..."
-                                    />
-                                </div>
-
-                                <div className="space-y-4">
-                                    <label className="block text-sm font-medium text-white/70">Supporting Data (Optional / PDF or Word)</label>
-                                    <div className="relative group">
-                                        <input
-                                            type="file"
-                                            accept=".pdf,.docx,.doc"
-                                            onChange={(e) => setFiles({ ...files, supportingData: e.target.files?.[0] || null })}
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                        />
-                                        <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.supportingData ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                            <LinkIcon className={`w-6 h-6 ${files.supportingData ? 'text-vc-mint' : 'text-white/20'}`} />
-                                            <div>
-                                                <p className="text-sm font-medium">{files.supportingData ? files.supportingData.name : 'Upload Supporting Data'}</p>
-                                                <p className="text-xs text-white/40">Optional technical documents</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="glass-panel p-6 border-vc-mint/30 bg-vc-mint/5">
-                                    <div className="flex items-start gap-4">
-                                        <input
-                                            type="checkbox"
-                                            id="final-agreement"
-                                            checked={formData.agreedToTerms}
-                                            onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
-                                            className="mt-1 w-6 h-6 rounded border-vc-mint/50 bg-white/5 text-vc-mint focus:ring-vc-mint focus:ring-offset-0 cursor-pointer"
-                                        />
-                                        <label htmlFor="final-agreement" className="text-sm text-white/80 leading-relaxed cursor-pointer select-none">
-                                            I have read, understood and agree to the <button onClick={(e) => { e.preventDefault(); setIsTermsOpen(true); }} className="text-vc-mint hover:underline font-bold decoration-vc-mint/30">Terms and Conditions</button> of the Venture Craft Competition. I confirm that all information provided is accurate and complete.
+                                        <label className="block text-sm font-medium text-white/70 flex items-center gap-2">
+                                            <Video className="w-4 h-4 text-vc-mint" />
+                                            Video Pitch (Unlisted YouTube Link)
                                         </label>
+                                        <input
+                                            type="url"
+                                            value={formData.videoPitchUrl}
+                                            onChange={(e) => setFormData({ ...formData, videoPitchUrl: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                            placeholder="https://youtube.com/..."
+                                        />
                                     </div>
-                                </div>
 
-                                <div className="flex justify-between pt-8">
-                                    <button onClick={prevStep} className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
-                                        <ArrowLeft className="w-5 h-5" />
-                                        <span>Back</span>
-                                    </button>
-                                    <button
-                                        onClick={handleSubmit}
-                                        disabled={loading || !files.pitchDeck || !files.execSummary || !formData.videoPitchUrl || !formData.agreedToTerms}
-                                        className="btn-primary flex items-center gap-2 !px-12 !py-4 !rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-vc-mint/20 transition-all active:scale-95"
-                                    >
-                                        {loading ? (
-                                            <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                        ) : (
-                                            <>
-                                                <span>Submit Application</span>
-                                                <CheckCircle className="w-5 h-5" />
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-medium text-white/70">Supporting Data (Optional / PDF or Word)</label>
+                                        <div className="relative group">
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.docx,.doc"
+                                                onChange={(e) => setFiles({ ...files, supportingData: e.target.files?.[0] || null })}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            />
+                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.supportingData ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                <LinkIcon className={`w-6 h-6 ${files.supportingData ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                <div>
+                                                    <p className="text-sm font-medium">{files.supportingData ? files.supportingData.name : 'Upload Supporting Data'}</p>
+                                                    <p className="text-xs text-white/40">Optional technical documents</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-            </div>
+                                    <div className="glass-panel p-6 border-vc-mint/30 bg-vc-mint/5">
+                                        <div className="flex items-start gap-4">
+                                            <input
+                                                type="checkbox"
+                                                id="final-agreement"
+                                                checked={formData.agreedToTerms}
+                                                onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
+                                                className="mt-1 w-6 h-6 rounded border-vc-mint/50 bg-white/5 text-vc-mint focus:ring-vc-mint focus:ring-offset-0 cursor-pointer"
+                                            />
+                                            <label htmlFor="final-agreement" className="text-sm text-white/80 leading-relaxed cursor-pointer select-none">
+                                                I have read, understood and agree to the <button onClick={(e) => { e.preventDefault(); setIsTermsOpen(true); }} className="text-vc-mint hover:underline font-bold decoration-vc-mint/30">Terms and Conditions</button> of the Venture Craft Competition. I confirm that all information provided is accurate and complete.
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between pt-8">
+                                        <button onClick={prevStep} className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
+                                            <ArrowLeft className="w-5 h-5" />
+                                            <span>Back</span>
+                                        </button>
+                                        <button
+                                            onClick={handleSubmit}
+                                            disabled={loading || !files.pitchDeck || !files.execSummary || !formData.videoPitchUrl || !formData.agreedToTerms}
+                                            className="btn-primary flex items-center gap-2 !px-12 !py-4 !rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-vc-mint/20 transition-all active:scale-95"
+                                        >
+                                            {loading ? (
+                                                <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <span>Submit Application</span>
+                                                    <CheckCircle className="w-5 h-5" />
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )
+                        }
+                    </AnimatePresence >
+                </div >
+
+            </div >
 
             {step === 0 && <Footer />}
 
@@ -1079,5 +1100,13 @@ export default function ApplyPage() {
                 )}
             </AnimatePresence>
         </main >
+    );
+}
+
+export default function ApplyPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#001311] flex items-center justify-center text-vc-mint">Loading...</div>}>
+            <ApplyPageContent />
+        </Suspense>
     );
 }

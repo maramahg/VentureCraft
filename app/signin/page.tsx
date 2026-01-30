@@ -2,17 +2,19 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { Suspense } from 'react';
 
-export default function SignIn() {
+function SignInContent() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const validateEmail = (email: string) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -34,7 +36,8 @@ export default function SignIn() {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
             console.log('✅ User signed in successfully.');
-            router.push('/');
+            const redirectPath = searchParams.get('redirect') || '/';
+            router.push(redirectPath);
         } catch (err: any) {
             console.error('❌ Sign In Error:', err);
             setError(err.message || 'Failed to sign in. Please check your credentials.');
@@ -137,5 +140,13 @@ export default function SignIn() {
 
 
         </>
+    );
+}
+
+export default function SignIn() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#001311] flex items-center justify-center text-vc-mint">Loading...</div>}>
+            <SignInContent />
+        </Suspense>
     );
 }

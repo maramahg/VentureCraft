@@ -24,7 +24,7 @@ export function HeroScrollDemo() {
               Venture Craft
             </span>
             <span className="block mt-2 text-xl sm:text-2xl md:text-3xl xl:text-4xl uppercase">
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal mr-3 sm:mr-4">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal mr-3 sm:mr-4 pr-2">
                 100K
               </span>{" "}
               <span className="font-light tracking-[0.2em] text-white/60">
@@ -55,12 +55,8 @@ export function HeroScrollDemo() {
               </span>
             </Link>
 
-            <a
-              href="#objectives"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('objectives')?.scrollIntoView({ behavior: 'smooth' });
-              }}
+            <Link
+              href="/about"
               className="group relative p-[1.5px] rounded-full overflow-hidden w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95 inline-block cursor-pointer font-bold z-[100] pointer-events-auto"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
@@ -69,7 +65,7 @@ export function HeroScrollDemo() {
                   Learn More
                 </span>
               </div>
-            </a>
+            </Link>
           </motion.div>
 
           <motion.div

@@ -59,7 +59,7 @@ function Card({
 
     // 2. Map Scroll Progress -> Animation Values with Easing
     const start = index * 0.05;
-    const end = 0.4; // Complete animation very early (40% of scroll)
+    const end = 0.8; // Complete animation much later (80% of smooth scroll)
 
     // Use cubic-bezier easing for X and Rotate to give that "swing" feel
     const x = useTransform(progress, [start, end], [0, finalX], { ease: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 });
@@ -244,7 +244,7 @@ export default function ThemePillars() {
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start start", "end end"]
+        offset: ["start 0.2", "end end"]
     });
 
     // Smooth scroll progress
@@ -257,10 +257,10 @@ export default function ThemePillars() {
 
     // Deck Animation (Whole deck moving or scaling)
     // We can scale the whole deck slightly as it fans out
-    const deckY = useTransform(smoothProgress, [0, 1], [100, -50]);
+    const deckY = useTransform(smoothProgress, [0, 1], [500, 100]);
 
     return (
-        <section ref={containerRef} className="relative xl:h-[120vh] z-10 overflow-visible py-24 md:py-40 xl:py-0">
+        <section ref={containerRef} className="relative xl:h-[110vh] z-10 overflow-visible py-16 md:py-32 xl:py-0">
             {/* 
             Height: Auto on Mobile/Tablet (with padding), 120vh on Desktop (for scroll animation).
             Spacing: Uniform py-16/24 on non-desktop to match other sections.
@@ -268,13 +268,13 @@ export default function ThemePillars() {
 
             <div className="relative xl:sticky xl:top-0 xl:h-screen flex flex-col items-center justify-center perspective-1000" style={{ perspective: '1500px' }}>
 
-                <div className="relative xl:absolute xl:top-8 text-center z-20 pointer-events-none px-4 mt-8 xl:mt-0">
-                    <h2 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tight text-white mb-4 font-poppins">
+                <div className="relative xl:absolute xl:top-24 text-center z-20 px-4 mt-8 xl:mt-0 max-w-4xl mx-auto pointer-events-none">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
                         Theme Pillars
                     </h2>
-                    <p className="text-white/60 text-sm md:text-base hidden xl:block">Scroll to explore strategic themes</p>
-                    <p className="text-white/60 text-sm md:text-base hidden md:block xl:hidden">Swipe to explore strategic themes</p>
-                    <p className="text-white/60 text-sm md:text-base md:hidden">Tap card to cycle</p>
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden xl:block">Scroll to explore strategic themes</p>
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden md:block xl:hidden">Swipe to explore strategic themes</p>
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins md:hidden">Tap card to cycle</p>
                 </div>
 
                 {/* Desktop: Card Deck Animation (XL and up) */}
@@ -320,17 +320,14 @@ export default function ThemePillars() {
                                 ))}
                             </div>
 
-                            <div className="mt-auto flex justify-between items-center text-white/30 text-[10px] font-mono uppercase tracking-widest">
-                                <span>{pillar.id}</span>
-                                <span>/ 04</span>
-                            </div>
+
                         </div>
                     ))}
                 </div>
 
                 {/* Tablet: Horizontal Scroll (MD to LG) - iPADS ONLY */}
                 <div className="hidden md:flex lg:hidden relative w-full flex items-center justify-center mt-8 px-8">
-                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 w-full pb-8 hide-scrollbar">
+                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 w-full pb-8 no-scrollbar">
                         {pillars.map((pillar) => (
                             <div
                                 key={pillar.id}
@@ -355,10 +352,7 @@ export default function ThemePillars() {
                                     ))}
                                 </div>
 
-                                <div className="mt-auto flex justify-between items-center text-white/30 text-xs font-mono uppercase tracking-widest">
-                                    <span>{pillar.id}</span>
-                                    <span>/ 04</span>
-                                </div>
+
                             </div>
                         ))}
                         {/* Spacer for right padding */}

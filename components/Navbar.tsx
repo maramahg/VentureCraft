@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode } from 'lucide-react';
 import Image from 'next/image';
@@ -12,7 +12,14 @@ import { doc, getDoc } from 'firebase/firestore';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'About', href: '/about' },
+  {
+    name: 'About',
+    href: '#',
+    subItems: [
+      { name: 'WHAT IS VENTURE CRAFT?', href: '/about/venture-craft' },
+      { name: 'KFUPM & DTV', href: '/about/kfupm-dtv' },
+    ]
+  },
   { name: 'Apply Now', href: '/apply' },
   { name: 'Ambassadors', href: '/ambassadors' },
 ];
@@ -20,11 +27,30 @@ const navItems = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileOpen]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -89,20 +115,59 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-10 ml-auto mr-8">
             {navItems.map((item) => (
-              <Link
+              <div
                 key={item.name}
-                href={item.href}
-                className="text-sm font-semibold text-white/90 hover:text-vc-mint transition-colors"
+                className="relative group"
+                onMouseEnter={() => item.subItems && setActiveDropdown(item.name)}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
-                {item.name}
-              </Link>
+                {item.subItems ? (
+                  <div className="flex items-center gap-1 cursor-pointer py-2">
+                    <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${activeDropdown === item.name ? 'text-vc-mint' : 'text-white/90 group-hover:text-vc-mint'}`}>
+                      {item.name}
+                    </span>
+                    <ChevronDown size={14} className={`text-white/50 transition-transform duration-300 ${activeDropdown === item.name ? 'rotate-180 text-vc-mint' : ''}`} />
+
+                    <AnimatePresence>
+                      {activeDropdown === item.name && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 0, scale: 0.98 }}
+                          className="absolute left-0 mt-2 w-64 bg-[#111111] border border-white/5 shadow-2xl z-50 top-full"
+                        >
+                          <div className="flex flex-col">
+                            {item.subItems.map((subItem) => (
+                              <Link
+                                key={subItem.name}
+                                href={subItem.href}
+                                className="flex items-center px-6 py-4 text-[13px] font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint hover:bg-white/5 transition-all border-b border-white/[0.03] last:border-b-0"
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                {subItem.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className="text-xs font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint transition-colors py-2"
+                  >
+                    {item.name}
+                  </Link>
+                )}
+              </div>
             ))}
           </div>
 
           <div className="hidden md:block relative min-w-[100px]">
             {!authLoading && (
               user ? (
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="flex items-center gap-2 p-1 pl-1 pr-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
@@ -110,7 +175,7 @@ export default function Navbar() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#21428f] to-vc-teal flex items-center justify-center text-white">
                       <User size={18} />
                     </div>
-                    <span className="text-sm font-medium text-white/90 group-hover:text-white">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/90 group-hover:text-white">
                       {user.displayName?.split(' ')[0] || 'Account'}
                     </span>
                     <ChevronDown size={14} className={`text-white/50 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
@@ -119,10 +184,6 @@ export default function Navbar() {
                   <AnimatePresence>
                     {isProfileOpen && (
                       <>
-                        <div
-                          className="fixed inset-0 z-[-1]"
-                          onClick={() => setIsProfileOpen(false)}
-                        />
                         <motion.div
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -138,9 +199,9 @@ export default function Navbar() {
                             <Link
                               href="/profile"
                               onClick={() => setIsProfileOpen(false)}
-                              className="flex items-center gap-3 px-5 py-3 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                              className="flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
                             >
-                              <User size={18} />
+                              <User size={16} />
                               My Profile
                             </Link>
 
@@ -150,7 +211,7 @@ export default function Navbar() {
                                 <Link
                                   href="/admin"
                                   onClick={() => setIsProfileOpen(false)}
-                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
                                 >
                                   <div className="w-[18px] flex justify-center">
                                     <div className="w-1.5 h-1.5 bg-vc-mint rounded-full" />
@@ -160,7 +221,7 @@ export default function Navbar() {
                                 <Link
                                   href="/qr"
                                   onClick={() => setIsProfileOpen(false)}
-                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
                                 >
                                   <div className="w-[18px] flex justify-center">
                                     <QrCode size={14} className="text-vc-mint" />
@@ -174,9 +235,9 @@ export default function Navbar() {
                           <div className="p-2 border-t border-white/10 mt-1">
                             <button
                               onClick={handleSignOut}
-                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all group"
+                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all group"
                             >
-                              <LogOut size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                              <LogOut size={16} className="group-hover:-translate-x-0.5 transition-transform" />
                               Logout
                             </button>
                           </div>
@@ -189,7 +250,7 @@ export default function Navbar() {
                 <Link href="/signin" className="inline-block group relative p-[1.5px] rounded-full overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
                   <div className="relative px-8 py-2 rounded-full bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-colors">
-                    <span className="text-sm font-bold text-white group-hover:text-vc-mint transition-colors">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white group-hover:text-vc-mint transition-colors">
                       Sign in
                     </span>
                   </div>
@@ -218,14 +279,35 @@ export default function Navbar() {
             >
               <div className="glass-panel p-6 flex flex-col gap-4 bg-[#0D1B1A]/95 !backdrop-blur-lg border border-white/10 shadow-2xl">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="text-lg font-medium text-white/90 hover:text-vc-mint"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
+                  <div key={item.name} className="flex flex-col gap-2">
+                    {item.subItems ? (
+                      <>
+                        <div className="flex items-center justify-between text-lg font-bold text-vc-mint/50 uppercase tracking-widest px-1">
+                          {item.name}
+                        </div>
+                        <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-1">
+                          {item.subItems.map((subItem) => (
+                            <Link
+                              key={subItem.name}
+                              href={subItem.href}
+                              className="text-base font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {subItem.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="text-sm font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    )}
+                  </div>
                 ))}
                 <hr className="border-white/10" />
                 {!authLoading && (
@@ -236,16 +318,16 @@ export default function Navbar() {
                           <User size={20} />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white leading-tight">{user.displayName || 'User'}</p>
+                          <p className="text-xs font-bold uppercase tracking-widest text-white leading-tight">{user.displayName || 'User'}</p>
                           <p className="text-xs text-white/50">{user.email}</p>
                         </div>
                       </div>
                       <Link
                         href="/profile"
-                        className="flex items-center gap-3 text-lg font-medium text-white/90 hover:text-vc-mint"
+                        className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
                         onClick={() => setIsOpen(false)}
                       >
-                        <User size={20} className="text-vc-mint" />
+                        <User size={18} className="text-vc-mint" />
                         My Profile
                       </Link>
 
@@ -253,7 +335,7 @@ export default function Navbar() {
                         <>
                           <Link
                             href="/admin"
-                            className="flex items-center gap-3 text-lg font-bold text-vc-mint"
+                            className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
                             onClick={() => setIsOpen(false)}
                           >
                             <Shield size={20} />
@@ -261,7 +343,7 @@ export default function Navbar() {
                           </Link>
                           <Link
                             href="/qr"
-                            className="flex items-center gap-3 text-lg font-bold text-vc-mint"
+                            className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
                             onClick={() => setIsOpen(false)}
                           >
                             <QrCode size={20} />
@@ -271,9 +353,9 @@ export default function Navbar() {
                       )}
                       <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-3 text-lg font-medium text-red-400 hover:text-red-300"
+                        className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-red-400 hover:text-red-300"
                       >
-                        <LogOut size={20} />
+                        <LogOut size={18} />
                         Sign Out
                       </button>
                     </>
@@ -285,7 +367,7 @@ export default function Navbar() {
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-[#21428f] to-vc-teal opacity-70 group-hover:from-vc-mint/80 group-hover:to-vc-mint group-hover:opacity-100 transition-all duration-300" />
                       <div className="relative w-full py-3 rounded-xl bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-colors">
-                        <span className="text-lg font-bold text-white group-hover:text-vc-mint transition-colors">
+                        <span className="text-sm font-bold uppercase tracking-widest text-white group-hover:text-vc-mint transition-colors">
                           Sign in
                         </span>
                       </div>

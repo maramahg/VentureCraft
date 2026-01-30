@@ -131,7 +131,7 @@ export default function Timeline() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Timeline</h2>
-          <p className="text-white/60 max-w-2xl mx-auto">Click on the points to explore each phase of the competition.</p>
+          <p className="text-vc-mint font-bold max-w-2xl mx-auto">Click on the points to explore each phase of the competition.</p>
         </div>
 
         <div className="relative max-w-7xl mx-auto">
