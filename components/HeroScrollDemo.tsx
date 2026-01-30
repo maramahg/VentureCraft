@@ -24,7 +24,7 @@ export function HeroScrollDemo() {
               Venture Craft
             </span>
             <span className="block mt-2 text-xl sm:text-2xl md:text-3xl xl:text-4xl uppercase">
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal mr-3 sm:mr-4">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal mr-3 sm:mr-4 pr-2">
                 100K
               </span>{" "}
               <span className="font-light tracking-[0.2em] text-white/60">
