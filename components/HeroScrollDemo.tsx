@@ -24,10 +24,10 @@ export function HeroScrollDemo() {
               Venture Craft
             </span>
             <span className="block mt-2 text-xl sm:text-2xl md:text-3xl uppercase">
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal drop-shadow-[0_0_15px_rgba(79,209,197,0.3)] mr-3 sm:mr-4 pr-2">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-vc-mint via-vc-mint to-vc-teal drop-shadow-[0_0_15px_rgba(79,209,197,0.3)] mr-2">
                 100K
-              </span>{" "}
-              <span className="font-light tracking-[0.2em] text-white/40">
+              </span>
+              <span className="font-light tracking-[0.1em] text-white/40 ml-1">
                 COMPETITION
               </span>
             </span>
