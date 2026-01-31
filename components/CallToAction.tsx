@@ -21,7 +21,7 @@ export default function CallToAction({ showOnlyRegister = false }: CallToActionP
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
-                            className="relative group overflow-hidden rounded-3xl border border-white/10 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
+                            className="relative group h-full overflow-hidden rounded-3xl border border-white/10 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-vc-mint/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -29,16 +29,16 @@ export default function CallToAction({ showOnlyRegister = false }: CallToActionP
                                 <Info className="w-8 h-8 text-vc-mint" />
                             </div>
 
-                            <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins">
+                            <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins text-balance">
                                 Want to learn more?
                             </h3>
-                            <p className="text-white/70 mb-8 font-poppins text-lg">
+                            <p className="text-white/70 mb-8 font-poppins text-lg text-balance">
                                 Discover our mission, vision, and the impact we aim to create in the deep-tech ecosystem.
                             </p>
 
                             <Link
                                 href="/about/venture-craft"
-                                className="relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all duration-300 group/btn border border-white/10"
+                                className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all duration-300 group/btn border border-white/10"
                             >
                                 Learn More
                                 <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
@@ -52,7 +52,7 @@ export default function CallToAction({ showOnlyRegister = false }: CallToActionP
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
-                        className="relative group overflow-hidden rounded-3xl border border-vc-teal/30 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
+                        className="relative group h-full overflow-hidden rounded-3xl border border-vc-teal/30 bg-[#003330] p-8 md:p-12 flex flex-col items-center text-center shadow-2xl"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-vc-teal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -60,16 +60,16 @@ export default function CallToAction({ showOnlyRegister = false }: CallToActionP
                             <UserPlus className="w-8 h-8 text-vc-teal" />
                         </div>
 
-                        <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins">
+                        <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins text-balance">
                             Want to register?
                         </h3>
-                        <p className="text-white/70 mb-8 font-poppins text-lg">
+                        <p className="text-white/70 mb-8 font-poppins text-lg text-balance">
                             Take the first step towards transforming your deep-tech idea into a global solution.
                         </p>
 
                         <Link
                             href="/apply"
-                            className="relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-teal text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-vc-teal/30 group/btn"
+                            className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-teal text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-vc-teal/30 group/btn"
                         >
                             Register Now
                             <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
