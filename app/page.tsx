@@ -1,15 +1,15 @@
 'use client';
 
-import ThemePillars from "../components/ThemePillars";
+import dynamic from 'next/dynamic';
 import { HeroScrollDemo } from "../components/HeroScrollDemo";
-import ThreePillarRow from "@/src/components/ThreePillarRow";
-import Timeline from "../components/Timeline";
-import AboutObjectives from "@/src/components/AboutObjectives";
-import AboutTargetAudience from "@/src/components/AboutTargetAudience";
 import Footer from "../components/Footer";
-import Prizes from "../components/Prizes";
-import CallToAction from "../components/CallToAction";
-import AnnualTheme from "../components/AnnualTheme";
+
+// Lazy-load components to improve initial page weight
+const Prizes = dynamic(() => import("../components/Prizes"));
+const ThreePillarRow = dynamic(() => import("@/src/components/ThreePillarRow"));
+const AnnualTheme = dynamic(() => import("../components/AnnualTheme"));
+const Timeline = dynamic(() => import("../components/Timeline"));
+const CallToAction = dynamic(() => import("../components/CallToAction"));
 
 import Image from "next/image";
 import { useScroll, useTransform, motion } from "framer-motion";

@@ -30,15 +30,15 @@ export function Globe({ className }: { className?: string }) {
       setGlobeImageUrl(canvas.toDataURL());
     }
 
-    // Fetch GeoJSON for countries
-    fetch('https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+    // Fetch GeoJSON for countries locali
+    fetch('/data/countries.json')
       .then(res => res.json())
       .then(countries => {
         if (countries && countries.features) {
           setHexData(countries.features);
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error('Local GeoJSON Fetch Error:', err));
 
     const handleResize = () => {
       if (containerRef.current) {

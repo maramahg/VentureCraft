@@ -3,6 +3,7 @@ import React from "react";
 import { Globe } from "./ui/globe";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 export function HeroScrollDemo() {
   return (
@@ -98,9 +99,9 @@ export function HeroScrollDemo() {
           >
             <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-medium pt-2">In Partnership With</span>
             <div className="flex items-center gap-8 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-              <img src="/kfupm-logo.png" alt="KFUPM" className="h-7 md:h-8 w-auto object-contain" />
+              <Image src="/kfupm-logo.png" alt="KFUPM" width={128} height={32} className="h-7 md:h-8 w-auto object-contain" />
               <div className="w-px h-6 bg-white/30" />
-              <img src="/dtv-logo.png" alt="DTV" className="h-9 md:h-11 w-auto object-contain" />
+              <Image src="/dtv-logo.png" alt="DTV" width={160} height={44} className="h-9 md:h-11 w-auto object-contain" />
             </div>
           </motion.div>
         </motion.div>
