@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { getStorage, FirebaseStorage } from "firebase/storage";
 
 
 const firebaseConfig = {
@@ -16,22 +17,26 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
+let storage: FirebaseStorage;
 
 
 if (typeof window !== 'undefined' && getApps().length > 0) {
     app = getApp();
     auth = getAuth(app);
     db = getFirestore(app);
+    storage = getStorage(app);
 
 } else if (firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    storage = getStorage(app);
 
 } else {
     // Prevent build error when env vars are missing
     auth = {} as Auth;
     db = {} as Firestore;
+    storage = {} as FirebaseStorage;
 }
 
-export { auth, db };
+export { auth, db, storage };
