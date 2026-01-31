@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { Suspense } from 'react';
+import { getAuthErrorMessage } from '@/lib/auth-errors';
 
 function SignInContent() {
     const [email, setEmail] = useState('');
@@ -40,7 +41,7 @@ function SignInContent() {
             router.push(redirectPath);
         } catch (err: any) {
             console.error('❌ Sign In Error:', err);
-            setError(err.message || 'Failed to sign in. Please check your credentials.');
+            setError(getAuthErrorMessage(err.code));
         } finally {
             setLoading(false);
         }

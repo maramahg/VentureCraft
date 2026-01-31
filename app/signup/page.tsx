@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
+import { getAuthErrorMessage } from '@/lib/auth-errors';
 
 export default function SignUp() {
     const [fullName, setFullName] = useState('');
@@ -78,11 +79,7 @@ export default function SignUp() {
 
         } catch (err: any) {
             console.error('Sign Up Error:', err.message);
-            if (err.code === 'auth/email-already-in-use') {
-                setError('This email is already registered.');
-            } else {
-                setError(err.message || 'Failed to sign up.');
-            }
+            setError(getAuthErrorMessage(err.code));
             setLoading(false); // Reset loading so they can try again if it failed
         }
     };
