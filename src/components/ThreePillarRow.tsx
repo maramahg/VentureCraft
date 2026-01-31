@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const pillars = [
@@ -29,6 +29,16 @@ const pillars = [
 
 export default function ThreePillarRow() {
     const [activeId, setActiveId] = useState(2);
+    const [isMobile, setIsMobile] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     return (
         <section className="relative z-20 py-10 md:py-20">
@@ -40,7 +50,15 @@ export default function ThreePillarRow() {
                     </p>
                 </div>
                 {/* Container: Stacks on mobile, Row on desktop */}
-                <div className="flex flex-col md:flex-row gap-4 h-[580px] md:h-[350px]">
+                <motion.div
+                    animate={{
+                        height: isMounted && isMobile
+                            ? (activeId === 1 ? 650 : activeId === 2 ? 560 : 480)
+                            : 350
+                    }}
+                    transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1.0] }}
+                    className="flex flex-col md:flex-row gap-4 md:!h-[350px]"
+                >
 
                     {pillars.map((pillar) => {
                         const isActive = activeId === pillar.id;
@@ -52,11 +70,11 @@ export default function ThreePillarRow() {
                                 layout
                                 className={`
                   relative cursor-pointer overflow-hidden rounded-2xl border 
-                  flex flex-col justify-start p-6 md:p-8
+                  flex flex-col justify-start p-5 sm:p-6 md:p-8
                   glass-card transition-all duration-300
                   ${isActive
                                         // Active styles
-                                        ? 'flex-[5] md:flex-[3] border-vc-teal/50 shadow-[0_0_30px_rgba(0,163,131,0.2)]'
+                                        ? 'flex-[6] md:flex-[3] border-vc-teal/50 shadow-[0_0_30px_rgba(0,163,131,0.2)]'
                                         // Inactive styles
                                         : 'flex-[1] border-white/5 hover:border-vc-mint/30 hover:bg-white/5'
                                     }
@@ -72,11 +90,11 @@ export default function ThreePillarRow() {
                                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1.0] }}
                             >
                                 {/* Header Section */}
-                                <motion.div layout="position" className="mb-6 text-center relative z-10 w-full shrink-0">
+                                <motion.div layout="position" className="mb-4 md:mb-6 text-center relative z-10 w-full shrink-0">
                                     {/* Decorative line */}
                                     <motion.div
                                         layout
-                                        className={`h-1 mx-auto mb-4 rounded-full transition-colors duration-500
+                                        className={`h-1 mx-auto mb-3 md:mb-4 rounded-full transition-colors duration-500
                         ${isActive ? 'w-16 bg-vc-mint' : 'w-8 bg-white/20 group-hover:bg-vc-mint/50'}
                     `}
                                     />
@@ -124,9 +142,8 @@ export default function ThreePillarRow() {
                             </motion.div>
                         );
                     })}
-
-                </div>
+                </motion.div>
             </div>
-        </section>
+        </section >
     );
 }
