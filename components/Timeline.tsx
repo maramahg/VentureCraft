@@ -7,6 +7,7 @@ type PhaseLabel = {
   title: string;
   dates?: string;
   special?: boolean;
+  description?: string;
 };
 
 type TimelineNode = {
@@ -26,12 +27,12 @@ export default function Timeline() {
 
   const nodes: TimelineNode[] = useMemo(
     () => [
-      { id: 0, top: { title: 'Idea Submission', dates: '1 Feb - 1 Mar' } },
-      { id: 1, bottom: { title: 'Screening \n (Round 1 & 2)', dates: '1 Mar - 15 Mar' } },
-      { id: 2, top: { title: 'Online Bootcamp', dates: '23 Mar - 30 Mar' } },
-      { id: 3, bottom: { title: 'Finalist Notification & Travel Arrangements', dates: '1 April - 5 April' } },
-      { id: 4, top: { title: 'Bootcamp & Acceleration Program', dates: '5 April - 12 April' } },
-      { id: 5, bottom: { title: 'Final Competition', dates: '15 April' } },
+      { id: 1, top: { title: 'Idea Submission', dates: '1 Feb - 1 Mar', description: 'Launch your journey. Submit your initial concept for review by our technical committee.' } },
+      { id: 2, bottom: { title: 'Screening \n (Round 1 & 2)', dates: '1 Mar - 15 Mar', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
+      { id: 3, top: { title: 'Online Bootcamp', dates: '23 Mar - 30 Mar', description: 'A virtual deep-dive into startup fundamentals, IP strategy, and go-to-market planning.' } },
+      { id: 4, bottom: { title: 'Finalist Notification', dates: '1 April - 5 April', description: 'The big announcement. Selected teams receive full travel support for the in-person acceleration program.' } },
+      { id: 5, top: { title: 'Acceleration Program', dates: '5 April - 12 April', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
+      { id: 6, bottom: { title: 'Final Competition', dates: '15 April', description: 'Pitch your venture to global investors and energy leaders for the grand prize and partnership deals.' } },
     ],
     []
   );
@@ -49,7 +50,7 @@ export default function Timeline() {
   const nodeGridStyle = { gridTemplateColumns: `repeat(${nodeCount}, minmax(0, 1fr))` };
 
   const BASE_LINE = '#082754';
-  const PROGRESS_LINE = '#00f2fe'; // Updated to a vibrant cyan for better contrast
+  const PROGRESS_LINE = '#4FD1C5';
 
   const getState = (nodeIndex: number): NodeState => ({
     isCurrent: nodeIndex === safeNode,
@@ -58,18 +59,18 @@ export default function Timeline() {
 
   const cardClass = (state: NodeState, isSpecial?: boolean) =>
     [
-      'md:mx-auto',
-      'w-full max-w-[280px] md:w-fit md:max-w-full',
-      'rounded-2xl px-4 py-3 text-center',
-      'backdrop-blur-md border transition-all duration-300',
+      'lg:mx-auto',
+      'w-full max-w-[280px] lg:w-full lg:max-w-[200px] xl:max-w-[240px]', // Fluid width
+      'rounded-2xl px-5 py-4 text-center',
+      'backdrop-blur-md border transition-all duration-500 ease-in-out',
       'shadow-[0_10px_35px_rgba(0,0,0,0.3)]',
       state.isCurrent
         ? isSpecial
-          ? 'bg-red-500/20 border-red-300/40'
-          : 'bg-[rgba(0,75,68,0.95)] border-vc-mint/50'
+          ? 'bg-red-500/20 border-red-300/40 ring-2 ring-red-500/20'
+          : 'bg-[rgba(0,75,68,0.95)] border-vc-mint/50 ring-2 ring-vc-mint/30'
         : state.isPast
           ? 'bg-[rgba(0,75,68,0.7)] border-white/10 opacity-95'
-          : 'bg-[rgba(0,75,68,0.4)] border-white/5 opacity-45',
+          : 'bg-[rgba(0,75,68,0.4)] border-white/5 opacity-45 hover:bg-[rgba(0,75,68,0.55)]',
     ].join(' ');
 
   const titleClass = (state: NodeState, isSpecial?: boolean) => {
@@ -78,16 +79,31 @@ export default function Timeline() {
     return 'text-white';
   };
 
-  const Card = ({ label, state }: { label: PhaseLabel; state: NodeState }) => (
+  const Card = ({ label, state, isTop }: { label: PhaseLabel; state: NodeState; isTop?: boolean }) => (
     <div className={cardClass(state, label.special)}>
-      <div className={`font-semibold font-poppins text-xs md:text-sm whitespace-pre-line leading-snug ${titleClass(state, label.special)}`}>
+      <div className={`font-bold font-poppins text-sm md:text-[15px] whitespace-pre-line leading-tight ${titleClass(state, label.special)}`}>
         {label.title}
       </div>
-      {label.dates && <div className="text-[10px] text-white/60 mt-2 whitespace-pre-line">{label.dates}</div>}
+      {label.dates && (
+        <div className="text-[10px] font-poppins text-white/50 mt-1.5 uppercase tracking-wider font-medium">
+          {label.dates}
+        </div>
+      )}
+
+      {/* In-card Description for all devices */}
+      {state.isCurrent && label.description && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+          animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+          className="overflow-hidden border-t border-white/10 pt-3"
+        >
+          <p className="text-white/80 font-poppins text-xs leading-relaxed text-left md:text-center">
+            {label.description}
+          </p>
+        </motion.div>
+      )}
     </div>
   );
-
-  const EndpointDot = () => <div className="w-5 h-5 rounded-full border-2 border-white bg-transparent" />;
 
   const Dot = ({ nodeIndex }: { nodeIndex: number }) => {
     const state = getState(nodeIndex);
@@ -99,72 +115,69 @@ export default function Timeline() {
       >
         {state.isCurrent && (
           <>
-            <div className="absolute -inset-3 animate-ping rounded-full border-2 border-vc-mint opacity-75" />
-            {isBeating && <div className="absolute -inset-3 animate-pulse rounded-full bg-vc-mint/30" />}
+            <div className="absolute -inset-4 animate-ping rounded-full border-2 border-vc-mint opacity-40" />
+            {isBeating && <div className="absolute -inset-4 animate-pulse rounded-full bg-vc-mint/20" />}
           </>
         )}
 
         <div
           className={[
-            'w-5 h-5 rounded-full border-2 transition-all duration-300',
+            'w-5 h-5 rounded-full border-2 transition-all duration-300 relative z-10',
             state.isCurrent
-              ? 'bg-vc-mint border-white scale-125 shadow-lg shadow-vc-mint/50 outline outline-4 outline-vc-mint/20'
+              ? 'bg-vc-mint border-white scale-125 shadow-lg shadow-vc-mint/50'
               : state.isPast
-                ? 'bg-red-500 border-white shadow-[0_0_15px_rgba(239,68,68,0.5)]'
-                : 'bg-white/10 border-white/30 group-hover:bg-white/20',
+                ? 'bg-vc-mint/60 border-white/60 shadow-[0_0_15px_rgba(79,209,197,0.3)]'
+                : 'bg-white/10 border-white/30 group-hover:bg-white/20 group-hover:border-white/50',
           ].join(' ')}
         />
 
         {state.isCurrent && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-            <span className="text-xl animate-bounce">🚀</span>
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+            <span className="text-2xl animate-bounce">🚀</span>
           </div>
         )}
       </div>
     );
   };
 
-  const currentTitle = nodes[safeNode]?.top?.title || nodes[safeNode]?.bottom?.title || '—';
-
   return (
     <section id="timeline" className="py-24 md:py-40 relative z-20 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight">Timeline</h2>
-          <p className="text-vc-mint font-bold max-w-2xl mx-auto">Click on the points to explore each phase of the competition.</p>
+          <h2 className="text-4xl md:text-6xl font-extrabold mb-4 font-poppins uppercase tracking-tight text-white">Timeline</h2>
+          <p className="text-vc-mint font-bold font-poppins max-w-vc-container mx-auto uppercase tracking-widest text-xs md:text-sm">Explore our journey to the grand finale</p>
         </div>
 
         <div className="relative max-w-7xl mx-auto">
-          {/* SHARED CONTAINER FOR DESKTOP & MOBILE */}
-          <div className="rounded-3xl backdrop-blur-xl p-6 md:p-12 shadow-[0_20px_80px_rgba(0,0,0,0.4)]"
+          <div className="rounded-3xl backdrop-blur-xl p-6 md:p-12 lg:px-16 lg:py-20 xl:px-32 shadow-[0_20px_80px_rgba(0,0,0,0.4)]"
             style={{
               background: 'rgba(0, 75, 68, 0.75)',
               border: '1px solid rgba(79, 209, 197, 0.3)'
             }}>
 
-            {/* DESKTOP VIEW */}
-            <div className="hidden md:grid items-center" style={nodeGridStyle}>
+            {/* DESKTOP VIEW - Only on 1024px+ */}
+            <div className="hidden lg:grid items-center" style={nodeGridStyle}>
               {/* TOP CARDS ROW */}
               {nodes.map((n, i) => {
                 const state = getState(i);
                 return (
                   <div
                     key={`top-${n.id}`}
-                    className={`h-[100px] flex items-end justify-center px-1 ${n.top?.special ? 'pb-2' : 'pb-4'}`}
+                    className="flex flex-col items-center justify-end h-[160px] lg:h-[180px] pb-8 cursor-pointer"
+                    onClick={() => setCurrentPhase(i)}
                   >
-                    {n.top ? <Card label={n.top} state={state} /> : null}
+                    {n.top ? <Card label={n.top} state={state} isTop /> : null}
                   </div>
                 );
               })}
 
               {/* TIMELINE TRACK ROW */}
-              <div className="relative h-[80px] flex items-center col-span-full">
+              <div className="relative h-[2px] flex items-center col-span-full my-4">
                 <div className="absolute inset-0">
                   <div
-                    className="absolute top-1/2 h-[2px] -translate-y-1/2 rounded-full"
+                    className="absolute top-1/2 h-[2px] -translate-y-1/2 rounded-full w-full"
                     style={{
-                      left: `calc(100% / ${nodeCount} / 2)`,
-                      right: `calc(100% / ${nodeCount} / 2)`,
+                      left: 0,
                       backgroundColor: BASE_LINE,
                     }}
                   />
@@ -175,7 +188,7 @@ export default function Timeline() {
                     style={{
                       left: `calc(100% / ${nodeCount} / 2)`,
                       backgroundColor: PROGRESS_LINE,
-                      boxShadow: '0 0 10px rgba(0, 242, 254, 0.5)'
+                      boxShadow: '0 0 15px rgba(79, 209, 197, 0.6)'
                     }}
                   />
                 </div>
@@ -195,7 +208,8 @@ export default function Timeline() {
                 return (
                   <div
                     key={`bottom-${n.id}`}
-                    className={`h-[100px] flex items-start justify-center px-1 ${n.bottom?.special ? 'pt-2' : 'pt-4'}`}
+                    className="flex flex-col items-center justify-start h-[160px] lg:h-[180px] pt-8 cursor-pointer"
+                    onClick={() => setCurrentPhase(i)}
                   >
                     {n.bottom ? <Card label={n.bottom} state={state} /> : null}
                   </div>
@@ -203,32 +217,29 @@ export default function Timeline() {
               })}
             </div>
 
-            {/* MOBILE VIEW */}
-            <div className="block md:hidden w-full">
-              <div className="relative w-full pl-2 pr-2">
+            {/* MOBILE & TABLET VIEW - Up to 1024px */}
+            <div className="block lg:hidden w-full">
+              <div className="relative w-full max-w-md mx-auto">
                 {/* Vertical Line */}
                 <div
                   className="absolute w-0.5 bg-gradient-to-b from-vc-mint via-vc-teal to-transparent rounded-full"
-                  style={{ left: '20px', top: '15px', bottom: '15px' }}
+                  style={{ left: '20px', top: '20px', bottom: '20px' }}
                 />
 
-                <div className="space-y-8">
+                <div className="space-y-6">
                   {nodes.map((node, i) => {
                     const state = getState(i);
                     const label = node.top || node.bottom;
                     if (!label) return null;
 
-                    const isFirst = i === 0;
-                    const isLast = i === nodes.length - 1;
-
                     return (
-                      <div key={node.id} className="relative flex items-start" onClick={() => setCurrentPhase(i)}>
+                      <div key={node.id} className="relative flex items-start cursor-pointer" onClick={() => setCurrentPhase(i)}>
                         {/* Dot Anchor */}
-                        <div className="relative z-10 flex flex-col items-center justify-center min-w-[42px] h-[42px]" style={{ transform: 'translateY(12px)' }}>
+                        <div className="relative z-10 flex flex-col items-center justify-center min-w-[42px] mt-4">
                           {state.isCurrent && (
                             <motion.div
-                              layoutId="rocket"
-                              className="absolute -top-10 left-1/2 -translate-x-1/2 text-2xl"
+                              layoutId="rocket-mobile"
+                              className="absolute -top-12 left-1/2 -translate-x-1/2 text-2xl"
                             >
                               🚀
                             </motion.div>
@@ -236,8 +247,8 @@ export default function Timeline() {
 
                           {state.isCurrent && (
                             <>
-                              <div className="absolute -inset-2 animate-ping rounded-full border border-vc-mint opacity-50" />
-                              <div className="absolute -inset-1 animate-pulse rounded-full bg-vc-mint/20" />
+                              <div className="absolute -inset-2 animate-ping rounded-full border border-vc-mint opacity-40" />
+                              <div className="absolute -inset-1 animate-pulse rounded-full bg-vc-mint/15" />
                             </>
                           )}
 
@@ -245,39 +256,16 @@ export default function Timeline() {
                             className={[
                               'w-4 h-4 rounded-full relative z-10 border-2 transition-all duration-300',
                               state.isCurrent
-                                ? 'bg-vc-mint border-white shadow-lg shadow-vc-mint/50 scale-150 outline outline-4 outline-vc-mint/20'
+                                ? 'bg-vc-mint border-white shadow-lg shadow-vc-mint/50 scale-125'
                                 : state.isPast
-                                  ? 'bg-red-500 border-white shadow-[0_0_15px_rgba(239,68,68,0.5)]'
+                                  ? 'bg-vc-mint/60 border-white/60 transition-opacity'
                                   : 'bg-white/10 border-white/20',
-                              isFirst || isLast ? 'w-5 h-5' : '',
                             ].join(' ')}
                           />
                         </div>
 
-                        {/* Card Content */}
-                        <div className="flex-1 ml-4 py-2">
-                          <div className={`
-                            relative p-5 rounded-2xl border transition-all duration-500
-                            ${state.isCurrent
-                              ? 'bg-white/10 border-vc-mint shadow-[0_0_20px_rgba(79,209,197,0.2)]'
-                              : 'bg-black/20 border-white/5'}
-                            ${isFirst ? 'border-l-4 border-l-blue-400' : ''}
-                            ${isLast ? 'border-l-4 border-l-vc-mint' : ''}
-                          `}>
-                            <div className="flex justify-between items-start mb-2">
-                              <h3 className={`font-bold font-poppins text-lg ${state.isCurrent ? 'text-vc-mint' : 'text-white'}`}>
-                                {isFirst && <span className="text-[10px] block uppercase text-blue-400 mb-1">Phase 1: Start</span>}
-                                {isLast && <span className="text-[10px] block uppercase text-vc-mint mb-1">Phase Final: Grand Finale</span>}
-                                {label.title.replace('\\n', ' ')}
-                              </h3>
-                            </div>
-                            {label.dates && (
-                              <div className="text-sm text-white/50 flex items-center gap-2">
-                                <span className="w-1 h-1 rounded-full bg-vc-mint" />
-                                {label.dates}
-                              </div>
-                            )}
-                          </div>
+                        <div className="flex-1 ml-4">
+                          <Card label={label} state={state} />
                         </div>
                       </div>
                     );

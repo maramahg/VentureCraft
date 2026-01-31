@@ -9,6 +9,7 @@ import AboutTargetAudience from "@/src/components/AboutTargetAudience";
 import Footer from "../components/Footer";
 import Prizes from "../components/Prizes";
 import CallToAction from "../components/CallToAction";
+import AnnualTheme from "../components/AnnualTheme";
 
 import Image from "next/image";
 import { useScroll, useTransform, motion } from "framer-motion";
@@ -54,6 +55,7 @@ export default function Home() {
         <HeroScrollDemo />
         <Prizes />
         <ThreePillarRow />
+        <AnnualTheme />
 
 
 

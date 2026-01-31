@@ -11,14 +11,8 @@ const pillars = [
     },
     {
         id: 2,
-        title: "Theme",
-        content: (
-            <>
-                This year, we unite under a singular and powerful competition theme: <span className="text-vc-mint font-extrabold uppercase tracking-widest ml-1">Sustainable Energy</span>.
-                <br /><br />
-                The theme is intentionally broad enough to welcome early-stage startups across disciplines such as AI, hardware, and clean tech, yet structured enough to maintain focus.
-            </>
-        )
+        title: "What is Venture Craft?",
+        content: "Venture Craft is an elite deep-tech startup competition that bridges the gap between scientific innovation and market-ready ventures. We provide founders with the mentorship, resources, and platform needed to scale high-impact solutions for the world's most pressing challenges."
     },
     {
         id: 3,

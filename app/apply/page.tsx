@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { auth, db, storage } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { upload } from '@vercel/blob/client';
 import Footer from '@/components/Footer';
 
 import { countries } from '@/lib/countries';
@@ -209,6 +209,7 @@ function SimpleDropdown({
 
 const ApplyPageContent = () => {
     const [step, setStep] = useState(0); // 0 = Eligibility Info, 1-3 = Form
+    const [infoStep, setInfoStep] = useState(0); // 0 = Eligibility, 1 = Rubrics
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -345,9 +346,12 @@ const ApplyPageContent = () => {
             // 1. Upload Files first
             const uploadFile = async (file: File | null, folder: string) => {
                 if (!file) return null;
-                const storageRef = ref(storage, `applications/${user.uid}/${folder}/${file.name}`);
-                const snapshot = await uploadBytes(storageRef, file);
-                return await getDownloadURL(snapshot.ref);
+                const timestamp = Date.now();
+                const newBlob = await upload(`applications/${user.uid}/${folder}/${timestamp}-${file.name}`, file, {
+                    access: 'public',
+                    handleUploadUrl: '/api/upload',
+                });
+                return newBlob.url;
             };
 
             const [pitchDeckUrl, execSummaryUrl, supportingDataUrl] = await Promise.all([
@@ -430,12 +434,248 @@ const ApplyPageContent = () => {
     };
 
     const eligibilityCriteria = [
-        { category: 'Age', requirement: 'Must be 18 years or older at the time of application.', notes: 'Ensures legal eligibility for participation and contracts.' },
-        { category: 'Education', requirement: 'Must be actively pursuing or have completed an undergraduate degree.', notes: 'Focuses on young, early-career entrepreneurs.' },
-        { category: 'Startup Age', requirement: 'Startup must be no older than 5 years from its time of establishment.', notes: 'Keeps the competition aligned with emerging ventures and early-stage innovation.' },
-        { category: 'Basis', requirement: 'Must be science/technology-based startup (deep-tech) and relevant to the theme.', notes: 'Ensures ventures are rooted in research, innovation, or applied science.' },
-        { category: 'Team Size', requirement: 'Teams should ideally consist of multiple members to promote collaboration.', notes: 'Promotes manageable collaboration and fairness across entries.' },
-        { category: 'Complete Submission', requirement: 'Teams must submit all required materials (online form, pitch deck, executive summary, etc) before the deadline.', notes: 'Guarantees fairness and preparedness for evaluation.' },
+        {
+            category: 'Age',
+            requirement: (
+                <span>
+                    All team members <strong className="text-vc-mint">must be 18 years of age or older</strong> at the time of application submission.
+                </span>
+            ),
+            notes: 'Ensures legal eligibility for participation.'
+        },
+        {
+            category: 'Education',
+            requirement: (
+                <span>
+                    All team members must be <strong className="text-vc-mint">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.
+                </span>
+            ),
+            notes: 'Focuses on qualified candidates.'
+        },
+        {
+            category: 'Startup Stage',
+            requirement: (
+                <div className="space-y-2">
+                    <p>The startup must be <strong className="text-vc-mint">no older than 5 years</strong> from its date of establishment.</p>
+                    <p>The competition is targeted <strong className="text-white font-bold">at early-stage startups</strong>, specifically:</p>
+                    <ul className="list-disc pl-5 space-y-1 text-white/70">
+                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-[10px]">Ideation</span></li>
+                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-[10px]">Pre-Seed</span></li>
+                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-[10px]">Seed</span></li>
+                    </ul>
+                    <p>Startups at later stages may be deemed ineligible.</p>
+                </div>
+            ),
+            notes: 'Keeps the competition aligned with emerging ventures and early-stage innovation.'
+        },
+        {
+            category: 'Basis',
+            requirement: (
+                <div className="space-y-2">
+                    <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology-based</strong>.</p>
+                    <p>The proposed solution must align with <strong className="text-white">at least one</strong> of the competition’s four pillars:</p>
+                    <ul className="list-disc pl-5 space-y-1 text-white/70">
+                        <li><span className="text-vc-mint/80 font-semibold italic">Decarbonization Technologies</span></li>
+                        <li><span className="text-vc-mint/80 font-semibold italic">Circular Economy & Resource Efficiency</span></li>
+                        <li><span className="text-vc-mint/80 font-semibold italic">Energy Efficiency</span></li>
+                        <li><span className="text-vc-mint/80 font-semibold italic">Process Optimization & Advanced Engineering</span></li>
+                    </ul>
+                </div>
+            ),
+            notes: 'Ensures ventures are rooted in research, innovation, or applied science.'
+        },
+        {
+            category: 'Conflict of Interest',
+            requirement: (
+                <div className="space-y-2">
+                    <p>Teams must <strong className="text-vc-mint font-bold">fully disclose any existing or prior relationships</strong> (mentor, investor, advisory, employment, or organizational) with:</p>
+                    <ul className="list-disc pl-5 space-y-1 text-white/70">
+                        <li>Investors</li>
+                        <li>Judges</li>
+                        <li>Organizers</li>
+                        <li>Partner corporations</li>
+                    </ul>
+                    <p>Disclosure <strong className="text-white italic">does not automatically disqualify</strong> a team but is required to ensure fairness and transparency.</p>
+                </div>
+            ),
+            notes: 'Ensures impartial evaluation.'
+        },
+        {
+            category: 'Complete Submission',
+            requirement: (
+                <span>
+                    Teams must submit <strong className="text-vc-mint">all required application materials</strong> via the online application form <strong className="text-white">before the stated deadline</strong>.<br />
+                    Incomplete or late submissions will not be considered.
+                </span>
+            ),
+            notes: 'Guarantees fairness and preparedness.'
+        },
+    ];
+
+    const rubrics = {
+        screening1: {
+            title: "Screening Round 1:",
+            description: "Round 1 Identifies the most promising science-based ideas and capable founding teams with clear articulation of problem, innovation, and feasibility. Based on part 1 of the application form along with the pitch deck and video pitch from part 3.",
+            criteria: [
+                { name: "Problem & Market Clarity", description: "Assesses whether the problem is clearly defined, significant, and grounded in a real, identifiable need. The team should articulate who experiences the problem, why it matters, and why it is worth solving now.", weight: 30 },
+                { name: "Solution & Innovation (Scientific / Technical Basis)", description: "Evaluates the novelty and originality of the proposed solution, including whether it is grounded in credible science or technology and meaningfully differentiated from existing approaches.", weight: 30 },
+                { name: "Early Business Logic", description: "Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high-level revenue logic.", weight: 20 },
+                { name: "Communication & Conviction", description: "Evaluates clarity, coherence, and persuasiveness of the pitch deck and the video pitch, including the team’s ability to explain the problem and solution clearly and confidently.", weight: 20 },
+            ]
+        },
+        screening2: {
+            title: "Screening Round 2:",
+            description: "Round 2 assesses the technical soundness, scientific rigor, and early validation of the proposed solution. Based on the executive summary and supporting data from part 3 in the application.",
+            criteria: [
+                { name: "Technical Feasibility & Validation Approach", description: "Assesses whether the solution is technically feasible based on evidence provided (experimental, simulated, calculated, or well-reasoned theoretical). Teams are not penalized for lack of experimental data if assumptions are clearly justified.", weight: 25 },
+                { name: "Scientific Rigor & Quality of Reasoning", description: "Evaluates the soundness of scientific or engineering logic, clarity of assumptions, grounding in first principles or literature, and acknowledgment of limitations.", weight: 20 },
+                { name: "Commercial Logic & Market Credibility", description: "Assesses whether the team demonstrates a realistic understanding of the target market, customer value, and adoption pathway, consistent with the technical solution presented.", weight: 20 },
+                { name: "Scalability & Development Pathway", description: "Evaluates whether the team presents a logical roadmap from current concept to scalable implementation, including key technical and commercial milestones.", weight: 20 },
+                { name: "Impact & Sustainability Alignment", description: "Considers environmental, social, or economic impact and alignment with sustainability or strategic priorities.", weight: 10 },
+                { name: "Clarity of Technical & Business Communication", description: "Evaluates how clearly technical concepts, assumptions, business logic, and next steps are communicated in the executive summary and any optional supporting material.", weight: 5 },
+            ]
+        }
+    };
+
+    const applicationMaterials = [
+        {
+            number: 1,
+            title: "PITCH DECK",
+            format: "PDF or PowerPoint",
+            length: "10 - 15 slides (maximum)",
+            purpose: "Provides a concise overview of the startup. Used to assess clarity, logic, and communication quality.",
+            content: {
+                title: "Expected content includes (but is not limited to):",
+                items: [
+                    "Team structure",
+                    "Identity, mission, and vision",
+                    "Problem statement and proposed solution",
+                    "Market size, competition, and validation",
+                    "Business model",
+                    "Financial overview",
+                    "Traction and growth strategy"
+                ]
+            }
+        },
+        {
+            number: 2,
+            title: "EXECUTIVE SUMMARY",
+            format: "PDF or Microsoft Word",
+            length: "1 - 2 pages",
+            purpose: "Summarizes the full business case.",
+            intro: "The executive summary should function as a standalone, persuasive document that summarizes the entire content.",
+            content: {
+                title: "Must include:",
+                alphaItems: [
+                    "Problem statement",
+                    "Innovation & technical basis",
+                    "Market opportunity",
+                    "Business model",
+                    "Team & capabilities",
+                    "Impact & sustainability"
+                ]
+            }
+        },
+        {
+            number: 3,
+            title: "VIDEO PITCH",
+            format: "Unlisted YouTube link",
+            length: "3 - 5 minutes",
+            purpose: "To clearly communicate the startup’s value proposition and why it is worth investing in. The video pitch is your chance to humanize your startup. It puts a face to the business, making it more relatable and memorable than just words.",
+            content: {
+                title: "Expected content:",
+                items: [
+                    "The video pitch should be a presentation of the pitch deck that is also submitted as part of the application.",
+                    "Teams are not required to present every slide in the deck.",
+                    "Teams may select and present only the slides most relevant to clearly communicating their idea within the 3 - 5 minute timeframe."
+                ]
+            },
+            extra: {
+                title: "Presentation & Recording Format:",
+                items: [
+                    "All team members must appear in the video.",
+                    "Each member should briefly introduce themselves and their role in the startup."
+                ],
+                formats: {
+                    title: "Teams should present the pitch deck using one of the following formats only:",
+                    list: [
+                        "Presenting in front of a physical screen or display, with the pitch deck shown and the team speaking.",
+                        "Screen-sharing the pitch deck while presenting (e.g., recording via Zoom, Microsoft Teams, or Google Meet)."
+                    ]
+                },
+                quality: {
+                    title: "Technical and Quality requirements:",
+                    list: [
+                        "Clear audio and visible slides.",
+                        "Professional but simple production is acceptable.",
+                        "Language: English (professional and consistent throughout the video)."
+                    ]
+                },
+                instructions: {
+                    title: "Video submission instructions:",
+                    list: [
+                        "Upload: Click the \"Create\" icon in YouTube and select \"Upload video\".",
+                        "Set Visibility: On the \"Visibility\" step, choose Unlisted. Note: Videos must be set to Unlisted (not Public or Private).",
+                        "Share: Once processed, copy the video link and submit on the form."
+                    ]
+                }
+            }
+        },
+        {
+            number: 4,
+            title: "SUPPORTING DATA",
+            format: "PDF or Microsoft Word",
+            length: "Maximum of 5 pages",
+            intro: "Depending on the maturity of the idea, submissions may include:",
+            content: {
+                nestedItems: [
+                    {
+                        title: "Conceptual or system-level descriptions",
+                        subItems: [
+                            "High-level system architecture, workflows, or process diagrams",
+                            "Explanation of underlying scientific or engineering principles"
+                        ]
+                    },
+                    {
+                        title: "Analytical or calculated results",
+                        subItems: [
+                            "Engineering calculations, scaling estimates, or first-principles analysis",
+                            "Order-of-magnitude estimates supporting feasibility"
+                        ]
+                    },
+                    {
+                        title: "Simulated or computational results",
+                        subItems: [
+                            "Simulation outputs, modeling results, or virtual experiments",
+                            "Figures, plots, or screenshots illustrating performance or behavior",
+                            "Brief explanation of assumptions and methodology (raw code not required)"
+                        ],
+                        nestedNote: {
+                            title: "If included:",
+                            items: [
+                                "Only summarized outputs, figures, screenshots, or explanations are required.",
+                                "Full simulation files, executable models, or software access are not required."
+                            ]
+                        }
+                    },
+                    {
+                        title: "Prototype or proof-of-concept (if available)",
+                        subItems: [
+                            "Description of the prototype and its maturity level",
+                            "Images, diagrams, or summarized test results"
+                        ]
+                    },
+                    {
+                        title: "Literature-based justification",
+                        subItems: [
+                            "References to academic literature, prior art, or industry benchmarks",
+                            "Explanation of how existing work supports the proposed approach"
+                        ]
+                    }
+                ]
+            },
+            note: "Supporting data is used to enhance technical evaluation, but the absence of supporting data will not negatively affect eligibility. Emphasis is placed on clarity, relevance, and technical reasoning rather than volume or complexity."
+        }
     ];
 
     const additionalPoints = [
@@ -446,7 +686,7 @@ const ApplyPageContent = () => {
     ];
 
     return (
-        <main className="min-h-screen bg-[#001311] text-white pt-40 relative">
+        <main className="min-h-screen bg-[#001311] text-white pt-24 md:pt-40 relative overflow-x-hidden">
             {/* Background Orbs */}
             <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
@@ -454,21 +694,34 @@ const ApplyPageContent = () => {
             <div className="max-w-4xl mx-auto px-4 pb-24 relative z-10 min-h-[calc(100vh-200px)]">
                 {step > 0 && (
                     <button
-                        onClick={() => setStep(0)}
+                        onClick={() => {
+                            if (step === 1) {
+                                setStep(0);
+                                setInfoStep(2); // Return to Materials
+                            } else {
+                                prevStep();
+                            }
+                        }}
                         className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group"
                     >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span>Back to Criterion</span>
+                        <span>Back to {step === 1 ? 'Materials' : 'Previous Step'}</span>
                     </button>
                 )}
 
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-4 tracking-tight">
-                        {step === 0 ? 'Application Details & Criteria' : 'Application Form'}
+                        {step === 0
+                            ? (infoStep === 0 ? 'Application Details & Criteria' : (infoStep === 1 ? 'Judging Rubrics' : 'Application Material'))
+                            : 'Application Form'}
                     </h1>
                     <p className="text-white/60 max-w-xl mx-auto">
                         {step === 0
-                            ? 'Review the eligibility criteria and competition rules before you begin your journey.'
+                            ? (infoStep === 0
+                                ? 'Review the eligibility criteria and competition rules before you begin your journey.'
+                                : (infoStep === 1
+                                    ? 'Understand how your application will be evaluated across the screening rounds.'
+                                    : 'Review the detailed requirements for all submission materials.'))
                             : 'Please fill out all the required information to apply for the KFUPM Venture Craft Challenge.'}
                     </p>
                 </div>
@@ -479,84 +732,366 @@ const ApplyPageContent = () => {
                     <AnimatePresence mode="wait">
                         {step === 0 && (
                             <motion.div
-                                key="landing"
+                                key={infoStep === 0 ? "eligibility" : (infoStep === 1 ? "rubrics" : "materials")}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
                                 className="space-y-12"
                             >
-                                <div className="space-y-6">
-                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
-                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
-                                        Eligibility Criteria
-                                    </h3>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        {eligibilityCriteria.map((item, idx) => (
-                                            <div key={idx} className="glass-panel p-6 flex flex-col md:flex-row md:items-center gap-6 group hover:border-vc-mint/30 transition-all">
-                                                <div className="md:w-1/4">
-                                                    <h4 className="text-lg font-bold text-white uppercase tracking-tight">{item.category}</h4>
-                                                </div>
-                                                <div className="md:w-1/2">
-                                                    <p className="text-white/80 text-sm leading-relaxed">{item.requirement}</p>
-                                                </div>
-                                                <div className="md:w-1/4 border-l border-white/5 md:pl-6">
-                                                    <p className="text-white/40 text-xs italic">{item.notes}</p>
-                                                </div>
+                                {infoStep === 0 && (
+                                    <>
+                                        <div className="space-y-6">
+                                            <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                Eligibility Criteria
+                                            </h3>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                {eligibilityCriteria.map((item, idx) => (
+                                                    <div key={idx} className="glass-panel p-6 flex flex-col md:flex-row md:items-center gap-6 group hover:border-vc-mint/30 transition-all">
+                                                        <div className="md:w-1/4">
+                                                            <h4 className="text-lg font-bold text-vc-mint uppercase tracking-tight">{item.category}</h4>
+                                                        </div>
+                                                        <div className="md:w-1/2 text-white/80 text-sm leading-relaxed">
+                                                            {item.requirement}
+                                                        </div>
+                                                        <div className="md:w-1/4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
+                                                            <p className="text-white/40 text-xs italic">{item.notes}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                        </div>
 
-                                <div className="space-y-6">
-                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
-                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
-                                        Important Details
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {additionalPoints.map((item, idx) => (
-                                            <div key={idx} className="glass-panel p-6 space-y-3 group hover:border-vc-mint/30 transition-all">
-                                                <h4 className="font-bold text-white uppercase tracking-tight flex items-center gap-2">
-                                                    <div className="w-1 h-4 bg-vc-mint/50 rounded-full" />
-                                                    {item.title}
-                                                </h4>
-                                                <p className="text-white/80 text-sm leading-relaxed">{item.detail}</p>
-                                                <p className="text-white/30 text-[10px] italic border-t border-white/5 pt-3">{item.reason}</p>
+                                        <div className="space-y-6">
+                                            <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                Important Details
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {additionalPoints.map((item, idx) => (
+                                                    <div key={idx} className="glass-panel p-6 space-y-3 group hover:border-vc-mint/30 transition-all">
+                                                        <h4 className="font-bold text-white uppercase tracking-tight flex items-center gap-2">
+                                                            <div className="w-1 h-4 bg-vc-mint/50 rounded-full" />
+                                                            {item.title}
+                                                        </h4>
+                                                        <p className="text-white/80 text-sm leading-relaxed">{item.detail}</p>
+                                                        <p className="text-white/30 text-[10px] italic border-t border-white/5 pt-3">{item.reason}</p>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                        </div>
 
-                                <div className="flex flex-col items-center pt-8 space-y-6">
-                                    {isRegistrationOpen ? (
-                                        <>
-                                            <p className="text-white/60 text-sm text-center max-w-md">
-                                                Review the criteria above to proceed to the application form.
-                                            </p>
+                                        <div className="flex justify-end pt-8">
                                             <button
-                                                onClick={handleApplyClick}
-                                                className="btn-primary !px-16 !py-5 !text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20"
+                                                onClick={() => {
+                                                    setInfoStep(1);
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }}
+                                                className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl shadow-xl shadow-vc-mint/10"
                                             >
-                                                <span>Apply Now</span>
-                                                <Rocket className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                                <span>Next: Rubrics</span>
+                                                <ArrowRight className="w-5 h-5" />
                                             </button>
-                                        </>
-                                    ) : (
-                                        <div className="bg-vc-mint/5 border border-vc-mint/20 p-8 rounded-[2rem] text-center max-w-lg w-full space-y-4">
-                                            <div className="w-16 h-16 bg-vc-mint/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                                <Clock className="text-vc-mint w-8 h-8" />
+                                        </div>
+                                    </>
+                                )}
+                                {infoStep === 1 && (
+                                    <>
+                                        {/* Rubrics Page */}
+                                        <div className="space-y-12">
+                                            {/* Screening Round 1 */}
+                                            <div className="space-y-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                        {rubrics.screening1.title}
+                                                    </h3>
+                                                    <p className="text-white/60 text-sm leading-relaxed pl-4 border-l border-white/10">
+                                                        {rubrics.screening1.description}
+                                                    </p>
+                                                </div>
+
+                                                <div className="glass-panel overflow-hidden border-white/5 bg-white/[0.02]">
+                                                    {/* Desktop Header */}
+                                                    <div className="hidden md:grid grid-cols-12 bg-white/5 p-4 text-[10px] font-bold uppercase tracking-widest text-white/40 border-b border-white/10">
+                                                        <div className="col-span-4 pl-4 uppercase">Criterion</div>
+                                                        <div className="col-span-6 uppercase">Description</div>
+                                                        <div className="col-span-2 text-center uppercase">Weight (%)</div>
+                                                    </div>
+                                                    <div className="divide-y divide-white/5">
+                                                        {rubrics.screening1.criteria.map((c, i) => (
+                                                            <div key={i} className="flex flex-col md:grid md:grid-cols-12 p-6 hover:bg-white/[0.02] transition-colors gap-4">
+                                                                <div className="md:col-span-4 font-bold text-white text-sm">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Criterion</span>
+                                                                    {c.name}
+                                                                </div>
+                                                                <div className="md:col-span-6 text-white/60 text-xs leading-relaxed">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Description</span>
+                                                                    {c.description}
+                                                                </div>
+                                                                <div className="md:col-span-2 flex flex-col md:items-center md:justify-center">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Weight</span>
+                                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center font-bold text-vc-mint border border-vc-mint/20">
+                                                                        {c.weight}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <h3 className="text-2xl font-bold text-white">Registration Opens Soon</h3>
-                                            <p className="text-white/60 text-sm leading-relaxed">
-                                                Thank you for your interest in Venture Craft. Registration is currently unavailable and will officially open on <span className="text-vc-mint font-bold text-base block mt-2">February 1, 2026</span>
-                                            </p>
-                                            <div className="pt-4">
-                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-white/40 uppercase tracking-widest">
-                                                    Official Launch Pending
+
+                                            {/* Screening Round 2 */}
+                                            <div className="space-y-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                        {rubrics.screening2.title}
+                                                    </h3>
+                                                    <p className="text-white/60 text-sm leading-relaxed pl-4 border-l border-white/10">
+                                                        {rubrics.screening2.description}
+                                                    </p>
+                                                </div>
+
+                                                <div className="glass-panel overflow-hidden border-white/5 bg-white/[0.02]">
+                                                    {/* Desktop Header */}
+                                                    <div className="hidden md:grid grid-cols-12 bg-white/5 p-4 text-[10px] font-bold uppercase tracking-widest text-white/40 border-b border-white/10">
+                                                        <div className="col-span-4 pl-4 uppercase">Criterion</div>
+                                                        <div className="col-span-6 uppercase">Description</div>
+                                                        <div className="col-span-2 text-center uppercase">Weight (%)</div>
+                                                    </div>
+                                                    <div className="divide-y divide-white/5">
+                                                        {rubrics.screening2.criteria.map((c, i) => (
+                                                            <div key={i} className="flex flex-col md:grid md:grid-cols-12 p-6 hover:bg-white/[0.02] transition-colors gap-4">
+                                                                <div className="md:col-span-4 font-bold text-white text-sm">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Criterion</span>
+                                                                    {c.name}
+                                                                </div>
+                                                                <div className="md:col-span-6 text-white/60 text-xs leading-relaxed">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Description</span>
+                                                                    {c.description}
+                                                                </div>
+                                                                <div className="md:col-span-2 flex flex-col md:items-center md:justify-center">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Weight</span>
+                                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/10 flex items-center justify-center font-bold text-white border border-white/10 group-hover:border-vc-mint/30">
+                                                                        {c.weight}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between pt-8 items-center">
+                                                <button
+                                                    onClick={() => {
+                                                        setInfoStep(0);
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+                                                >
+                                                    <ArrowLeft className="w-5 h-5" />
+                                                    <span>Back to Eligibility</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setInfoStep(2);
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl shadow-xl shadow-vc-mint/10"
+                                                >
+                                                    <span>Next: Materials</span>
+                                                    <ArrowRight className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                {infoStep === 2 && (
+                                    <>
+                                        {/* Materials Page */}
+                                        <div className="space-y-12">
+                                            <div className="space-y-8">
+                                                {applicationMaterials.map((material, idx) => (
+                                                    <div key={idx} className="glass-panel p-6 md:p-8 space-y-6 group hover:border-vc-mint/30 transition-all">
+                                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-bold text-lg shrink-0">
+                                                                    {material.number}
+                                                                </div>
+                                                                <h3 className="text-xl font-bold text-white tracking-tight">{material.title}</h3>
+                                                            </div>
+                                                            <div className="flex flex-wrap sm:flex-col items-center sm:items-end gap-2 text-right">
+                                                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                                                    Format: {material.format}
+                                                                </div>
+                                                                <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-[10px] font-bold text-vc-mint uppercase tracking-widest">
+                                                                    Length: {material.length}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-4">
+                                                            <p className="text-white/80 text-sm leading-relaxed">
+                                                                <strong className="text-vc-mint">Purpose:</strong> {material.purpose}
+                                                            </p>
+
+                                                            {material.intro && (
+                                                                <p className="text-white/60 text-sm leading-relaxed italic border-l-2 border-vc-mint/30 pl-4">
+                                                                    {material.intro}
+                                                                </p>
+                                                            )}
+
+                                                            <div className="space-y-3 bg-white/[0.02] rounded-xl p-6 border border-white/5">
+                                                                <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider">{material.content.title}</h4>
+                                                                {material.content.items && (
+                                                                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                                                                        {material.content.items.map((item, i) => (
+                                                                            <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                                                                                <div className="w-1 h-1 rounded-full bg-vc-mint mt-2 shrink-0" />
+                                                                                {item}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                )}
+                                                                {material.content.alphaItems && (
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                                                                        {material.content.alphaItems.map((item, i) => (
+                                                                            <div key={i} className="flex items-start gap-3 text-sm text-white/70">
+                                                                                <span className="text-vc-mint font-bold italic lowercase text-xs">{String.fromCharCode(97 + i)}.</span>
+                                                                                {item}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                                {material.content.nestedItems && (
+                                                                    <div className="space-y-6">
+                                                                        {material.content.nestedItems.map((nitem, ni) => (
+                                                                            <div key={ni} className="space-y-3">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
+                                                                                    <h5 className="text-sm font-bold text-white">{nitem.title}</h5>
+                                                                                </div>
+                                                                                <ul className="space-y-2 ml-4">
+                                                                                    {nitem.subItems.map((sitem, si) => (
+                                                                                        <li key={si} className="text-xs text-white/50 flex items-start gap-2">
+                                                                                            <span className="text-vc-mint/40 select-none">◦</span>
+                                                                                            {sitem}
+                                                                                        </li>
+                                                                                    ))}
+                                                                                </ul>
+                                                                                {nitem.nestedNote && (
+                                                                                    <div className="ml-4 mt-2 p-3 bg-vc-mint/5 border border-vc-mint/10 rounded-lg space-y-2">
+                                                                                        <p className="text-[10px] font-bold text-vc-mint uppercase tracking-wider">{nitem.nestedNote.title}</p>
+                                                                                        {nitem.nestedNote.items.map((nn, nni) => (
+                                                                                            <p key={nni} className="text-[10px] text-white/40 flex items-start gap-2">
+                                                                                                <span className="shrink-0">-</span>
+                                                                                                {nn}
+                                                                                            </p>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {material.extra && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-white/5">
+                                                                    <div className="space-y-4">
+                                                                        <h4 className="text-xs font-bold text-vc-mint uppercase tracking-wider">{material.extra.title}</h4>
+                                                                        <ul className="space-y-2">
+                                                                            {material.extra.items.map((e, i) => (
+                                                                                <li key={i} className="text-xs text-white/60 flex items-start gap-2">
+                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint/20 mt-1 shrink-0" />
+                                                                                    {e}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                        <div className="p-4 bg-white/[0.03] rounded-xl space-y-2 border border-white/5">
+                                                                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">{material.extra.formats.title}</p>
+                                                                            {material.extra.formats.list.map((f, i) => (
+                                                                                <p key={i} className="text-[10px] text-white/60 flex items-start gap-2">
+                                                                                    <span className="text-vc-mint shrink-0">•</span>
+                                                                                    {f}
+                                                                                </p>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="space-y-4">
+                                                                        <div className="space-y-2">
+                                                                            <h4 className="text-xs font-bold text-vc-mint uppercase tracking-wider">{material.extra.quality.title}</h4>
+                                                                            {material.extra.quality.list.map((q, i) => (
+                                                                                <p key={i} className="text-[10px] text-white/50 flex items-start gap-2 pl-2 border-l border-vc-mint/20">
+                                                                                    {q}
+                                                                                </p>
+                                                                            ))}
+                                                                        </div>
+                                                                        <div className="p-4 bg-vc-mint/5 rounded-xl space-y-3 border border-vc-mint/10">
+                                                                            <h4 className="text-[10px] font-bold text-vc-mint uppercase tracking-wider">{material.extra.instructions.title}</h4>
+                                                                            {material.extra.instructions.list.map((ins, i) => (
+                                                                                <div key={i} className="flex gap-3 text-[10px] text-white/70">
+                                                                                    <span className="w-4 h-4 rounded-full bg-vc-mint/10 flex items-center justify-center text-vc-mint shrink-0">{i + 1}</span>
+                                                                                    {ins}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {material.note && (
+                                                            <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex gap-3 items-start">
+                                                                <AlertCircle className="w-4 h-4 text-vc-mint shrink-0 mt-0.5" />
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[10px] font-bold text-white uppercase tracking-wider">Evaluation Note</p>
+                                                                    <p className="text-[10px] text-white/40 leading-relaxed italic">{material.note}</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="flex flex-col items-center pt-8 space-y-8">
+                                                <div className="flex flex-col sm:flex-row gap-6 w-full justify-between items-center bg-white/[0.02] p-4 sm:p-0 rounded-2xl sm:bg-transparent">
+                                                    <button
+                                                        onClick={() => {
+                                                            setInfoStep(1);
+                                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                        }}
+                                                        className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors order-2 sm:order-1"
+                                                    >
+                                                        <ArrowLeft className="w-5 h-5" />
+                                                        <span>Back to Rubrics</span>
+                                                    </button>
+
+                                                    {isRegistrationOpen ? (
+                                                        <button
+                                                            onClick={handleApplyClick}
+                                                            className="btn-primary !px-10 md:!px-16 !py-4 md:!py-5 md:!text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20 animate-glow order-1 sm:order-2 w-full sm:w-auto justify-center"
+                                                        >
+                                                            <span>Apply Now</span>
+                                                            <Rocket className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="bg-vc-mint/5 border border-vc-mint/20 p-6 rounded-2xl text-center max-w-sm order-1 sm:order-2 w-full sm:w-auto">
+                                                            <p className="text-white/60 text-sm leading-relaxed">
+                                                                Registration opens on <span className="text-vc-mint font-bold italic">February 1, 2026</span>
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                    )}
-                                </div>
+                                    </>
+                                )}
                             </motion.div>
                         )}
                         {step === 1 && (
