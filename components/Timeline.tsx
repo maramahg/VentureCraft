@@ -1,4 +1,5 @@
 'use client';
+// Final refined timeline with deep responsiveness
 
 import { useMemo, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
