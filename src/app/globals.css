@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0D2B2B;
+  --foreground: #ffffff;
+  --vc-mint: #39cc89;
+  --vc-teal: #1A4D4D;
+  /* Deep teal accent, slightly lighter than bg */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-vc-mint: var(--vc-mint);
+  --color-vc-teal: var(--vc-teal);
+  --font-poppins: var(--font-poppins);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), sans-serif;
+}
