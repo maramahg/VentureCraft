@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, useMemo, Suspense, useEffect } from "react";
 import * as THREE from "three";
 import { Environment, Float, Sparkles, ContactShadows } from "@react-three/drei";
 
@@ -14,14 +14,25 @@ function AvatarHead() {
 
   // Mouse vector
   const mouse = useRef(new THREE.Vector2());
-  const targetRotation = useRef(new THREE.Euler());
 
-  useFrame((state) => {
+  // Track mouse globally
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      // Normalize mouse coordinates to -1 to 1 based on window size
+      mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  useFrame(() => {
     if (!headGroup.current || !neckRef.current) return;
 
-    // Smoothly interpolate mouse coordinates
-    const x = state.pointer.x;
-    const y = state.pointer.y;
+    // Use global mouse coordinates
+    const x = mouse.current.x;
+    const y = mouse.current.y;
 
     // Calculate target rotations with limits (human neck constraints)
     // Yaw (Left/Right): +/- 45 degrees (approx 0.8 rad)
