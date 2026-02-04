@@ -40,7 +40,25 @@ export function HeroScrollDemo() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-base sm:text-lg text-white/50 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-poppins"
           >
-            An international deep-tech startup competition by <span className="text-vc-mint font-bold">KFUPM</span> in collaboration with <span className="text-vc-mint font-bold">DTV</span> — supporting student-led ventures building science and technology-based solutions with global impact.
+            An international deep-tech startup competition by{" "}
+            <a 
+              href="https://www3.kfupm.edu.sa" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+            >
+              KFUPM
+            </a>{" "}
+            in collaboration with{" "}
+            <a 
+              href="https://dtv.sa/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+            >
+              DTV
+            </a>
+            {" "}— supporting student-led ventures building science and technology-based solutions with global impact.
           </motion.p>
 
           <motion.div

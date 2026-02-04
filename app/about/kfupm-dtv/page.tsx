@@ -116,7 +116,25 @@ export default function KfupmDtvAboutPage() {
                                     className="mb-12 md:mb-20 font-poppins uppercase tracking-tighter leading-tight text-white flex flex-col items-center"
                                 >
                                     <span className="text-vc-mint text-sm sm:text-base md:text-lg font-bold tracking-[0.3em] mb-2">ABOUT</span>
-                                    <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black">KFUPM & DTV</span>
+                                    <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black">
+                                        <a 
+                                            href="https://www3.kfupm.edu.sa" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="hover:text-vc-mint transition-colors duration-300"
+                                        >
+                                            KFUPM
+                                        </a>
+                                        {" & "}
+                                        <a 
+                                            href="https://dtv.sa/" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="hover:text-vc-mint transition-colors duration-300"
+                                        >
+                                            DTV
+                                        </a>
+                                    </span>
                                 </motion.h1>
 
                                 {/* KFUPM Header */}
@@ -159,7 +177,14 @@ export default function KfupmDtvAboutPage() {
                                     transition={{ delay: 0.4, duration: 0.6 }}
                                 >
                                     <p className="text-white/60 text-base sm:text-lg md:text-xl leading-relaxed mb-4 md:mb-6 font-poppins max-w-3xl mx-auto">
-                                        KFUPM is Saudi Arabia's leading research university, renowned for its excellence
+                                        <a 
+                                            href="https://www3.kfupm.edu.sa" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+                                        >
+                                            KFUPM
+                                        </a> is Saudi Arabia's leading research university, renowned for its excellence
                                         in science, engineering, and technology. As a global hub for innovation, KFUPM
                                         is committed to preparing leaders who drive economic transformation and sustainable
                                         development.
@@ -238,7 +263,14 @@ export default function KfupmDtvAboutPage() {
                                     transition={{ delay: 0.4, duration: 0.6 }}
                                 >
                                     <p className="text-white/60 text-base sm:text-lg md:text-xl leading-relaxed mb-4 md:mb-6 font-poppins max-w-3xl mx-auto">
-                                        Dhahran Techno Valley (DTV) is Saudi Arabia's leading hub for energy, sustainability, and
+                                        <a 
+                                            href="https://dtv.sa/" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+                                        >
+                                            Dhahran Techno Valley (DTV)
+                                        </a> is Saudi Arabia's leading hub for energy, sustainability, and
                                         innovation. In partnership with KFUPM and leading global corporations, DTV connects exceptional
                                         research talent with tailored startup programs, early-stage funding, and a thriving innovation ecosystem.
                                     </p>

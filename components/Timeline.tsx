@@ -61,7 +61,7 @@ export default function Timeline() {
   const cardClass = (state: NodeState, isSpecial?: boolean) =>
     [
       'lg:mx-auto',
-      'w-full max-w-[280px] lg:w-full lg:max-w-[200px] xl:max-w-[240px]', // Fluid width
+      'w-full max-w-[280px] lg:w-[150%] lg:max-w-[480px] xl:max-w-[540px]', // Wider cards on desktop
       'rounded-2xl px-5 py-4 text-center',
       'backdrop-blur-md border transition-all duration-500 ease-in-out',
       'shadow-[0_10px_35px_rgba(0,0,0,0.3)]',
@@ -82,11 +82,11 @@ export default function Timeline() {
 
   const Card = ({ label, state, isTop }: { label: PhaseLabel; state: NodeState; isTop?: boolean }) => (
     <div className={cardClass(state, label.special)}>
-      <div className={`font-bold font-poppins text-sm md:text-[15px] whitespace-pre-line leading-tight ${titleClass(state, label.special)}`}>
+      <div className={`font-bold font-poppins text-lg md:text-xl whitespace-pre-line leading-tight ${titleClass(state, label.special)}`}>
         {label.title}
       </div>
       {label.dates && (
-        <div className="text-[10px] font-poppins text-white/50 mt-1.5 uppercase tracking-wider font-medium">
+        <div className="text-sm md:text-base font-poppins text-white/50 mt-1.5 uppercase tracking-wider font-medium">
           {label.dates}
         </div>
       )}
@@ -98,7 +98,7 @@ export default function Timeline() {
           animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
           className="overflow-hidden border-t border-white/10 pt-3"
         >
-          <p className="text-white/80 font-poppins text-xs leading-relaxed text-left md:text-center">
+          <p className="text-white/80 font-poppins text-base md:text-lg leading-relaxed text-left md:text-center">
             {label.description}
           </p>
         </motion.div>

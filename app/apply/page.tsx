@@ -922,35 +922,35 @@ const ApplyPageContent = () => {
                                                                 <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-bold text-lg shrink-0">
                                                                     {material.number}
                                                                 </div>
-                                                                <h3 className="text-xl font-bold text-white tracking-tight">{material.title}</h3>
+                                                                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{material.title}</h3>
                                                             </div>
                                                             <div className="flex flex-wrap sm:flex-col items-center sm:items-end gap-2 text-right">
-                                                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm md:text-base font-bold text-white/40 uppercase tracking-widest">
                                                                     Format: {material.format}
                                                                 </div>
-                                                                <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-[10px] font-bold text-vc-mint uppercase tracking-widest">
+                                                                <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-sm md:text-base font-bold text-vc-mint uppercase tracking-widest">
                                                                     Length: {material.length}
                                                                 </div>
                                                             </div>
                                                         </div>
 
                                                         <div className="space-y-4">
-                                                            <p className="text-white/80 text-sm leading-relaxed">
+                                                            <p className="text-white/80 text-base md:text-lg leading-relaxed">
                                                                 <strong className="text-vc-mint">Purpose:</strong> {material.purpose}
                                                             </p>
 
                                                             {material.intro && (
-                                                                <p className="text-white/60 text-sm leading-relaxed italic border-l-2 border-vc-mint/30 pl-4">
+                                                                <p className="text-white/60 text-base md:text-lg leading-relaxed italic border-l-2 border-vc-mint/30 pl-4">
                                                                     {material.intro}
                                                                 </p>
                                                             )}
 
                                                             <div className="space-y-3 bg-white/[0.02] rounded-xl p-6 border border-white/5">
-                                                                <h4 className="text-xs font-bold text-white/40 uppercase tracking-wider">{material.content.title}</h4>
+                                                                <h4 className="text-base md:text-lg font-bold text-white/40 uppercase tracking-wider">{material.content.title}</h4>
                                                                 {material.content.items && (
                                                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                                                                         {material.content.items.map((item, i) => (
-                                                                            <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                                                                            <li key={i} className="flex items-start gap-2 text-base md:text-lg text-white/70">
                                                                                 <div className="w-1 h-1 rounded-full bg-vc-mint mt-2 shrink-0" />
                                                                                 {item}
                                                                             </li>
@@ -960,8 +960,8 @@ const ApplyPageContent = () => {
                                                                 {material.content.alphaItems && (
                                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                                                                         {material.content.alphaItems.map((item, i) => (
-                                                                            <div key={i} className="flex items-start gap-3 text-sm text-white/70">
-                                                                                <span className="text-vc-mint font-bold italic lowercase text-xs">{String.fromCharCode(97 + i)}.</span>
+                                                                            <div key={i} className="flex items-start gap-3 text-base md:text-lg text-white/70">
+                                                                                <span className="text-vc-mint font-bold italic lowercase text-base md:text-lg">{String.fromCharCode(97 + i)}.</span>
                                                                                 {item}
                                                                             </div>
                                                                         ))}
@@ -973,11 +973,11 @@ const ApplyPageContent = () => {
                                                                             <div key={ni} className="space-y-3">
                                                                                 <div className="flex items-center gap-2">
                                                                                     <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
-                                                                                    <h5 className="text-sm font-bold text-white">{nitem.title}</h5>
+                                                                                    <h5 className="text-base md:text-lg font-bold text-white">{nitem.title}</h5>
                                                                                 </div>
                                                                                 <ul className="space-y-2 ml-4">
                                                                                     {nitem.subItems.map((sitem, si) => (
-                                                                                        <li key={si} className="text-xs text-white/50 flex items-start gap-2">
+                                                                                        <li key={si} className="text-sm md:text-base text-white/50 flex items-start gap-2">
                                                                                             <span className="text-vc-mint/40 select-none">◦</span>
                                                                                             {sitem}
                                                                                         </li>
@@ -985,9 +985,9 @@ const ApplyPageContent = () => {
                                                                                 </ul>
                                                                                 {nitem.nestedNote && (
                                                                                     <div className="ml-4 mt-2 p-3 bg-vc-mint/5 border border-vc-mint/10 rounded-lg space-y-2">
-                                                                                        <p className="text-[10px] font-bold text-vc-mint uppercase tracking-wider">{nitem.nestedNote.title}</p>
+                                                                                        <p className="text-sm md:text-base font-bold text-vc-mint uppercase tracking-wider">{nitem.nestedNote.title}</p>
                                                                                         {nitem.nestedNote.items.map((nn, nni) => (
-                                                                                            <p key={nni} className="text-[10px] text-white/40 flex items-start gap-2">
+                                                                                            <p key={nni} className="text-sm md:text-base text-white/40 flex items-start gap-2">
                                                                                                 <span className="shrink-0">-</span>
                                                                                                 {nn}
                                                                                             </p>
