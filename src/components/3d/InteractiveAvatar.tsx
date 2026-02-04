@@ -1,16 +1,73 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useMemo, Suspense, useEffect } from "react";
+import { Canvas, useFrame, useGraph } from "@react-three/fiber";
+import { useRef, useMemo, Suspense, useEffect, useState } from "react";
 import * as THREE from "three";
-import { Environment, Float, Sparkles, ContactShadows } from "@react-three/drei";
+import { Environment, Float, Sparkles, ContactShadows, useGLTF, useAnimations, Center, Resize } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 
-function AvatarHead() {
-  // ... (rest of AvatarHead remains same, omitted for brevity in tool call but keeping imports correct in replacement)
-  const headGroup = useRef<THREE.Group>(null);
-  const leftEyeRef = useRef<THREE.Mesh>(null);
-  const rightEyeRef = useRef<THREE.Mesh>(null);
-  const neckRef = useRef<THREE.Group>(null);
+
+
+  // useGraph and SkeletonUtils removed for stability. 
+  // If we need multiple instances later, we can re-evaluate.
+function ManModel() {
+  const { scene } = useGLTF("/models/cool_man.glb");
+  const headBoneRef = useRef<THREE.Object3D | null>(null);
+  const neckBoneRef = useRef<THREE.Object3D | null>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const leftArmRef = useRef<THREE.Object3D | null>(null);
+  const rightArmRef = useRef<THREE.Object3D | null>(null);
+  const leftForeArmRef = useRef<THREE.Object3D | null>(null);
+  const rightForeArmRef = useRef<THREE.Object3D | null>(null);
+  
+  // Find head, neck, and arm bones
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child.type === "Bone") {
+          const name = child.name.toLowerCase();
+          
+          // Mixamo rigs often use "mixamorigHead" or just "Head"
+          if ((name.includes("head") || name.includes("neck_02") || name === "mixamorighead") && !headBoneRef.current) {
+            headBoneRef.current = child;
+          }
+          if (name.includes("neck") && !neckBoneRef.current) {
+            neckBoneRef.current = child;
+          }
+          
+          // Find arm bones for posing
+          if (name.includes("leftarm") && !name.includes("forearm") && !leftArmRef.current) {
+            leftArmRef.current = child;
+          }
+          if (name.includes("rightarm") && !name.includes("forearm") && !rightArmRef.current) {
+            rightArmRef.current = child;
+          }
+          if (name.includes("leftforearm") && !leftForeArmRef.current) {
+            leftForeArmRef.current = child;
+          }
+          if (name.includes("rightforearm") && !rightForeArmRef.current) {
+            rightForeArmRef.current = child;
+          }
+      }
+    });
+  }, [scene]);
+
+  // Pose arms on podium
+  useEffect(() => {
+    if (leftArmRef.current && rightArmRef.current) {
+      // Rotate arms down to natural standing position
+      leftArmRef.current.rotation.x = 0.8;
+      leftArmRef.current.rotation.z = -0.5; // Rotate down (negative brings left arm down)
+      
+      rightArmRef.current.rotation.x = 0.8;
+      rightArmRef.current.rotation.z = 0.5; // Rotate down (positive brings right arm down)
+    }
+    
+    if (leftForeArmRef.current && rightForeArmRef.current) {
+      // Rotate forearms to point hands downward
+      leftForeArmRef.current.rotation.x = -0.0; // Bend hands down
+      rightForeArmRef.current.rotation.x = -0.0; // Bend hands down
+    }
+  }, [scene]);
 
   // Mouse vector
   const mouse = useRef(new THREE.Vector2());
@@ -18,7 +75,6 @@ function AvatarHead() {
   // Track mouse globally
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      // Normalize mouse coordinates to -1 to 1 based on window size
       mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
     };
@@ -28,166 +84,68 @@ function AvatarHead() {
   }, []);
 
   useFrame(() => {
-    if (!headGroup.current || !neckRef.current) return;
-
-    // Use global mouse coordinates
     const x = mouse.current.x;
     const y = mouse.current.y;
+    const targetYaw = x * 1.5;
+    const targetPitch = -y * 0.4;
 
-    // Calculate target rotations with limits (human neck constraints)
-    // Yaw (Left/Right): +/- 45 degrees (approx 0.8 rad)
-    // Pitch (Up/Down): +/- 30 degrees (approx 0.5 rad)
-    const targetYaw = x * 0.8;
-    const targetPitch = -y * 0.5;
+    if (headBoneRef.current) {
+        headBoneRef.current.rotation.y = THREE.MathUtils.lerp(headBoneRef.current.rotation.y, targetYaw * 0.6, 0.1);
+        headBoneRef.current.rotation.x = THREE.MathUtils.lerp(headBoneRef.current.rotation.x, targetPitch, 0.1);
 
-    // Apply rotation to head with smooth lerp
-    headGroup.current.rotation.y = THREE.MathUtils.lerp(
-      headGroup.current.rotation.y,
-      targetYaw,
-      0.1
-    );
-    headGroup.current.rotation.x = THREE.MathUtils.lerp(
-      headGroup.current.rotation.x,
-      targetPitch,
-      0.1
-    );
-
-    // Subtle Tilt (Roll) based on movement for "natural" feel
-    // If looking left, tilt slightly left. If looking right, tilt slightly right.
-    const targetRoll = -x * 0.1; 
-    headGroup.current.rotation.z = THREE.MathUtils.lerp(
-      headGroup.current.rotation.z,
-      targetRoll,
-      0.05
-    );
-    
-    // Neck follows slightly (30% of head movement) to feel organic
-    neckRef.current.rotation.y = THREE.MathUtils.lerp(
-        neckRef.current.rotation.y,
-        targetYaw * 0.3,
-        0.08
-    );
-    neckRef.current.rotation.x = THREE.MathUtils.lerp(
-      neckRef.current.rotation.x,
-      targetPitch * 0.2,
-      0.08
-  );
+        if (neckBoneRef.current) {
+            neckBoneRef.current.rotation.y = THREE.MathUtils.lerp(neckBoneRef.current.rotation.y, targetYaw * 0.3, 0.1);
+            neckBoneRef.current.rotation.x = THREE.MathUtils.lerp(neckBoneRef.current.rotation.x, targetPitch * 0.2, 0.1);
+        }
+    } else if (groupRef.current) {
+        const target = targetYaw;
+        const current = groupRef.current.rotation.y;
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(current, target, 0.1);
+    }
   });
 
-  const material = useMemo(
-    () => new THREE.MeshStandardMaterial({
-      color: "#f0f0f0",
-      roughness: 0.2,
-      metalness: 0.1,
-    }),
-    []
-  );
-
-  const skinMaterial = useMemo(
-      () => new THREE.MeshStandardMaterial({
-        color: "#1a1a1a", // Dark aesthetic skin
-        roughness: 0.3,
-        metalness: 0.5,
-      }),
-      []
-    );
-
-    const glowingMint = useMemo(
-        () => new THREE.MeshStandardMaterial({
-            color: "#39cc89",
-            emissive: "#39cc89",
-            emissiveIntensity: 2,
-            toneMapped: false
-        }),
-        []
-    );
-  
   return (
-    <group ref={neckRef}>
-      {/* Neck/Collar */}
-      <mesh position={[0, -0.6, 0]} material={skinMaterial}>
-         <cylinderGeometry args={[0.3, 0.4, 0.4, 32]} />
-      </mesh>
-
-      {/* Head Group */}
-      <group ref={headGroup}>
-        {/* Main Head Shape (Stylized Helmet/Head) */}
-        <mesh position={[0, 0.1, 0]} material={skinMaterial}>
-          <boxGeometry args={[0.9, 1.1, 0.95]} /> 
-        </mesh>
-
-        {/* Face Plate (Visor area) */}
-        <mesh position={[0, 0.1, 0.48]}>
-            <planeGeometry args={[0.7, 0.6]} />
-            <meshStandardMaterial color="#000000" roughness={0.1} metalness={0.9} />
-        </mesh>
-
-        {/* Eyes (Glowing) */}
-        <mesh ref={leftEyeRef} position={[-0.2, 0.1, 0.49]} material={glowingMint}>
-            <circleGeometry args={[0.06, 32]} />
-        </mesh>
-        <mesh ref={rightEyeRef} position={[0.2, 0.1, 0.49]} material={glowingMint}>
-            <circleGeometry args={[0.06, 32]} />
-        </mesh>
-        
-        {/* Subtle Cybernetic Details using thin strips */}
-        <mesh position={[0.46, 0.1, 0]}>
-            <boxGeometry args={[0.02, 0.8, 0.6]} />
-            <meshStandardMaterial color="#333" />
-        </mesh>
-        <mesh position={[-0.46, 0.1, 0]}>
-            <boxGeometry args={[0.02, 0.8, 0.6]} />
-            <meshStandardMaterial color="#333" />
-        </mesh>
-
-      </group>
-    </group>
+    <Resize scale={4.7}>
+        <Center top position={[0, -0.7, -0.6]}>
+            <group ref={groupRef}>
+                <primitive object={scene} />
+            </group>
+        </Center>
+    </Resize>
   );
 }
 
-function Podium() {
+function PodiumModel() {
+    const { scene } = useGLTF("/models/podium.glb");
+    
     return (
-        <group position={[0, -2.5, 0]}>
-            {/* Top base */}
-            <mesh position={[0, 1.4, 0]}>
-                <cylinderGeometry args={[1.2, 1.2, 0.2, 64]} />
-                <meshStandardMaterial color="#0b2222" metalness={0.8} roughness={0.2} />
-            </mesh>
-            {/* Glowing Ring */}
-            <mesh position={[0, 1.25, 0]}>
-                <cylinderGeometry args={[1.22, 1.22, 0.05, 64]} />
-                <meshStandardMaterial color="#39cc89" emissive="#39cc89" emissiveIntensity={2} toneMapped={false} />
-            </mesh>
-            {/* Main Column */}
-            <mesh position={[0, 0, 0]}>
-                <cylinderGeometry args={[1, 1.5, 2.5, 64]} />
-                <meshStandardMaterial color="#061818" metalness={0.6} roughness={0.4} />
-            </mesh>
-        </group>
-    )
+        <Resize scale={3.2}>
+            <Center>
+                <primitive object={scene} rotation={[0, Math.PI, 0]} />
+            </Center>
+        </Resize>
+    );
 }
 
 export default function InteractiveAvatar() {
   return (
     <div className="w-full h-full min-h-[500px] relative">
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 45 }}
-        dpr={[1, 2]} // Optimize pixel ratio
+        camera={{ position: [0, 0, 9], fov: 35 }}
+        dpr={[1, 2]} 
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} color="#39cc89" />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} color="#2d7a7a" />
+          <ambientLight intensity={3} />
+          <directionalLight position={[0, 5, 10]} intensity={4} color="#ffffff" />
+          <spotLight position={[5, 10, 5]} angle={0.5} penumbra={1} intensity={4} color="#ffffff" />
+          <pointLight position={[-5, 5, -5]} intensity={2} color="#ffffff" />
           
-          <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
-              <AvatarHead />
-          </Float>
-          
-          <Podium />
 
-          <Sparkles count={30} scale={4} size={4} speed={0.4} opacity={0.5} color="#39cc89" position={[0, 0, 0]} />
+
+          <ManModel />
+          <PodiumModel />
+          
           <Environment preset="city" />
-          <ContactShadows position={[0, -1.8, 0]} opacity={0.4} scale={10} blur={2.5} far={4} color="#000000" />
         </Suspense>
       </Canvas>
     </div>
