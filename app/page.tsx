@@ -9,6 +9,7 @@ const Prizes = dynamic(() => import("../components/Prizes"));
 const ThreePillarRow = dynamic(() => import("@/src/components/ThreePillarRow"));
 const AnnualTheme = dynamic(() => import("../components/AnnualTheme"));
 const Timeline = dynamic(() => import("../components/Timeline"));
+const AmbassadorsFAQ = dynamic(() => import("../components/AmbassadorsFAQ"));
 const CallToAction = dynamic(() => import("../components/CallToAction"));
 
 import Image from "next/image";
@@ -60,6 +61,7 @@ export default function Home() {
 
 
         <Timeline />
+        <AmbassadorsFAQ />
         <CallToAction />
 
         <Footer />
