@@ -3,6 +3,8 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
+import AnnualTheme from '@/components/AnnualTheme';
+
 import { motion } from 'framer-motion';
 
 const eligibilityCriteria = [
@@ -103,6 +105,10 @@ export default function EligibilityPage() {
                 </div>
 
 
+
+                <div className="mb-24">
+                    <AnnualTheme />
+                </div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
