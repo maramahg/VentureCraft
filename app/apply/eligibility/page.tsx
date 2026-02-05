@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 
 const eligibilityCriteria = [
     {
-        category: '2026 Theme',
+        category: 'Theme',
         requirement: (
             <div className="space-y-2">
                 <p>This year's challenge focuses on <strong className="text-vc-mint font-bold uppercase tracking-wider">Sustainable Energy</strong>.</p>
