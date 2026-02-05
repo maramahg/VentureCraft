@@ -2,7 +2,7 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ApplicationTabs from '@/components/ApplicationTabs';
+
 import { motion } from 'framer-motion';
 
 const rubrics = {
@@ -41,7 +41,7 @@ export default function RubricsPage() {
                     <p className="text-white/60 max-w-xl mx-auto">Understand how your application will be evaluated across the screening rounds.</p>
                 </div>
 
-                <ApplicationTabs />
+
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

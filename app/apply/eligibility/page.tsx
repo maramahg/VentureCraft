@@ -2,7 +2,7 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ApplicationTabs from '@/components/ApplicationTabs';
+
 import { motion } from 'framer-motion';
 
 const eligibilityCriteria = [
@@ -102,7 +102,7 @@ export default function EligibilityPage() {
                     <p className="text-white/60 max-w-xl mx-auto">Review the eligibility criteria and competition rules before you begin your journey.</p>
                 </div>
 
-                <ApplicationTabs />
+
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

@@ -11,7 +11,7 @@ import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { upload } from '@vercel/blob/client';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import ApplicationTabs from '@/components/ApplicationTabs';
+
 
 import { countries } from '@/lib/countries';
 
@@ -710,7 +710,7 @@ const ApplyPageContent = () => {
                     </p>
                 </div>
 
-                {step === 1 && <ApplicationTabs />}
+
 
                 {renderStepIndicator()}
 

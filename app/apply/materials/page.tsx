@@ -1,7 +1,7 @@
 'use client';
 
 import Footer from '@/components/Footer';
-import ApplicationTabs from '@/components/ApplicationTabs';
+
 import { motion } from 'framer-motion';
 import { AlertCircle, Rocket, ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -166,7 +166,7 @@ export default function MaterialsPage() {
                     <p className="text-white/60 max-w-xl mx-auto">Review the detailed requirements for all submission materials.</p>
                 </div>
 
-                <ApplicationTabs />
+
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
