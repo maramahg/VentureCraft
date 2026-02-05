@@ -117,18 +117,18 @@ export default function KfupmDtvAboutPage() {
                                 >
                                     <span className="text-vc-mint text-sm sm:text-base md:text-lg font-bold tracking-[0.3em] mb-2">ABOUT</span>
                                     <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black">
-                                        <a 
-                                            href="https://www3.kfupm.edu.sa" 
-                                            target="_blank" 
+                                        <a
+                                            href="https://www.kfupm.edu.sa/"
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="hover:text-vc-mint transition-colors duration-300"
                                         >
                                             KFUPM
                                         </a>
                                         {" & "}
-                                        <a 
-                                            href="https://dtv.sa/" 
-                                            target="_blank" 
+                                        <a
+                                            href="https://dtv.sa/"
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="hover:text-vc-mint transition-colors duration-300"
                                         >
@@ -177,9 +177,9 @@ export default function KfupmDtvAboutPage() {
                                     transition={{ delay: 0.4, duration: 0.6 }}
                                 >
                                     <p className="text-white/60 text-base sm:text-lg md:text-xl leading-relaxed mb-4 md:mb-6 font-poppins max-w-3xl mx-auto">
-                                        <a 
-                                            href="https://www3.kfupm.edu.sa" 
-                                            target="_blank" 
+                                        <a
+                                            href="https://www.kfupm.edu.sa/"
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
                                         >
@@ -263,9 +263,9 @@ export default function KfupmDtvAboutPage() {
                                     transition={{ delay: 0.4, duration: 0.6 }}
                                 >
                                     <p className="text-white/60 text-base sm:text-lg md:text-xl leading-relaxed mb-4 md:mb-6 font-poppins max-w-3xl mx-auto">
-                                        <a 
-                                            href="https://dtv.sa/" 
-                                            target="_blank" 
+                                        <a
+                                            href="https://dtv.sa/"
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
                                         >

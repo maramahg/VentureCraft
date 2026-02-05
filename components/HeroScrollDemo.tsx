@@ -1,9 +1,14 @@
 "use client";
 import React from "react";
-import { Globe } from "./ui/globe";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const Globe = dynamic(() => import("./ui/globe").then(m => m.Globe), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-vc-mint/5 rounded-full blur-3xl animate-pulse" />
+});
 
 export function HeroScrollDemo() {
   return (
@@ -41,18 +46,18 @@ export function HeroScrollDemo() {
             className="text-base sm:text-lg text-white/50 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-poppins"
           >
             An international deep-tech startup competition by{" "}
-            <a 
-              href="https://www3.kfupm.edu.sa" 
-              target="_blank" 
+            <a
+              href="https://www.kfupm.edu.sa/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
             >
               KFUPM
             </a>{" "}
             in collaboration with{" "}
-            <a 
-              href="https://dtv.sa/" 
-              target="_blank" 
+            <a
+              href="https://dtv.sa/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
             >
@@ -133,7 +138,7 @@ export function HeroScrollDemo() {
         >
           {/* Light hue emanating from the globe */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] bg-vc-mint/10 blur-[80px] sm:blur-[100px] rounded-full pointer-events-none" />
-          <Globe className="absolute inset-0 scale-[1.1] sm:scale-[1.2] md:scale-[1.3] xl:scale-[1.25]" />
+          <Globe className="absolute inset-0 scale-[1.08] sm:scale-[1.18] md:scale-[1.28] xl:scale-[1.23]" />
         </motion.div>
       </div>
     </section>

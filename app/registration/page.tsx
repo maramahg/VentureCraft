@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import AnnualTheme from '@/components/AnnualTheme';
 
 export default function RegistrationPage() {
     const [loading, setLoading] = useState(true);
@@ -137,10 +138,14 @@ export default function RegistrationPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
-                    className="glass-panel px-6 py-3 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center"
+                    className="glass-panel px-6 py-3 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center mb-12"
                 >
                     <p className="text-xl md:text-2xl font-bold text-white tracking-wide">February 1, 2026</p>
                 </motion.div>
+
+                <div className="mt-12 w-full max-w-4xl mx-auto px-4 relative z-20">
+                    <AnnualTheme />
+                </div>
 
                 {/* Decorative Grid */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-20">

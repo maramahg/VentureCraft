@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -20,7 +20,16 @@ const navItems = [
       { name: 'KFUPM & DTV', href: '/about/kfupm-dtv' },
     ]
   },
-  { name: 'Apply Now', href: '/apply' },
+  {
+    name: 'Application',
+    href: '#',
+    subItems: [
+      { name: 'Eligibility', href: '/apply/eligibility' },
+      { name: 'Rubrics', href: '/apply/rubrics' },
+      { name: 'Materials', href: '/apply/materials' },
+      { name: 'Apply Now', href: '/apply' },
+    ]
+  },
   { name: 'Ambassadors', href: '/ambassadors' },
 ];
 
@@ -30,6 +39,7 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAmbassador, setIsAmbassador] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -61,20 +71,32 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const checkRole = async () => {
       if (!user) {
         setIsAdmin(false);
+        setIsAmbassador(false);
         return;
       }
       try {
+        // 1. Check if Admin
         const adminDoc = await getDoc(doc(db, 'admins', user.uid));
         setIsAdmin(adminDoc.exists());
+
+        // 2. Check if Ambassador
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsAmbassador(userData.role === 'ambassador');
+        } else {
+          setIsAmbassador(false);
+        }
       } catch (error) {
-        console.error('Admin check failed:', error);
+        console.error('Role check failed:', error);
         setIsAdmin(false);
+        setIsAmbassador(false);
       }
     };
-    checkAdmin();
+    checkRole();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -88,7 +110,7 @@ export default function Navbar() {
   };
 
   const isApplying = pathname === '/apply' && searchParams.get('step') !== null;
-  if (isApplying || pathname === '/ambassadors' || pathname === '/signin' || pathname === '/signup' || pathname === '/verify-email') return null;
+  if (isApplying || pathname === '/signin' || pathname === '/signup' || pathname === '/verify-email') return null;
 
   return (
     <motion.nav
@@ -192,7 +214,12 @@ export default function Navbar() {
                         >
                           <div className="p-5 border-b border-white/10 bg-white/[0.02]">
                             <p className="text-base font-bold text-white mb-0.5">{user.displayName || 'User'}</p>
-                            <p className="text-xs font-medium text-white/50 truncate">{user.email}</p>
+                            <div className="flex flex-wrap gap-2 items-center mt-1">
+                              <p className="text-xs font-medium text-white/50 truncate max-w-[150px]">{user.email}</p>
+                              {isAdmin && (
+                                <span className="px-1.5 py-0.5 bg-vc-mint/20 border border-vc-mint/30 rounded text-[9px] font-bold text-vc-mint uppercase tracking-wider">Admin</span>
+                              )}
+                            </div>
                           </div>
 
                           <div className="py-2">
@@ -217,6 +244,16 @@ export default function Navbar() {
                                     <div className="w-1.5 h-1.5 bg-vc-mint rounded-full" />
                                   </div>
                                   Applications
+                                </Link>
+                                <Link
+                                  href="/admin?tab=ambassadors"
+                                  onClick={() => setIsProfileOpen(false)}
+                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                >
+                                  <div className="w-[18px] flex justify-center">
+                                    <Users size={14} className="text-vc-mint" />
+                                  </div>
+                                  Ambassadors
                                 </Link>
                                 <Link
                                   href="/qr"
@@ -351,6 +388,14 @@ export default function Navbar() {
                               Admin Panel
                             </Link>
                             <Link
+                              href="/admin?tab=ambassadors"
+                              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <Users size={20} />
+                              Ambassadors Management
+                            </Link>
+                            <Link
                               href="/qr"
                               className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
                               onClick={() => setIsOpen(false)}
@@ -389,6 +434,6 @@ export default function Navbar() {
           )}
         </AnimatePresence>
       </div>
-    </motion.nav>
+    </motion.nav >
   );
 }

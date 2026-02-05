@@ -17,6 +17,7 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isAmbassador, setIsAmbassador] = useState(false);
     const [displayName, setDisplayName] = useState('');
     const [photoURL, setPhotoURL] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -37,8 +38,16 @@ export default function ProfilePage() {
             setPhotoURL(currentUser.photoURL || '');
 
             try {
+                // 1. Check Admin
                 const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
                 setIsAdmin(adminDoc.exists());
+
+                // 2. Check Ambassador
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setIsAmbassador(userData.role === 'ambassador');
+                }
             } catch (error) {
                 console.error('Error checking role:', error);
             }
@@ -170,10 +179,18 @@ export default function ProfilePage() {
                                 )}
                             </div>
                             <div className="text-center">
-                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border ${isAdmin ? 'bg-vc-mint/10 border-vc-mint/30 text-vc-mint' : 'bg-white/5 border-white/10 text-white/50'}`}>
-                                    {isAdmin ? <Shield className="w-3 h-3" /> : <UserIcon className="w-3 h-3" />}
-                                    {isAdmin ? 'Administrator' : 'User'}
-                                </span>
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border ${isAdmin ? 'bg-vc-mint/10 border-vc-mint/30 text-vc-mint' : 'bg-white/5 border-white/10 text-white/50'}`}>
+                                        {isAdmin ? <Shield className="w-3 h-3" /> : <UserIcon className="w-3 h-3" />}
+                                        {isAdmin ? 'Administrator' : 'User'}
+                                    </span>
+                                    {isAmbassador && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-vc-teal/10 border-vc-teal/30 text-vc-teal">
+                                            <Shield className="w-3 h-3" />
+                                            Ambassador
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,8 +10,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { upload } from '@vercel/blob/client';
 import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
-import ApplicationTabs from '@/components/ApplicationTabs';
 
 import { countries } from '@/lib/countries';
 
@@ -56,7 +54,7 @@ function FlagDropdown({
 
     return (
         <div className="space-y-2 relative w-full" ref={dropdownRef}>
-            {label && <label className="block text-base font-medium text-white/70">{label}</label>}
+            {label && <label className="block text-sm font-medium text-white/70">{label}</label>}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -70,7 +68,7 @@ function FlagDropdown({
                                 alt={selectedOption.name}
                                 className="w-5 h-auto rounded-sm"
                             />
-                            <span className="text-white text-base">
+                            <span className="text-white text-sm">
                                 {type === 'country' ? (
                                     <span className="hidden sm:inline">{selectedOption.name}</span>
                                 ) : selectedOption.dialCode}
@@ -78,7 +76,7 @@ function FlagDropdown({
                             </span>
                         </>
                     ) : (
-                        <span className="text-white/40 text-base">{placeholder}</span>
+                        <span className="text-white/40 text-sm">{placeholder}</span>
                     )}
                 </div>
                 <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -99,7 +97,7 @@ function FlagDropdown({
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search countries..."
-                                className="bg-transparent border-none outline-none text-base w-full text-white placeholder:text-white/20"
+                                className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/20"
                                 autoFocus
                             />
                         </div>
@@ -122,13 +120,13 @@ function FlagDropdown({
                                                 alt={opt.name}
                                                 className="w-5 h-auto rounded-xs"
                                             />
-                                            <span className="text-base text-white/80 group-hover:text-white truncate max-w-[120px]">{opt.name}</span>
+                                            <span className="text-sm text-white/80 group-hover:text-white truncate max-w-[120px]">{opt.name}</span>
                                         </div>
-                                        <span className="text-sm text-vc-mint/40 group-hover:text-vc-mint">{opt.dialCode}</span>
+                                        <span className="text-xs text-vc-mint/40 group-hover:text-vc-mint">{opt.dialCode}</span>
                                     </button>
                                 ))
                             ) : (
-                                <div className="p-8 text-center text-white/40 text-base">No results found</div>
+                                <div className="p-8 text-center text-white/40 text-sm">No results found</div>
                             )}
                         </div>
                     </motion.div>
@@ -167,13 +165,13 @@ function SimpleDropdown({
 
     return (
         <div className="space-y-2 relative w-full" ref={dropdownRef}>
-            {label && <label className="block text-base font-medium text-white/70">{label}</label>}
+            {label && <label className="block text-sm font-medium text-white/70">{label}</label>}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-all text-left"
             >
-                <span className={`text-base ${value ? 'text-white' : 'text-white/40'}`}>
+                <span className={`text-sm ${value ? 'text-white' : 'text-white/40'}`}>
                     {value || placeholder}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -198,7 +196,7 @@ function SimpleDropdown({
                                     }}
                                     className="w-full px-4 py-3 text-left hover:bg-vc-mint/10 transition-colors group"
                                 >
-                                    <span className="text-base text-white/80 group-hover:text-white">{opt}</span>
+                                    <span className="text-sm text-white/80 group-hover:text-white">{opt}</span>
                                 </button>
                             ))}
                         </div>
@@ -210,7 +208,8 @@ function SimpleDropdown({
 }
 
 const ApplyPageContent = () => {
-    const [step, setStep] = useState(1); // 1-3 = Form
+    const [step, setStep] = useState(0); // 0 = Eligibility Info, 1-3 = Form
+    const [infoStep, setInfoStep] = useState(0); // 0 = Eligibility, 1 = Rubrics
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -297,8 +296,10 @@ const ApplyPageContent = () => {
 
     const handleApplyClick = () => {
         if (!user) {
-            router.push(`/signin?redirect=${encodeURIComponent('/apply')}`);
+            router.push(`/signin?redirect=${encodeURIComponent('/apply?step=1')}`);
+            return;
         }
+        setStep(1);
     };
 
     // Sync step with URL for Navbar/Footer visibility
@@ -446,7 +447,7 @@ const ApplyPageContent = () => {
             category: 'Education',
             requirement: (
                 <span>
-                    All team members must be <strong className="text-vc-mint">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.
+                    All team members must be <strong className="text-vc-mint">actively pursuing or have completed</strong> an undergraduate (bachelorΓÇÖs) degree.
                 </span>
             ),
             notes: 'Focuses on qualified candidates.'
@@ -458,9 +459,9 @@ const ApplyPageContent = () => {
                     <p>The startup must be <strong className="text-vc-mint">no older than 5 years</strong> from its date of establishment.</p>
                     <p>The competition is targeted <strong className="text-white font-bold">at early-stage startups</strong>, specifically:</p>
                     <ul className="list-disc pl-5 space-y-1 text-white/70">
-                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Ideation</span></li>
-                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Pre-Seed</span></li>
-                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Seed</span></li>
+                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-[10px]">Ideation</span></li>
+                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-[10px]">Pre-Seed</span></li>
+                        <li><span className="text-vc-mint font-bold uppercase tracking-wider text-[10px]">Seed</span></li>
                     </ul>
                     <p>Startups at later stages may be deemed ineligible.</p>
                 </div>
@@ -472,7 +473,7 @@ const ApplyPageContent = () => {
             requirement: (
                 <div className="space-y-2">
                     <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology-based</strong>.</p>
-                    <p>The proposed solution must align with <strong className="text-white">at least one</strong> of the competition’s four pillars:</p>
+                    <p>The proposed solution must align with <strong className="text-white">at least one</strong> of the competitionΓÇÖs four pillars:</p>
                     <ul className="list-disc pl-5 space-y-1 text-white/70">
                         <li><span className="text-vc-mint/80 font-semibold italic">Decarbonization Technologies</span></li>
                         <li><span className="text-vc-mint/80 font-semibold italic">Circular Economy & Resource Efficiency</span></li>
@@ -519,7 +520,7 @@ const ApplyPageContent = () => {
                 { name: "Problem & Market Clarity", description: "Assesses whether the problem is clearly defined, significant, and grounded in a real, identifiable need. The team should articulate who experiences the problem, why it matters, and why it is worth solving now.", weight: 30 },
                 { name: "Solution & Innovation (Scientific / Technical Basis)", description: "Evaluates the novelty and originality of the proposed solution, including whether it is grounded in credible science or technology and meaningfully differentiated from existing approaches.", weight: 30 },
                 { name: "Early Business Logic", description: "Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high-level revenue logic.", weight: 20 },
-                { name: "Communication & Conviction", description: "Evaluates clarity, coherence, and persuasiveness of the pitch deck and the video pitch, including the team’s ability to explain the problem and solution clearly and confidently.", weight: 20 },
+                { name: "Communication & Conviction", description: "Evaluates clarity, coherence, and persuasiveness of the pitch deck and the video pitch, including the teamΓÇÖs ability to explain the problem and solution clearly and confidently.", weight: 20 },
             ]
         },
         screening2: {
@@ -580,7 +581,7 @@ const ApplyPageContent = () => {
             title: "VIDEO PITCH",
             format: "Unlisted YouTube link",
             length: "3 - 5 minutes",
-            purpose: "To clearly communicate the startup’s value proposition and why it is worth investing in. The video pitch is your chance to humanize your startup. It puts a face to the business, making it more relatable and memorable than just words.",
+            purpose: "To clearly communicate the startupΓÇÖs value proposition and why it is worth investing in. The video pitch is your chance to humanize your startup. It puts a face to the business, making it more relatable and memorable than just words.",
             content: {
                 title: "Expected content:",
                 items: [
@@ -691,31 +692,408 @@ const ApplyPageContent = () => {
             <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
 
             <div className="max-w-4xl mx-auto px-4 pb-24 relative z-10 min-h-[calc(100vh-200px)]">
-                {step > 1 && (
+                {step > 0 && (
                     <button
-                        onClick={prevStep}
+                        onClick={() => {
+                            if (step === 1) {
+                                setStep(0);
+                                setInfoStep(2); // Return to Materials
+                            } else {
+                                prevStep();
+                            }
+                        }}
                         className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group"
                     >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span>Back to Previous Step</span>
+                        <span>Back to {step === 1 ? 'Materials' : 'Previous Step'}</span>
                     </button>
                 )}
 
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-4 tracking-tight">
-                        Application Form
+                        {step === 0
+                            ? (infoStep === 0 ? 'Application Details & Criteria' : (infoStep === 1 ? 'Judging Rubrics' : 'Application Material'))
+                            : 'Application Form'}
                     </h1>
                     <p className="text-white/60 max-w-xl mx-auto">
-                        Please fill out all the required information to apply for the KFUPM Venture Craft Challenge.
+                        {step === 0
+                            ? (infoStep === 0
+                                ? 'Review the eligibility criteria and competition rules before you begin your journey.'
+                                : (infoStep === 1
+                                    ? 'Understand how your application will be evaluated across the screening rounds.'
+                                    : 'Review the detailed requirements for all submission materials.'))
+                            : 'Please fill out all the required information to apply for the KFUPM Venture Craft Challenge.'}
                     </p>
                 </div>
 
-                {step === 1 && <ApplicationTabs />}
-
                 {renderStepIndicator()}
 
-                <div className="glass-panel p-8 md:p-12">
+                <div className={`${step === 0 ? '' : 'glass-panel p-8 md:p-12'}`}>
                     <AnimatePresence mode="wait">
+                        {step === 0 && (
+                            <motion.div
+                                key={infoStep === 0 ? "eligibility" : (infoStep === 1 ? "rubrics" : "materials")}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className="space-y-12"
+                            >
+                                {infoStep === 0 && (
+                                    <>
+                                        <div className="space-y-6">
+                                            <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                Eligibility Criteria
+                                            </h3>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                {eligibilityCriteria.map((item, idx) => (
+                                                    <div key={idx} className="glass-panel p-6 flex flex-col md:flex-row md:items-center gap-6 group hover:border-vc-mint/30 transition-all">
+                                                        <div className="md:w-1/4">
+                                                            <h4 className="text-lg font-bold text-vc-mint uppercase tracking-tight">{item.category}</h4>
+                                                        </div>
+                                                        <div className="md:w-1/2 text-white/80 text-sm leading-relaxed">
+                                                            {item.requirement}
+                                                        </div>
+                                                        <div className="md:w-1/4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
+                                                            <p className="text-white/40 text-xs italic">{item.notes}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-6">
+                                            <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                Important Details
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {additionalPoints.map((item, idx) => (
+                                                    <div key={idx} className="glass-panel p-6 space-y-3 group hover:border-vc-mint/30 transition-all">
+                                                        <h4 className="font-bold text-white uppercase tracking-tight flex items-center gap-2">
+                                                            <div className="w-1 h-4 bg-vc-mint/50 rounded-full" />
+                                                            {item.title}
+                                                        </h4>
+                                                        <p className="text-white/80 text-sm leading-relaxed">{item.detail}</p>
+                                                        <p className="text-white/30 text-[10px] italic border-t border-white/5 pt-3">{item.reason}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-end pt-8">
+                                            <button
+                                                onClick={() => {
+                                                    setInfoStep(1);
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }}
+                                                className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl shadow-xl shadow-vc-mint/10"
+                                            >
+                                                <span>Next: Rubrics</span>
+                                                <ArrowRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                                {infoStep === 1 && (
+                                    <>
+                                        {/* Rubrics Page */}
+                                        <div className="space-y-12">
+                                            {/* Screening Round 1 */}
+                                            <div className="space-y-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                        {rubrics.screening1.title}
+                                                    </h3>
+                                                    <p className="text-white/60 text-sm leading-relaxed pl-4 border-l border-white/10">
+                                                        {rubrics.screening1.description}
+                                                    </p>
+                                                </div>
+
+                                                <div className="glass-panel overflow-hidden border-white/5 bg-white/[0.02]">
+                                                    {/* Desktop Header */}
+                                                    <div className="hidden md:grid grid-cols-12 bg-white/5 p-4 text-[10px] font-bold uppercase tracking-widest text-white/40 border-b border-white/10">
+                                                        <div className="col-span-4 pl-4 uppercase">Criterion</div>
+                                                        <div className="col-span-6 uppercase">Description</div>
+                                                        <div className="col-span-2 text-center uppercase">Weight (%)</div>
+                                                    </div>
+                                                    <div className="divide-y divide-white/5">
+                                                        {rubrics.screening1.criteria.map((c, i) => (
+                                                            <div key={i} className="flex flex-col md:grid md:grid-cols-12 p-6 hover:bg-white/[0.02] transition-colors gap-4">
+                                                                <div className="md:col-span-4 font-bold text-white text-sm">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Criterion</span>
+                                                                    {c.name}
+                                                                </div>
+                                                                <div className="md:col-span-6 text-white/60 text-xs leading-relaxed">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Description</span>
+                                                                    {c.description}
+                                                                </div>
+                                                                <div className="md:col-span-2 flex flex-col md:items-center md:justify-center">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Weight</span>
+                                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center font-bold text-vc-mint border border-vc-mint/20">
+                                                                        {c.weight}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Screening Round 2 */}
+                                            <div className="space-y-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                                                        <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                                                        {rubrics.screening2.title}
+                                                    </h3>
+                                                    <p className="text-white/60 text-sm leading-relaxed pl-4 border-l border-white/10">
+                                                        {rubrics.screening2.description}
+                                                    </p>
+                                                </div>
+
+                                                <div className="glass-panel overflow-hidden border-white/5 bg-white/[0.02]">
+                                                    {/* Desktop Header */}
+                                                    <div className="hidden md:grid grid-cols-12 bg-white/5 p-4 text-[10px] font-bold uppercase tracking-widest text-white/40 border-b border-white/10">
+                                                        <div className="col-span-4 pl-4 uppercase">Criterion</div>
+                                                        <div className="col-span-6 uppercase">Description</div>
+                                                        <div className="col-span-2 text-center uppercase">Weight (%)</div>
+                                                    </div>
+                                                    <div className="divide-y divide-white/5">
+                                                        {rubrics.screening2.criteria.map((c, i) => (
+                                                            <div key={i} className="flex flex-col md:grid md:grid-cols-12 p-6 hover:bg-white/[0.02] transition-colors gap-4">
+                                                                <div className="md:col-span-4 font-bold text-white text-sm">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Criterion</span>
+                                                                    {c.name}
+                                                                </div>
+                                                                <div className="md:col-span-6 text-white/60 text-xs leading-relaxed">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Description</span>
+                                                                    {c.description}
+                                                                </div>
+                                                                <div className="md:col-span-2 flex flex-col md:items-center md:justify-center">
+                                                                    <span className="text-[10px] md:hidden block text-white/40 uppercase tracking-widest mb-1">Weight</span>
+                                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/10 flex items-center justify-center font-bold text-white border border-white/10 group-hover:border-vc-mint/30">
+                                                                        {c.weight}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between pt-8 items-center">
+                                                <button
+                                                    onClick={() => {
+                                                        setInfoStep(0);
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+                                                >
+                                                    <ArrowLeft className="w-5 h-5" />
+                                                    <span>Back to Eligibility</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setInfoStep(2);
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl shadow-xl shadow-vc-mint/10"
+                                                >
+                                                    <span>Next: Materials</span>
+                                                    <ArrowRight className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                {infoStep === 2 && (
+                                    <>
+                                        {/* Materials Page */}
+                                        <div className="space-y-12">
+                                            <div className="space-y-8">
+                                                {applicationMaterials.map((material, idx) => (
+                                                    <div key={idx} className="glass-panel p-6 md:p-8 space-y-6 group hover:border-vc-mint/30 transition-all">
+                                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-bold text-lg shrink-0">
+                                                                    {material.number}
+                                                                </div>
+                                                                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{material.title}</h3>
+                                                            </div>
+                                                            <div className="flex flex-wrap sm:flex-col items-center sm:items-end gap-2 text-right">
+                                                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm md:text-base font-bold text-white/40 uppercase tracking-widest">
+                                                                    Format: {material.format}
+                                                                </div>
+                                                                <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-sm md:text-base font-bold text-vc-mint uppercase tracking-widest">
+                                                                    Length: {material.length}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-4">
+                                                            <p className="text-white/80 text-base md:text-lg leading-relaxed">
+                                                                <strong className="text-vc-mint">Purpose:</strong> {material.purpose}
+                                                            </p>
+
+                                                            {material.intro && (
+                                                                <p className="text-white/60 text-base md:text-lg leading-relaxed italic border-l-2 border-vc-mint/30 pl-4">
+                                                                    {material.intro}
+                                                                </p>
+                                                            )}
+
+                                                            <div className="space-y-3 bg-white/[0.02] rounded-xl p-6 border border-white/5">
+                                                                <h4 className="text-base md:text-lg font-bold text-white/40 uppercase tracking-wider">{material.content.title}</h4>
+                                                                {material.content.items && (
+                                                                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                                                                        {material.content.items.map((item, i) => (
+                                                                            <li key={i} className="flex items-start gap-2 text-base md:text-lg text-white/70">
+                                                                                <div className="w-1 h-1 rounded-full bg-vc-mint mt-2 shrink-0" />
+                                                                                {item}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                )}
+                                                                {material.content.alphaItems && (
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                                                                        {material.content.alphaItems.map((item, i) => (
+                                                                            <div key={i} className="flex items-start gap-3 text-base md:text-lg text-white/70">
+                                                                                <span className="text-vc-mint font-bold italic lowercase text-base md:text-lg">{String.fromCharCode(97 + i)}.</span>
+                                                                                {item}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                                {material.content.nestedItems && (
+                                                                    <div className="space-y-6">
+                                                                        {material.content.nestedItems.map((nitem, ni) => (
+                                                                            <div key={ni} className="space-y-3">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
+                                                                                    <h5 className="text-base md:text-lg font-bold text-white">{nitem.title}</h5>
+                                                                                </div>
+                                                                                <ul className="space-y-2 ml-4">
+                                                                                    {nitem.subItems.map((sitem, si) => (
+                                                                                        <li key={si} className="text-sm md:text-base text-white/50 flex items-start gap-2">
+                                                                                            <span className="text-vc-mint/40 select-none">Γùª</span>
+                                                                                            {sitem}
+                                                                                        </li>
+                                                                                    ))}
+                                                                                </ul>
+                                                                                {nitem.nestedNote && (
+                                                                                    <div className="ml-4 mt-2 p-3 bg-vc-mint/5 border border-vc-mint/10 rounded-lg space-y-2">
+                                                                                        <p className="text-sm md:text-base font-bold text-vc-mint uppercase tracking-wider">{nitem.nestedNote.title}</p>
+                                                                                        {nitem.nestedNote.items.map((nn, nni) => (
+                                                                                            <p key={nni} className="text-sm md:text-base text-white/40 flex items-start gap-2">
+                                                                                                <span className="shrink-0">-</span>
+                                                                                                {nn}
+                                                                                            </p>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {material.extra && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-white/5">
+                                                                    <div className="space-y-4">
+                                                                        <h4 className="text-xs font-bold text-vc-mint uppercase tracking-wider">{material.extra.title}</h4>
+                                                                        <ul className="space-y-2">
+                                                                            {material.extra.items.map((e, i) => (
+                                                                                <li key={i} className="text-xs text-white/60 flex items-start gap-2">
+                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint/20 mt-1 shrink-0" />
+                                                                                    {e}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                        <div className="p-4 bg-white/[0.03] rounded-xl space-y-2 border border-white/5">
+                                                                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">{material.extra.formats.title}</p>
+                                                                            {material.extra.formats.list.map((f, i) => (
+                                                                                <p key={i} className="text-[10px] text-white/60 flex items-start gap-2">
+                                                                                    <span className="text-vc-mint shrink-0">ΓÇó</span>
+                                                                                    {f}
+                                                                                </p>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="space-y-4">
+                                                                        <div className="space-y-2">
+                                                                            <h4 className="text-xs font-bold text-vc-mint uppercase tracking-wider">{material.extra.quality.title}</h4>
+                                                                            {material.extra.quality.list.map((q, i) => (
+                                                                                <p key={i} className="text-[10px] text-white/50 flex items-start gap-2 pl-2 border-l border-vc-mint/20">
+                                                                                    {q}
+                                                                                </p>
+                                                                            ))}
+                                                                        </div>
+                                                                        <div className="p-4 bg-vc-mint/5 rounded-xl space-y-3 border border-vc-mint/10">
+                                                                            <h4 className="text-[10px] font-bold text-vc-mint uppercase tracking-wider">{material.extra.instructions.title}</h4>
+                                                                            {material.extra.instructions.list.map((ins, i) => (
+                                                                                <div key={i} className="flex gap-3 text-[10px] text-white/70">
+                                                                                    <span className="w-4 h-4 rounded-full bg-vc-mint/10 flex items-center justify-center text-vc-mint shrink-0">{i + 1}</span>
+                                                                                    {ins}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {material.note && (
+                                                            <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex gap-3 items-start">
+                                                                <AlertCircle className="w-4 h-4 text-vc-mint shrink-0 mt-0.5" />
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[10px] font-bold text-white uppercase tracking-wider">Evaluation Note</p>
+                                                                    <p className="text-[10px] text-white/40 leading-relaxed italic">{material.note}</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="flex flex-col items-center pt-8 space-y-8">
+                                                <div className="flex flex-col sm:flex-row gap-6 w-full justify-between items-center bg-white/[0.02] p-4 sm:p-0 rounded-2xl sm:bg-transparent">
+                                                    <button
+                                                        onClick={() => {
+                                                            setInfoStep(1);
+                                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                        }}
+                                                        className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors order-2 sm:order-1"
+                                                    >
+                                                        <ArrowLeft className="w-5 h-5" />
+                                                        <span>Back to Rubrics</span>
+                                                    </button>
+
+                                                    {isRegistrationOpen ? (
+                                                        <button
+                                                            onClick={handleApplyClick}
+                                                            className="btn-primary !px-10 md:!px-16 !py-4 md:!py-5 md:!text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20 animate-glow order-1 sm:order-2 w-full sm:w-auto justify-center"
+                                                        >
+                                                            <span>Apply Now</span>
+                                                            <Rocket className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="bg-vc-mint/5 border border-vc-mint/20 p-6 rounded-2xl text-center max-w-sm order-1 sm:order-2 w-full sm:w-auto">
+                                                            <p className="text-white/60 text-sm leading-relaxed">
+                                                                Registration opens on <span className="text-vc-mint font-bold italic">February 1, 2026</span>
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </motion.div>
+                        )}
                         {step === 1 && (
                             <motion.div
                                 key="step1"
@@ -732,7 +1110,7 @@ const ApplyPageContent = () => {
                                 </div>
 
                                 <div className="space-y-4 max-w-xs mb-8">
-                                    <label className="block text-base font-medium text-white/70 flex items-center gap-2">
+                                    <label className="block text-sm font-medium text-white/70 flex items-center gap-2">
                                         <Users className="w-4 h-4 text-vc-mint" />
                                         Team size (including leader)
                                     </label>
@@ -744,12 +1122,12 @@ const ApplyPageContent = () => {
                                         onChange={(e) => handleTeamSizeChange(parseInt(e.target.value))}
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
                                     />
-                                    <p className="text-base text-white/30 uppercase tracking-widest">Maximum 10 members</p>
+                                    <p className="text-[10px] text-white/30 uppercase tracking-widest">Maximum 10 members</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Leader Email Address</label>
+                                        <label className="block text-sm font-medium text-white/70">Leader Email Address</label>
                                         <input
                                             type="email"
                                             value={formData.leaderEmail}
@@ -760,7 +1138,7 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Leader Phone Number</label>
+                                        <label className="block text-sm font-medium text-white/70">Leader Phone Number</label>
                                         <div className="flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-vc-mint transition-all">
                                             <div className="w-[100px] border-r border-white/10">
                                                 <FlagDropdown
@@ -782,19 +1160,19 @@ const ApplyPageContent = () => {
                                 </div>
 
                                 <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10 mt-12">
-                                    <h3 className="text-2xl font-bold text-vc-mint flex items-center gap-2">
+                                    <h3 className="text-lg font-semibold text-vc-mint flex items-center gap-2">
                                         <Globe className="w-5 h-5" />
                                         Team Members Details
                                     </h3>
                                     {formData.teamMembers.map((member, idx) => (
                                         <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
                                             <div className="space-y-2">
-                                                <label className="text-base text-white/40 uppercase tracking-widest font-medium">{idx === 0 ? 'Team Leader Name' : `Member ${idx + 1} Name`}</label>
+                                                <label className="text-xs text-white/40 uppercase tracking-widest">{idx === 0 ? 'Team Leader Name' : `Member ${idx + 1} Name`}</label>
                                                 <input
                                                     type="text"
                                                     value={member.name}
                                                     onChange={(e) => handleMemberChange(idx, 'name', e.target.value)}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base focus:border-vc-mint focus:outline-none transition-colors"
+                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-vc-mint focus:outline-none transition-colors"
                                                     placeholder="Full Name"
                                                 />
                                             </div>
@@ -820,7 +1198,7 @@ const ApplyPageContent = () => {
                                             onChange={(e) => setFormData({ ...formData, ageConfirmed: e.target.checked })}
                                             className="mt-1 accent-vc-mint h-4 w-4"
                                         />
-                                        <label htmlFor="age" className="text-base text-white/70 cursor-pointer">
+                                        <label htmlFor="age" className="text-sm text-white/70 cursor-pointer">
                                             I confirm that all team members are 18 years of age or older at the time of application.
                                         </label>
                                     </div>
@@ -832,8 +1210,8 @@ const ApplyPageContent = () => {
                                             onChange={(e) => setFormData({ ...formData, educationConfirmed: e.target.checked })}
                                             className="mt-1 accent-vc-mint h-4 w-4"
                                         />
-                                        <label htmlFor="edu" className="text-base text-white/70 cursor-pointer">
-                                            I confirm that all team members are either actively pursuing or have completed an undergraduate (bachelor’s) degree.
+                                        <label htmlFor="edu" className="text-sm text-white/70 cursor-pointer">
+                                            I confirm that all team members are either actively pursuing or have completed an undergraduate (bachelorΓÇÖs) degree.
                                         </label>
                                     </div>
                                 </div>
@@ -864,11 +1242,11 @@ const ApplyPageContent = () => {
                                         <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
                                             <Rocket className="text-vc-mint w-5 h-5" />
                                         </div>
-                                        <h2 className="text-3xl font-bold">Start-up Details</h2>
+                                        <h2 className="text-2xl font-bold">Start-up Details</h2>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Which of the following pillars does your startup most closely align with?</label>
+                                        <label className="block text-sm font-medium text-white/70">Which of the following pillars does your startup most closely align with?</label>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {[
                                                 'Decarbonization Technologies',
@@ -889,7 +1267,7 @@ const ApplyPageContent = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Is your startup older than 5 years?</label>
+                                            <label className="block text-sm font-medium text-white/70">Is your startup older than 5 years?</label>
                                             <div className="flex gap-4">
                                                 {['Yes', 'No'].map((opt) => (
                                                     <button
@@ -915,7 +1293,7 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Conflict of Interest Declaration (Required)</label>
+                                        <label className="block text-sm font-medium text-white/70">Conflict of Interest Declaration (Required)</label>
                                         <textarea
                                             value={formData.coiDeclaration}
                                             onChange={(e) => setFormData({ ...formData, coiDeclaration: e.target.value })}
@@ -927,7 +1305,7 @@ const ApplyPageContent = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Startup Website (Optional)</label>
+                                            <label className="block text-sm font-medium text-white/70">Startup Website (Optional)</label>
                                             <input
                                                 type="url"
                                                 value={formData.website}
@@ -937,7 +1315,7 @@ const ApplyPageContent = () => {
                                             />
                                         </div>
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">LinkedIn Page (Optional)</label>
+                                            <label className="block text-sm font-medium text-white/70">LinkedIn Page (Optional)</label>
                                             <input
                                                 type="url"
                                                 value={formData.linkedin}
@@ -949,7 +1327,7 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Additional Links (Optional)</label>
+                                        <label className="block text-sm font-medium text-white/70">Additional Links (Optional)</label>
                                         <textarea
                                             value={formData.additionalLinks}
                                             onChange={(e) => setFormData({ ...formData, additionalLinks: e.target.value })}
@@ -990,12 +1368,12 @@ const ApplyPageContent = () => {
                                         <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
                                             <FileText className="text-vc-mint w-5 h-5" />
                                         </div>
-                                        <h2 className="text-3xl font-bold">Application Material</h2>
+                                        <h2 className="text-2xl font-bold">Application Material</h2>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Pitch Deck (PDF or PPTX)</label>
+                                            <label className="block text-sm font-medium text-white/70">Pitch Deck (PDF or PPTX)</label>
                                             <div className="relative group">
                                                 <input
                                                     type="file"
@@ -1005,14 +1383,14 @@ const ApplyPageContent = () => {
                                                 />
                                                 <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
                                                     <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : 'text-white/20'}`} />
-                                                    <p className="text-base font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
-                                                    <p className="text-sm text-white/40">Drop file here or click to browse</p>
+                                                    <p className="text-sm font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
+                                                    <p className="text-xs text-white/40">Drop file here or click to browse</p>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Executive Summary (PDF or DOCX)</label>
+                                            <label className="block text-sm font-medium text-white/70">Executive Summary (PDF or DOCX)</label>
                                             <div className="relative group">
                                                 <input
                                                     type="file"
@@ -1023,14 +1401,14 @@ const ApplyPageContent = () => {
                                                 <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
                                                     <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : 'text-white/20'}`} />
                                                     <p className="text-sm font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
-                                                    <p className="text-sm text-white/40">Drop file here or click to browse</p>
+                                                    <p className="text-xs text-white/40">Drop file here or click to browse</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70 flex items-center gap-2">
+                                        <label className="block text-sm font-medium text-white/70 flex items-center gap-2">
                                             <Video className="w-4 h-4 text-vc-mint" />
                                             Video Pitch (Unlisted YouTube Link)
                                         </label>
@@ -1044,7 +1422,7 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Supporting Data (Optional / PDF or Word)</label>
+                                        <label className="block text-sm font-medium text-white/70">Supporting Data (Optional / PDF or Word)</label>
                                         <div className="relative group">
                                             <input
                                                 type="file"
@@ -1056,7 +1434,7 @@ const ApplyPageContent = () => {
                                                 <LinkIcon className={`w-6 h-6 ${files.supportingData ? 'text-vc-mint' : 'text-white/20'}`} />
                                                 <div>
                                                     <p className="text-sm font-medium">{files.supportingData ? files.supportingData.name : 'Upload Supporting Data'}</p>
-                                                    <p className="text-sm text-white/40">Optional technical documents</p>
+                                                    <p className="text-xs text-white/40">Optional technical documents</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1071,7 +1449,7 @@ const ApplyPageContent = () => {
                                                 onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
                                                 className="mt-1 w-6 h-6 rounded border-vc-mint/50 bg-white/5 text-vc-mint focus:ring-vc-mint focus:ring-offset-0 cursor-pointer"
                                             />
-                                            <label htmlFor="final-agreement" className="text-base text-white/80 leading-relaxed cursor-pointer select-none">
+                                            <label htmlFor="final-agreement" className="text-sm text-white/80 leading-relaxed cursor-pointer select-none">
                                                 I have read, understood and agree to the <button onClick={(e) => { e.preventDefault(); setIsTermsOpen(true); }} className="text-vc-mint hover:underline font-bold decoration-vc-mint/30">Terms and Conditions</button> of the Venture Craft Competition. I confirm that all information provided is accurate and complete.
                                             </label>
                                         </div>
@@ -1130,7 +1508,7 @@ const ApplyPageContent = () => {
                             className="relative w-full max-w-4xl max-h-[85vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
                         >
                             <div className="p-8 border-b border-white/10 flex items-center justify-between bg-white/5">
-                                <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                                     <FileText className="text-vc-mint w-6 h-6" />
                                     Terms and Conditions
                                 </h2>
@@ -1144,7 +1522,7 @@ const ApplyPageContent = () => {
 
                             <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar scroll-smooth">
                                 {[
-                                    { title: "Acceptance", content: "These terms and conditions constitute a legally binding agreement between Venture Craft (hereinafter referred to as “competition”, “we”, “us”, or “our”) and each individual member of the applicant team (hereinafter collectively or individually referred to as “participant”, “you” or “your”). By submitting an application, registering for, or participating in the competition, you accept and agree to comply with this agreement in full. Where an application is submitted on behalf of a team, the application or participation of the team shall constitute acceptance of these terms and conditions by all team members. The individual submitting the application is responsible for ensuring that all team members have reviewed and accepted the terms and conditions." },
+                                    { title: "Acceptance", content: "These terms and conditions constitute a legally binding agreement between Venture Craft (hereinafter referred to as ΓÇ£competitionΓÇ¥, ΓÇ£weΓÇ¥, ΓÇ£usΓÇ¥, or ΓÇ£ourΓÇ¥) and each individual member of the applicant team (hereinafter collectively or individually referred to as ΓÇ£participantΓÇ¥, ΓÇ£youΓÇ¥ or ΓÇ£yourΓÇ¥). By submitting an application, registering for, or participating in the competition, you accept and agree to comply with this agreement in full. Where an application is submitted on behalf of a team, the application or participation of the team shall constitute acceptance of these terms and conditions by all team members. The individual submitting the application is responsible for ensuring that all team members have reviewed and accepted the terms and conditions." },
                                     { title: "Accuracy of Information", content: "You agree to provide information that is accurate, current, and complete at all times in connection with your application and participation in the competition. You further agree to promptly update any information that becomes inaccurate or incomplete during the competition. The initial application, and any subsequent materials submitted or shared, are subject to compliance with the eligibility requirements communicated by Venture Craft." },
                                     { title: "Decisions", content: "Applications, pitches, and submissions may be evaluated by judges, mentors, or other individuals appointed by Venture Craft, or through other selection methods determined by the competition. We reserve the right to determine and apply the selection process for each stage of the competition. All judging and selection decisions are final and binding, and no correspondence or appeals regarding such decisions will be entertained." },
                                     { title: "Intellectual Property", content: "The participant is solely responsible for the protection of their own intellectual property and for ensuring that any ideas, materials, data, technology, or content they submit or present as part of the competition do not infringe the rights of any third party and are used with all necessary permissions. The participant grants Venture Craft a non-exclusive, royalty-free, worldwide license to use submitted materials, including applications, pitch decks, presentations, and demo materials, for the purposes of administering, judging, and promoting the competition. All intellectual property rights relating to Venture Craft, including its name, logo, branding, website, structure, and materials, remain the exclusive property of Venture Craft." },
@@ -1157,11 +1535,11 @@ const ApplyPageContent = () => {
                                     { title: "Governing Law", content: "These terms and conditions are governed by and are construed in accordance with the laws of the Kingdom of Saudi Arabia." },
                                 ].map((term, i) => (
                                     <div key={i} className="space-y-3">
-                                        <h3 className="text-base md:text-lg text-vc-mint font-bold italic flex items-center gap-3">
+                                        <h3 className="text-vc-mint font-bold italic flex items-center gap-3">
                                             <span className="w-8 h-8 rounded-full bg-vc-mint/10 flex items-center justify-center not-italic text-sm">{i + 1}</span>
                                             {term.title}
                                         </h3>
-                                        <p className="text-sm md:text-base text-white/70 leading-relaxed pl-11">
+                                        <p className="text-white/70 leading-relaxed pl-11">
                                             {term.content}
                                         </p>
                                     </div>

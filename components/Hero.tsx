@@ -47,7 +47,7 @@ export default function Hero() {
 
           <div className="mt-12 flex items-center justify-center lg:justify-start gap-8 text-white/40">
             <div className="text-sm">
-              <span className="block text-2xl font-bold text-white mb-1">$245K</span>
+              <span className="block text-2xl font-bold text-white mb-1">$200K+</span>
               Prize Pool
             </div>
             <div className="w-px h-12 bg-white/10"></div>
