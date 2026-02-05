@@ -3,11 +3,19 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-import AnnualTheme from '@/components/AnnualTheme';
-
 import { motion } from 'framer-motion';
 
 const eligibilityCriteria = [
+    {
+        category: '2026 Theme',
+        requirement: (
+            <div className="space-y-2">
+                <p>This year's challenge focuses on <strong className="text-vc-mint font-bold uppercase tracking-wider">Sustainable Energy</strong>.</p>
+                <p>We are looking for deep-tech solutions that power the future responsibly.</p>
+            </div>
+        ),
+        notes: 'Aligns with the global mission for sustainability.'
+    },
     {
         category: 'Age',
         requirement: (
@@ -106,9 +114,7 @@ export default function EligibilityPage() {
 
 
 
-                <div className="mb-24">
-                    <AnnualTheme />
-                </div>
+
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
