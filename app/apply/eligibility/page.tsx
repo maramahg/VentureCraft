@@ -130,7 +130,7 @@ export default function EligibilityPage() {
                             {eligibilityCriteria.map((item, idx) => (
                                 <div key={idx} className="glass-panel p-6 flex flex-col md:flex-row md:items-start gap-6 group hover:border-vc-mint/30 transition-all">
                                     <div className="md:w-1/4">
-                                        <h4 className="text-lg font-bold text-vc-mint uppercase tracking-tight">{item.category}</h4>
+                                        <h4 className="text-2xl font-bold text-vc-mint uppercase tracking-tight">{item.category}</h4>
                                     </div>
                                     <div className="md:w-1/2 text-white/80 text-lg leading-relaxed">
                                         {item.requirement}
