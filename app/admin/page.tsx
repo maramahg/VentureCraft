@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, Rocket, CheckCircle, XCircle, Clock,
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User
+    User, Link as LinkIcon
 } from 'lucide-react';
 import { db, auth } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { countries as countriesList } from '@/lib/countries';
 
 interface Application {
     id: string;
@@ -39,6 +40,12 @@ interface Application {
         supportingDataName?: string;
         supportingDataUrl?: string;
     };
+    coiDeclaration?: string;
+    additionalLinks?: string;
+    confirmations?: {
+        ageConfirmed: boolean;
+        educationConfirmed: boolean;
+    };
 }
 
 interface AmbassadorApplication {
@@ -56,6 +63,7 @@ interface AmbassadorApplication {
     submittedAt: any;
 }
 
+
 interface UserProfile {
     id: string;
     displayName: string;
@@ -66,7 +74,195 @@ interface UserProfile {
     createdAt?: any;
 }
 
-export default function AdminDashboard() {
+const AdminDropdown = ({ options, value, onChange, placeholder }: {
+    options: string[],
+    value: string,
+    onChange: (val: string) => void,
+    placeholder: string
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative w-full" ref={dropdownRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between hover:bg-white/10 transition-all text-left group"
+            >
+                <span className={`text-sm ${value !== 'all' ? 'text-white font-medium' : 'text-white/40'}`}>
+                    {value === 'all' ? placeholder : value}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-vc-mint/50 group-hover:text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute z-[110] w-full mt-2 bg-[#0c1e1c] border border-vc-mint/20 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+                    >
+                        <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onChange('all');
+                                    setIsOpen(false);
+                                }}
+                                className="w-full px-4 py-3 text-left hover:bg-vc-mint/10 transition-colors group border-b border-white/5"
+                            >
+                                <span className={`text-sm ${value === 'all' ? 'text-vc-mint font-bold' : 'text-white/40'}`}>{placeholder}</span>
+                            </button>
+                            {options.map((opt) => (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => {
+                                        onChange(opt);
+                                        setIsOpen(false);
+                                    }}
+                                    className="w-full px-4 py-3 text-left hover:bg-vc-mint/10 transition-colors group"
+                                >
+                                    <span className={`text-sm ${value === opt ? 'text-vc-mint font-bold' : 'text-white/80 group-hover:text-white'}`}>{opt}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const AdminFlagDropdown = ({ value, onChange, placeholder }: {
+    value: string,
+    onChange: (val: string) => void,
+    placeholder: string
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const filteredOptions = countriesList.filter(opt =>
+        opt.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const selectedOption = countriesList.find(opt => opt.name === value);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative w-full" ref={dropdownRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between hover:bg-white/10 transition-all text-left group"
+            >
+                <div className="flex items-center gap-3 overflow-hidden">
+                    {selectedOption ? (
+                        <>
+                            <img
+                                src={`https://flagcdn.com/w40/${selectedOption.code.toLowerCase()}.png`}
+                                alt={selectedOption.name}
+                                className="w-4 h-auto rounded-[2px] shrink-0"
+                            />
+                            <span className="text-sm text-white font-medium truncate">{selectedOption.name}</span>
+                        </>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <Search className="w-3.5 h-3.5 text-white/20" />
+                            <span className="text-sm text-white/40">{placeholder}</span>
+                        </div>
+                    )}
+                </div>
+                <ChevronDown className={`w-4 h-4 text-vc-mint/50 group-hover:text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute z-[110] w-full mt-2 bg-[#0c1e1c] border border-vc-mint/20 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+                    >
+                        {/* Search Input */}
+                        <div className="p-3 border-b border-white/5 bg-white/5 flex items-center gap-2">
+                            <Search className="w-3.5 h-3.5 text-vc-mint/60" />
+                            <input
+                                type="text"
+                                placeholder="Search country..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="bg-transparent border-none outline-none text-sm text-white placeholder:text-white/20 w-full"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onChange('all');
+                                    setIsOpen(false);
+                                    setSearch('');
+                                }}
+                                className="w-full px-4 py-2.5 text-left hover:bg-vc-mint/10 transition-colors group border-b border-white/5"
+                            >
+                                <span className={`text-sm ${value === 'all' ? 'text-vc-mint font-bold' : 'text-white/40'}`}>{placeholder}</span>
+                            </button>
+                            {filteredOptions.map((opt) => (
+                                <button
+                                    key={opt.code}
+                                    type="button"
+                                    onClick={() => {
+                                        onChange(opt.name);
+                                        setIsOpen(false);
+                                        setSearch('');
+                                    }}
+                                    className="w-full px-4 py-2.5 text-left hover:bg-vc-mint/10 transition-colors group flex items-center gap-3"
+                                >
+                                    <img
+                                        src={`https://flagcdn.com/w40/${opt.code.toLowerCase()}.png`}
+                                        alt={opt.name}
+                                        className="w-4 h-auto rounded-[2px]"
+                                    />
+                                    <span className={`text-sm ${value === opt.name ? 'text-vc-mint font-bold' : 'text-white/80 group-hover:text-white'}`}>{opt.name}</span>
+                                </button>
+                            ))}
+                            {filteredOptions.length === 0 && (
+                                <p className="p-4 text-center text-xs text-white/20">No countries found</p>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+
+function AdminDashboardContent() {
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -96,7 +292,8 @@ export default function AdminDashboard() {
     const [ambStatusFilter, setAmbStatusFilter] = useState<string>('all');
     const [ambNationalityFilter, setAmbNationalityFilter] = useState<string>('all');
     const [ambDegreeFilter, setAmbDegreeFilter] = useState<string>('all');
-    const [countries, setCountries] = useState<any[]>([]);
+
+    // We use the imported countriesList directly or map it if needed
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -147,20 +344,7 @@ export default function AdminDashboard() {
         return () => unsubscribeAuth();
     }, [router]);
 
-    // Load Countries
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const res = await fetch('/data/countries.json');
-                const data = await res.json();
-                const names = data.features.map((f: any) => f.properties.NAME).sort();
-                setCountries(names);
-            } catch (err) {
-                console.error('Error loading countries:', err);
-            }
-        };
-        load();
-    }, []);
+    // Countries are imported from @/lib/countries
 
     useEffect(() => {
         if (!isAdmin) return;
@@ -251,6 +435,7 @@ export default function AdminDashboard() {
         return () => unsubscribe();
     }, [isAdmin, activeTab]);
 
+
     const handleStatusUpdate = async (appId: string, newStatus: string) => {
         try {
             await updateDoc(doc(db, 'applications', appId), {
@@ -307,6 +492,7 @@ export default function AdminDashboard() {
         }
     };
 
+
     const filteredApps = applications.filter(app => {
         const matchesSearch =
             (app.leaderEmail?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -319,7 +505,9 @@ export default function AdminDashboard() {
             (teamSizeFilter === '6+' ? app.teamSize >= 6 : app.teamSize.toString() === teamSizeFilter);
         const matchesAge = ageFilter === 'all' ||
             (ageFilter === 'old' ? app.isOlderThan5Years === 'Yes' : app.isOlderThan5Years === 'No');
-        const matchesNationality = nationalityFilter === 'all' || app.leaderNationality === nationalityFilter;
+        const matchesNationality = nationalityFilter === 'all' ||
+            app.leaderNationality === nationalityFilter ||
+            app.teamMembers?.some(m => m.nationality === nationalityFilter);
 
         return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality;
     });
@@ -337,6 +525,7 @@ export default function AdminDashboard() {
             return matchesSearch && matchesStatus && matchesNationality && matchesDegree;
         });
     }, [ambassadorApps, ambSearchTerm, ambStatusFilter, ambNationalityFilter, ambDegreeFilter]);
+
 
     const pillars = [
         'Decarbonization Technologies',
@@ -407,29 +596,27 @@ export default function AdminDashboard() {
                         <h1 className="text-4xl font-bold font-poppins mb-2">
                             {activeTab === 'startups' ? 'Admin Dashboard' : 'Ambassadors Management'}
                         </h1>
-                        <p className="text-white/50 mb-6">
+                        <p className="text-white/40 uppercase tracking-[0.3em] font-bold text-[10px]">
                             {activeTab === 'startups'
                                 ? 'Manage and review Venture Craft startup applications'
                                 : 'Review ambassador applications and manage the directory'
                             }
                         </p>
 
-                        {/* Tab Switcher Removed - Accessible via Navbar */}
+                        {/* Tab Switcher - Controlled via Navbar / URL */}
                     </div>
                     <div className="flex flex-wrap items-center gap-4">
-                        {activeTab === 'startups' && (
-                            <button
-                                onClick={toggleRegistration}
-                                disabled={updatingReg}
-                                className={`px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-3 border shadow-xl ${isRegistrationOpen
-                                    ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
-                                    : 'bg-red-500/10 text-red-500 border-red-500/20'
-                                    }`}
-                            >
-                                {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                                <span>Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
-                            </button>
-                        )}
+                        <button
+                            onClick={toggleRegistration}
+                            disabled={updatingReg}
+                            className={`px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-3 border shadow-xl ${isRegistrationOpen
+                                ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
+                                : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                }`}
+                        >
+                            {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                            <span>Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
+                        </button>
 
                         {activeTab === 'startups' ? (
                             <>
@@ -449,16 +636,16 @@ export default function AdminDashboard() {
                         ) : (
                             <>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total Apps</span>
+                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Apps</span>
                                     <span className="text-2xl font-bold text-white">{ambassadorApps.length}</span>
                                 </div>
                                 <div className="bg-vc-teal/10 border border-vc-teal/20 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-vc-teal/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Ambassadors</span>
-                                    <span className="text-2xl font-bold text-vc-teal">{ambassadorsList.length}</span>
+                                    <span className="text-vc-teal/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
+                                    <span className="text-2xl font-bold text-vc-teal">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
                                 </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending Apps</span>
-                                    <span className="text-2xl font-bold text-white">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
+                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Active</span>
+                                    <span className="text-2xl font-bold text-white">{ambassadorsList.length}</span>
                                 </div>
                             </>
                         )}
@@ -476,170 +663,145 @@ export default function AdminDashboard() {
                                 <h2 className="font-bold uppercase tracking-widest text-sm">Advanced Filters</h2>
                             </div>
 
-                            {activeTab === 'startups' ? (
-                                <div className="space-y-6">
-                                    {/* Search */}
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Search Partner / Email</label>
-                                        <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                            <input
-                                                type="text"
-                                                placeholder="Search..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Status Filter */}
-                                    <div className="space-y-3">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Status</label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {['all', 'pending', 'accepted', 'rejected'].map(s => (
-                                                <button
-                                                    key={s}
-                                                    onClick={() => setStatusFilter(s)}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${statusFilter === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    {s.toUpperCase()}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Pillar Filter */}
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Pillar</label>
-                                        <select
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-vc-mint appearance-none cursor-pointer"
-                                            value={pillarFilter}
-                                            onChange={(e) => setPillarFilter(e.target.value)}
-                                        >
-                                            <option value="all">All Pillars</option>
-                                            {pillars.map(p => <option key={p} value={p}>{p}</option>)}
-                                        </select>
-                                    </div>
-
-                                    {/* Stage Filter */}
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Stage</label>
-                                        <select
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-vc-mint appearance-none cursor-pointer"
-                                            value={stageFilter}
-                                            onChange={(e) => setStageFilter(e.target.value)}
-                                        >
-                                            <option value="all">All Stages</option>
-                                            {stages.map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
+                            <div className="space-y-6">
+                                {/* Search */}
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Search Partner / Email</label>
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search..."
+                                            value={activeTab === 'startups' ? searchTerm : ambSearchTerm}
+                                            onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                        />
                                     </div>
                                 </div>
-                            ) : (
-                                <div className="space-y-6">
-                                    {/* Ambassador Filter Group */}
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Search Ambassador</label>
-                                        <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                            <input
-                                                type="text"
-                                                placeholder="Name or email..."
-                                                value={ambSearchTerm}
-                                                onChange={(e) => setAmbSearchTerm(e.target.value)}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                            />
-                                        </div>
-                                    </div>
 
-                                    <div className="space-y-3">
-                                        <label className="text-xs font-medium text-white/40 uppercase">App Status</label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {['all', 'pending', 'accepted', 'rejected'].map(s => (
-                                                <button
-                                                    key={s}
-                                                    onClick={() => setAmbStatusFilter(s)}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${ambStatusFilter === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    {s.toUpperCase()}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Nationality</label>
-                                        <select
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-vc-mint appearance-none cursor-pointer"
-                                            value={ambNationalityFilter}
-                                            onChange={(e) => setAmbNationalityFilter(e.target.value)}
-                                        >
-                                            <option value="all">Everywhere</option>
-                                            {countries.map(c => <option key={c} value={c}>{c}</option>)}
-                                        </select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-white/40 uppercase">Degree</label>
-                                        <select
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-vc-mint appearance-none cursor-pointer"
-                                            value={ambDegreeFilter}
-                                            onChange={(e) => setAmbDegreeFilter(e.target.value)}
-                                        >
-                                            <option value="all">Any Degree</option>
-                                            {['Bachelor', 'Master', 'PhD', 'Other'].map(d => <option key={d} value={d}>{d}</option>)}
-                                        </select>
+                                {/* Status Filter */}
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Status</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {['all', 'pending', 'accepted', 'rejected'].map(s => (
+                                            <button
+                                                key={s}
+                                                onClick={() => activeTab === 'startups' ? setStatusFilter(s) : setAmbStatusFilter(s)}
+                                                className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${(activeTab === 'startups' ? statusFilter : ambStatusFilter) === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                            >
+                                                {s.toUpperCase()}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
-                            )}
 
-                            <button
-                                onClick={() => {
-                                    if (activeTab === 'startups') {
-                                        setSearchTerm('');
-                                        setStatusFilter('all');
-                                        setPillarFilter('all');
-                                        setStageFilter('all');
-                                        setTeamSizeFilter('all');
-                                        setAgeFilter('all');
-                                        setNationalityFilter('all');
-                                    } else {
-                                        setAmbSearchTerm('');
-                                        setAmbStatusFilter('all');
-                                        setAmbNationalityFilter('all');
-                                        setAmbDegreeFilter('all');
-                                    }
-                                }}
-                                className="w-full py-3 text-xs font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-xl uppercase tracking-widest mt-4"
-                            >
-                                Reset Filters
-                            </button>
+                                {activeTab === 'startups' ? (
+                                    <>
+                                        {/* Pillar Filter */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Pillar</label>
+                                            <AdminDropdown
+                                                options={pillars}
+                                                value={pillarFilter}
+                                                onChange={setPillarFilter}
+                                                placeholder="All Pillars"
+                                            />
+                                        </div>
+
+                                        {/* Stage Filter */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Stage</label>
+                                            <AdminDropdown
+                                                options={stages}
+                                                value={stageFilter}
+                                                onChange={setStageFilter}
+                                                placeholder="All Stages"
+                                            />
+                                        </div>
+
+                                        {/* Nationality Filter */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</label>
+                                            <AdminFlagDropdown
+                                                value={nationalityFilter}
+                                                onChange={setNationalityFilter}
+                                                placeholder="Everywhere"
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Ambassador Nationality Filter */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Partner Nationality</label>
+                                            <AdminFlagDropdown
+                                                value={ambNationalityFilter}
+                                                onChange={setAmbNationalityFilter}
+                                                placeholder="All Countries"
+                                            />
+                                        </div>
+
+                                        {/* Ambassador Degree Filter */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Education Level</label>
+                                            <AdminDropdown
+                                                options={['Bachelor', 'Master', 'PhD', 'Other']}
+                                                value={ambDegreeFilter}
+                                                onChange={setAmbDegreeFilter}
+                                                placeholder="All Degrees"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
+
+                        <button
+                            onClick={() => {
+                                if (activeTab === 'startups') {
+                                    setSearchTerm('');
+                                    setStatusFilter('all');
+                                    setPillarFilter('all');
+                                    setStageFilter('all');
+                                    setTeamSizeFilter('all');
+                                    setAgeFilter('all');
+                                    setNationalityFilter('all');
+                                } else {
+                                    setAmbSearchTerm('');
+                                    setAmbStatusFilter('all');
+                                    setAmbNationalityFilter('all');
+                                    setAmbDegreeFilter('all');
+                                }
+                            }}
+                            className="w-full py-3 text-xs font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-xl uppercase tracking-widest mt-4"
+                        >
+                            Reset Filters
+                        </button>
                     </div>
 
                     {/* Main Content Area */}
                     <div className="space-y-4">
                         {activeTab === 'ambassadors' && (
-                            <div className="flex items-center gap-4 mb-8 bg-white/5 border border-white/10 p-2 rounded-[2.5rem] w-fit">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-8 bg-white/5 border border-white/10 p-2 rounded-2xl sm:rounded-[2.5rem] w-full sm:w-fit">
                                 <button
                                     onClick={() => setAmbassadorSubTab('applications')}
-                                    className={`px-8 py-4 rounded-[2rem] font-bold text-sm uppercase tracking-widest transition-all flex items-center gap-3 ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                    className={`px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-bold text-xs sm:text-sm uppercase tracking-widest transition-all flex items-center justify-center sm:justify-start gap-3 flex-1 sm:flex-initial ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                 >
-                                    <FileText className="w-5 h-5" />
+                                    <FileText className="w-4 h-4 sm:w-5 h-5" />
                                     <span>Applications</span>
                                     {ambassadorApps.filter(a => a.status === 'pending').length > 0 && (
-                                        <span className="px-2 py-0.5 bg-vc-green-dark text-vc-mint rounded-lg text-[10px] font-black ml-2">
+                                        <span className="px-2 py-0.5 bg-vc-green-dark text-vc-mint rounded-lg text-[10px] font-black sm:ml-2">
                                             {ambassadorApps.filter(a => a.status === 'pending').length}
                                         </span>
                                     )}
                                 </button>
                                 <button
                                     onClick={() => setAmbassadorSubTab('directory')}
-                                    className={`px-8 py-4 rounded-[2rem] font-bold text-sm uppercase tracking-widest transition-all flex items-center gap-3 ${ambassadorSubTab === 'directory' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                    className={`px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-bold text-xs sm:text-sm uppercase tracking-widest transition-all flex items-center justify-center sm:justify-start gap-3 flex-1 sm:flex-initial ${ambassadorSubTab === 'directory' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                 >
-                                    <Users className="w-5 h-5" />
-                                    <span>Current Ambassadors</span>
-                                    <span className={`ml-2 text-xs opacity-40`}>({ambassadorsList.length})</span>
+                                    <Users className="w-4 h-4 sm:w-5 h-5" />
+                                    <span>Directory</span>
+                                    <span className={`sm:ml-2 text-[10px] sm:text-xs opacity-40`}>({ambassadorsList.length})</span>
                                 </button>
                             </div>
                         )}
@@ -654,29 +816,29 @@ export default function AdminDashboard() {
                                         <motion.div
                                             layout
                                             key={app.id}
-                                            className="glass-panel p-6 flex items-center justify-between group hover:border-vc-mint/30 transition-all cursor-pointer"
+                                            className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
                                             onClick={() => setSelectedApp(app)}
                                         >
-                                            <div className="flex items-center gap-6">
-                                                <div className="w-12 h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center">
-                                                    <Rocket className="text-vc-mint w-6 h-6" />
+                                            <div className="flex items-center gap-4 sm:gap-6">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                                    <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-bold text-lg mb-1">{app.leaderEmail}</h3>
-                                                    <div className="flex items-center gap-4 text-sm text-white/40">
-                                                        <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
-                                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
+                                                <div className="min-w-0">
+                                                    <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.leaderEmail}</h3>
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
+                                                        <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
+                                                        <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-8">
+                                            <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
                                                 <div className="hidden xl:block text-right">
                                                     <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Pillar</span>
                                                     <span className="text-sm text-white/60">{app.pillar}</span>
                                                 </div>
 
-                                                <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                                                <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
                                                     app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
                                                         'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
                                                     }`}>
@@ -686,14 +848,14 @@ export default function AdminDashboard() {
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); handleStatusUpdate(app.id, 'accepted'); }}
-                                                        className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
+                                                        className="p-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
                                                         title="Accept"
                                                     >
                                                         <Check className="w-4 h-4" />
                                                     </button>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); handleStatusUpdate(app.id, 'rejected'); }}
-                                                        className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                                                        className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
                                                         title="Reject"
                                                     >
                                                         <X className="w-4 h-4" />
@@ -723,24 +885,24 @@ export default function AdminDashboard() {
                                                 <motion.div
                                                     layout
                                                     key={app.id}
-                                                    className="glass-panel p-6 flex items-center justify-between group hover:border-vc-mint/30 transition-all cursor-pointer"
+                                                    className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
                                                     onClick={() => setSelectedAmbassadorApp(app)}
                                                 >
-                                                    <div className="flex items-center gap-6">
-                                                        <div className="w-12 h-12 rounded-xl bg-vc-teal/10 flex items-center justify-center">
-                                                            <Users className="text-vc-teal w-6 h-6" />
+                                                    <div className="flex items-center gap-4 sm:gap-6">
+                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-teal/10 flex items-center justify-center shrink-0">
+                                                            <Users className="text-vc-teal w-5 h-5 sm:w-6 h-6" />
                                                         </div>
-                                                        <div>
-                                                            <h3 className="font-bold text-lg mb-1">{app.fullName}</h3>
-                                                            <div className="flex items-center gap-4 text-sm text-white/40">
-                                                                <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {app.email}</span>
-                                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
+                                                        <div className="min-w-0">
+                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.fullName}</h3>
+                                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
+                                                                <span className="flex items-center gap-1.5 min-w-0 truncate max-w-[150px]"><Mail className="w-3 h-3" /> {app.email}</span>
+                                                                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex items-center gap-8">
-                                                        <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                                                    <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
+                                                        <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
                                                             app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
                                                                 'bg-vc-teal/10 border-vc-teal/20 text-vc-teal'
                                                             }`}>
@@ -749,14 +911,14 @@ export default function AdminDashboard() {
                                                         <div className="flex items-center gap-2">
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'accepted'); }}
-                                                                className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
+                                                                className="p-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
                                                                 title="Accept"
                                                             >
                                                                 <Check className="w-4 h-4" />
                                                             </button>
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'rejected'); }}
-                                                                className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                                                                className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
                                                                 title="Reject"
                                                             >
                                                                 <X className="w-4 h-4" />
@@ -859,179 +1021,205 @@ export default function AdminDashboard() {
                                     </button>
                                 </div>
 
-                                {/* Modal Content */}
-                                <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
-                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-                                        {/* Left Column: Team & Contact */}
+                                {/* Modal Content - New 2-Column Layout */}
+                                <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+                                    <div className="grid lg:grid-cols-[1fr_360px] gap-8 md:gap-12">
+                                        {/* Main Column: In-depth Details */}
                                         <div className="space-y-10">
-                                            <section>
-                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <Users className="w-4 h-4" /> Team Breakdown
+                                            {/* Startup Profile Section */}
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                    <Rocket className="w-4 h-4" /> Startup Profile
                                                 </h3>
-                                                <div className="space-y-4">
-                                                    {selectedApp.teamMembers.map((m, i) => (
-                                                        <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                                                            <p className="font-bold text-white mb-1">{m.name || 'Member ' + (i + 1)}</p>
-                                                            <p className="text-xs text-white/40 flex items-center gap-2">
-                                                                <Globe className="w-3 h-3" /> {m.nationality}
-                                                            </p>
+                                                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Venture Pillar</p>
+                                                        <p className="text-lg font-medium text-white">{selectedApp.pillar}</p>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Development Stage</p>
+                                                        <p className="text-lg font-medium text-white">{selectedApp.stage}</p>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Established over 5 Years ago?</p>
+                                                        <p className="text-lg font-medium text-white">{selectedApp.isOlderThan5Years}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-10 pt-8 border-t border-white/5">
+                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Digital Presence & Pitch</p>
+                                                    <div className="flex flex-wrap gap-3">
+                                                        {selectedApp.website && (
+                                                            <a href={selectedApp.website} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
+                                                                <Globe className="w-4 h-4 text-vc-mint" /> Website
+                                                            </a>
+                                                        )}
+                                                        {selectedApp.linkedin && (
+                                                            <a href={selectedApp.linkedin} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
+                                                                <Linkedin className="w-4 h-4 text-vc-mint" /> LinkedIn
+                                                            </a>
+                                                        )}
+                                                        {selectedApp.additionalLinks && (
+                                                            <a href={selectedApp.additionalLinks} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
+                                                                <LinkIcon className="w-4 h-4 text-vc-mint" /> Additional Links
+                                                            </a>
+                                                        )}
+                                                        {selectedApp.videoPitchUrl && (
+                                                            <a href={selectedApp.videoPitchUrl} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-xl hover:bg-vc-mint hover:text-black transition-all text-sm font-bold">
+                                                                <Video className="w-4 h-4" /> Watch Video Pitch
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </section>
+
+                                            {/* Team Foundation Section */}
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                    <Users className="w-4 h-4" /> Team Foundation
+                                                </h3>
+
+                                                <div className="grid md:grid-cols-[1.2fr_1fr] gap-12">
+                                                    <div className="space-y-6">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Breakdown ({selectedApp.teamSize} Member{selectedApp.teamSize > 1 ? 's' : ''})</p>
+                                                        <div className="space-y-3">
+                                                            {selectedApp.teamMembers.map((m, i) => (
+                                                                <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
+                                                                            {i + 1}
+                                                                        </div>
+                                                                        <span className="font-bold text-sm text-white/90">{m.name || 'Anonymous Member'}</span>
+                                                                    </div>
+                                                                    <span className="text-[10px] text-white/40 font-medium px-2 py-1 bg-white/5 rounded-md uppercase tracking-widest">{m.nationality}</span>
+                                                                </div>
+                                                            ))}
                                                         </div>
+                                                    </div>
+
+                                                    <div className="space-y-8">
+                                                        <div className="space-y-4">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Leader Contact</p>
+                                                            <div className="space-y-3 text-sm">
+                                                                <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
+                                                                    <Mail className="w-4 h-4 text-vc-mint" />
+                                                                    <span className="font-medium underline decoration-vc-mint/30">{selectedApp.leaderEmail}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                    <Phone className="w-4 h-4 text-white/40" />
+                                                                    <span className="font-medium">{selectedApp.leaderPhone}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                    <Globe className="w-4 h-4 text-white/40" />
+                                                                    <span className="font-medium">{selectedApp.leaderNationality}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Eligibility Status</p>
+                                                            <div className="flex flex-col gap-2">
+                                                                <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/5 p-3 rounded-xl">
+                                                                    <div className={`w-2 h-2 rounded-full shadow-[0_0_8px] ${selectedApp.confirmations?.ageConfirmed ? 'bg-vc-mint shadow-vc-mint/50' : 'bg-red-500 shadow-red-500/50'}`} />
+                                                                    <span className="text-white/60">Age requirement (18+)</span>
+                                                                    {selectedApp.confirmations?.ageConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
+                                                                </div>
+                                                                <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/5 p-3 rounded-xl">
+                                                                    <div className={`w-2 h-2 rounded-full shadow-[0_0_8px] ${selectedApp.confirmations?.educationConfirmed ? 'bg-vc-mint shadow-vc-mint/50' : 'bg-red-500 shadow-red-500/50'}`} />
+                                                                    <span className="text-white/60">Education qualification</span>
+                                                                    {selectedApp.confirmations?.educationConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+
+                                            {/* Context & Disclosure */}
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                                                    <AlertCircle className="w-4 h-4" /> Context & Disclosure
+                                                </h3>
+                                                <div className="p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
+                                                    <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Conflict of Interest Declaration</p>
+                                                    <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap">
+                                                        {selectedApp.coiDeclaration || "No conflict of interest or organizational relationships declared by the team."}
+                                                    </p>
+                                                </div>
+                                            </section>
+                                        </div>
+
+                                        {/* Sidebar: Materials & Quick Actions */}
+                                        <div className="space-y-8">
+                                            {/* Submission Materials */}
+                                            <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-8">
+                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
+                                                    <FileText className="w-4 h-4" /> Required Materials
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    {[
+                                                        { label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
+                                                        { label: 'Exec Summary', url: selectedApp.materials.execSummaryUrl, icon: FileText },
+                                                        { label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
+                                                    ].map((item, idx) => (
+                                                        item.url ? (
+                                                            <a
+                                                                key={idx}
+                                                                href={item.url}
+                                                                target="_blank"
+                                                                className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <item.icon className="text-vc-mint w-5 h-5" />
+                                                                    <span className="text-sm font-medium">{item.label}</span>
+                                                                </div>
+                                                                <Eye className="w-4 h-4 text-white/20 group-hover:text-vc-mint transition-colors" />
+                                                            </a>
+                                                        ) : (
+                                                            <div key={idx} className="flex items-center gap-3 p-4 rounded-2xl bg-white/2 border border-white/5 opacity-30 grayscale">
+                                                                <item.icon className="w-5 h-5" />
+                                                                <span className="text-sm font-medium">{item.label}</span>
+                                                                <span className="ml-auto text-[8px] font-bold uppercase tracking-wider">Empty</span>
+                                                            </div>
+                                                        )
                                                     ))}
                                                 </div>
                                             </section>
 
-                                            <section>
-                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <Users className="w-4 h-4" /> Team Leader
+                                            {/* Take Action Center */}
+                                            <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-[2.5rem] p-8 shadow-2xl shadow-vc-mint/5">
+                                                <h3 className="text-vc-mint font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
+                                                    Review Decision
                                                 </h3>
-                                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white/30 uppercase mb-1">Email</p>
-                                                        <p className="font-bold flex items-center gap-2 underline decoration-vc-mint/30"><Mail className="w-3 h-3 text-vc-mint" /> {selectedApp.leaderEmail}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white/30 uppercase mb-1">Phone</p>
-                                                        <p className="font-bold flex items-center gap-2"><Phone className="w-3 h-3 text-vc-mint" /> {selectedApp.leaderPhone}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white/30 uppercase mb-1">Nationality</p>
-                                                        <p className="font-bold flex items-center gap-2"><Globe className="w-3 h-3 text-vc-mint" /> {selectedApp.leaderNationality}</p>
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        </div>
-
-                                        {/* Center Column: Startup Details */}
-                                        <div className="space-y-10">
-                                            <section>
-                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <Rocket className="w-4 h-4" /> Venture Details
-                                                </h3>
-                                                <div className="grid gap-6 text-sm">
-                                                    <div className="p-5 rounded-3xl bg-white/5 border border-white/5">
-                                                        <span className="text-white/30 block mb-1 uppercase text-[10px] font-bold">Pillar</span>
-                                                        <span className="text-base font-medium">{selectedApp.pillar}</span>
-                                                    </div>
-                                                    <div className="p-5 rounded-3xl bg-white/5 border border-white/5">
-                                                        <span className="text-white/30 block mb-1 uppercase text-[10px] font-bold">Current Stage</span>
-                                                        <span className="text-base font-medium">{selectedApp.stage}</span>
-                                                    </div>
-                                                    <div className="p-5 rounded-3xl bg-white/5 border border-white/5">
-                                                        <span className="text-white/30 block mb-1 uppercase text-[10px] font-bold">Older than 5 Years</span>
-                                                        <span className="text-base font-medium">{selectedApp.isOlderThan5Years}</span>
-                                                    </div>
-                                                </div>
-                                            </section>
-
-                                            <section>
-                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <Globe className="w-4 h-4" /> Digital Presence
-                                                </h3>
-                                                <div className="flex flex-wrap gap-4 text-sm font-medium">
-                                                    {selectedApp.website && (
-                                                        <a href={selectedApp.website} target="_blank" className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/5 rounded-2xl hover:border-vc-mint transition-all">
-                                                            <Globe className="w-4 h-4" /> Website
-                                                        </a>
-                                                    )}
-                                                    {selectedApp.linkedin && (
-                                                        <a href={selectedApp.linkedin} target="_blank" className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/5 rounded-2xl hover:border-vc-mint transition-all">
-                                                            <Linkedin className="w-4 h-4" /> LinkedIn
-                                                        </a>
-                                                    )}
-                                                    {selectedApp.videoPitchUrl && (
-                                                        <a href={selectedApp.videoPitchUrl} target="_blank" className="flex items-center gap-2 px-5 py-3 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-2xl hover:bg-vc-mint hover:text-black transition-all">
-                                                            <Video className="w-4 h-4" /> Video Pitch
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </section>
-                                        </div>
-
-                                        {/* Right Column: Downloads & Decisions */}
-                                        <div className="space-y-10">
-                                            <section>
-                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <FileText className="w-4 h-4" /> Submission Materials
-                                                </h3>
-                                                <div className="grid gap-3">
-                                                    {selectedApp.materials.pitchDeckUrl ? (
-                                                        <a
-                                                            href={selectedApp.materials.pitchDeckUrl}
-                                                            target="_blank"
-                                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between hover:bg-vc-mint/10 group transition-all"
-                                                        >
-                                                            <div className="flex items-center gap-3">
-                                                                <FileText className="text-vc-mint w-5 h-5" />
-                                                                <span className="text-sm">Pitch Deck</span>
-                                                            </div>
-                                                            <span className="text-[10px] px-2 py-1 bg-vc-mint/10 text-vc-mint font-bold rounded group-hover:bg-vc-mint group-hover:text-black transition-colors">VIEW</span>
-                                                        </a>
-                                                    ) : (
-                                                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 opacity-50 flex items-center gap-3">
-                                                            <FileText className="w-5 h-5 text-white/20" />
-                                                            <span className="text-sm text-white/40">Pitch Deck Not Provided</span>
-                                                        </div>
-                                                    )}
-
-                                                    {selectedApp.materials.execSummaryUrl ? (
-                                                        <a
-                                                            href={selectedApp.materials.execSummaryUrl}
-                                                            target="_blank"
-                                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between hover:bg-vc-mint/10 group transition-all"
-                                                        >
-                                                            <div className="flex items-center gap-3">
-                                                                <FileText className="text-vc-mint w-5 h-5" />
-                                                                <span className="text-sm">Exec Summary</span>
-                                                            </div>
-                                                            <span className="text-[10px] px-2 py-1 bg-vc-mint/10 text-vc-mint font-bold rounded group-hover:bg-vc-mint group-hover:text-black transition-colors">VIEW</span>
-                                                        </a>
-                                                    ) : (
-                                                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 opacity-50 flex items-center gap-3">
-                                                            <FileText className="w-5 h-5 text-white/20" />
-                                                            <span className="text-sm text-white/40">Exec Summary Not Provided</span>
-                                                        </div>
-                                                    )}
-
-                                                    {selectedApp.materials.supportingDataUrl && (
-                                                        <a
-                                                            href={selectedApp.materials.supportingDataUrl}
-                                                            target="_blank"
-                                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between hover:bg-vc-mint/10 group transition-all"
-                                                        >
-                                                            <div className="flex items-center gap-3">
-                                                                <FileCode className="text-vc-mint w-5 h-5" />
-                                                                <span className="text-sm">Supporting Data</span>
-                                                            </div>
-                                                            <span className="text-[10px] px-2 py-1 bg-vc-mint/10 text-vc-mint font-bold rounded group-hover:bg-vc-mint group-hover:text-black transition-colors">VIEW</span>
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </section>
-
-                                            <section className="bg-vc-mint/5 border border-vc-mint/10 rounded-3xl p-8 space-y-6">
-                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                                                    <CheckCircle className="w-4 h-4" /> Take Action
-                                                </h3>
-                                                <div className="space-y-3">
+                                                <div className="space-y-4">
                                                     <button
                                                         onClick={() => handleStatusUpdate(selectedApp.id, 'accepted')}
-                                                        className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${selectedApp.status === 'accepted' ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white'}`}
+                                                        className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedApp.status === 'accepted'
+                                                            ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20 scale-[1.02]'
+                                                            : 'bg-white/5 text-vc-mint border border-vc-mint/20 hover:bg-vc-mint/20'
+                                                            }`}
                                                     >
-                                                        <Check className="w-5 h-5" /> Accept Startup
+                                                        Accept
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusUpdate(selectedApp.id, 'rejected')}
-                                                        className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${selectedApp.status === 'rejected' ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}
+                                                        className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedApp.status === 'rejected'
+                                                            ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 scale-[1.02]'
+                                                            : 'bg-white/5 text-red-400 border border-red-500/20 hover:bg-red-500/20'
+                                                            }`}
                                                     >
-                                                        <X className="w-5 h-5" /> Reject Application
+                                                        Reject
                                                     </button>
+
                                                     {selectedApp.status !== 'pending' && (
-                                                        <button
-                                                            onClick={() => handleStatusUpdate(selectedApp.id, 'pending')}
-                                                            className="w-full py-4 rounded-2xl font-bold text-white/40 hover:text-white transition-all text-xs uppercase underline decoration-white/10"
-                                                        >
-                                                            Reset to Pending
-                                                        </button>
+                                                        <div className="pt-4 flex justify-center">
+                                                            <button
+                                                                onClick={() => handleStatusUpdate(selectedApp.id, 'pending')}
+                                                                className="text-[10px] font-bold text-white/30 hover:text-vc-mint transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
+                                                            >
+                                                                Reset Decision
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </section>
@@ -1058,7 +1246,7 @@ export default function AdminDashboard() {
                                 className="relative w-full max-w-4xl bg-[#0c1e1c] border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
                             >
                                 {/* Modal Header */}
-                                <div className="p-8 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                                <div className="p-6 md:p-8 border-b border-white/5 bg-white/5 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-2xl bg-vc-teal/10 flex items-center justify-center">
                                             <Users className="text-vc-teal w-8 h-8" />
@@ -1076,67 +1264,88 @@ export default function AdminDashboard() {
                                     </button>
                                 </div>
 
-                                {/* Modal Content */}
-                                <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
-                                    <div className="grid md:grid-cols-2 gap-12">
+                                {/* Modal Content - Ambassador Sidebar Layout */}
+                                <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+                                    <div className="grid lg:grid-cols-[1fr_360px] gap-8 md:gap-12">
+                                        {/* Main Column: Profiles & Experience */}
                                         <div className="space-y-10">
-                                            <section>
-                                                <h3 className="text-vc-teal font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-8 flex items-center gap-2">
                                                     <Mail className="w-4 h-4" /> Contact Information
                                                 </h3>
-                                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white/30 uppercase mb-1">Email</p>
-                                                        <p className="font-bold flex items-center gap-2 text-white">{selectedAmbassadorApp.email}</p>
+                                                <div className="grid md:grid-cols-2 gap-8">
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Registered Email</p>
+                                                        <p className="text-lg font-medium text-white underline decoration-vc-teal/30">{selectedAmbassadorApp.email}</p>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white/30 uppercase mb-1">Phone</p>
-                                                        <p className="font-bold flex items-center gap-2 text-white">{selectedAmbassadorApp.phone}</p>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Phone Number</p>
+                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.phone}</p>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white/30 uppercase mb-1">Location</p>
-                                                        <p className="font-bold flex items-center gap-2 text-white">{selectedAmbassadorApp.location}</p>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Primary Location</p>
+                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.location}</p>
                                                     </div>
                                                 </div>
                                             </section>
 
-                                            <section>
-                                                <h3 className="text-vc-teal font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <AlertCircle className="w-4 h-4" /> Why join?
-                                                </h3>
-                                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
-                                                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">{selectedAmbassadorApp.reason}</p>
-                                                </div>
-                                            </section>
+                                            <div className="grid md:grid-cols-2 gap-8">
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                    <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
+                                                        <AlertCircle className="w-4 h-4" /> Why join?
+                                                    </h3>
+                                                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap italic">
+                                                        "{selectedAmbassadorApp.reason}"
+                                                    </p>
+                                                </section>
+
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                    <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
+                                                        <CheckCircle className="w-4 h-4" /> Experience
+                                                    </h3>
+                                                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                                                        {selectedAmbassadorApp.experience}
+                                                    </p>
+                                                </section>
+                                            </div>
                                         </div>
 
-                                        <div className="space-y-10">
-                                            <section>
-                                                <h3 className="text-vc-teal font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                    <CheckCircle className="w-4 h-4" /> Experience
+                                        {/* Sidebar: Decision Center */}
+                                        <div className="space-y-8">
+                                            <section className="bg-vc-teal/10 border-2 border-vc-teal/20 rounded-[2.5rem] p-8 shadow-2xl shadow-vc-teal/5">
+                                                <h3 className="text-vc-teal font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
+                                                    Promotion decision
                                                 </h3>
-                                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5 text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
-                                                    {selectedAmbassadorApp.experience}
-                                                </div>
-                                            </section>
-
-                                            <section className="bg-vc-teal/5 border border-vc-teal/10 rounded-3xl p-8 space-y-6">
-                                                <h3 className="text-vc-teal font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                                                    <Shield className="w-4 h-4" /> Promotion decision
-                                                </h3>
-                                                <div className="space-y-3">
+                                                <div className="space-y-4">
                                                     <button
                                                         onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'accepted')}
-                                                        className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${selectedAmbassadorApp.status === 'accepted' ? 'bg-green-500 text-white' : 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white'}`}
+                                                        className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'accepted'
+                                                            ? 'bg-vc-teal text-vc-green-dark shadow-xl shadow-vc-teal/20 scale-[1.02]'
+                                                            : 'bg-white/5 text-vc-teal border border-vc-teal/20 hover:bg-vc-teal/20'
+                                                            }`}
                                                     >
-                                                        <Check className="w-5 h-5" /> Accept as Ambassador
+                                                        Accept
                                                     </button>
                                                     <button
                                                         onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'rejected')}
-                                                        className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${selectedAmbassadorApp.status === 'rejected' ? 'bg-red-500 text-white' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}
+                                                        className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'rejected'
+                                                            ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 scale-[1.02]'
+                                                            : 'bg-white/5 text-red-400 border border-red-500/20 hover:bg-red-500/20'
+                                                            }`}
                                                     >
-                                                        <X className="w-5 h-5" /> Reject Application
+                                                        Reject
                                                     </button>
+
+                                                    {selectedAmbassadorApp.status !== 'pending' && (
+                                                        <div className="pt-4 flex justify-center">
+                                                            <button
+                                                                onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'pending')}
+                                                                className="text-[10px] font-bold text-white/30 hover:text-vc-teal transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
+                                                            >
+                                                                Reset Decision
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </section>
                                         </div>
@@ -1147,6 +1356,18 @@ export default function AdminDashboard() {
                     )}
                 </AnimatePresence>
             </div>
-        </main >
+        </main>
+    );
+}
+
+export default function AdminDashboard() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#001311] flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-vc-mint border-t-transparent rounded-full animate-spin" />
+            </div>
+        }>
+            <AdminDashboardContent />
+        </Suspense>
     );
 }

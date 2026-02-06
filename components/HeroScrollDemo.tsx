@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
+import { ExternalLink } from "lucide-react";
+
 const Globe = dynamic(() => import("./ui/globe").then(m => m.Globe), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-vc-mint/5 rounded-full blur-3xl animate-pulse" />
@@ -50,20 +52,21 @@ export function HeroScrollDemo() {
               href="https://www.kfupm.edu.sa/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+              className="inline-flex items-center gap-1.5 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
             >
               KFUPM
+              <ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
             </a>{" "}
             in collaboration with{" "}
             <a
               href="https://dtv.sa/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+              className="inline-flex items-center gap-1.5 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
             >
-              DTV
+              DTV<ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
             </a>
-            {" "}— supporting student-led ventures building science and technology-based solutions with global impact.
+            {" "}, supporting student-led ventures building science and technology-based solutions with global impact.
           </motion.p>
 
           <motion.div
@@ -121,10 +124,24 @@ export function HeroScrollDemo() {
             className="mt-10 flex flex-col xl:items-start items-center gap-2"
           >
             <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-medium pt-2">In Partnership With</span>
-            <div className="flex items-center gap-8 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-              <Image src="/kfupm-logo.png" alt="KFUPM" width={128} height={32} className="h-7 md:h-8 w-auto object-contain" />
+            <div className="flex items-center gap-8">
+              <Link
+                href="https://www.kfupm.edu.sa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-500"
+              >
+                <Image src="/kfupm-logo.png" alt="KFUPM" width={128} height={32} className="h-7 md:h-8 w-auto object-contain" />
+              </Link>
               <div className="w-px h-6 bg-white/30" />
-              <Image src="/dtv-logo.png" alt="DTV" width={160} height={44} className="h-9 md:h-11 w-auto object-contain" />
+              <Link
+                href="https://dtv.sa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-500"
+              >
+                <Image src="/dtv-logo.png" alt="DTV" width={160} height={44} className="h-9 md:h-11 w-auto object-contain" />
+              </Link>
             </div>
           </motion.div>
         </motion.div>

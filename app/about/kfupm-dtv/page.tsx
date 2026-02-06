@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import CallToAction from '@/components/CallToAction';
+import { ExternalLink } from 'lucide-react';
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -181,9 +182,10 @@ export default function KfupmDtvAboutPage() {
                                             href="https://www.kfupm.edu.sa/"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+                                            className="inline-flex items-center gap-1.5 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
                                         >
                                             KFUPM
+                                            <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                                         </a> is Saudi Arabia's leading research university, renowned for its excellence
                                         in science, engineering, and technology. As a global hub for innovation, KFUPM
                                         is committed to preparing leaders who drive economic transformation and sustainable
@@ -267,9 +269,10 @@ export default function KfupmDtvAboutPage() {
                                             href="https://dtv.sa/"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-vc-mint font-bold underline hover:no-underline transition-all duration-300"
+                                            className="inline-flex items-center gap-1.5 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
                                         >
                                             Dhahran Techno Valley (DTV)
+                                            <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                                         </a> is Saudi Arabia's leading hub for energy, sustainability, and
                                         innovation. In partnership with KFUPM and leading global corporations, DTV connects exceptional
                                         research talent with tailored startup programs, early-stage funding, and a thriving innovation ecosystem.

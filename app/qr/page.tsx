@@ -123,7 +123,7 @@ export default function QRPage() {
 
                     <QRCodeSVG
                         id="qr-code-svg"
-                        value="https://venture-craft.vercel.app"
+                        value="https://kfupm-venturecraft.org/"
                         size={300}
                         level="H"
                         includeMargin={false}

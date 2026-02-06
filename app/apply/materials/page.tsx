@@ -318,25 +318,6 @@ export default function MaterialsPage() {
                         ))}
                     </div>
 
-                    <div className="flex flex-col items-center pt-8 space-y-8">
-                        <div className="flex flex-col sm:flex-row gap-6 w-full justify-between items-center bg-white/[0.02] p-4 sm:p-0 rounded-2xl sm:bg-transparent">
-                            <Link
-                                href="/apply/rubrics"
-                                className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors order-2 sm:order-1"
-                            >
-                                <ArrowLeft className="w-5 h-5" />
-                                <span>Back to Rubrics</span>
-                            </Link>
-
-                            <Link
-                                href="/apply"
-                                className="btn-primary !px-10 md:!px-16 !py-4 md:!py-5 md:!text-lg !rounded-2xl flex items-center gap-3 group shadow-2xl shadow-vc-mint/20 animate-glow order-1 sm:order-2 w-full sm:w-auto justify-center"
-                            >
-                                <span>Apply Now</span>
-                                <Rocket className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                            </Link>
-                        </div>
-                    </div>
                 </motion.div>
             </div>
             <Footer />

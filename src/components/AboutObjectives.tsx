@@ -1,13 +1,37 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Globe, Sparkles, Handshake, Rocket, Target } from 'lucide-react';
+import { Globe, Sparkles, Handshake, Rocket, Target, ExternalLink } from 'lucide-react';
 
 const objectives = [
   {
     icon: Globe,
     title: 'Global Hub',
-    description: 'Establish KFUPM & DTV as a leading Global Deep-Tech Hub.'
+    description: (
+      <>
+        Establish{" "}
+        <a
+          href="https://www.kfupm.edu.sa/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
+        >
+          KFUPM
+          <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity" />
+        </a>{" "}
+        &{" "}
+        <a
+          href="https://dtv.sa/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
+        >
+          DTV
+          <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity" />
+        </a>{" "}
+        as a leading Global Deep-Tech Hub.
+      </>
+    )
   },
   {
     icon: Sparkles,

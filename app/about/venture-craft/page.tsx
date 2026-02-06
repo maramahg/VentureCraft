@@ -8,6 +8,7 @@ import ThemePillars from "@/components/ThemePillars";
 import AboutObjectives from "@/src/components/AboutObjectives";
 import AboutTargetAudience from "@/src/components/AboutTargetAudience";
 import CallToAction from "@/components/CallToAction";
+import { ExternalLink } from "lucide-react";
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -75,7 +76,17 @@ export default function VentureCraftAboutPage() {
                                 </motion.h1>
 
                                 <motion.p variants={fadeInUp} className="text-white/60 text-lg sm:text-lg md:text-xl leading-relaxed mb-4 md:mb-6 font-poppins">
-                                    Venture Craft is KFUPM's premier international deep-tech startup competition,
+                                    Venture Craft is{" "}
+                                    <a
+                                        href="https://www.kfupm.edu.sa/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
+                                    >
+                                        KFUPM's
+                                        <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
+                                    </a>
+                                    premier international deep-tech startup competition,
                                     designed to inspire and empower the next generation of innovators. With a focus
                                     on sustainability and cutting-edge technology, we bring together talented students,
                                     researchers, and recent graduates from around the world to transform bold ideas

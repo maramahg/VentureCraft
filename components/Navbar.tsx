@@ -321,9 +321,9 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                className="md:hidden absolute top-20 left-4 right-4 z-50"
+                className="md:hidden absolute top-20 left-4 right-4 z-50 overflow-hidden"
               >
-                <div className="glass-panel p-6 flex flex-col gap-4 bg-[#0D1B1A]/95 !backdrop-blur-lg border border-white/10 shadow-2xl">
+                <div className="glass-panel p-6 flex flex-col gap-4 bg-[#0D1B1A]/95 !backdrop-blur-lg border border-white/10 shadow-2xl max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
                   {navItems.map((item) => (
                     <div key={item.name} className="flex flex-col gap-2">
                       {item.subItems ? (
