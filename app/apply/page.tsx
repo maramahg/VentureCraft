@@ -56,7 +56,15 @@ function FlagDropdown({
 
     return (
         <div className="space-y-2 relative w-full" ref={dropdownRef}>
-            {label && <label className="block text-base font-medium text-white/70">{label}</label>}
+            {label && (
+                <label className="block text-base font-medium text-white/70">
+                    {label.includes('*') ? (
+                        <>
+                            {label.replace('*', '').trim()} <span className="text-vc-mint">*</span>
+                        </>
+                    ) : label}
+                </label>
+            )}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -167,7 +175,15 @@ function SimpleDropdown({
 
     return (
         <div className="space-y-2 relative w-full" ref={dropdownRef}>
-            {label && <label className="block text-base font-medium text-white/70">{label}</label>}
+            {label && (
+                <label className="block text-base font-medium text-white/70">
+                    {label.includes('*') ? (
+                        <>
+                            {label.replace('*', '').trim()} <span className="text-vc-mint">*</span>
+                        </>
+                    ) : label}
+                </label>
+            )}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -213,6 +229,7 @@ const ApplyPageContent = () => {
     const [step, setStep] = useState(1); // 1-3 = Form
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [authLoading, setAuthLoading] = useState(true);
@@ -263,6 +280,7 @@ const ApplyPageContent = () => {
         leaderNationality: 'Saudi Arabia',
 
         // Part 2
+        startupName: '',
         pillar: '',
         isOlderThan5Years: 'No',
         stage: '',
@@ -344,11 +362,73 @@ const ApplyPageContent = () => {
         }));
     };
 
-    const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
+    const validateStep1 = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.ageConfirmed || !formData.educationConfirmed) {
+            newErrors.eligibility = "Please confirm all eligibility checkboxes to proceed.";
+        }
+        if (!formData.leaderEmail) {
+            newErrors.leaderEmail = "Please enter the team leader's email address.";
+        }
+        if (formData.leaderPhoneNumber.length !== 9) {
+            newErrors.leaderPhoneNumber = "Please check the phone number.";
+        }
+        formData.teamMembers.forEach((m, idx) => {
+            if (!m.name.trim()) {
+                newErrors[`member_${idx}`] = "Please provide name for this member.";
+            }
+        });
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const validateStep2 = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.startupName.trim()) {
+            newErrors.startupName = "Please enter your Startup / Project Name.";
+        }
+        if (!formData.pillar) {
+            newErrors.pillar = "Please select which pillar your startup aligns with.";
+        }
+        if (!formData.stage) {
+            newErrors.stage = "Please select your startup's current stage.";
+        }
+        if (!formData.coiDeclaration.trim()) {
+            newErrors.coiDeclaration = "Please provide a Conflict of Interest declaration (or state 'None').";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const validateStep3 = () => {
+        const newErrors: Record<string, string> = {};
+        if (!files.pitchDeck) {
+            newErrors.pitchDeck = "Please upload your Pitch Deck.";
+        }
+        if (!files.execSummary) {
+            newErrors.execSummary = "Please upload your Executive Summary.";
+        }
+        if (!formData.videoPitchUrl.trim()) {
+            newErrors.videoPitchUrl = "Please provide the link to your Video Pitch.";
+        }
+        if (!formData.agreedToTerms) {
+            newErrors.agreedToTerms = "You must agree to the Terms and Conditions to submit.";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const nextStep = () => {
+        if (step === 1 && !validateStep1()) return;
+        if (step === 2 && !validateStep2()) return;
+        setStep(prev => Math.min(prev + 1, 3));
+    };
+
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validateStep3()) return;
         setLoading(true);
         try {
             // 1. Upload Files first
@@ -378,6 +458,7 @@ const ApplyPageContent = () => {
                 submittedAt: serverTimestamp(),
 
                 // Form Data
+                startupName: formData.startupName,
                 teamSize: formData.teamSize,
                 teamMembers: formData.teamMembers,
                 leaderEmail: formData.leaderEmail,
@@ -414,6 +495,23 @@ const ApplyPageContent = () => {
             };
 
             await setDoc(applicationRef, submissionData);
+
+            // 3. Send Confirmation Email to Team Leader
+            try {
+                await fetch('/api/send-submission-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.leaderEmail,
+                        leaderName: formData.teamMembers[0]?.name || 'Team Leader',
+                        startupName: formData.startupName || formData.pillar
+                    }),
+                });
+            } catch (emailErr) {
+                console.error('Failed to send confirmation email:', emailErr);
+                // We don't block the UI if the email fails, as the application is already saved
+            }
+
             setIsSuccessOpen(true);
         } catch (error) {
             console.error('Error submitting application:', error);
@@ -731,8 +829,11 @@ const ApplyPageContent = () => {
                     <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-4 tracking-tight">
                         Application Form
                     </h1>
-                    <p className="text-white/60 max-w-xl mx-auto">
+                    <p className="text-white/60 max-w-xl mx-auto mb-4">
                         Please fill out all the required information to apply for the KFUPM Venture Craft Challenge.
+                    </p>
+                    <p className="text-sm text-white/40 flex items-center justify-center gap-1.5">
+                        <span className="text-vc-mint">*</span> Indicates a required field
                     </p>
                 </div>
 
@@ -775,19 +876,27 @@ const ApplyPageContent = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Leader Email Address</label>
+                                        <label className="block text-base font-medium text-white/70">
+                                            Leader Email Address <span className="text-vc-mint">*</span>
+                                        </label>
                                         <input
                                             type="email"
                                             value={formData.leaderEmail}
-                                            onChange={(e) => setFormData({ ...formData, leaderEmail: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, leaderEmail: e.target.value });
+                                                if (errors.leaderEmail) setErrors(prev => ({ ...prev, leaderEmail: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.leaderEmail ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
                                             placeholder="email@example.com"
                                         />
+                                        {errors.leaderEmail && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.leaderEmail}</p>}
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Leader Phone Number</label>
-                                        <div className="flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-vc-mint transition-all">
+                                        <label className="block text-base font-medium text-white/70">
+                                            Leader Phone Number <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.leaderPhoneNumber ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
                                             <div className="w-[100px] border-r border-white/10">
                                                 <FlagDropdown
                                                     options={countries}
@@ -800,10 +909,18 @@ const ApplyPageContent = () => {
                                                 type="tel"
                                                 placeholder="512345678"
                                                 value={formData.leaderPhoneNumber}
-                                                onChange={(e) => setFormData({ ...formData, leaderPhoneNumber: e.target.value })}
+                                                maxLength={9}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '');
+                                                    if (val.length <= 9) {
+                                                        setFormData({ ...formData, leaderPhoneNumber: val });
+                                                        if (errors.leaderPhoneNumber) setErrors(prev => ({ ...prev, leaderPhoneNumber: '' }));
+                                                    }
+                                                }}
                                                 className="flex-1 bg-transparent border-none px-4 py-3.5 focus:outline-none focus:ring-0 text-white placeholder:text-white/20"
                                             />
                                         </div>
+                                        {errors.leaderPhoneNumber && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.leaderPhoneNumber}</p>}
                                     </div>
                                 </div>
 
@@ -815,21 +932,27 @@ const ApplyPageContent = () => {
                                     {formData.teamMembers.map((member, idx) => (
                                         <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
                                             <div className="space-y-2">
-                                                <label className="text-base text-white/40 uppercase tracking-widest font-medium">{idx === 0 ? 'Team Leader Name' : `Member ${idx + 1} Name`}</label>
+                                                <label className="text-base text-white/40 uppercase tracking-widest font-medium">
+                                                    {idx === 0 ? 'Team Leader Full Name' : `Member ${idx + 1} Full Name`} <span className="text-vc-mint">*</span>
+                                                </label>
                                                 <input
                                                     type="text"
-                                                    value={member.name}
-                                                    onChange={(e) => handleMemberChange(idx, 'name', e.target.value)}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base focus:border-vc-mint focus:outline-none transition-colors"
-                                                    placeholder="Full Name"
+                                                    value={formData.teamMembers[idx].name}
+                                                    onChange={(e) => {
+                                                        handleMemberChange(idx, 'name', e.target.value);
+                                                        if (errors[`member_${idx}`]) setErrors(prev => ({ ...prev, [`member_${idx}`]: '' }));
+                                                    }}
+                                                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`member_${idx}`] ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                                    placeholder="Enter full name"
                                                 />
+                                                {errors[`member_${idx}`] && <p className="text-xs text-vc-mint/80 mt-1">{errors[`member_${idx}`]}</p>}
                                             </div>
                                             <div className="space-y-2">
                                                 <FlagDropdown
                                                     options={countries}
                                                     value={member.nationality}
                                                     onChange={(val) => handleMemberChange(idx, 'nationality', val)}
-                                                    label="Nationality"
+                                                    label={idx === 0 ? "Leader Nationality *" : "Nationality *"}
                                                     type="country"
                                                 />
                                             </div>
@@ -838,37 +961,41 @@ const ApplyPageContent = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="flex items-start gap-3 p-4 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
+                                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-vc-mint/10 border-vc-mint' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
                                         <input
                                             type="checkbox"
-                                            id="age"
                                             checked={formData.ageConfirmed}
-                                            onChange={(e) => setFormData({ ...formData, ageConfirmed: e.target.checked })}
-                                            className="mt-1 accent-vc-mint h-4 w-4"
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, ageConfirmed: e.target.checked });
+                                                if (errors.eligibility) setErrors(prev => ({ ...prev, eligibility: '' }));
+                                            }}
+                                            className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
-                                        <label htmlFor="age" className="text-base text-white/70 cursor-pointer">
+                                        <span className="text-base text-white/70">
                                             I confirm that all team members are 18 years of age or older at the time of application.
-                                        </label>
-                                    </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
+                                        </span>
+                                    </label>
+                                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-vc-mint/10 border-vc-mint' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
                                         <input
                                             type="checkbox"
-                                            id="edu"
                                             checked={formData.educationConfirmed}
-                                            onChange={(e) => setFormData({ ...formData, educationConfirmed: e.target.checked })}
-                                            className="mt-1 accent-vc-mint h-4 w-4"
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, educationConfirmed: e.target.checked });
+                                                if (errors.eligibility) setErrors(prev => ({ ...prev, eligibility: '' }));
+                                            }}
+                                            className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
-                                        <label htmlFor="edu" className="text-base text-white/70 cursor-pointer">
+                                        <span className="text-base text-white/70">
                                             I confirm that all team members are either actively pursuing or have completed an undergraduate (bachelor’s) degree.
-                                        </label>
-                                    </div>
+                                        </span>
+                                    </label>
+                                    {errors.eligibility && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibility}</p>}
                                 </div>
 
                                 <div className="flex justify-end pt-8">
                                     <button
                                         onClick={nextStep}
-                                        disabled={!formData.ageConfirmed || !formData.educationConfirmed}
-                                        className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl disabled:opacity-50"
+                                        className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
                                     >
                                         <span>Next Step</span>
                                         <ArrowRight className="w-5 h-5" />
@@ -894,8 +1021,27 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Which of the following pillars does your startup most closely align with?</label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            Startup / Project Name <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.startupName}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, startupName: e.target.value });
+                                                if (errors.startupName) setErrors(prev => ({ ...prev, startupName: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.startupName ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Enter your startup or project name"
+                                        />
+                                        {errors.startupName && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.startupName}</p>}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            Which of the following pillars does your startup most closely align with? <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
                                             {[
                                                 'Decarbonization Technologies',
                                                 'Circular Economy & Resource Efficiency',
@@ -904,23 +1050,32 @@ const ApplyPageContent = () => {
                                             ].map((p) => (
                                                 <button
                                                     key={p}
-                                                    onClick={() => setFormData({ ...formData, pillar: p })}
+                                                    onClick={() => {
+                                                        setFormData({ ...formData, pillar: p });
+                                                        if (errors.pillar) setErrors(prev => ({ ...prev, pillar: '' }));
+                                                    }}
                                                     className={`p-4 rounded-xl border text-left transition-all ${formData.pillar === p ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
                                                 >
                                                     {p}
                                                 </button>
                                             ))}
                                         </div>
+                                        {errors.pillar && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.pillar}</p>}
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Is your startup older than 5 years?</label>
+                                            <label className="block text-base font-medium text-white/70">
+                                                Is your startup older than 5 years? <span className="text-vc-mint">*</span>
+                                            </label>
                                             <div className="flex gap-4">
                                                 {['Yes', 'No'].map((opt) => (
                                                     <button
                                                         key={opt}
-                                                        onClick={() => setFormData({ ...formData, isOlderThan5Years: opt })}
+                                                        onClick={() => {
+                                                            setFormData({ ...formData, isOlderThan5Years: opt });
+                                                            if (errors.stage) setErrors(prev => ({ ...prev, stage: '' }));
+                                                        }}
                                                         className={`px-8 py-3 rounded-xl border transition-all ${formData.isOlderThan5Years === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
                                                     >
                                                         {opt}
@@ -933,27 +1088,37 @@ const ApplyPageContent = () => {
                                             <SimpleDropdown
                                                 options={['Ideation', 'Pre-Seed', 'Seed', 'Post-Seed']}
                                                 value={formData.stage}
-                                                onChange={(val) => setFormData({ ...formData, stage: val })}
-                                                label="Startup Stage"
+                                                onChange={(val) => {
+                                                    setFormData({ ...formData, stage: val });
+                                                    if (errors.stage) setErrors(prev => ({ ...prev, stage: '' }));
+                                                }}
+                                                label="Startup Stage *"
                                                 placeholder="Select stage"
                                             />
+                                            {errors.stage && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.stage}</p>}
                                         </div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Conflict of Interest Declaration (Required)</label>
+                                        <label className="block text-base font-medium text-white/70">
+                                            Conflict of Interest Declaration <span className="text-vc-mint">*</span>
+                                        </label>
                                         <textarea
                                             value={formData.coiDeclaration}
-                                            onChange={(e) => setFormData({ ...formData, coiDeclaration: e.target.value })}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, coiDeclaration: e.target.value });
+                                                if (errors.coiDeclaration) setErrors(prev => ({ ...prev, coiDeclaration: '' }));
+                                            }}
                                             placeholder="Please disclose any relationships or state 'None'."
                                             rows={4}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.coiDeclaration ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
                                         />
+                                        {errors.coiDeclaration && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.coiDeclaration}</p>}
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Startup Website (Optional)</label>
+                                            <label className="block text-base font-medium text-white/70">Startup Website</label>
                                             <input
                                                 type="url"
                                                 value={formData.website}
@@ -963,7 +1128,7 @@ const ApplyPageContent = () => {
                                             />
                                         </div>
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">LinkedIn Page (Optional)</label>
+                                            <label className="block text-base font-medium text-white/70">LinkedIn Page</label>
                                             <input
                                                 type="url"
                                                 value={formData.linkedin}
@@ -975,7 +1140,7 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Additional Links (Optional)</label>
+                                        <label className="block text-base font-medium text-white/70">Additional Links</label>
                                         <textarea
                                             value={formData.additionalLinks}
                                             onChange={(e) => setFormData({ ...formData, additionalLinks: e.target.value })}
@@ -992,8 +1157,7 @@ const ApplyPageContent = () => {
                                         </button>
                                         <button
                                             onClick={nextStep}
-                                            disabled={!formData.pillar || !formData.stage || !formData.coiDeclaration}
-                                            className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl disabled:opacity-50"
+                                            className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
                                         >
                                             <span>Next Step</span>
                                             <ArrowRight className="w-5 h-5" />
@@ -1021,56 +1185,72 @@ const ApplyPageContent = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Pitch Deck (PDF or PPTX)</label>
+                                            <label className="block text-base font-medium text-white/70">
+                                                Pitch Deck <span className="text-vc-mint">*</span>
+                                            </label>
                                             <div className="relative group">
                                                 <input
                                                     type="file"
                                                     accept=".pdf,.pptx"
-                                                    onChange={(e) => setFiles({ ...files, pitchDeck: e.target.files?.[0] || null })}
+                                                    onChange={(e) => {
+                                                        setFiles({ ...files, pitchDeck: e.target.files?.[0] || null });
+                                                        if (errors.pitchDeck) setErrors(prev => ({ ...prev, pitchDeck: '' }));
+                                                    }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                    <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : errors.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : errors.pitchDeck ? 'text-vc-mint' : 'text-white/20'}`} />
                                                     <p className="text-base font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
                                                     <p className="text-sm text-white/40">Drop file here or click to browse</p>
                                                 </div>
                                             </div>
+                                            {errors.pitchDeck && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.pitchDeck}</p>}
                                         </div>
 
                                         <div className="space-y-4">
-                                            <label className="block text-base font-medium text-white/70">Executive Summary (PDF or DOCX)</label>
+                                            <label className="block text-base font-medium text-white/70">
+                                                Executive Summary <span className="text-vc-mint">*</span>
+                                            </label>
                                             <div className="relative group">
                                                 <input
                                                     type="file"
                                                     accept=".pdf,.docx"
-                                                    onChange={(e) => setFiles({ ...files, execSummary: e.target.files?.[0] || null })}
+                                                    onChange={(e) => {
+                                                        setFiles({ ...files, execSummary: e.target.files?.[0] || null });
+                                                        if (errors.execSummary) setErrors(prev => ({ ...prev, execSummary: '' }));
+                                                    }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                    <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : 'text-white/20'}`} />
-                                                    <p className="text-sm font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : errors.execSummary ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : errors.execSummary ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                    <p className="text-base font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
                                                     <p className="text-sm text-white/40">Drop file here or click to browse</p>
                                                 </div>
                                             </div>
+                                            {errors.execSummary && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.execSummary}</p>}
                                         </div>
                                     </div>
 
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70 flex items-center gap-2">
                                             <Video className="w-4 h-4 text-vc-mint" />
-                                            Video Pitch (Unlisted YouTube Link)
+                                            Video Pitch <span className="text-vc-mint">*</span>
                                         </label>
                                         <input
                                             type="url"
                                             value={formData.videoPitchUrl}
-                                            onChange={(e) => setFormData({ ...formData, videoPitchUrl: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, videoPitchUrl: e.target.value });
+                                                if (errors.videoPitchUrl) setErrors(prev => ({ ...prev, videoPitchUrl: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.videoPitchUrl ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
                                             placeholder="https://youtube.com/..."
                                         />
+                                        {errors.videoPitchUrl && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.videoPitchUrl}</p>}
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">Supporting Data (Optional / PDF or Word)</label>
+                                        <label className="block text-base font-medium text-white/70">Supporting Data</label>
                                         <div className="relative group">
                                             <input
                                                 type="file"
@@ -1088,19 +1268,23 @@ const ApplyPageContent = () => {
                                         </div>
                                     </div>
 
-                                    <div className="glass-panel p-6 border-vc-mint/30 bg-vc-mint/5">
+                                    <div className={`glass-panel p-6 border transition-all ${errors.agreedToTerms ? 'border-vc-mint bg-vc-mint/10' : 'border-vc-mint/30 bg-vc-mint/5'}`}>
                                         <div className="flex items-start gap-4">
                                             <input
                                                 type="checkbox"
                                                 id="final-agreement"
                                                 checked={formData.agreedToTerms}
-                                                onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, agreedToTerms: e.target.checked });
+                                                    if (errors.agreedToTerms) setErrors(prev => ({ ...prev, agreedToTerms: '' }));
+                                                }}
                                                 className="mt-1 w-6 h-6 rounded border-vc-mint/50 bg-white/5 text-vc-mint focus:ring-vc-mint focus:ring-offset-0 cursor-pointer"
                                             />
                                             <label htmlFor="final-agreement" className="text-base text-white/80 leading-relaxed cursor-pointer select-none">
                                                 I have read, understood and agree to the <button onClick={(e) => { e.preventDefault(); setIsTermsOpen(true); }} className="text-vc-mint hover:underline font-bold decoration-vc-mint/30">Terms and Conditions</button> of the Venture Craft Competition. I confirm that all information provided is accurate and complete.
                                             </label>
                                         </div>
+                                        {errors.agreedToTerms && <p className="text-xs text-vc-mint/80 mt-2 ml-10 font-medium">{errors.agreedToTerms}</p>}
                                     </div>
 
                                     <div className="flex justify-between pt-8">
@@ -1110,7 +1294,7 @@ const ApplyPageContent = () => {
                                         </button>
                                         <button
                                             onClick={handleSubmit}
-                                            disabled={loading || !files.pitchDeck || !files.execSummary || !formData.videoPitchUrl || !formData.agreedToTerms}
+                                            disabled={loading}
                                             className="btn-primary flex items-center gap-2 !px-12 !py-4 !rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-vc-mint/20 transition-all active:scale-95"
                                         >
                                             {loading ? (
@@ -1124,12 +1308,10 @@ const ApplyPageContent = () => {
                                         </button>
                                     </div>
                                 </motion.div>
-                            )
-                        }
-                    </AnimatePresence >
-                </div >
-
-            </div >
+                            )}
+                    </AnimatePresence>
+                </div>
+            </div>
 
             {step === 0 && <Footer />}
 
@@ -1206,6 +1388,7 @@ const ApplyPageContent = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
             {/* Success Modal */}
             <AnimatePresence>
                 {isSuccessOpen && (
@@ -1282,13 +1465,18 @@ const ApplyPageContent = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </main >
+        </main>
     );
 }
 
 export default function ApplyPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#001311] flex items-center justify-center text-vc-mint">Loading...</div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#001311] flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-vc-mint/20 border-t-vc-mint rounded-full animate-spin" />
+            </div>
+        }>
+            <Navbar />
             <ApplyPageContent />
         </Suspense>
     );

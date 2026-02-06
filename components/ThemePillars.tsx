@@ -272,9 +272,26 @@ export default function ThemePillars() {
                     <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-4 md:mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
                         Theme Pillars
                     </h2>
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden xl:block">Scroll to explore strategic themes</p>
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden md:block xl:hidden">Swipe to explore strategic themes</p>
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins md:hidden">Tap card to cycle</p>
+
+                    {/* XL+: Scroll Deck */}
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden xl:block">
+                        Scroll to explore strategic themes
+                    </p>
+
+                    {/* LG: Grid View - No instruction needed or static text */}
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden lg:block xl:hidden">
+                        The core strategic pillars of our mission
+                    </p>
+
+                    {/* MD: Horizontal Scroll */}
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden md:block lg:hidden">
+                        Swipe to explore strategic themes
+                    </p>
+
+                    {/* SM: Mobile Stack */}
+                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins md:hidden">
+                        Tap card to cycle
+                    </p>
                 </div>
 
                 {/* Desktop: Card Deck Animation (XL and up) */}

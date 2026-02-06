@@ -1084,14 +1084,16 @@ function AdminDashboardContent() {
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Breakdown ({selectedApp.teamSize} Member{selectedApp.teamSize > 1 ? 's' : ''})</p>
                                                         <div className="space-y-3">
                                                             {selectedApp.teamMembers.map((m, i) => (
-                                                                <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
-                                                                            {i + 1}
-                                                                        </div>
-                                                                        <span className="font-bold text-sm text-white/90">{m.name || 'Anonymous Member'}</span>
+                                                                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
+                                                                    <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20 shrink-0">
+                                                                        {i + 1}
                                                                     </div>
-                                                                    <span className="text-[10px] text-white/40 font-medium px-2 py-1 bg-white/5 rounded-md uppercase tracking-widest">{m.nationality}</span>
+                                                                    <div className="flex flex-wrap items-baseline gap-2 min-w-0">
+                                                                        <span className="font-bold text-sm text-white/90 truncate">{m.name || 'Anonymous Member'}</span>
+                                                                        <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap opacity-60">
+                                                                            ({m.nationality})
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             ))}
                                                         </div>

@@ -11,8 +11,6 @@ import AnnualTheme from '@/components/AnnualTheme';
 
 export default function RegistrationPage() {
     const [loading, setLoading] = useState(true);
-    const [isVerified, setIsVerified] = useState(false);
-    const [userEmail, setUserEmail] = useState('');
     const router = useRouter();
 
     useEffect(() => {
@@ -21,9 +19,7 @@ export default function RegistrationPage() {
                 // Not signed in, redirect to sign in page
                 router.push('/signin');
             } else {
-                // Signed in, check verification
-                setIsVerified(user.emailVerified);
-                setUserEmail(user.email || '');
+                // Signed in
                 setLoading(false);
             }
         });
@@ -42,51 +38,6 @@ export default function RegistrationPage() {
         );
     }
 
-    if (!isVerified) {
-        return (
-            <main className="min-h-screen text-white flex flex-col items-center justify-center relative overflow-hidden bg-[#001311]">
-                {/* Background Orbs */}
-                <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
-                <div className="absolute bottom-[20%] right-[15%] w-[40%] h-[40%] bg-vc-teal/15 rounded-full blur-[120px] animate-pulse pointer-events-none" />
-
-                <Link href="/" className="absolute top-8 left-8 p-3 rounded-full glass-panel hover:bg-white/10 transition-all duration-300 group z-50 flex items-center gap-2">
-                    <ArrowLeft className="w-5 h-5 text-vc-mint group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-sm font-medium text-vc-mint/80">Go Back</span>
-                </Link>
-
-                <div className="relative z-10 text-center px-4 max-w-lg">
-                    <div className="mb-8 flex justify-center">
-                        <div className="w-16 h-16 rounded-2xl bg-vc-teal/20 flex items-center justify-center border border-vc-teal/30 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
-                            <svg className="w-8 h-8 text-vc-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0h-2m8-3V7a4 4 0 00-8 0v4M5 11h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-bold mb-4">Verify Your Email</h1>
-                    <p className="text-white/60 mb-8 leading-relaxed">
-                        To access the registration page, you must verify your email address.
-                        We sent a link to <span className="text-vc-mint font-medium">{userEmail}</span>.
-                    </p>
-                    <div className="flex flex-col gap-4">
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="btn-primary !py-3.5 !rounded-xl text-lg flex items-center justify-center gap-2"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            I&apos;ve Verified My Email
-                        </button>
-                    </div>
-                </div>
-
-                {/* Decorative Grid */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-20">
-                    <div className="absolute inset-0 bg-[radial-gradient(#1a3a3a_1px,transparent_1px)] [background-size:40px_40px]" />
-                </div>
-            </main>
-        );
-    }
 
     return (
         <main className="min-h-screen text-white flex flex-col items-center justify-center relative overflow-hidden bg-[#001311]">

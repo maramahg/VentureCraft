@@ -98,62 +98,51 @@ export default function QRPage() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[120px]" />
             </div>
 
-            <Link
-                href="/"
-                className="absolute top-8 left-8 flex items-center gap-2 text-white/60 hover:text-vc-mint transition-colors font-poppins font-medium"
-            >
-                <ArrowLeft className="w-5 h-5" />
-                Back to Home
-            </Link>
+
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative z-10 text-center max-w-xl"
+                className="relative z-10 text-center max-w-xl mt-24 md:mt-32"
             >
                 <h1 className="text-4xl md:text-5xl font-black text-white mb-4 font-poppins uppercase tracking-tighter">
-                    Your <span className="text-vc-mint">Forever</span> QR
+                    Venture Craft <span className="text-vc-mint">QR</span>
                 </h1>
                 <p className="text-white/60 mb-12 font-poppins">
-                    This is a static QR code. It will never expire. The center is excavated (emptied) so you can place your logo there in any design tool.
+                    This is a static QR code. It will never expire. The center is emptied so you can place your logo there in any design tool.
                 </p>
 
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] inline-block mb-12 group relative">
-                    <div className="absolute inset-0 bg-vc-mint/5 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="glass-panel p-8 md:p-12 max-w-2xl mx-auto w-full mb-12 relative group">
+                    <div className="absolute inset-0 bg-vc-mint/5 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                    <QRCodeSVG
-                        id="qr-code-svg"
-                        value="https://kfupm-venturecraft.org/"
-                        size={300}
-                        level="H"
-                        includeMargin={false}
-                        imageSettings={{
-                            src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", // Transparent 1x1 pixel
-                            height: 100,
-                            width: 100,
-                            excavate: true,
-                        }}
-                    />
-                </div>
+                    <div className="bg-white p-6 rounded-[2rem] shadow-2xl mx-auto w-fit">
+                        <QRCodeSVG
+                            id="qr-code-svg"
+                            value="https://kfupm-venturecraft.org/"
+                            size={300}
+                            level="H"
+                            includeMargin={false}
+                            className="w-full h-auto max-w-[250px] md:max-w-[300px]"
+                            imageSettings={{
+                                src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                height: 80,
+                                width: 80,
+                                excavate: true,
+                            }}
+                        />
+                    </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button
-                        onClick={downloadQR}
-                        className="flex items-center justify-center gap-2 px-8 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-lg shadow-vc-mint/20"
-                    >
-                        <Download className="w-5 h-5" />
-                        Download PNG
-                    </button>
-
-                    <div className="px-8 py-4 bg-white/5 border border-white/10 text-white/80 font-medium rounded-2xl">
-                        Static • High Error Correction
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+                        <button
+                            onClick={downloadQR}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-vc-mint/20 text-sm md:text-base whitespace-nowrap"
+                        >
+                            <Download className="w-5 h-5" />
+                            Download PNG
+                        </button>
                     </div>
                 </div>
-
-                <p className="mt-8 text-white/40 text-sm font-poppins">
-                    Tip: When adding your logo, ensure it doesn't exceed the excavated area to maintain scannability.
-                </p>
             </motion.div>
-        </main>
+        </main >
     );
 }

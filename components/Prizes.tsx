@@ -145,7 +145,7 @@ export default function Prizes() {
                         <h3 className="text-xl md:text-2xl font-bold text-vc-mint uppercase tracking-widest">Additional Benefits</h3>
                     </motion.div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                         {benefits.map((benefit, index) => (
                             <motion.div
                                 key={benefit.text}
@@ -153,12 +153,12 @@ export default function Prizes() {
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 + index * 0.1 }}
-                                className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-vc-mint/30 transition-all duration-300 group"
+                                className="aspect-square flex flex-col items-center justify-center gap-3 md:gap-4 p-4 md:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-vc-mint/30 transition-all duration-300 group"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <benefit.icon className="w-6 h-6 text-vc-mint" />
+                                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-vc-mint/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <benefit.icon className="w-6 h-6 md:w-7 md:h-7 text-vc-mint" />
                                 </div>
-                                <span className="text-white/80 font-semibold text-center font-poppins">
+                                <span className="text-white/80 font-semibold text-center font-poppins text-sm md:text-lg leading-tight">
                                     {benefit.text}
                                 </span>
                             </motion.div>
