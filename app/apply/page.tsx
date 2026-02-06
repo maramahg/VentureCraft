@@ -691,6 +691,12 @@ const ApplyPageContent = () => {
             <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
 
             <div className="max-w-4xl mx-auto px-4 pb-24 relative z-10 min-h-[calc(100vh-200px)]">
+                {step === 1 && (
+                    <Link href="/" className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group">
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span>Go Back</span>
+                    </Link>
+                )}
                 {step > 1 && (
                     <button
                         onClick={prevStep}
