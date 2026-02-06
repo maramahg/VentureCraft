@@ -215,6 +215,7 @@ const ApplyPageContent = () => {
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [authLoading, setAuthLoading] = useState(true);
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [regLoading, setRegLoading] = useState(true);
     const router = useRouter();
@@ -289,9 +290,17 @@ const ApplyPageContent = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+            setAuthLoading(false);
         });
         return () => unsubscribe();
     }, []);
+
+    // Secure the page - redirect to signin if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push(`/signin?redirect=${encodeURIComponent('/apply')}`);
+        }
+    }, [user, authLoading, router]);
 
     // ... (keep existing sync useEffect)
 
@@ -683,6 +692,17 @@ const ApplyPageContent = () => {
         { title: 'Code of Conduct', detail: 'All team members must accept the official competition rules and code of conduct.', reason: 'Maintains professionalism and integrity.' },
         { title: 'Conflict of Interest', detail: 'Teams must disclose any existing mentor, investor, or organizational relationships with judges or organizers.', reason: 'Ensures impartial evaluation.' },
     ];
+
+    if (authLoading || regLoading) {
+        return (
+            <div className="min-h-screen bg-[#001311] flex flex-col items-center justify-center gap-4">
+                <div className="w-12 h-12 border-4 border-vc-mint/20 border-t-vc-mint rounded-full animate-spin" />
+                <p className="text-vc-mint/60 font-medium animate-pulse">Verifying Session...</p>
+            </div>
+        );
+    }
+
+    if (!user) return null; // Prevent flicker before redirect
 
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-24 md:pt-40 relative overflow-x-hidden">
