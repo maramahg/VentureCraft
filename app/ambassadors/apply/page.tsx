@@ -220,6 +220,20 @@ function ApplicationFormContent() {
                 phone: CombinedPhone
             });
 
+            // Send Confirmation Email
+            try {
+                await fetch('/api/send-ambassador-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.email,
+                        name: formData.name,
+                    }),
+                });
+            } catch (emailErr) {
+                console.error('Failed to send ambassador confirmation email:', emailErr);
+            }
+
             setIsSuccessOpen(true);
         } catch (error) {
             console.error('Error submitting application:', error);
@@ -569,9 +583,9 @@ function ApplicationFormContent() {
                                     Your application for the Venture Craft Ambassadors Program has been successfully received.
                                 </p>
                                 <div className="bg-vc-mint/5 border border-vc-mint/10 rounded-2xl p-4 inline-block">
-                                    <p className="text-vc-mint text-sm font-medium flex items-center justify-center gap-2">
-                                        <FileText className="w-4 h-4" />
-                                        We will contact you via email soon.
+                                    <p className="text-vc-mint text-sm font-medium flex items-center justify-center gap-2 text-center">
+                                        <FileText className="w-4 h-4 flex-shrink-0" />
+                                        <span>A confirmation email has been sent to your inbox.</span>
                                     </p>
                                 </div>
                             </motion.div>
