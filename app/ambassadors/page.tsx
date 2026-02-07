@@ -341,10 +341,10 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
-                {/* Motivation Section - 1:1 Match to Reference Image */}
-                <section className="py-24 relative overflow-hidden bg-[#001D1B]">
+                {/* Motivation Section - Clean Glass Grid Layout (No Path) */}
+                <section className="py-24 relative overflow-hidden">
                     <div className="container mx-auto px-6 max-w-5xl">
-                        <div className="mb-16 text-center">
+                        <div className="mb-20 text-center">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -356,60 +356,24 @@ export default function AmbassadorsPage() {
                             </motion.h2>
                         </div>
 
-                        <div className="relative h-[600px] md:h-[500px] mb-12">
-                            {/* Compact Winding Connector Path */}
-                            <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none" viewBox="0 0 1000 500" fill="none" preserveAspectRatio="none">
-                                <path
-                                    d="M 250 50 
-                                       C 750 50, 850 50, 850 150
-                                       S 750 250, 250 250
-                                       S 150 250, 150 350
-                                       S 250 450, 750 450"
-                                    stroke="#4FD1C5"
-                                    strokeWidth="2"
-                                    strokeDasharray="8 8"
-                                    className="hidden md:block"
-                                />
-                                {/* Mobile Path */}
-                                <path
-                                    d="M 500 0 L 500 600"
-                                    stroke="#4FD1C5"
-                                    strokeWidth="1"
-                                    strokeDasharray="6 6"
-                                    className="md:hidden"
-                                />
-                            </svg>
-
-                            {/* Motivation Pills (Glass Style, Compact) */}
-                            <div className="relative z-10 w-full h-full">
-                                {motivationSteps.map((step, idx) => {
-                                    const placements = [
-                                        "top-[5%] md:left-[10%]",
-                                        "top-[22%] md:left-[65%]",
-                                        "top-[39%] md:left-[15%]",
-                                        "top-[56%] md:left-[60%]",
-                                        "top-[73%] md:left-[15%]",
-                                        "top-[90%] md:left-[55%]"
-                                    ];
-
-                                    return (
-                                        <motion.div
-                                            key={idx}
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            whileInView={{ opacity: 1, scale: 1 }}
-                                            viewport={{ once: true }}
-                                            transition={{ delay: idx * 0.1 }}
-                                            className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 ${placements[idx]} w-[85%] md:w-auto`}
-                                        >
-                                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-full px-8 py-3 flex items-center justify-center text-center group hover:border-vc-mint/40 transition-all duration-300">
-                                                <span className="text-white text-sm md:text-base font-bold font-poppins tracking-[0.1em] uppercase whitespace-nowrap">
-                                                    {step}
-                                                </span>
-                                            </div>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
+                        {/* Motivation Items (Clean Grid, No Path) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20 relative z-10">
+                            {motivationSteps.map((step, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: idx * 0.1 }}
+                                    className="group"
+                                >
+                                    <div className="h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 flex items-center justify-center text-center hover:bg-white/10 hover:border-vc-mint/30 transition-all duration-300">
+                                        <span className="text-white text-base md:text-lg font-bold font-poppins tracking-wider uppercase">
+                                            {step}
+                                        </span>
+                                    </div>
+                                </motion.div>
+                            ))}
                         </div>
 
                         {/* Modern Discrete Appreciation Box */}
