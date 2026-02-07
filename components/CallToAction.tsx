@@ -6,9 +6,15 @@ import { ArrowRight, Info, UserPlus } from 'lucide-react';
 
 interface CallToActionProps {
     showOnlyRegister?: boolean;
+    title?: string;
+    description?: string;
 }
 
-export default function CallToAction({ showOnlyRegister = false }: CallToActionProps) {
+export default function CallToAction({
+    showOnlyRegister = false,
+    title = "Want to register?",
+    description = "Take the first step towards transforming your deep-tech idea into a global solution."
+}: CallToActionProps) {
     return (
         <section className="relative z-30 pt-12 pb-24 overflow-hidden">
             <div className="container mx-auto px-6">
@@ -61,10 +67,10 @@ export default function CallToAction({ showOnlyRegister = false }: CallToActionP
                         </div>
 
                         <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 font-poppins text-balance">
-                            Want to register?
+                            {title}
                         </h3>
                         <p className="text-white/70 mb-8 font-poppins text-lg text-balance">
-                            Take the first step towards transforming your deep-tech idea into a global solution.
+                            {description}
                         </p>
 
                         <Link
