@@ -1,71 +1,509 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ArrowLeft, Users } from 'lucide-react';
-import Link from 'next/link';
+import Footer from '@/components/Footer';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import CallToAction from "@/components/CallToAction";
+import {
+    Globe,
+    Award,
+    Users,
+    Zap,
+    Rocket,
+    ArrowRight,
+    ArrowLeft,
+    GraduationCap,
+    Share2,
+    CheckCircle2,
+    Megaphone,
+    Search,
+    Heart,
+    Star,
+    Sparkles,
+    Handshake,
+    Target,
+    ChevronLeft,
+    ChevronRight
+} from "lucide-react";
+
+const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2
+        }
+    }
+};
+
+const roleActivities = [
+    {
+        icon: <Share2 className="w-5 h-5" />,
+        text: "Sharing content on personal social media platforms"
+    },
+    {
+        icon: <Users className="w-5 h-5" />,
+        text: "Introducing the challenge to peers, student communities, and professional networks"
+    },
+    {
+        icon: <Target className="w-5 h-5" />,
+        text: "Encouraging potential participants to engage and apply"
+    },
+    {
+        icon: <Megaphone className="w-5 h-5" />,
+        text: "Supporting selected physical marketing efforts (materials distribution, university activities)"
+    },
+    {
+        icon: <Handshake className="w-5 h-5" />,
+        text: "Facilitating collaborations with student clubs, organizations, and innovation entities"
+    }
+];
+
+const benefits = [
+    {
+        icon: <Award className="w-6 h-6" />,
+        title: "Official Certificate",
+        description: "Receive a formal recognition of your role and contribution."
+    },
+    {
+        icon: <Star className="w-6 h-6" />,
+        title: "Public Recognition",
+        description: "Be highlighted across Venture Craft's official channels."
+    },
+    {
+        icon: <Users className="w-6 h-6" />,
+        title: "Networking Access",
+        description: "Connect with industry leaders, investors, and elite researchers."
+    },
+    {
+        icon: <Sparkles className="w-6 h-6" />,
+        title: "Event Invitations",
+        description: "Get exclusive access to premium deep-tech events."
+    },
+    {
+        icon: <Globe className="w-6 h-6" />,
+        title: "Global Exposure",
+        description: "Expand your reach within the international startup ecosystem."
+    },
+    {
+        icon: <Heart className="w-6 h-6" />,
+        title: "Special Appreciation",
+        description: "Additional rewards for outstanding ambassador engagement."
+    }
+];
+
+const motivationSteps = [
+    "GLOBAL INITIATIVE",
+    "DEEP-TECH IMPACT",
+    "STUDENT INNOVATION",
+    "PRESTIGIOUS REPRESENTATION",
+    "NETWORK EXPANSION",
+    "COMMUNITY IMPACT"
+];
 
 export default function AmbassadorsPage() {
+    const { scrollY } = useScroll();
+    const [currentStep, setCurrentStep] = useState(0);
+    const [benefitsPerView, setBenefitsPerView] = useState(3);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 640) {
+                setBenefitsPerView(1);
+            } else if (window.innerWidth < 1024) {
+                setBenefitsPerView(2);
+            } else {
+                setBenefitsPerView(3);
+            }
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const nextBenefit = () => {
+        setCurrentStep((prev) => (prev + 1) % (benefits.length - (benefitsPerView - 1)));
+    };
+
+    const prevBenefit = () => {
+        setCurrentStep((prev) => (prev - 1 + (benefits.length - (benefitsPerView - 1))) % (benefits.length - (benefitsPerView - 1)));
+    };
     return (
-        <main className="min-h-screen text-white flex flex-col items-center justify-center relative overflow-hidden bg-[#001311]">
-            {/* Background Orbs */}
-            <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
-            <div className="absolute bottom-[20%] right-[15%] w-[40%] h-[40%] bg-vc-teal/15 rounded-full blur-[120px] animate-pulse pointer-events-none" />
+        <main className="relative flex flex-col overflow-hidden bg-[#001D1B]">
+            {/* Background Decorations */}
+            <div className="fixed top-0 -left-20 md:-left-10 w-[200px] h-[400px] md:w-[300px] md:h-[600px] pointer-events-none z-0 opacity-[0.20] md:opacity-[0.35]">
+                <Image
+                    src="/pattern-left-v2.png"
+                    alt=""
+                    width={300}
+                    height={620}
+                    className="object-contain w-full h-full"
+                    style={{ objectPosition: 'left top' }}
+                />
+            </div>
 
-            {/* Go Back Arrow */}
-            <Link
-                href="/"
-                className="absolute top-40 left-20 p-3 rounded-full glass-panel hover:bg-white/10 transition-all duration-300 group z-50 focus:outline-none focus:ring-2 focus:ring-vc-mint/50 flex items-center gap-2"
-            >
-                <ArrowLeft className="w-5 h-5 text-vc-mint group-hover:-translate-x-1 transition-transform duration-300" />
-                <span className="text-sm font-medium pr-2 text-vc-mint/80 group-hover:text-vc-mint transition-colors">Go Back</span>
-            </Link>
-
-            {/* Main Content */}
-            <div className="relative z-10 text-center px-4 max-w-3xl">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="mb-8 flex justify-center"
-                >
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/20 flex items-center justify-center border border-vc-mint/30 shadow-[0_0_30px_rgba(79,209,197,0.2)]">
-                        <Users className="w-10 h-10 text-vc-mint" />
+            <div className="fixed bottom-0 right-0 w-[150px] h-[150px] md:w-[250px] md:h-[250px] overflow-hidden pointer-events-none z-0">
+                <div className="relative w-full h-full opacity-[0.03] md:opacity-5">
+                    <div className="absolute bottom-0 right-0 translate-x-8 translate-y-8 md:translate-x-12 md:translate-y-12">
+                        <div className="absolute bottom-10 right-10 md:bottom-20 md:right-20 w-24 h-14 md:w-48 md:h-28 rounded-[1.5rem] md:rounded-[2rem] bg-white" />
+                        <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 w-12 h-12 md:w-24 md:h-24 rounded-[0.75rem] md:rounded-[1.5rem] bg-vc-teal" />
+                        <div className="absolute bottom-20 right-2 md:bottom-40 md:right-4 w-10 h-8 md:w-20 md:h-14 rounded-[0.75rem] md:rounded-[1.5rem] bg-white/70" />
                     </div>
-                </motion.div>
-
-                <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-5xl md:text-7xl font-extrabold mb-6 font-poppins tracking-tighter text-white"
-                >
-                    Ambassadors Program <br /> <span className="text-vc-mint">Coming Soon</span>
-                </motion.h1>
-
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                    className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
-                >
-                    Join the Venture Craft elite as a brand ambassador. Help us spread innovation and empower the next generation of tech leaders.
-                </motion.p>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.6 }}
-                    className="glass-panel px-8 py-4 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center gap-3"
-                >
-                    <span className="w-2 h-2 rounded-full bg-vc-mint animate-ping" />
-                    <p className="text-lg font-medium text-white tracking-wide italic">More coming soon!</p>
-                </motion.div>
-
-                {/* Decorative Grid */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-20">
-                    <div className="absolute inset-0 bg-[radial-gradient(#1a3a3a_1px,transparent_1px)] [background-size:40px_40px]" />
                 </div>
             </div>
+
+            {/* Content */}
+            <div className="relative z-10 flex flex-col w-full">
+                {/* Hero Section */}
+                <section className="relative pt-32 pb-20">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 py-12 md:py-20">
+                        <div className="max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
+                            <motion.div
+                                initial="hidden"
+                                animate="visible"
+                                variants={staggerContainer}
+                                className="w-full flex flex-col items-center"
+                            >
+                                <motion.div variants={fadeInUp} className="flex flex-col items-center mb-10 md:mb-16">
+                                    <span className="text-vc-mint text-sm sm:text-base md:text-lg font-bold tracking-[0.3em] mb-4 uppercase font-poppins">
+                                        JOIN THE GLOBAL MOVEMENT
+                                    </span>
+                                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white uppercase font-poppins tracking-tighter leading-tight">
+                                        Ambassadors<br />Program
+                                    </h1>
+                                </motion.div>
+
+                                <motion.p variants={fadeInUp} className="text-white/60 text-lg sm:text-lg md:text-xl leading-relaxed mb-10 font-poppins max-w-2xl mx-auto">
+                                    A global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions.
+                                </motion.p>
+
+                                <motion.div variants={fadeInUp}>
+                                    <button className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)]">
+                                        Apply Now
+                                    </button>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* The Role Section */}
+                <section className="py-24 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/05">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-4xl mx-auto">
+                            <motion.div
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
+                                variants={staggerContainer}
+                            >
+                                <motion.h2
+                                    variants={fadeInUp}
+                                    className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20 text-center md:text-left"
+                                >
+                                    Ambassador Role
+                                </motion.h2>
+
+                                <motion.div variants={fadeInUp} className="space-y-8">
+                                    <p className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins text-center md:text-left">
+                                        Ambassadors help expand the reach of the Venture Craft Challenge by promoting it to a wider audience and supporting its presence within their communities.
+                                    </p>
+
+                                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-10">
+                                        <p className="text-vc-mint font-bold italic mb-6">Optional activities based on availability and comfort:</p>
+                                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {roleActivities.map((activity, idx) => (
+                                                <li key={idx} className="flex gap-4 items-start group">
+                                                    <div className="mt-1 text-vc-mint group-hover:scale-110 transition-transform">{activity.icon}</div>
+                                                    <span className="text-white/70 text-sm md:text-base font-poppins">{activity.text}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <p className="text-vc-mint/80 font-medium italic text-center text-sm md:text-base">
+                                        Ambassadors play a key role in increasing awareness, engagement, participation, and meaningful connections.
+                                    </p>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Benefits Section */}
+                <section className="py-24 relative z-20 overflow-hidden">
+                    <div className="container mx-auto px-4 md:px-6 lg:px-8">
+                        <div className="mb-20 text-center max-w-4xl mx-auto">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+                            >
+                                Ambassador Benefits
+                            </motion.h2>
+                            <p className="text-vc-mint text-base md:text-lg font-bold mb-8 font-poppins uppercase tracking-[0.3em]">
+                                Unlock Exclusive Opportunities
+                            </p>
+                        </div>
+
+                        <div className="max-w-6xl mx-auto relative group/carousel px-4 md:px-12">
+                            {/* Navigation Buttons (Theme matched) - Hidden on Mobile */}
+                            <div className="absolute inset-y-0 left-0 md:-left-6 flex items-center z-30 pointer-events-none hidden md:flex">
+                                <button
+                                    onClick={prevBenefit}
+                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all duration-500 hover:scale-110
+                                        ${currentStep === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
+                                    `}
+                                    style={{
+                                        background: 'rgba(15, 115, 105, 0.4)',
+                                        border: '1px solid rgba(79, 209, 197, 0.3)',
+                                        color: '#4FD1C5'
+                                    }}
+                                    aria-label="Previous"
+                                    disabled={currentStep === 0}
+                                >
+                                    <ChevronLeft size={24} />
+                                </button>
+                            </div>
+
+                            <div className="absolute inset-y-0 right-0 md:-right-6 flex items-center z-30 pointer-events-none hidden md:flex">
+                                <button
+                                    onClick={nextBenefit}
+                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all duration-500 hover:scale-110
+                                        ${currentStep >= benefits.length - benefitsPerView ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
+                                    `}
+                                    style={{
+                                        background: 'rgba(15, 115, 105, 0.4)',
+                                        border: '1px solid rgba(79, 209, 197, 0.3)',
+                                        color: '#4FD1C5'
+                                    }}
+                                    aria-label="Next"
+                                    disabled={currentStep >= benefits.length - benefitsPerView}
+                                >
+                                    <ChevronRight size={24} />
+                                </button>
+                            </div>
+
+                            <div className="overflow-hidden py-12 -my-12">
+                                <motion.div
+                                    className="flex"
+                                    animate={{ x: `-${currentStep * (100 / benefitsPerView)}%` }}
+                                    transition={{ type: "spring", stiffness: 180, damping: 22 }}
+                                >
+                                    {benefits.map((benefit, index) => (
+                                        <div
+                                            key={index}
+                                            className="px-4 shrink-0"
+                                            style={{ width: `${100 / benefitsPerView}%` }}
+                                        >
+                                            <div
+                                                className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative"
+                                                style={{
+                                                    background: 'rgba(15, 115, 105, 0.6)',
+                                                    borderColor: 'rgba(79, 209, 197, 0.2)'
+                                                }}
+                                            >
+                                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                                                    {benefit.icon}
+                                                </div>
+                                                <h3 className="text-2xl md:text-3xl font-bold mb-4 font-poppins text-white leading-tight uppercase tracking-tight">{benefit.title}</h3>
+                                                <p className="text-white/60 text-lg leading-relaxed font-poppins">
+                                                    {benefit.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            </div>
+
+                            <div className="flex justify-center gap-3 mt-16 md:hidden">
+                                {Array.from({ length: benefits.length - benefitsPerView + 1 }).map((_, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`h-2 rounded-full transition-all duration-500 ${currentStep === idx ? 'w-10 bg-vc-mint' : 'w-2 bg-white/20'}`}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        <p className="text-center mt-20 text-vc-mint/30 text-[10px] md:text-xs tracking-[0.4em] font-poppins uppercase font-bold">
+                            *Selected active ambassadors may receive special appreciation
+                        </p>
+                    </div>
+                </section>
+
+                {/* Motivation Section - 1:1 Match to Reference Image */}
+                <section className="py-32 relative overflow-hidden bg-[#001D1B]">
+                    <div className="container mx-auto px-6 max-w-5xl">
+                        {/* Verbatim Header Style from Image */}
+                        <div className="mb-24 flex flex-col md:flex-row items-center md:items-end justify-center md:justify-start gap-4">
+                            <h2 className="text-4xl md:text-7xl font-black text-white font-poppins uppercase tracking-tighter">
+                                Ambassador
+                            </h2>
+                            <div className="bg-[#00A383] px-8 py-4 mb-1">
+                                <span className="text-4xl md:text-7xl font-black text-white font-poppins uppercase tracking-tighter">
+                                    Motivation
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="relative h-[900px] md:h-[700px] mb-20">
+                            {/* Winding Connector Path (Continuous S-Curve) */}
+                            <svg className="absolute inset-0 w-full h-full opacity-40 pointer-events-none" viewBox="0 0 1000 700" fill="none" preserveAspectRatio="none">
+                                <path
+                                    d="M 300 80 
+                                       C 700 80, 800 80, 800 200
+                                       S 700 320, 300 320
+                                       S 200 320, 200 440
+                                       S 300 560, 700 560
+                                       S 800 560, 800 680"
+                                    stroke="#00A383"
+                                    strokeWidth="3"
+                                    className="hidden md:block"
+                                />
+                                {/* Mobile Path */}
+                                <path
+                                    d="M 500 50 L 500 850"
+                                    stroke="#00A383"
+                                    strokeWidth="2"
+                                    strokeDasharray="8 8"
+                                    className="md:hidden"
+                                />
+                            </svg>
+
+                            {/* Motivation Pills (Solid Teal, Bold White Text) */}
+                            <div className="relative z-10 w-full h-full">
+                                {motivationSteps.map((step, idx) => {
+                                    // Verbatim horizontal-staggered placements
+                                    const placements = [
+                                        "top-[5%] md:left-[15%]",
+                                        "top-[20%] md:left-[55%]",
+                                        "top-[35%] md:left-[10%]",
+                                        "top-[50%] md:left-[50%]",
+                                        "top-[65%] md:left-[5%]",
+                                        "top-[80%] md:left-[45%]"
+                                    ];
+
+                                    return (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 ${placements[idx]} w-[90%] md:w-auto`}
+                                        >
+                                            <div className="bg-[#00A383] hover:bg-[#008F72] text-white px-10 md:px-16 py-5 rounded-[1.5rem] shadow-xl transition-all duration-300 transform hover:scale-105 group border-2 border-white/10 flex items-center justify-center text-center">
+                                                <span className="text-lg md:text-xl font-black font-poppins tracking-wider uppercase whitespace-nowrap">
+                                                    {step}
+                                                </span>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Solid Teal Footer Box */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-[#157369] p-10 md:p-14 text-center rounded-[1.5rem] shadow-2xl relative overflow-hidden group border border-white/5"
+                        >
+                            <p className="text-white text-xl md:text-3xl font-black font-poppins uppercase leading-tight tracking-wide">
+                                Outstanding engagement and impact may lead to exclusive event invitations
+                            </p>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {/* VC Mission Section - Neat & Professional (Role Style) */}
+                <section className="py-24 relative z-20 border-t border-white/5 bg-[#157369]/05">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-4xl mx-auto">
+                            <motion.div
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
+                                variants={staggerContainer}
+                            >
+                                <motion.h2
+                                    variants={fadeInUp}
+                                    className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20 text-center md:text-left"
+                                >
+                                    Venture Craft Mission
+                                </motion.h2>
+
+                                <motion.div variants={fadeInUp} className="space-y-12">
+                                    <p className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins text-center md:text-left">
+                                        Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
+                                    </p>
+
+                                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-12 overflow-hidden shadow-2xl relative">
+                                        {/* Ambient Glow */}
+                                        <div className="absolute top-0 right-0 w-64 h-64 bg-vc-mint/5 rounded-full blur-[100px] -z-10" />
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                            {[
+                                                { title: "Diversity & Community", text: "Building meaningful relationships with people who share ambition and passion for innovation.", icon: <Users className="w-6 h-6" /> },
+                                                { title: "Partners in Success", text: "Striving for mutual growth, creating an environment that encourages progress.", icon: <Handshake className="w-6 h-6" /> },
+                                                { title: "Shared Vision", text: "Ambition and vision remain constant, regardless of place or time.", icon: <Target className="w-6 h-6" /> }
+                                            ].map((goal, i) => (
+                                                <div key={i} className="flex flex-col gap-6 group">
+                                                    <div className="bg-vc-mint/10 w-14 h-14 rounded-2xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:scale-110 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
+                                                        {goal.icon}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-white font-bold text-lg mb-3 font-poppins uppercase tracking-wide">{goal.title}</h4>
+                                                        <p className="text-white/50 text-sm leading-relaxed font-poppins">{goal.text}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <p className="text-vc-mint/80 font-bold italic text-center md:text-left text-base md:text-lg">
+                                        Together, we are shaping the future of industrial technology and sustainable development.
+                                    </p>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Professional Vision Quote Section */}
+                <section className="py-40 relative overflow-hidden bg-[#001D1B] border-t border-white/5">
+                    <div className="container mx-auto px-6 relative z-10 text-center">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="max-w-5xl mx-auto"
+                        >
+                            <h2 className="text-4xl md:text-7xl font-black text-white mb-10 font-poppins uppercase leading-tight tracking-tighter">
+                                "Partners, Not Just <span className="text-vc-mint">Promoters."</span>
+                            </h2>
+                            <p className="text-white/40 text-lg md:text-xl font-bold font-poppins uppercase tracking-[0.3em] max-w-3xl mx-auto leading-relaxed">
+                                Building a diverse global community united by ambition, innovation, and collaboration.
+                            </p>
+                        </motion.div>
+                    </div>
+                </section>
+
+                <CallToAction showOnlyRegister />
+            </div>
+            <Footer />
         </main>
     );
 }
