@@ -804,7 +804,7 @@ const ApplyPageContent = () => {
         return (
             <div className="min-h-screen bg-[#001311] flex flex-col items-center justify-center gap-4">
                 <div className="w-12 h-12 border-4 border-vc-mint/20 border-t-vc-mint rounded-full animate-spin" />
-                <p className="text-vc-mint/60 font-medium animate-pulse">Verifying Session...</p>
+                <p className="text-vc-mint/60 font-medium animate-pulse">Loading...</p>
             </div>
         );
     }
