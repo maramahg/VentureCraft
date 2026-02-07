@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Globe, Sparkles, Handshake, Rocket, Target, ExternalLink } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Globe, Sparkles, Handshake, Rocket, Target, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const objectives = [
   {
@@ -56,50 +57,139 @@ const objectives = [
 ];
 
 export default function AboutObjectives() {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setItemsPerView(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsPerView(2);
+      } else {
+        setItemsPerView(3);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const nextItem = () => {
+    setCurrentStep((prev) => (prev + 1) % (objectives.length - (itemsPerView - 1)));
+  };
+
+  const prevItem = () => {
+    setCurrentStep((prev) => (prev - 1 + (objectives.length - (itemsPerView - 1))) % (objectives.length - (itemsPerView - 1)));
+  };
+
   return (
-    <section id="objectives" className="py-24 relative z-20">
-      <div className="container mx-auto px-4">
-        <div className="mb-16 text-center max-w-4xl mx-auto">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
+    <section id="objectives" className="py-24 relative z-20 overflow-hidden">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+        <div className="mb-20 text-center max-w-4xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+          >
             Objectives
-          </h2>
-          <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins">
-            Empowering the next generation of deep-tech innovators to solve global challenges.
+          </motion.h2>
+          <p className="text-vc-mint text-base md:text-lg font-bold mb-8 font-poppins uppercase tracking-[0.3em]">
+            Empowering the next generation of deep-tech innovators
           </p>
         </div>
 
-        {/* Mobile Horizontal Scroll Container / Desktop Flex-wrap */}
-        <div className="flex flex-nowrap md:flex-wrap md:justify-center gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
-          {objectives.map((objective, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="p-8 rounded-2xl group border transition-all duration-300 shrink-0 w-[85vw] md:w-[calc(50%-1.5rem)] lg:w-[calc(33.3333%-1.5rem)] shadow-[0_10px_35px_rgba(0,0,0,0.3)] snap-center"
+        <div className="max-w-6xl mx-auto relative group/carousel px-4 md:px-12">
+          {/* Navigation Buttons (Ambassadors Style) */}
+          <div className="absolute inset-y-0 left-0 md:-left-6 flex items-center z-30 pointer-events-none hidden md:flex">
+            <button
+              onClick={prevItem}
+              className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all duration-500 hover:scale-110
+                ${currentStep === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
+              `}
               style={{
-                background: 'rgba(15, 115, 105, 0.6)',
-                borderColor: 'rgba(79, 209, 197, 0.2)'
+                background: 'rgba(15, 115, 105, 0.4)',
+                border: '1px solid rgba(79, 209, 197, 0.3)',
+                color: '#4FD1C5'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(79, 209, 197, 0.5)';
-                e.currentTarget.style.boxShadow = '0 0 30px rgba(0, 163, 131, 0.2)';
+              aria-label="Previous"
+              disabled={currentStep === 0}
+            >
+              <ChevronLeft size={24} />
+            </button>
+          </div>
+
+          <div className="absolute inset-y-0 right-0 md:-right-6 flex items-center z-30 pointer-events-none hidden md:flex">
+            <button
+              onClick={nextItem}
+              className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all duration-500 hover:scale-110
+                ${currentStep >= objectives.length - itemsPerView ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
+              `}
+              style={{
+                background: 'rgba(15, 115, 105, 0.4)',
+                border: '1px solid rgba(79, 209, 197, 0.3)',
+                color: '#4FD1C5'
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(79, 209, 197, 0.15)';
-                e.currentTarget.style.boxShadow = '0_10px_35px_rgba(0,0,0,0.3)';
+              aria-label="Next"
+              disabled={currentStep >= objectives.length - itemsPerView}
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+
+          <div className="overflow-hidden py-12 -my-12">
+            <motion.div
+              className="flex cursor-grab active:cursor-grabbing"
+              animate={{ x: `-${currentStep * (100 / itemsPerView)}%` }}
+              transition={{ type: "spring", stiffness: 180, damping: 22 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={(_, info) => {
+                const swipeThreshold = 50;
+                if (info.offset.x < -swipeThreshold && currentStep < objectives.length - itemsPerView) {
+                  nextItem();
+                } else if (info.offset.x > swipeThreshold && currentStep > 0) {
+                  prevItem();
+                }
               }}
             >
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                <objective.icon size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-3 font-poppins">{objective.title}</h3>
-              <p className="text-white/60 leading-relaxed font-poppins">
-                {objective.description}
-              </p>
+              {objectives.map((objective, index) => (
+                <div
+                  key={index}
+                  className="px-4 shrink-0"
+                  style={{ width: `${100 / itemsPerView}%` }}
+                >
+                  <div
+                    className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative shadow-[0_10px_35px_rgba(0,0,0,0.3)]"
+                    style={{
+                      background: 'rgba(15, 115, 105, 0.6)',
+                      borderColor: 'rgba(79, 209, 197, 0.2)'
+                    }}
+                  >
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                      <objective.icon size={28} />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4 font-poppins text-white leading-tight uppercase tracking-tight">{objective.title}</h3>
+                    <div className="text-white/60 text-lg leading-relaxed font-poppins">
+                      {objective.description}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </motion.div>
-          ))}
+          </div>
+
+          <div className="flex justify-center gap-3 mt-16 md:hidden">
+            {Array.from({ length: objectives.length - itemsPerView + 1 }).map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-2 rounded-full transition-all duration-500 ${currentStep === idx ? 'w-10 bg-vc-mint' : 'w-2 bg-white/20'}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
