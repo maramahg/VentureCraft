@@ -392,12 +392,6 @@ export default function AmbassadorsPage() {
 
                 {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
                 <section className="py-32 relative z-20 overflow-hidden">
-                    {/* Background Decorative Text */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none opacity-[0.03] whitespace-nowrap">
-                        <span className="text-[20rem] font-black font-poppins uppercase tracking-tighter text-white">
-                            Mission
-                        </span>
-                    </div>
 
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
                         <div className="max-w-6xl mx-auto">
