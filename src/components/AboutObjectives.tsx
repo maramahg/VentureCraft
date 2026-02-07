@@ -163,7 +163,7 @@ export default function AboutObjectives() {
                   style={{ width: `${100 / itemsPerView}%` }}
                 >
                   <div
-                    className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative shadow-[0_10px_35px_rgba(0,0,0,0.3)]"
+                    className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative"
                     style={{
                       background: 'rgba(15, 115, 105, 0.6)',
                       borderColor: 'rgba(79, 209, 197, 0.2)'
