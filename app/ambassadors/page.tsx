@@ -153,7 +153,7 @@ export default function AmbassadorsPage() {
             {/* Content */}
             <div className="relative z-10 flex flex-col w-full">
                 {/* Hero Section */}
-                <section className="relative pt-32 pb-20">
+                <section className="relative pt-24 pb-20">
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 py-12 md:py-20">
                         <div className="max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
                             <motion.div
