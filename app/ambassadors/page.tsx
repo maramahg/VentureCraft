@@ -3,6 +3,7 @@
 import Footer from '@/components/Footer';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import CallToAction from "@/components/CallToAction";
 import {
@@ -181,9 +182,12 @@ export default function AmbassadorsPage() {
                                 </motion.div>
 
                                 <motion.div variants={fadeInUp}>
-                                    <button className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)]">
+                                    <Link
+                                        href="/ambassadors/apply"
+                                        className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)] inline-block"
+                                    >
                                         Apply Now
-                                    </button>
+                                    </Link>
                                 </motion.div>
                             </motion.div>
                         </div>
@@ -425,6 +429,7 @@ export default function AmbassadorsPage() {
                     showOnlyRegister
                     title="Join Us"
                     description="If you are a motivated university student with an interest in startups, technology, and sustainability, we invite you to join the Venture Craft Ambassadors Program and be part of a global movement driving innovation forward."
+                    registerHref="/ambassadors/apply"
                 />
             </div>
             <Footer />

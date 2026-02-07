@@ -8,12 +8,14 @@ interface CallToActionProps {
     showOnlyRegister?: boolean;
     title?: string;
     description?: string;
+    registerHref?: string;
 }
 
 export default function CallToAction({
     showOnlyRegister = false,
     title = "Want to register?",
-    description = "Take the first step towards transforming your deep-tech idea into a global solution."
+    description = "Take the first step towards transforming your deep-tech idea into a global solution.",
+    registerHref = "/apply"
 }: CallToActionProps) {
     return (
         <section className="relative z-30 pt-12 pb-24 overflow-hidden">
@@ -74,7 +76,7 @@ export default function CallToAction({
                         </p>
 
                         <Link
-                            href="/apply"
+                            href={registerHref}
                             className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-teal text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-vc-teal/30 group/btn"
                         >
                             Register Now
