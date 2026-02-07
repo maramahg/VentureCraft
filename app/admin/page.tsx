@@ -7,7 +7,7 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon
+    User, Link as LinkIcon, Share2, GraduationCap, WifiOff
 } from 'lucide-react';
 import { db, auth } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where } from 'firebase/firestore';
@@ -564,24 +564,39 @@ function AdminDashboardContent() {
     }
 
     if (error) {
+        const isOffline = error.toLowerCase().includes('offline');
         return (
             <div className="min-h-screen bg-[#001311] flex items-center justify-center px-6">
-                <div className="max-w-md w-full glass-panel p-8 text-center">
-                    <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
-                    <h2 className="text-2xl font-bold text-white mb-4">Configuration Required</h2>
-                    <p className="text-white/60 mb-8 leading-relaxed">
-                        {error}
+                <div className="max-w-md w-full glass-panel p-10 text-center relative overflow-hidden">
+                    {/* Background glow */}
+                    <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+                    {isOffline ? (
+                        <WifiOff className="w-16 h-16 text-vc-teal mx-auto mb-8 animate-pulse" />
+                    ) : (
+                        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-8" />
+                    )}
+
+                    <h2 className="text-2xl font-bold text-white mb-4 font-poppins">
+                        {isOffline ? 'Connection Lost' : 'Configuration Required'}
+                    </h2>
+
+                    <p className="text-white/60 mb-10 leading-relaxed font-poppins">
+                        {isOffline
+                            ? "It looks like you're offline. Please check your internet connection and try again."
+                            : error}
                     </p>
-                    <div className="flex flex-col gap-3">
+
+                    <div className="flex flex-col gap-4">
                         <button
                             onClick={() => window.location.reload()}
-                            className="w-full py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-vc-mint/90 transition-colors"
+                            className="w-full py-4 bg-vc-mint text-vc-green-dark rounded-2xl font-bold hover:bg-vc-mint/90 transition-all active:scale-[0.98] shadow-lg shadow-vc-mint/10"
                         >
                             Try Again
                         </button>
                         <Link
                             href="/"
-                            className="w-full py-3 text-white/40 hover:text-white transition-colors text-sm font-medium"
+                            className="w-full py-2 text-white/30 hover:text-white transition-colors text-sm font-medium font-poppins"
                         >
                             Back to Home
                         </Link>
