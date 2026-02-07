@@ -390,55 +390,69 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
-                {/* VC Mission Section - Neat & Professional (Role Style) */}
-                <section className="py-24 relative z-20 border-t border-white/5 bg-[#157369]/05">
+                {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
+                <section className="py-32 relative z-20 overflow-hidden">
+                    {/* Background Decorative Text */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none opacity-[0.03] whitespace-nowrap">
+                        <span className="text-[20rem] font-black font-poppins uppercase tracking-tighter text-white">
+                            Mission
+                        </span>
+                    </div>
+
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
-                        <div className="max-w-4xl mx-auto">
+                        <div className="max-w-6xl mx-auto">
                             <motion.div
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true }}
                                 variants={staggerContainer}
+                                className="flex flex-col lg:flex-row gap-16 items-center"
                             >
-                                <motion.h2
-                                    variants={fadeInUp}
-                                    className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20 text-center md:text-left"
-                                >
-                                    Venture Craft Mission
-                                </motion.h2>
-
-                                <motion.div variants={fadeInUp} className="space-y-12">
-                                    <p className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins text-center md:text-left">
+                                {/* Left Side: Bold Statement */}
+                                <div className="lg:w-1/2">
+                                    <motion.h2
+                                        variants={fadeInUp}
+                                        className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+                                    >
+                                        Venture Craft Mission
+                                    </motion.h2>
+                                    <motion.p variants={fadeInUp} className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins mb-10">
                                         Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
-                                    </p>
+                                    </motion.p>
+                                    <motion.p variants={fadeInUp} className="text-vc-mint/80 font-bold italic text-lg">
+                                        Together, we are shaping the future of industrial technology and sustainable development.
+                                    </motion.p>
+                                </div>
 
-                                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-12 overflow-hidden shadow-2xl relative">
-                                        {/* Ambient Glow */}
-                                        <div className="absolute top-0 right-0 w-64 h-64 bg-vc-mint/5 rounded-full blur-[100px] -z-10" />
+                                {/* Right Side: Feature Stack in Glass Container */}
+                                <div className="lg:w-1/2 w-full">
+                                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl relative overflow-hidden">
+                                        {/* Accent Glow */}
+                                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-vc-mint/10 rounded-full blur-3xl" />
 
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                        <div className="space-y-12">
                                             {[
-                                                { title: "Diversity & Community", text: "Building meaningful relationships with people who share ambition and passion for innovation.", icon: <Users className="w-6 h-6" /> },
-                                                { title: "Partners in Success", text: "Striving for mutual growth, creating an environment that encourages progress.", icon: <Handshake className="w-6 h-6" /> },
-                                                { title: "Shared Vision", text: "Ambition and vision remain constant, regardless of place or time.", icon: <Target className="w-6 h-6" /> }
+                                                { title: "Diversity & Community", text: "Building meaningful relationships with people who share ambition and passion for innovation.", icon: <Users className="w-5 h-5" /> },
+                                                { title: "Partners in Success", text: "Striving for mutual growth, creating an environment that encourages progress.", icon: <Handshake className="w-5 h-5" /> },
+                                                { title: "Shared Vision", text: "Ambition and vision remain constant, regardless of place or time.", icon: <Target className="w-5 h-5" /> }
                                             ].map((goal, i) => (
-                                                <div key={i} className="flex flex-col gap-6 group">
-                                                    <div className="bg-vc-mint/10 w-14 h-14 rounded-2xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:scale-110 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
+                                                <motion.div
+                                                    key={i}
+                                                    variants={fadeInUp}
+                                                    className="flex gap-8 group"
+                                                >
+                                                    <div className="shrink-0 bg-vc-mint/10 w-12 h-12 rounded-xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
                                                         {goal.icon}
                                                     </div>
                                                     <div>
-                                                        <h4 className="text-white font-bold text-lg mb-3 font-poppins uppercase tracking-wide">{goal.title}</h4>
+                                                        <h4 className="text-white font-bold text-lg mb-2 font-poppins uppercase tracking-wide">{goal.title}</h4>
                                                         <p className="text-white/50 text-sm leading-relaxed font-poppins">{goal.text}</p>
                                                     </div>
-                                                </div>
+                                                </motion.div>
                                             ))}
                                         </div>
                                     </div>
-
-                                    <p className="text-vc-mint/80 font-bold italic text-center md:text-left text-base md:text-lg">
-                                        Together, we are shaping the future of industrial technology and sustainable development.
-                                    </p>
-                                </motion.div>
+                                </div>
                             </motion.div>
                         </div>
                     </div>
