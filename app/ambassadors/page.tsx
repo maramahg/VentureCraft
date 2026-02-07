@@ -421,7 +421,11 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
-                <CallToAction showOnlyRegister />
+                <CallToAction
+                    showOnlyRegister
+                    title="Join Us"
+                    description="If you are a motivated university student with an interest in startups, technology, and sustainability, we invite you to join the Venture Craft Ambassadors Program and be part of a global movement driving innovation forward."
+                />
             </div>
             <Footer />
         </main>
