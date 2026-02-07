@@ -171,9 +171,14 @@ export default function AmbassadorsPage() {
                                     </h1>
                                 </motion.div>
 
-                                <motion.p variants={fadeInUp} className="text-white/60 text-lg sm:text-lg md:text-xl leading-relaxed mb-10 font-poppins max-w-2xl mx-auto">
-                                    A global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions.
-                                </motion.p>
+                                <motion.div variants={fadeInUp} className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 font-poppins max-w-3xl mx-auto space-y-6">
+                                    <p>
+                                        The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities.
+                                    </p>
+                                    <p>
+                                        Ambassadors play a key role in expanding the reach of the Venture Craft Challenge by raising awareness, encouraging participation, and representing the initiative across universities and student ecosystems worldwide.
+                                    </p>
+                                </motion.div>
 
                                 <motion.div variants={fadeInUp}>
                                     <button className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)]">
@@ -182,31 +187,6 @@ export default function AmbassadorsPage() {
                                 </motion.div>
                             </motion.div>
                         </div>
-                    </div>
-                </section>
-
-                {/* Program Overview Section */}
-                <section className="py-20 relative z-20">
-                    <div className="container mx-auto px-6 md:px-12 lg:px-20">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className="max-w-4xl mx-auto text-center"
-                        >
-                            <h2 className="text-2xl md:text-3xl font-bold mb-8 font-poppins uppercase tracking-tight text-white">
-                                Venture Craft Ambassadors
-                            </h2>
-                            <div className="space-y-6 text-white/70 text-lg md:text-xl leading-relaxed font-poppins">
-                                <p>
-                                    The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities.
-                                </p>
-                                <p>
-                                    Ambassadors play a key role in expanding the reach of the Venture Craft Challenge by raising awareness, encouraging participation, and representing the initiative across universities and student ecosystems worldwide.
-                                </p>
-                            </div>
-                        </motion.div>
                     </div>
                 </section>
 
