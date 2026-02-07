@@ -133,46 +133,39 @@ export default function AmbassadorsFAQ() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center space-y-2 mb-12"
+                        className="text-center space-y-4 mb-20"
                     >
-                        <span className="text-vc-mint font-bold tracking-[0.3em] uppercase text-sm md:text-base">
-                            Global Initiative
-                        </span>
-                        <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tighter leading-none">
                             Ambassadors <span className="text-vc-mint">FAQ</span>
                         </h2>
-                        <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto pt-4">
-                            Join the Venture Craft elite as a brand ambassador. Help us spread innovation and empower the next generation of tech leaders.
-                        </p>
                     </motion.div>
 
                     {/* FAQ Items */}
-                    <div className="space-y-4">
+                    <div className="flex flex-col border-t border-white/10">
                         {faqData.map((item, index) => (
                             <motion.div
                                 key={item.id}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="glass-panel overflow-hidden group"
+                                transition={{ delay: index * 0.05 }}
+                                className={`border-b border-white/10 transition-all duration-300 ${openId === item.id
+                                        ? 'bg-white/5 border border-white/20 rounded-xl my-2 translate-x-2'
+                                        : 'hover:bg-white/[0.02]'
+                                    }`}
                             >
                                 <button
                                     onClick={() => toggle(item.id)}
-                                    className="w-full p-6 flex items-center justify-between text-left transition-colors hover:bg-white/5"
+                                    className="w-full py-8 px-6 flex items-center justify-between text-left group"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center text-vc-mint group-hover:scale-110 transition-transform">
-                                            {item.icon}
-                                        </div>
-                                        <span className="text-lg md:text-xl font-semibold text-white">
-                                            {item.question}
-                                        </span>
-                                    </div>
+                                    <span className={`text-xl md:text-2xl font-bold tracking-tight transition-colors ${openId === item.id ? 'text-vc-mint' : 'text-white'
+                                        }`}>
+                                        {item.question}
+                                    </span>
                                     <motion.div
                                         animate={{ rotate: openId === item.id ? 180 : 0 }}
                                         transition={{ duration: 0.3 }}
-                                        className="text-vc-mint"
+                                        className={`${openId === item.id ? 'text-vc-mint' : 'text-white/40'}`}
                                     >
                                         <ChevronDown className="w-6 h-6" />
                                     </motion.div>
@@ -187,7 +180,7 @@ export default function AmbassadorsFAQ() {
                                             transition={{ duration: 0.3, ease: 'easeInOut' }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="p-6 text-white/70 leading-relaxed border-t border-white/10">
+                                            <div className="px-6 pb-8 text-white/70 text-lg leading-relaxed">
                                                 {typeof item.answer === 'string' ? (
                                                     <p>{item.answer}</p>
                                                 ) : (
@@ -200,6 +193,19 @@ export default function AmbassadorsFAQ() {
                             </motion.div>
                         ))}
                     </div>
+
+                    {/* Contact Footer */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4 }}
+                        className="text-center mt-16"
+                    >
+                        <p className="text-white/40 text-lg">
+                            Didn't find your answer? <a href="mailto:info@venturecraft.org" className="text-vc-mint font-semibold hover:underline transition-all">Contact us</a>
+                        </p>
+                    </motion.div>
                 </div>
             </div>
 
