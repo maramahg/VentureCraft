@@ -260,7 +260,7 @@ export default function AmbassadorsPage() {
                             className="max-w-3xl mx-auto"
                         >
                             <h2 className="text-2xl md:text-4xl font-black text-white mb-6 font-poppins uppercase leading-tight tracking-tighter">
-                                "<span className="text-vc-mint">Partners,</span> Not Just Promoters."
+                                "<span className="text-vc-mint">Partners</span>, Not Just Promoters."
                             </h2>
                             <p className="text-white/40 text-sm md:text-base font-bold font-poppins uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed">
                                 Building a diverse global community united by ambition, innovation, and collaboration.
