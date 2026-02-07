@@ -85,7 +85,7 @@ export default function VentureCraftAboutPage() {
                                     >
                                         KFUPM's
                                         <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
-                                    </a>
+                                    </a>{" "}
                                     premier international deep-tech startup competition,
                                     designed to inspire and empower the next generation of innovators. With a focus
                                     on sustainability and cutting-edge technology, we bring together talented students,
