@@ -202,7 +202,7 @@ export default function AmbassadorsPage() {
                                         variants={fadeInUp}
                                         className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
                                     >
-                                        Venture Craft Mission
+                                        Ambassador Mission
                                     </motion.h2>
                                     <motion.p variants={fadeInUp} className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins mb-10">
                                         Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
