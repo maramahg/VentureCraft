@@ -342,68 +342,67 @@ export default function AmbassadorsPage() {
                 </section>
 
                 {/* Motivation Section - 1:1 Match to Reference Image */}
-                <section className="py-32 relative overflow-hidden bg-[#001D1B]">
+                <section className="py-24 relative overflow-hidden bg-[#001D1B]">
                     <div className="container mx-auto px-6 max-w-5xl">
-                        {/* Verbatim Header Style from Image */}
-                        <div className="mb-24 flex flex-col md:flex-row items-center md:items-end justify-center md:justify-start gap-4">
-                            <h2 className="text-4xl md:text-7xl font-black text-white font-poppins uppercase tracking-tighter">
-                                Ambassador
-                            </h2>
-                            <div className="bg-[#00A383] px-8 py-4 mb-1">
-                                <span className="text-4xl md:text-7xl font-black text-white font-poppins uppercase tracking-tighter">
-                                    Motivation
-                                </span>
-                            </div>
+                        <div className="mb-16 text-center">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+                            >
+                                Path To Impact
+                            </motion.h2>
                         </div>
 
-                        <div className="relative h-[900px] md:h-[700px] mb-20">
-                            {/* Winding Connector Path (Continuous S-Curve) */}
-                            <svg className="absolute inset-0 w-full h-full opacity-40 pointer-events-none" viewBox="0 0 1000 700" fill="none" preserveAspectRatio="none">
+                        <div className="relative h-[600px] md:h-[500px] mb-12">
+                            {/* Compact Winding Connector Path */}
+                            <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none" viewBox="0 0 1000 500" fill="none" preserveAspectRatio="none">
                                 <path
-                                    d="M 300 80 
-                                       C 700 80, 800 80, 800 200
-                                       S 700 320, 300 320
-                                       S 200 320, 200 440
-                                       S 300 560, 700 560
-                                       S 800 560, 800 680"
-                                    stroke="#00A383"
-                                    strokeWidth="3"
+                                    d="M 250 50 
+                                       C 750 50, 850 50, 850 150
+                                       S 750 250, 250 250
+                                       S 150 250, 150 350
+                                       S 250 450, 750 450"
+                                    stroke="#4FD1C5"
+                                    strokeWidth="2"
+                                    strokeDasharray="8 8"
                                     className="hidden md:block"
                                 />
                                 {/* Mobile Path */}
                                 <path
-                                    d="M 500 50 L 500 850"
-                                    stroke="#00A383"
-                                    strokeWidth="2"
-                                    strokeDasharray="8 8"
+                                    d="M 500 0 L 500 600"
+                                    stroke="#4FD1C5"
+                                    strokeWidth="1"
+                                    strokeDasharray="6 6"
                                     className="md:hidden"
                                 />
                             </svg>
 
-                            {/* Motivation Pills (Solid Teal, Bold White Text) */}
+                            {/* Motivation Pills (Glass Style, Compact) */}
                             <div className="relative z-10 w-full h-full">
                                 {motivationSteps.map((step, idx) => {
-                                    // Verbatim horizontal-staggered placements
                                     const placements = [
-                                        "top-[5%] md:left-[15%]",
-                                        "top-[20%] md:left-[55%]",
-                                        "top-[35%] md:left-[10%]",
-                                        "top-[50%] md:left-[50%]",
-                                        "top-[65%] md:left-[5%]",
-                                        "top-[80%] md:left-[45%]"
+                                        "top-[5%] md:left-[10%]",
+                                        "top-[22%] md:left-[65%]",
+                                        "top-[39%] md:left-[15%]",
+                                        "top-[56%] md:left-[60%]",
+                                        "top-[73%] md:left-[15%]",
+                                        "top-[90%] md:left-[55%]"
                                     ];
 
                                     return (
                                         <motion.div
                                             key={idx}
-                                            initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
-                                            whileInView={{ opacity: 1, x: 0 }}
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            whileInView={{ opacity: 1, scale: 1 }}
                                             viewport={{ once: true }}
                                             transition={{ delay: idx * 0.1 }}
-                                            className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 ${placements[idx]} w-[90%] md:w-auto`}
+                                            className={`absolute left-1/2 -translate-x-1/2 md:translate-x-0 ${placements[idx]} w-[85%] md:w-auto`}
                                         >
-                                            <div className="bg-[#00A383] hover:bg-[#008F72] text-white px-10 md:px-16 py-5 rounded-[1.5rem] shadow-xl transition-all duration-300 transform hover:scale-105 group border-2 border-white/10 flex items-center justify-center text-center">
-                                                <span className="text-lg md:text-xl font-black font-poppins tracking-wider uppercase whitespace-nowrap">
+                                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-full px-8 py-3 flex items-center justify-center text-center group hover:border-vc-mint/40 transition-all duration-300">
+                                                <span className="text-white text-sm md:text-base font-bold font-poppins tracking-[0.1em] uppercase whitespace-nowrap">
                                                     {step}
                                                 </span>
                                             </div>
@@ -413,15 +412,15 @@ export default function AmbassadorsPage() {
                             </div>
                         </div>
 
-                        {/* Solid Teal Footer Box */}
+                        {/* Modern Discrete Appreciation Box */}
                         <motion.div
-                            initial={{ opacity: 0, y: 30 }}
+                            initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="bg-[#157369] p-10 md:p-14 text-center rounded-[1.5rem] shadow-2xl relative overflow-hidden group border border-white/5"
+                            className="bg-white/5 backdrop-blur-md p-8 md:p-10 text-center rounded-3xl border border-vc-mint/10 max-w-3xl mx-auto shadow-xl"
                         >
-                            <p className="text-white text-xl md:text-3xl font-black font-poppins uppercase leading-tight tracking-wide">
-                                Outstanding engagement and impact may lead to exclusive event invitations
+                            <p className="text-white/70 text-base md:text-lg font-bold font-poppins uppercase leading-relaxed tracking-wider">
+                                Outstanding engagement and impact may lead to <span className="text-vc-mint">exclusive event invitations</span>
                             </p>
                         </motion.div>
                     </div>
@@ -481,8 +480,11 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
-                {/* Professional Vision Quote Section */}
-                <section className="py-40 relative overflow-hidden bg-[#001D1B] border-t border-white/5">
+                {/* Vision Quote Section (Restored Ribbon Style) */}
+                <section className="py-40 relative overflow-hidden group">
+                    {/* The Ribbon Decoration */}
+                    <div className="absolute inset-0 z-0 bg-vc-mint/15 -skew-y-3 scale-110" />
+
                     <div className="container mx-auto px-6 relative z-10 text-center">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
