@@ -133,9 +133,9 @@ export default function AmbassadorsFAQ() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center space-y-4 mb-20"
+                        className="text-center space-y-4 mb-16"
                     >
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white uppercase tracking-tighter leading-none">
                             Ambassadors <span className="text-vc-mint">FAQ</span>
                         </h2>
                     </motion.div>
@@ -150,15 +150,15 @@ export default function AmbassadorsFAQ() {
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.05 }}
                                 className={`border-b border-white/10 transition-all duration-300 ${openId === item.id
-                                        ? 'bg-white/5 border border-white/20 rounded-xl my-2 translate-x-2'
-                                        : 'hover:bg-white/[0.02]'
+                                    ? 'bg-white/5 border border-white/20 rounded-xl my-2 translate-x-2'
+                                    : 'hover:bg-white/[0.02]'
                                     }`}
                             >
                                 <button
                                     onClick={() => toggle(item.id)}
-                                    className="w-full py-8 px-6 flex items-center justify-between text-left group"
+                                    className="w-full py-6 px-6 flex items-center justify-between text-left group"
                                 >
-                                    <span className={`text-xl md:text-2xl font-bold tracking-tight transition-colors ${openId === item.id ? 'text-vc-mint' : 'text-white'
+                                    <span className={`text-lg md:text-xl font-bold tracking-tight transition-colors ${openId === item.id ? 'text-vc-mint' : 'text-white'
                                         }`}>
                                         {item.question}
                                     </span>
@@ -167,7 +167,7 @@ export default function AmbassadorsFAQ() {
                                         transition={{ duration: 0.3 }}
                                         className={`${openId === item.id ? 'text-vc-mint' : 'text-white/40'}`}
                                     >
-                                        <ChevronDown className="w-6 h-6" />
+                                        <ChevronDown className="w-5 h-5" />
                                     </motion.div>
                                 </button>
 
@@ -180,7 +180,7 @@ export default function AmbassadorsFAQ() {
                                             transition={{ duration: 0.3, ease: 'easeInOut' }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="px-6 pb-8 text-white/70 text-lg leading-relaxed">
+                                            <div className="px-6 pb-6 text-white/70 text-base leading-relaxed">
                                                 {typeof item.answer === 'string' ? (
                                                     <p>{item.answer}</p>
                                                 ) : (
@@ -200,9 +200,9 @@ export default function AmbassadorsFAQ() {
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.4 }}
-                        className="text-center mt-16"
+                        className="text-center mt-12"
                     >
-                        <p className="text-white/40 text-lg">
+                        <p className="text-white/40 text-base">
                             Didn't find your answer? <a href="mailto:info@venturecraft.org" className="text-vc-mint font-semibold hover:underline transition-all">Contact us</a>
                         </p>
                     </motion.div>
