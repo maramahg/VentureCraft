@@ -185,6 +185,31 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
+                {/* Program Overview Section */}
+                <section className="py-20 relative z-20">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="max-w-4xl mx-auto text-center"
+                        >
+                            <h2 className="text-2xl md:text-3xl font-bold mb-8 font-poppins uppercase tracking-tight text-white">
+                                Venture Craft Ambassadors
+                            </h2>
+                            <div className="space-y-6 text-white/70 text-lg md:text-xl leading-relaxed font-poppins">
+                                <p>
+                                    The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities.
+                                </p>
+                                <p>
+                                    Ambassadors play a key role in expanding the reach of the Venture Craft Challenge by raising awareness, encouraging participation, and representing the initiative across universities and student ecosystems worldwide.
+                                </p>
+                            </div>
+                        </motion.div>
+                    </div>
+                </section>
+
                 {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
                 <section className="py-32 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/05">
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
