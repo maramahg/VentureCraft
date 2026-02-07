@@ -153,8 +153,8 @@ export default function AmbassadorsPage() {
             {/* Content */}
             <div className="relative z-10 flex flex-col w-full">
                 {/* Hero Section */}
-                <section className="relative pt-24 pb-20">
-                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 py-12 md:py-20">
+                <section className="relative pt-16 pb-20">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 py-10 md:py-16">
                         <div className="max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
                             <motion.div
                                 initial="hidden"
@@ -162,7 +162,7 @@ export default function AmbassadorsPage() {
                                 variants={staggerContainer}
                                 className="w-full flex flex-col items-center"
                             >
-                                <motion.div variants={fadeInUp} className="flex flex-col items-center mb-10 md:mb-16">
+                                <motion.div variants={fadeInUp} className="flex flex-col items-center mb-6 md:mb-10">
                                     <span className="text-vc-mint text-sm sm:text-base md:text-lg font-bold tracking-[0.3em] mb-4 uppercase font-poppins">
                                         JOIN THE GLOBAL MOVEMENT
                                     </span>
@@ -171,7 +171,7 @@ export default function AmbassadorsPage() {
                                     </h1>
                                 </motion.div>
 
-                                <motion.div variants={fadeInUp} className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 font-poppins max-w-3xl mx-auto space-y-6">
+                                <motion.div variants={fadeInUp} className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 font-poppins max-w-3xl mx-auto space-y-4">
                                     <p>
                                         The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities.
                                     </p>
