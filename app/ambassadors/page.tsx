@@ -98,13 +98,37 @@ const benefits = [
     }
 ];
 
-const motivationSteps = [
-    "GLOBAL INITIATIVE",
-    "DEEP-TECH IMPACT",
-    "STUDENT INNOVATION",
-    "PRESTIGIOUS REPRESENTATION",
-    "NETWORK EXPANSION",
-    "COMMUNITY IMPACT"
+const motivationData = [
+    {
+        title: "Global Initiative",
+        description: "Be part of a worldwide movement shaping the future of deep-tech.",
+        icon: <Globe className="w-5 h-5" />
+    },
+    {
+        title: "Deep-Tech Impact",
+        description: "Drive transformation in high-stakes industrial technology sectors.",
+        icon: <Zap className="w-5 h-5" />
+    },
+    {
+        title: "Student Innovation",
+        description: "Empower the next generation of creative problem solvers and leaders.",
+        icon: <Rocket className="w-5 h-5" />
+    },
+    {
+        title: "Global Presence",
+        description: "Represent a prestigious initiative on the international stage.",
+        icon: <Star className="w-5 h-5" />
+    },
+    {
+        title: "Network Expansion",
+        description: "Build relationships with elite researchers and industry icons.",
+        icon: <Users className="w-5 h-5" />
+    },
+    {
+        title: "Community Impact",
+        description: "Foster a culture of excellence and collaboration in your region.",
+        icon: <Heart className="w-5 h-5" />
+    }
 ];
 
 export default function AmbassadorsPage() {
@@ -341,10 +365,10 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
-                {/* Motivation Section - Clean Glass Grid Layout (No Path) */}
-                <section className="py-24 relative overflow-hidden">
-                    <div className="container mx-auto px-6 max-w-5xl">
-                        <div className="mb-20 text-center">
+                {/* Ambassador Impact Section - Premium Feature Layout */}
+                <section className="py-32 relative overflow-hidden">
+                    <div className="container mx-auto px-6 max-w-6xl">
+                        <div className="mb-24 text-center">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -352,25 +376,38 @@ export default function AmbassadorsPage() {
                                 transition={{ duration: 0.6 }}
                                 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
                             >
-                                Path To Impact
+                                Ambassador Impact
                             </motion.h2>
                         </div>
 
-                        {/* Motivation Items (Clean Grid, No Path) */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20 relative z-10">
-                            {motivationSteps.map((step, idx) => (
+                        {/* Impact Features (Staggered Professional Layout) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-20">
+                            {motivationData.map((item, idx) => (
                                 <motion.div
                                     key={idx}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.1 }}
-                                    className="group"
+                                    transition={{ delay: idx * 0.1, duration: 0.8 }}
+                                    className={`group ${idx % 2 === 1 ? 'md:mt-12' : ''}`}
                                 >
-                                    <div className="h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 flex items-center justify-center text-center hover:bg-white/10 hover:border-vc-mint/30 transition-all duration-300">
-                                        <span className="text-white text-base md:text-lg font-bold font-poppins tracking-wider uppercase">
-                                            {step}
-                                        </span>
+                                    <div className="h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] p-10 hover:bg-white/[0.08] hover:border-vc-mint/40 transition-all duration-500 hover:shadow-[0_0_50px_rgba(79,209,197,0.1)] relative overflow-hidden">
+                                        {/* Ambient Light Effect */}
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-vc-mint/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                                        <div className="flex flex-col gap-6 relative z-10">
+                                            <div className="w-14 h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500 shadow-lg">
+                                                {item.icon}
+                                            </div>
+                                            <div>
+                                                <h3 className="text-white text-xl md:text-2xl font-bold font-poppins mb-3 uppercase tracking-tight">
+                                                    {item.title}
+                                                </h3>
+                                                <p className="text-white/50 text-base md:text-lg leading-relaxed font-poppins">
+                                                    {item.description}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
