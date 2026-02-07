@@ -1,0 +1,210 @@
+'use client';
+
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { ChevronDown, Users, Award, Target, Rocket, Globe, UserPlus } from 'lucide-react';
+
+interface FAQItem {
+    id: string;
+    question: string;
+    answer: string | React.ReactNode;
+    icon: React.ReactNode;
+}
+
+const faqData: FAQItem[] = [
+    {
+        id: 'what-is',
+        question: 'What is the Venture Craft Ambassadors Program?',
+        answer: 'The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities. Ambassadors play a key role in expanding the reach of the Venture Craft Challenge by raising awareness, encouraging participation, and representing the initiative across universities and student ecosystems worldwide.',
+        icon: <Globe className="w-5 h-5" />,
+    },
+    {
+        id: 'why-become',
+        question: 'Why Become a Venture Craft Ambassador?',
+        answer: (
+            <ul className="space-y-2 text-white/70">
+                <li className="flex items-start gap-2">
+                    <span className="text-vc-mint mt-1">●</span>
+                    Represent a prestigious global innovation initiative
+                </li>
+                <li className="flex items-start gap-2">
+                    <span className="text-vc-mint mt-1">●</span>
+                    Gain official recognition and certification
+                </li>
+                <li className="flex items-start gap-2">
+                    <span className="text-vc-mint mt-1">●</span>
+                    Expand your professional and entrepreneurial network
+                </li>
+                <li className="flex items-start gap-2">
+                    <span className="text-vc-mint mt-1">●</span>
+                    Contribute to student-led innovation and community impact
+                </li>
+                <li className="flex items-start gap-2">
+                    <span className="text-vc-mint mt-1">●</span>
+                    Receive global exposure through Venture Craft platforms
+                </li>
+            </ul>
+        ),
+        icon: <Rocket className="w-5 h-5" />,
+    },
+    {
+        id: 'role',
+        question: 'What is the Ambassador Role?',
+        answer: (
+            <div className="space-y-4 text-white/70">
+                <p>Ambassadors help expand the reach of the Venture Craft Challenge by promoting it to a wider audience and supporting its presence within their communities. This can be done through various optional activities, based on availability and comfort:</p>
+                <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                        <span className="text-vc-mint mt-1">●</span>
+                        Sharing content on personal social media platforms
+                    </li>
+                    <li className="flex items-start gap-2">
+                        <span className="text-vc-mint mt-1">●</span>
+                        Introducing the challenge to peers, student communities, and professional networks
+                    </li>
+                    <li className="flex items-start gap-2">
+                        <span className="text-vc-mint mt-1">●</span>
+                        Encouraging potential participants to engage and apply
+                    </li>
+                    <li className="flex items-start gap-2">
+                        <span className="text-vc-mint mt-1">●</span>
+                        Supporting physical marketing efforts, such as distributing materials
+                    </li>
+                    <li className="flex items-start gap-2">
+                        <span className="text-vc-mint mt-1">●</span>
+                        Assisting in identifying or facilitating collaborations with student clubs and organizations
+                    </li>
+                </ul>
+            </div>
+        ),
+        icon: <Target className="w-5 h-5" />,
+    },
+    {
+        id: 'benefits',
+        question: 'What are the Benefits?',
+        answer: (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                {[
+                    'Official Certificate',
+                    'Public Recognition',
+                    'Networking Access',
+                    'Event Invitations',
+                    'Global Exposure',
+                    'Special Appreciation',
+                ].map((benefit) => (
+                    <div
+                        key={benefit}
+                        className="p-3 rounded-xl bg-white/5 border border-white/10 text-white/80 text-sm"
+                    >
+                        {benefit}
+                    </div>
+                ))}
+            </div>
+        ),
+        icon: <Award className="w-5 h-5" />,
+    },
+    {
+        id: 'vision',
+        question: 'What is Our Vision?',
+        answer: 'We believe ambassadors are partners, not just promoters. Our vision is to build a diverse, global community of students united by ambition, innovation, and collaboration. Through the ambassadors program, we aim to foster mutual growth, shared success, and long-term impact, empowering students to actively shape the future of innovation.',
+        icon: <Users className="w-5 h-5" />,
+    },
+    {
+        id: 'join',
+        question: 'How Do I Join?',
+        answer: 'You can join the Venture Craft Ambassadors Program by clicking apply at the bottom or top of the page.',
+        icon: <UserPlus className="w-5 h-5" />,
+    },
+];
+
+export default function AmbassadorsFAQ() {
+    const [openId, setOpenId] = useState<string | null>(null);
+
+    const toggle = (id: string) => {
+        setOpenId(openId === id ? null : id);
+    };
+
+    return (
+        <section className="relative z-10 py-24 overflow-hidden">
+            <div className="container mx-auto px-4 relative z-10">
+                <div className="max-w-4xl mx-auto">
+                    {/* Section Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center space-y-2 mb-12"
+                    >
+                        <span className="text-vc-mint font-bold tracking-[0.3em] uppercase text-sm md:text-base">
+                            Global Initiative
+                        </span>
+                        <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                            Ambassadors <span className="text-vc-mint">FAQ</span>
+                        </h2>
+                        <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto pt-4">
+                            Join the Venture Craft elite as a brand ambassador. Help us spread innovation and empower the next generation of tech leaders.
+                        </p>
+                    </motion.div>
+
+                    {/* FAQ Items */}
+                    <div className="space-y-4">
+                        {faqData.map((item, index) => (
+                            <motion.div
+                                key={item.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1 }}
+                                className="glass-panel overflow-hidden group"
+                            >
+                                <button
+                                    onClick={() => toggle(item.id)}
+                                    className="w-full p-6 flex items-center justify-between text-left transition-colors hover:bg-white/5"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center text-vc-mint group-hover:scale-110 transition-transform">
+                                            {item.icon}
+                                        </div>
+                                        <span className="text-lg md:text-xl font-semibold text-white">
+                                            {item.question}
+                                        </span>
+                                    </div>
+                                    <motion.div
+                                        animate={{ rotate: openId === item.id ? 180 : 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="text-vc-mint"
+                                    >
+                                        <ChevronDown className="w-6 h-6" />
+                                    </motion.div>
+                                </button>
+
+                                <AnimatePresence initial={false}>
+                                    {openId === item.id && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="p-6 text-white/70 leading-relaxed border-t border-white/10">
+                                                {typeof item.answer === 'string' ? (
+                                                    <p>{item.answer}</p>
+                                                ) : (
+                                                    item.answer
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Background highlight */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl max-h-[600px] bg-vc-teal/5 rounded-full blur-[120px] pointer-events-none" />
+        </section>
+    );
+}

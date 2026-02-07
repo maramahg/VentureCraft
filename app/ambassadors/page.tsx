@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import CallToAction from "@/components/CallToAction";
+import AmbassadorsFAQ from "@/src/components/AmbassadorsFAQ";
 import {
     Globe,
     Award,
@@ -448,6 +449,8 @@ export default function AmbassadorsPage() {
                         </p>
                     </div>
                 </section>
+
+                <AmbassadorsFAQ />
 
                 <CallToAction
                     showOnlyRegister
