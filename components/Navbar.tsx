@@ -24,9 +24,9 @@ const navItems = [
     name: 'Application',
     href: '#',
     subItems: [
-      { name: 'Eligibility', href: '/apply/eligibility' },
-      { name: 'Rubrics', href: '/apply/rubrics' },
-      { name: 'Materials', href: '/apply/materials' },
+      { name: 'ELIGIBILITY & CRITERIA', href: '/apply/eligibility' },
+      { name: 'JUDGING RUBRICS', href: '/apply/rubrics' },
+      { name: 'APPLICATION MATERIALS', href: '/apply/materials' },
       { name: 'Apply Now', href: '/apply' },
     ]
   },
