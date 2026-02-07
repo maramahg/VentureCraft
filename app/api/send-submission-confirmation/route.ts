@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         const { data, error } = await resend.emails.send({
-            from: 'Venture Craft <onboarding@resend.dev>',
+            from: 'Venture Craft <no-reply@kfupm-venturecraft.org>',
             to: [email],
             subject: `Application Received: ${startupName || 'Venture Craft Challenge'}`,
             replyTo: 'no-reply@kfupm-venturecraft.org',

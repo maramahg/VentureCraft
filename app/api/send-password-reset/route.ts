@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
         // Send the email via Resend with the VentureCraft theme
         const { data, error } = await resend.emails.send({
-            from: 'Venture Craft <onboarding@resend.dev>',
+            from: 'Venture Craft <no-reply@kfupm-venturecraft.org>',
             to: email,
             subject: 'Reset Your Venture Craft Password',
             replyTo: 'no-reply@kfupm-venturecraft.org',

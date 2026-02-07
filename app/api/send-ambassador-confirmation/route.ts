@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: 'Venture Craft <onboarding@resend.dev>',
+            from: 'Venture Craft <no-reply@kfupm-venturecraft.org>',
             to: [email],
             subject: `Ambassador Application Received: Venture Craft Program`,
             replyTo: 'no-reply@kfupm-venturecraft.org',

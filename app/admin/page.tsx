@@ -572,7 +572,7 @@ function AdminDashboardContent() {
                     <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10 rounded-full blur-[80px] pointer-events-none" />
 
                     {isOffline ? (
-                        <WifiOff className="w-16 h-16 text-vc-teal mx-auto mb-8 animate-pulse" />
+                        <WifiOff className="w-16 h-16 text-vc-mint mx-auto mb-8 animate-pulse" />
                     ) : (
                         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-8" />
                     )}
@@ -614,13 +614,13 @@ function AdminDashboardContent() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                     <div>
-                        <h1 className="text-4xl font-bold font-poppins mb-2">
-                            {activeTab === 'startups' ? 'Admin Dashboard' : 'Ambassadors Management'}
+                        <h1 className="text-4xl font-bold font-poppins mb-2 text-white">
+                            Admin Dashboard
                         </h1>
                         <p className="text-white/40 uppercase tracking-[0.3em] font-bold text-[10px]">
                             {activeTab === 'startups'
                                 ? 'Manage and review Venture Craft startup applications'
-                                : 'Review ambassador applications and manage the directory'
+                                : 'Manage and review Venture Craft ambassador applications'
                             }
                         </p>
 
@@ -657,16 +657,16 @@ function AdminDashboardContent() {
                         ) : (
                             <>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Apps</span>
+                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total</span>
                                     <span className="text-2xl font-bold text-white">{ambassadorApps.length}</span>
                                 </div>
-                                <div className="bg-vc-teal/10 border border-vc-teal/20 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-vc-teal/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
-                                    <span className="text-2xl font-bold text-vc-teal">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
+                                <div className="bg-vc-mint/10 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[100px]">
+                                    <span className="text-vc-mint/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Accepted</span>
+                                    <span className="text-2xl font-bold text-vc-mint">{ambassadorApps.filter(a => a.status === 'accepted').length}</span>
                                 </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Active</span>
-                                    <span className="text-2xl font-bold text-white">{ambassadorsList.length}</span>
+                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
+                                    <span className="text-2xl font-bold text-white">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
                                 </div>
                             </>
                         )}
@@ -910,25 +910,29 @@ function AdminDashboardContent() {
                                                     onClick={() => setSelectedAmbassadorApp(app)}
                                                 >
                                                     <div className="flex items-center gap-4 sm:gap-6">
-                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-teal/10 flex items-center justify-center shrink-0">
-                                                            <Users className="text-vc-teal w-5 h-5 sm:w-6 h-6" />
+                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                                            <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.name || app.fullName}</h3>
+                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.email}</h3>
                                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
-                                                                <span className="flex items-center gap-1.5 min-w-0 truncate max-w-[150px]"><Mail className="w-3 h-3" /> {app.email}</span>
-                                                                <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.nationality || app.location}</span>
+                                                                <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {app.name || app.fullName}</span>
                                                                 <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
+                                                        <div className="hidden xl:block text-right">
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Education</span>
+                                                            <span className="text-sm text-white/60">{app.degree}</span>
+                                                        </div>
+
                                                         <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
                                                             app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                                'bg-vc-teal/10 border-vc-teal/20 text-vc-teal'
+                                                                'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
                                                             }`}>
-                                                            {app.status}
+                                                            {app.status || 'pending'}
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <button
@@ -1267,17 +1271,17 @@ function AdminDashboardContent() {
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="relative w-full max-w-4xl bg-[#0c1e1c] border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+                                className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
                             >
                                 {/* Modal Header */}
-                                <div className="p-6 md:p-8 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                                <div className="p-8 border-b border-white/5 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-vc-teal/10 flex items-center justify-center">
-                                            <Users className="text-vc-teal w-8 h-8" />
+                                        <div className="w-14 h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center">
+                                            <Users className="text-vc-mint w-8 h-8" />
                                         </div>
                                         <div>
-                                            <h2 className="text-2xl font-bold">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</h2>
-                                            <span className="text-white/40 text-sm">Ambassador Application • {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
+                                            <h2 className="text-2xl font-bold">{selectedAmbassadorApp.email}</h2>
+                                            <span className="text-white/40 text-sm">Submitted on {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
                                         </div>
                                     </div>
                                     <button
@@ -1288,51 +1292,32 @@ function AdminDashboardContent() {
                                     </button>
                                 </div>
 
-                                {/* Modal Content - Ambassador Sidebar Layout */}
+                                {/* Modal Content - Synced with Startup Layout */}
                                 <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                                     <div className="grid lg:grid-cols-[1fr_360px] gap-8 md:gap-12">
                                         {/* Main Column: Profiles & Experience */}
                                         <div className="space-y-10">
                                             {/* Person Profile Section */}
                                             <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                                                <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-8 flex items-center gap-2">
+                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
                                                     <User className="w-4 h-4" /> Personal Profile
                                                 </h3>
                                                 <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Full Name</p>
-                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
+                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality / Location</p>
-                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.nationality || selectedAmbassadorApp.location}</p>
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Contact Email</p>
-                                                        <p className="text-lg font-medium text-white underline decoration-vc-teal/30">{selectedAmbassadorApp.email}</p>
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Phone Number</p>
-                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.phone}</p>
+                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality || selectedAmbassadorApp.location}</p>
                                                     </div>
                                                 </div>
-
-                                                {selectedAmbassadorApp.socialMedia && (
-                                                    <div className="mt-10 pt-8 border-t border-white/5">
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Digital Presence</p>
-                                                        <div className="flex flex-wrap gap-3">
-                                                            <a href={selectedAmbassadorApp.socialMedia} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-vc-teal/10 border border-vc-teal/20 text-vc-teal rounded-xl hover:bg-vc-teal hover:text-black transition-all text-sm font-bold">
-                                                                <Share2 className="w-4 h-4" /> Social Media Profile
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                )}
                                             </section>
 
                                             {/* Education Section */}
                                             {(selectedAmbassadorApp.university || selectedAmbassadorApp.major) && (
                                                 <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                                                    <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-8 flex items-center gap-2">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
                                                         <GraduationCap className="w-4 h-4" /> Academic Background
                                                     </h3>
                                                     <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
@@ -1346,52 +1331,93 @@ function AdminDashboardContent() {
                                                         </div>
                                                         <div className="space-y-1">
                                                             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Degree Level</p>
-                                                            <p className="text-lg font-medium text-white">{selectedAmbassadorApp.degree}</p>
+                                                            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[10px] font-black uppercase tracking-widest">
+                                                                {selectedAmbassadorApp.degree}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </section>
                                             )}
 
-                                            {/* Legacy Details if present */}
+                                            {/* Experience & Motivation */}
                                             {(selectedAmbassadorApp.reason || selectedAmbassadorApp.experience) && (
-                                                <div className="grid md:grid-cols-2 gap-8">
-                                                    {selectedAmbassadorApp.reason && (
-                                                        <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                                                            <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
-                                                                <AlertCircle className="w-4 h-4" /> Why join?
-                                                            </h3>
-                                                            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap italic">
-                                                                "{selectedAmbassadorApp.reason}"
-                                                            </p>
-                                                        </section>
-                                                    )}
-
-                                                    {selectedAmbassadorApp.experience && (
-                                                        <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                                                            <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
-                                                                <CheckCircle className="w-4 h-4" /> Experience
-                                                            </h3>
-                                                            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
-                                                                {selectedAmbassadorApp.experience}
-                                                            </p>
-                                                        </section>
-                                                    )}
-                                                </div>
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                                                        <AlertCircle className="w-4 h-4" /> Context & Motivation
+                                                    </h3>
+                                                    <div className="space-y-6">
+                                                        {selectedAmbassadorApp.reason && (
+                                                            <div className="p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
+                                                                <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Why join?</p>
+                                                                <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap">
+                                                                    "{selectedAmbassadorApp.reason}"
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        {selectedAmbassadorApp.experience && (
+                                                            <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
+                                                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3">Relevant Experience</p>
+                                                                <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                                                                    {selectedAmbassadorApp.experience}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </section>
                                             )}
                                         </div>
 
-                                        {/* Sidebar: Decision Center */}
+                                        {/* Sidebar: Contact & Decision */}
                                         <div className="space-y-8">
-                                            <section className="bg-vc-teal/10 border-2 border-vc-teal/20 rounded-[2.5rem] p-8 shadow-2xl shadow-vc-teal/5">
-                                                <h3 className="text-vc-teal font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
-                                                    Promotion decision
+                                            {/* Contact & Digital Presence */}
+                                            <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-8">
+                                                <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
+                                                    <Mail className="w-4 h-4" /> Contact & Social
+                                                </h3>
+                                                <div className="space-y-4">
+                                                    <div className="space-y-2">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Email Address</p>
+                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10 text-vc-mint text-sm truncate">
+                                                            <Mail className="w-4 h-4 shrink-0" />
+                                                            <span className="truncate">{selectedAmbassadorApp.email}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Phone Number</p>
+                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 text-white/70 text-sm">
+                                                            <Phone className="w-4 h-4 shrink-0" />
+                                                            <span>{selectedAmbassadorApp.phone}</span>
+                                                        </div>
+                                                    </div>
+                                                    {selectedAmbassadorApp.socialMedia && (
+                                                        <div className="pt-4 border-t border-white/5">
+                                                            <a
+                                                                href={selectedAmbassadorApp.socialMedia}
+                                                                target="_blank"
+                                                                className="flex items-center justify-between p-4 rounded-2xl bg-vc-mint/10 border border-vc-mint/20 hover:bg-vc-mint hover:text-vc-green-dark group transition-all"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <Share2 className="text-vc-mint group-hover:text-vc-green-dark w-5 h-5 transition-colors" />
+                                                                    <span className="text-sm font-bold">Social Profile</span>
+                                                                </div>
+                                                                <Eye className="w-4 h-4 opacity-50 transition-colors" />
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </section>
+
+                                            {/* Review Decision Center */}
+                                            <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-[2.5rem] p-8 shadow-2xl shadow-vc-mint/5">
+                                                <h3 className="text-vc-mint font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
+                                                    Review Decision
                                                 </h3>
                                                 <div className="space-y-4">
                                                     <button
                                                         onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'accepted')}
                                                         className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'accepted'
-                                                            ? 'bg-vc-teal text-vc-green-dark shadow-xl shadow-vc-teal/20 scale-[1.02]'
-                                                            : 'bg-white/5 text-vc-teal border border-vc-teal/20 hover:bg-vc-teal/20'
+                                                            ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20 scale-[1.02]'
+                                                            : 'bg-white/5 text-vc-mint border border-vc-mint/20 hover:bg-vc-mint/20'
                                                             }`}
                                                     >
                                                         Accept
@@ -1410,7 +1436,7 @@ function AdminDashboardContent() {
                                                         <div className="pt-4 flex justify-center">
                                                             <button
                                                                 onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'pending')}
-                                                                className="text-[10px] font-bold text-white/30 hover:text-vc-teal transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
+                                                                className="text-[10px] font-bold text-white/30 hover:text-vc-mint transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
                                                             >
                                                                 Reset Decision
                                                             </button>
@@ -1425,8 +1451,8 @@ function AdminDashboardContent() {
                         </div>
                     )}
                 </AnimatePresence>
-            </div>
-        </main>
+            </div >
+        </main >
     );
 }
 

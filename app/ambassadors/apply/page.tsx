@@ -160,7 +160,9 @@ function ApplicationFormContent() {
         university: '',
         major: '',
         degree: '',
-        socialMedia: ''
+        socialMedia: '',
+        reason: '',
+        experience: ''
     });
 
     useEffect(() => {
@@ -192,6 +194,8 @@ function ApplicationFormContent() {
         if (!formData.major.trim()) newErrors.major = "Please enter your major.";
         if (!formData.degree) newErrors.degree = "Please select your degree.";
         if (!formData.socialMedia.trim()) newErrors.socialMedia = "Please enter your social media profile URL.";
+        if (!formData.reason.trim()) newErrors.reason = "Please tell us why you want to join.";
+        if (!formData.experience.trim()) newErrors.experience = "Please tell us about your experience.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -505,6 +509,38 @@ function ApplicationFormContent() {
                                         placeholder="Enter your social media URL"
                                     />
                                     {errors.socialMedia && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.socialMedia}</p>}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="block text-base font-medium text-white/70">
+                                        9. Why do you want to be a Venture Craft Ambassador? <span className="text-vc-mint">*</span>
+                                    </label>
+                                    <textarea
+                                        value={formData.reason}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, reason: e.target.value });
+                                            if (errors.reason) setErrors(prev => ({ ...prev, reason: '' }));
+                                        }}
+                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors min-h-[120px] resize-none ${errors.reason ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                        placeholder="Tell us what motivates you to join the program..."
+                                    />
+                                    {errors.reason && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.reason}</p>}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="block text-base font-medium text-white/70">
+                                        10. Tell us about your relevant experience (Clubs, Communities, Startups) <span className="text-vc-mint">*</span>
+                                    </label>
+                                    <textarea
+                                        value={formData.experience}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, experience: e.target.value });
+                                            if (errors.experience) setErrors(prev => ({ ...prev, experience: '' }));
+                                        }}
+                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors min-h-[120px] resize-none ${errors.experience ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                        placeholder="Share your background and any relevant initiatives you've been part of..."
+                                    />
+                                    {errors.experience && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.experience}</p>}
                                 </div>
 
                                 <div className="flex justify-between pt-8">
