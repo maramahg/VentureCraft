@@ -135,8 +135,7 @@ export default function AmbassadorsFAQ() {
                         viewport={{ once: true }}
                         className="text-center space-y-4 mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white uppercase tracking-tighter leading-none">
-                            Ambassadors <span className="text-vc-mint">FAQ</span>
+                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white uppercase tracking-tighter leading-none"><span className="text-vc-mint">FAQ</span>
                         </h2>
                     </motion.div>
 
@@ -203,7 +202,7 @@ export default function AmbassadorsFAQ() {
                         className="text-center mt-12"
                     >
                         <p className="text-white/40 text-base">
-                            Didn't find your answer? <a href="mailto:info@venturecraft.org" className="text-vc-mint font-semibold hover:underline transition-all">Contact us</a>
+                            Didn't find your answer? <a href="mailto:venture-craft@kfupm.edu.sa" className="text-vc-mint font-semibold hover:underline transition-all">Contact us</a>
                         </p>
                     </motion.div>
                 </div>
