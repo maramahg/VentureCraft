@@ -1,18 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, CheckCircle, ChevronDown, Search, Globe, AlertCircle, UserPlus, Instagram, Linkedin, Twitter, Phone } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, FileText, Users, Rocket, Globe, AlertCircle, ChevronDown, Search, X, GraduationCap, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
 import { countries } from '@/lib/countries';
 
-// Custom Dropdown Component (Repurposed from competition apply page)
+// Custom Dropdown Component (Identical to competition apply page)
 function FlagDropdown({
     options,
     value,
@@ -77,8 +75,9 @@ function FlagDropdown({
                             />
                             <span className="text-white text-base">
                                 {type === 'country' ? (
-                                    <span>{selectedOption.name}</span>
+                                    <span className="hidden sm:inline">{selectedOption.name}</span>
                                 ) : selectedOption.dialCode}
+                                {type === 'country' && <span className="sm:hidden">{selectedOption.code.toUpperCase()}</span>}
                             </span>
                         </>
                     ) : (
@@ -126,7 +125,7 @@ function FlagDropdown({
                                                 alt={opt.name}
                                                 className="w-5 h-auto rounded-xs"
                                             />
-                                            <span className="text-base text-white/80 group-hover:text-white truncate max-w-[150px]">{opt.name}</span>
+                                            <span className="text-base text-white/80 group-hover:text-white truncate max-w-[120px]">{opt.name}</span>
                                         </div>
                                         <span className="text-sm text-vc-mint/40 group-hover:text-vc-mint">{opt.dialCode}</span>
                                     </button>
@@ -142,86 +141,16 @@ function FlagDropdown({
     );
 }
 
-// Simple Dropdown Component
-function SimpleDropdown({
-    options,
-    value,
-    onChange,
-    label,
-    placeholder = "Select..."
-}: {
-    options: string[],
-    value: string,
-    onChange: (val: string) => void,
-    label?: string,
-    placeholder?: string
-}) {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+function ApplicationFormContent() {
+    const [step, setStep] = useState(1);
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const [authLoading, setAuthLoading] = useState(true);
+    const router = useRouter();
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    return (
-        <div className="space-y-2 relative w-full" ref={dropdownRef}>
-            {label && (
-                <label className="block text-base font-medium text-white/70">
-                    {label.includes('*') ? (
-                        <>
-                            {label.replace('*', '').trim()} <span className="text-vc-mint">*</span>
-                        </>
-                    ) : label}
-                </label>
-            )}
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-all text-left"
-            >
-                <span className={`text-base ${value ? 'text-white' : 'text-white/40'}`}>
-                    {value || placeholder}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute z-50 w-full mt-2 bg-[#0c1e1c] border border-vc-mint/20 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
-                    >
-                        <div className="max-h-60 overflow-y-auto no-scrollbar">
-                            {options.map((opt) => (
-                                <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => {
-                                        onChange(opt);
-                                        setIsOpen(false);
-                                    }}
-                                    className="w-full px-4 py-3 text-left hover:bg-vc-mint/10 transition-colors group"
-                                >
-                                    <span className="text-base text-white/80 group-hover:text-white">{opt}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-}
-
-export default function AmbassadorApplyPage() {
+    // Ambassador Form State
     const [formData, setFormData] = useState({
         name: '',
         nationality: 'Saudi Arabia',
@@ -233,13 +162,6 @@ export default function AmbassadorApplyPage() {
         degree: '',
         socialMedia: ''
     });
-
-    const [loading, setLoading] = useState(false);
-    const [authLoading, setAuthLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
-    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const router = useRouter();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -255,23 +177,35 @@ export default function AmbassadorApplyPage() {
         }
     }, [user, authLoading, router]);
 
-    const validate = () => {
+    const validateStep1 = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.name.trim()) newErrors.name = "Please enter your name.";
         if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = "Please enter a valid email.";
-        if (formData.phone.length < 9) newErrors.phone = "Please enter a valid phone number.";
-        if (!formData.university.trim()) newErrors.university = "Please enter your university.";
-        if (!formData.major.trim()) newErrors.major = "Please enter your major.";
-        if (!formData.degree) newErrors.degree = "Please select your degree.";
-        if (!formData.socialMedia.trim()) newErrors.socialMedia = "Please enter your social media profile URL.";
-
+        if (formData.phone.length < 9) newErrors.phone = "Please check the phone number.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
+    const validateStep2 = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.university.trim()) newErrors.university = "Please enter your university.";
+        if (!formData.major.trim()) newErrors.major = "Please enter your major.";
+        if (!formData.degree) newErrors.degree = "Please select your degree.";
+        if (!formData.socialMedia.trim()) newErrors.socialMedia = "Please enter your social media profile URL.";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const nextStep = () => {
+        if (step === 1 && !validateStep1()) return;
+        setStep(prev => Math.min(prev + 1, 2));
+    };
+
+    const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validate()) return;
+        if (!validateStep2()) return;
         setLoading(true);
 
         try {
@@ -295,227 +229,379 @@ export default function AmbassadorApplyPage() {
         }
     };
 
-    if (authLoading) return (
-        <div className="min-h-screen bg-[#001D1B] flex items-center justify-center">
-            <div className="w-12 h-12 border-4 border-vc-mint border-t-transparent rounded-full animate-spin"></div>
-        </div>
-    );
+    const renderStepIndicator = () => {
+        return (
+            <div className="flex items-center justify-center mb-12">
+                {[1, 2].map((i) => (
+                    <div key={i} className="flex items-center">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${step >= i ? 'border-vc-mint bg-vc-mint text-vc-green-dark' : 'border-white/20 text-white/40'}`}>
+                            {step > i ? <CheckCircle className="w-6 h-6" /> : i}
+                        </div>
+                        {i < 2 && (
+                            <div className={`w-12 h-1 mx-2 rounded-full transition-all duration-500 ${step > i ? 'bg-vc-mint' : 'bg-white/10'}`} />
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-[#001311] flex flex-col items-center justify-center gap-4">
+                <div className="w-12 h-12 border-4 border-vc-mint/20 border-t-vc-mint rounded-full animate-spin" />
+                <p className="text-vc-mint/60 font-medium animate-pulse">Loading...</p>
+            </div>
+        );
+    }
+
+    if (!user) return null;
 
     return (
-        <main className="min-h-screen bg-[#001D1B] text-white selection:bg-vc-mint/30">
-            <Navbar />
+        <main className="min-h-screen bg-[#001311] text-white pt-24 md:pt-40 relative overflow-x-hidden">
+            {/* Background Orbs */}
+            <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/5 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
 
-            <div className="relative pt-32 pb-24 overflow-hidden">
-                {/* Background Decorations */}
-                <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-                    <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-vc-mint/10 rounded-full blur-[120px]" />
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-vc-teal/10 rounded-full blur-[120px]" />
+            <div className="max-w-4xl mx-auto px-4 pb-24 relative z-10 min-h-[calc(100vh-200px)]">
+                {step === 1 && (
+                    <Link href="/ambassadors" className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group">
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span>Go Back</span>
+                    </Link>
+                )}
+                {step > 1 && (
+                    <button
+                        onClick={prevStep}
+                        className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group"
+                    >
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Previous Step</span>
+                    </button>
+                )}
+
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-4 tracking-tight">
+                        Ambassador Registration
+                    </h1>
+                    <p className="text-white/60 max-w-xl mx-auto mb-4">
+                        Please fill out all the required information to join the Venture Craft Ambassadors Program.
+                    </p>
+                    <p className="text-sm text-white/40 flex items-center justify-center gap-1.5">
+                        <span className="text-vc-mint">*</span> Indicates a required field
+                    </p>
                 </div>
 
-                <div className="container mx-auto px-6 relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="max-w-2xl mx-auto"
-                    >
-                        <div className="flex items-center gap-4 mb-8">
-                            <Link
-                                href="/ambassadors"
-                                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors group"
+                {renderStepIndicator()}
+
+                <div className="glass-panel p-8 md:p-12">
+                    <AnimatePresence mode="wait">
+                        {step === 1 && (
+                            <motion.div
+                                key="step1"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-8"
                             >
-                                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                            </Link>
-                            <h1 className="text-3xl md:text-5xl font-bold font-poppins text-balance">
-                                Become an <span className="text-vc-mint">Ambassador</span>
-                            </h1>
-                        </div>
-
-                        <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl overflow-hidden relative group">
-                            {/* Form Header */}
-                            <div className="mb-12">
-                                <span className="text-vc-mint/60 text-sm font-bold tracking-[0.2em] uppercase mb-2 block">Registration Form</span>
-                                <h2 className="text-2xl font-bold font-poppins">About you</h2>
-                                <p className="text-white/40 mt-2">Please fill in your details accurately.</p>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                {/* 1. Your Name */}
-                                <div className="space-y-2">
-                                    <label className="block text-base font-medium text-white/70">
-                                        1. Your name <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="Enter your answer"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all text-white placeholder:text-white/20"
-                                    />
-                                    {errors.name && <p className="text-red-400 text-sm flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.name}</p>}
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
+                                        <Users className="text-vc-mint w-5 h-5" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">About you</h2>
                                 </div>
 
-                                {/* 2. Nationality */}
-                                <FlagDropdown
-                                    label="2. Nationality *"
-                                    options={countries}
-                                    value={formData.nationality}
-                                    onChange={(val) => setFormData({ ...formData, nationality: val })}
-                                />
-
-                                {/* 3. Email */}
-                                <div className="space-y-2">
-                                    <label className="block text-base font-medium text-white/70">
-                                        3. Email <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        required
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        placeholder="Please enter an email"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all text-white placeholder:text-white/20"
-                                    />
-                                    {errors.email && <p className="text-red-400 text-sm flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.email}</p>}
-                                </div>
-
-                                {/* 4. Phone Number */}
-                                <div className="space-y-2">
-                                    <label className="block text-base font-medium text-white/70">
-                                        4. Phone number <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <div className="flex gap-3">
-                                        <div className="w-[120px] shrink-0">
-                                            <FlagDropdown
-                                                options={countries}
-                                                value={formData.phoneCode}
-                                                onChange={(val) => setFormData({ ...formData, phoneCode: val })}
-                                                type="phone"
-                                            />
-                                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            1. Your name <span className="text-vc-mint">*</span>
+                                        </label>
                                         <input
-                                            type="tel"
-                                            required
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            placeholder="5XXXXXXXX"
-                                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all text-white placeholder:text-white/20"
+                                            type="text"
+                                            value={formData.name}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, name: e.target.value });
+                                                if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.name ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Enter your answer"
+                                        />
+                                        {errors.name && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.name}</p>}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <FlagDropdown
+                                            options={countries}
+                                            value={formData.nationality}
+                                            onChange={(val) => setFormData({ ...formData, nationality: val })}
+                                            label="2. Nationality *"
+                                            type="country"
                                         />
                                     </div>
-                                    {errors.phone && <p className="text-red-400 text-sm flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phone}</p>}
                                 </div>
 
-                                {/* 5. University */}
-                                <div className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            3. Email <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, email: e.target.value });
+                                                if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.email ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Please enter an email"
+                                        />
+                                        {errors.email && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.email}</p>}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            4. Phone number <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.phone ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
+                                            <div className="w-[100px] border-r border-white/10">
+                                                <FlagDropdown
+                                                    options={countries}
+                                                    value={formData.phoneCode}
+                                                    onChange={(val) => setFormData({ ...formData, phoneCode: val })}
+                                                    type="phone"
+                                                />
+                                            </div>
+                                            <input
+                                                type="tel"
+                                                placeholder="512345678"
+                                                value={formData.phone}
+                                                maxLength={9}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '');
+                                                    if (val.length <= 9) {
+                                                        setFormData({ ...formData, phone: val });
+                                                        if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
+                                                    }
+                                                }}
+                                                className="flex-1 bg-transparent border-none px-4 py-3.5 focus:outline-none focus:ring-0 text-white placeholder:text-white/20"
+                                            />
+                                        </div>
+                                        {errors.phone && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.phone}</p>}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-8">
+                                    <button
+                                        onClick={nextStep}
+                                        className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
+                                    >
+                                        <span>Next Step</span>
+                                        <ArrowRight className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {step === 2 && (
+                            <motion.div
+                                key="step2"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-8"
+                            >
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
+                                        <GraduationCap className="text-vc-mint w-5 h-5" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">Education & Socials</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            5. University <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.university}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, university: e.target.value });
+                                                if (errors.university) setErrors(prev => ({ ...prev, university: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.university ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Enter your university"
+                                        />
+                                        {errors.university && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.university}</p>}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
+                                            6. Major <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.major}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, major: e.target.value });
+                                                if (errors.major) setErrors(prev => ({ ...prev, major: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.major ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Enter your major"
+                                        />
+                                        {errors.major && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.major}</p>}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
                                     <label className="block text-base font-medium text-white/70">
-                                        5. University <span className="text-vc-mint">*</span>
+                                        7. DEGREE <span className="text-vc-mint">*</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.university}
-                                        onChange={(e) => setFormData({ ...formData, university: e.target.value })}
-                                        placeholder="Enter your answer"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all text-white placeholder:text-white/20"
-                                    />
-                                    {errors.university && <p className="text-red-400 text-sm flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.university}</p>}
+                                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border transition-all ${errors.degree ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
+                                        {['Bachelor', 'Master', 'PhD', 'Other'].map((d) => (
+                                            <button
+                                                key={d}
+                                                type="button"
+                                                onClick={() => {
+                                                    setFormData({ ...formData, degree: d });
+                                                    if (errors.degree) setErrors(prev => ({ ...prev, degree: '' }));
+                                                }}
+                                                className={`p-4 rounded-xl border text-left transition-all ${formData.degree === d ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                            >
+                                                {d}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {errors.degree && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.degree}</p>}
                                 </div>
 
-                                {/* 6. Major */}
-                                <div className="space-y-2">
-                                    <label className="block text-base font-medium text-white/70">
-                                        6. Major <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.major}
-                                        onChange={(e) => setFormData({ ...formData, major: e.target.value })}
-                                        placeholder="Enter your answer"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all text-white placeholder:text-white/20"
-                                    />
-                                    {errors.major && <p className="text-red-400 text-sm flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.major}</p>}
-                                </div>
-
-                                {/* 7. Degree */}
-                                <SimpleDropdown
-                                    label="7. DEGREE *"
-                                    options={["Bachelor", "Master", "PhD", "Other"]}
-                                    value={formData.degree}
-                                    onChange={(val) => setFormData({ ...formData, degree: val })}
-                                />
-
-                                {/* 8. Social Media */}
-                                <div className="space-y-2">
-                                    <label className="block text-base font-medium text-white/70">
-                                        8. Social meadia(x,Linkdin,Instagram) <span className="text-vc-mint">*</span>
+                                <div className="space-y-4">
+                                    <label className="block text-base font-medium text-white/70 flex items-center gap-2">
+                                        <Share2 className="w-4 h-4 text-vc-mint" />
+                                        8. Social media (X, LinkedIn, Instagram) <span className="text-vc-mint">*</span>
                                     </label>
                                     <input
                                         type="url"
-                                        required
                                         value={formData.socialMedia}
-                                        onChange={(e) => setFormData({ ...formData, socialMedia: e.target.value })}
-                                        placeholder="Please enter a URL"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all text-white placeholder:text-white/20"
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, socialMedia: e.target.value });
+                                            if (errors.socialMedia) setErrors(prev => ({ ...prev, socialMedia: '' }));
+                                        }}
+                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.socialMedia ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                        placeholder="Enter your social media URL"
                                     />
-                                    {errors.socialMedia && <p className="text-red-400 text-sm flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.socialMedia}</p>}
+                                    {errors.socialMedia && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.socialMedia}</p>}
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-xl transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(79,209,197,0.3)] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 mt-12"
-                                >
-                                    {loading ? (
-                                        <div className="w-6 h-6 border-2 border-[#001D1B] border-t-transparent rounded-full animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            Register Now
-                                            <UserPlus className="w-5 h-5" />
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-                        </div>
-                    </motion.div>
+                                <div className="flex justify-between pt-8">
+                                    <button onClick={prevStep} className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
+                                        <ArrowLeft className="w-5 h-5" />
+                                        <span>Back</span>
+                                    </button>
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={loading}
+                                        className="btn-primary flex items-center gap-2 !px-12 !py-4 !rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-vc-mint/20 transition-all active:scale-95"
+                                    >
+                                        {loading ? (
+                                            <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                        ) : (
+                                            <>
+                                                <span>Register Now</span>
+                                                <CheckCircle className="w-5 h-5" />
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 
-            {/* Success Modal */}
+            {/* Success Modal (Identical to competition apply page) */}
             <AnimatePresence>
                 {isSuccessOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6"
+                    >
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                            className="absolute inset-0 bg-[#001311]/90"
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="bg-[#002B28] border border-vc-mint/20 rounded-[2.5rem] p-12 text-center max-w-lg relative z-10 shadow-3xl"
+                            initial={{ scale: 0.9, opacity: 0, y: 30 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 30 }}
+                            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                            className="relative w-full max-w-lg bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-[0_0_100px_rgba(79,209,197,0.15)] overflow-hidden p-10 text-center"
                         >
-                            <div className="w-20 h-20 bg-vc-mint/20 rounded-full flex items-center justify-center mx-auto mb-8">
-                                <CheckCircle className="w-10 h-10 text-vc-mint" />
-                            </div>
-                            <h2 className="text-3xl font-bold mb-4 font-poppins">Registration Successful!</h2>
-                            <p className="text-white/60 text-lg mb-10 leading-relaxed font-poppins">
-                                Thank you for applying to the Venture Craft Ambassadors Program. Our team will review your application and get back to you soon.
-                            </p>
-                            <button
-                                onClick={() => router.push('/ambassadors')}
-                                className="w-full py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-xl transition-all hover:bg-white"
+                            <motion.div
+                                initial={{ scale: 0, rotate: -45 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ delay: 0.2, type: "spring", damping: 10 }}
+                                className="w-24 h-24 rounded-full bg-gradient-to-br from-vc-mint to-vc-teal mx-auto flex items-center justify-center mb-8 shadow-xl shadow-vc-mint/20"
                             >
-                                Back to Ambassadors
-                            </button>
+                                <CheckCircle className="w-12 h-12 text-vc-green-dark" strokeWidth={3} />
+                            </motion.div>
+
+                            <motion.h2
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="text-3xl font-bold text-white mb-4 font-poppins"
+                            >
+                                Application Sent!
+                            </motion.h2>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="space-y-4 mb-10"
+                            >
+                                <p className="text-white/70 leading-relaxed">
+                                    Your application for the Venture Craft Ambassadors Program has been successfully received.
+                                </p>
+                                <div className="bg-vc-mint/5 border border-vc-mint/10 rounded-2xl p-4 inline-block">
+                                    <p className="text-vc-mint text-sm font-medium flex items-center justify-center gap-2">
+                                        <FileText className="w-4 h-4" />
+                                        We will contact you via email soon.
+                                    </p>
+                                </div>
+                            </motion.div>
+
+                            <motion.button
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.6 }}
+                                onClick={() => router.push('/ambassadors')}
+                                className="btn-primary !w-full !py-4 !rounded-2xl flex items-center justify-center gap-2 hover:shadow-vc-mint/30 transition-all font-bold text-lg"
+                            >
+                                <span>Back to Ambassadors</span>
+                                <Rocket className="w-5 h-5" />
+                            </motion.button>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
-
-            <Footer />
         </main>
+    );
+}
+
+export default function AmbassadorApplyPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#001311] flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-vc-mint/20 border-t-vc-mint rounded-full animate-spin" />
+            </div>
+        }>
+            <ApplicationFormContent />
+        </Suspense>
     );
 }

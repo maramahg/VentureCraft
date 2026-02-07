@@ -109,7 +109,7 @@ export default function Navbar() {
     }
   };
 
-  const isApplying = pathname === '/apply' && searchParams.get('step') !== null;
+  const isApplying = (pathname === '/apply' && searchParams.get('step') !== null) || pathname === '/ambassadors/apply';
   if (isApplying || pathname === '/signin' || pathname === '/signup' || pathname === '/verify-email') return null;
 
   return (
