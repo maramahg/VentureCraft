@@ -393,9 +393,19 @@ export default function AmbassadorsPage() {
 
                             <div className="overflow-hidden py-12 -my-12">
                                 <motion.div
-                                    className="flex"
+                                    className="flex cursor-grab active:cursor-grabbing"
                                     animate={{ x: `-${currentStep * (100 / benefitsPerView)}%` }}
                                     transition={{ type: "spring", stiffness: 180, damping: 22 }}
+                                    drag="x"
+                                    dragConstraints={{ left: 0, right: 0 }}
+                                    onDragEnd={(_, info) => {
+                                        const swipeThreshold = 50;
+                                        if (info.offset.x < -swipeThreshold && currentStep < benefits.length - benefitsPerView) {
+                                            nextBenefit();
+                                        } else if (info.offset.x > swipeThreshold && currentStep > 0) {
+                                            prevBenefit();
+                                        }
+                                    }}
                                 >
                                     {benefits.map((benefit, index) => (
                                         <div
