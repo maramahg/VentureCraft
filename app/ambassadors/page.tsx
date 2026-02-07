@@ -249,7 +249,7 @@ export default function AmbassadorsPage() {
                 {/* Vision Quote Section (Shrunk Bridge Style) */}
                 <section className="py-16 relative overflow-hidden group">
                     {/* The Ribbon Decoration */}
-                    <div className="absolute inset-0 z-0 bg-vc-mint/15 -skew-y-3 scale-110" />
+                    <div className="absolute inset-0 z-0 bg-vc-mint/15" />
 
                     <div className="container mx-auto px-6 relative z-10 text-center">
                         <motion.div
@@ -260,7 +260,7 @@ export default function AmbassadorsPage() {
                             className="max-w-3xl mx-auto"
                         >
                             <h2 className="text-2xl md:text-4xl font-black text-white mb-6 font-poppins uppercase leading-tight tracking-tighter">
-                                "Partners, Not Just <span className="text-vc-mint">Promoters."</span>
+                                "<span className="text-vc-mint">Partners,</span> Not Just Promoters."
                             </h2>
                             <p className="text-white/40 text-sm md:text-base font-bold font-poppins uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed">
                                 Building a diverse global community united by ambition, innovation, and collaboration.
