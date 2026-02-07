@@ -185,8 +185,92 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
+                {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
+                <section className="py-32 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/05">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-6xl mx-auto">
+                            <motion.div
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
+                                variants={staggerContainer}
+                                className="flex flex-col lg:flex-row gap-16 items-center"
+                            >
+                                {/* Left Side: Bold Statement */}
+                                <div className="lg:w-1/2">
+                                    <motion.h2
+                                        variants={fadeInUp}
+                                        className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+                                    >
+                                        Venture Craft Mission
+                                    </motion.h2>
+                                    <motion.p variants={fadeInUp} className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins mb-10">
+                                        Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
+                                    </motion.p>
+                                    <motion.p variants={fadeInUp} className="text-vc-mint/80 font-bold italic text-lg">
+                                        Together, we are shaping the future of industrial technology and sustainable development.
+                                    </motion.p>
+                                </div>
+
+                                {/* Right Side: Feature Stack in Glass Container */}
+                                <div className="lg:w-1/2 w-full">
+                                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl relative overflow-hidden">
+                                        {/* Accent Glow */}
+                                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-vc-mint/10 rounded-full blur-3xl" />
+
+                                        <div className="space-y-12">
+                                            {[
+                                                { title: "Diversity & Community", text: "Building meaningful relationships with people who share ambition and passion for innovation.", icon: <Users className="w-5 h-5" /> },
+                                                { title: "Partners in Success", text: "Striving for mutual growth, creating an environment that encourages progress.", icon: <Handshake className="w-5 h-5" /> },
+                                                { title: "Shared Vision", text: "Ambition and vision remain constant, regardless of place or time.", icon: <Target className="w-5 h-5" /> }
+                                            ].map((goal, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    variants={fadeInUp}
+                                                    className="flex gap-8 group"
+                                                >
+                                                    <div className="shrink-0 bg-vc-mint/10 w-12 h-12 rounded-xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
+                                                        {goal.icon}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-white font-bold text-lg mb-2 font-poppins uppercase tracking-wide">{goal.title}</h4>
+                                                        <p className="text-white/50 text-sm leading-relaxed font-poppins">{goal.text}</p>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Vision Quote Section (Shrunk Bridge Style) */}
+                <section className="py-16 relative overflow-hidden group">
+                    {/* The Ribbon Decoration */}
+                    <div className="absolute inset-0 z-0 bg-vc-mint/15 -skew-y-3 scale-110" />
+
+                    <div className="container mx-auto px-6 relative z-10 text-center">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="max-w-3xl mx-auto"
+                        >
+                            <h2 className="text-2xl md:text-4xl font-black text-white mb-6 font-poppins uppercase leading-tight tracking-tighter">
+                                "Partners, Not Just <span className="text-vc-mint">Promoters."</span>
+                            </h2>
+                            <p className="text-white/40 text-sm md:text-base font-bold font-poppins uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed">
+                                Building a diverse global community united by ambition, innovation, and collaboration.
+                            </p>
+                        </motion.div>
+                    </div>
+                </section>
+
                 {/* The Role Section */}
-                <section className="py-24 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/05">
+                <section className="py-24 relative z-20 overflow-hidden">
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
                         <div className="max-w-4xl mx-auto">
                             <motion.div
@@ -329,93 +413,6 @@ export default function AmbassadorsPage() {
                         <p className="text-center mt-20 text-vc-mint/30 text-[10px] md:text-xs tracking-[0.4em] font-poppins uppercase font-bold">
                             *Selected active ambassadors may receive special appreciation
                         </p>
-                    </div>
-                </section>
-
-
-
-                {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
-                <section className="py-32 relative z-20 overflow-hidden">
-
-                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
-                        <div className="max-w-6xl mx-auto">
-                            <motion.div
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true }}
-                                variants={staggerContainer}
-                                className="flex flex-col lg:flex-row gap-16 items-center"
-                            >
-                                {/* Left Side: Bold Statement */}
-                                <div className="lg:w-1/2">
-                                    <motion.h2
-                                        variants={fadeInUp}
-                                        className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
-                                    >
-                                        Venture Craft Mission
-                                    </motion.h2>
-                                    <motion.p variants={fadeInUp} className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins mb-10">
-                                        Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
-                                    </motion.p>
-                                    <motion.p variants={fadeInUp} className="text-vc-mint/80 font-bold italic text-lg">
-                                        Together, we are shaping the future of industrial technology and sustainable development.
-                                    </motion.p>
-                                </div>
-
-                                {/* Right Side: Feature Stack in Glass Container */}
-                                <div className="lg:w-1/2 w-full">
-                                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl relative overflow-hidden">
-                                        {/* Accent Glow */}
-                                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-vc-mint/10 rounded-full blur-3xl" />
-
-                                        <div className="space-y-12">
-                                            {[
-                                                { title: "Diversity & Community", text: "Building meaningful relationships with people who share ambition and passion for innovation.", icon: <Users className="w-5 h-5" /> },
-                                                { title: "Partners in Success", text: "Striving for mutual growth, creating an environment that encourages progress.", icon: <Handshake className="w-5 h-5" /> },
-                                                { title: "Shared Vision", text: "Ambition and vision remain constant, regardless of place or time.", icon: <Target className="w-5 h-5" /> }
-                                            ].map((goal, i) => (
-                                                <motion.div
-                                                    key={i}
-                                                    variants={fadeInUp}
-                                                    className="flex gap-8 group"
-                                                >
-                                                    <div className="shrink-0 bg-vc-mint/10 w-12 h-12 rounded-xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
-                                                        {goal.icon}
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-white font-bold text-lg mb-2 font-poppins uppercase tracking-wide">{goal.title}</h4>
-                                                        <p className="text-white/50 text-sm leading-relaxed font-poppins">{goal.text}</p>
-                                                    </div>
-                                                </motion.div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Vision Quote Section (Restored Ribbon Style) */}
-                <section className="py-40 relative overflow-hidden group">
-                    {/* The Ribbon Decoration */}
-                    <div className="absolute inset-0 z-0 bg-vc-mint/15 -skew-y-3 scale-110" />
-
-                    <div className="container mx-auto px-6 relative z-10 text-center">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
-                            className="max-w-5xl mx-auto"
-                        >
-                            <h2 className="text-4xl md:text-7xl font-black text-white mb-10 font-poppins uppercase leading-tight tracking-tighter">
-                                "Partners, Not Just <span className="text-vc-mint">Promoters."</span>
-                            </h2>
-                            <p className="text-white/40 text-lg md:text-xl font-bold font-poppins uppercase tracking-[0.3em] max-w-3xl mx-auto leading-relaxed">
-                                Building a diverse global community united by ambition, innovation, and collaboration.
-                            </p>
-                        </motion.div>
                     </div>
                 </section>
 
