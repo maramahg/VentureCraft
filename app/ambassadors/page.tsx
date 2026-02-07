@@ -227,7 +227,7 @@ export default function AmbassadorsPage() {
                                                 <motion.div
                                                     key={i}
                                                     variants={fadeInUp}
-                                                    className="flex gap-8 group"
+                                                    className="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start text-center md:text-left group"
                                                 >
                                                     <div className="shrink-0 bg-vc-mint/10 w-12 h-12 rounded-xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
                                                         {goal.icon}
