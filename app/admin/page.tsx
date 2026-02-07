@@ -51,16 +51,21 @@ interface Application {
 interface AmbassadorApplication {
     id: string;
     userId: string;
-    fullName: string;
+    name: string;
     email: string;
     phone: string;
-    location: string;
-    nationality?: string;
-    degree?: string;
-    reason: string;
-    experience: string;
+    nationality: string;
+    university: string;
+    major: string;
+    degree: string;
+    socialMedia: string;
     status: 'pending' | 'accepted' | 'rejected' | 'submitted';
     submittedAt: any;
+    // legacy fields
+    fullName?: string;
+    location?: string;
+    reason?: string;
+    experience?: string;
 }
 
 
@@ -515,11 +520,12 @@ function AdminDashboardContent() {
     const filteredAmbassadorApps = useMemo(() => {
         return ambassadorApps.filter(app => {
             const matchesSearch =
+                (app.name?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
                 (app.fullName?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
                 (app.email?.toLowerCase().includes(ambSearchTerm.toLowerCase()));
 
             const matchesStatus = ambStatusFilter === 'all' || app.status === ambStatusFilter;
-            const matchesNationality = ambNationalityFilter === 'all' || app.location === ambNationalityFilter || app.nationality === ambNationalityFilter;
+            const matchesNationality = ambNationalityFilter === 'all' || app.nationality === ambNationalityFilter || app.location === ambNationalityFilter;
             const matchesDegree = ambDegreeFilter === 'all' || app.degree === ambDegreeFilter;
 
             return matchesSearch && matchesStatus && matchesNationality && matchesDegree;
@@ -893,9 +899,10 @@ function AdminDashboardContent() {
                                                             <Users className="text-vc-teal w-5 h-5 sm:w-6 h-6" />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.fullName}</h3>
+                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.name || app.fullName}</h3>
                                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
                                                                 <span className="flex items-center gap-1.5 min-w-0 truncate max-w-[150px]"><Mail className="w-3 h-3" /> {app.email}</span>
+                                                                <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.nationality || app.location}</span>
                                                                 <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
                                                             </div>
                                                         </div>
@@ -1254,7 +1261,7 @@ function AdminDashboardContent() {
                                             <Users className="text-vc-teal w-8 h-8" />
                                         </div>
                                         <div>
-                                            <h2 className="text-2xl font-bold">{selectedAmbassadorApp.fullName}</h2>
+                                            <h2 className="text-2xl font-bold">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</h2>
                                             <span className="text-white/40 text-sm">Ambassador Application • {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
                                         </div>
                                     </div>
@@ -1271,45 +1278,91 @@ function AdminDashboardContent() {
                                     <div className="grid lg:grid-cols-[1fr_360px] gap-8 md:gap-12">
                                         {/* Main Column: Profiles & Experience */}
                                         <div className="space-y-10">
+                                            {/* Person Profile Section */}
                                             <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
                                                 <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-8 flex items-center gap-2">
-                                                    <Mail className="w-4 h-4" /> Contact Information
+                                                    <User className="w-4 h-4" /> Personal Profile
                                                 </h3>
-                                                <div className="grid md:grid-cols-2 gap-8">
+                                                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
                                                     <div className="space-y-1">
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Registered Email</p>
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Full Name</p>
+                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality / Location</p>
+                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.nationality || selectedAmbassadorApp.location}</p>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Contact Email</p>
                                                         <p className="text-lg font-medium text-white underline decoration-vc-teal/30">{selectedAmbassadorApp.email}</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Phone Number</p>
                                                         <p className="text-lg font-medium text-white">{selectedAmbassadorApp.phone}</p>
                                                     </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Primary Location</p>
-                                                        <p className="text-lg font-medium text-white">{selectedAmbassadorApp.location}</p>
-                                                    </div>
                                                 </div>
+
+                                                {selectedAmbassadorApp.socialMedia && (
+                                                    <div className="mt-10 pt-8 border-t border-white/5">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Digital Presence</p>
+                                                        <div className="flex flex-wrap gap-3">
+                                                            <a href={selectedAmbassadorApp.socialMedia} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-vc-teal/10 border border-vc-teal/20 text-vc-teal rounded-xl hover:bg-vc-teal hover:text-black transition-all text-sm font-bold">
+                                                                <Share2 className="w-4 h-4" /> Social Media Profile
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </section>
 
-                                            <div className="grid md:grid-cols-2 gap-8">
+                                            {/* Education Section */}
+                                            {(selectedAmbassadorApp.university || selectedAmbassadorApp.major) && (
                                                 <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                                                    <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
-                                                        <AlertCircle className="w-4 h-4" /> Why join?
+                                                    <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-8 flex items-center gap-2">
+                                                        <GraduationCap className="w-4 h-4" /> Academic Background
                                                     </h3>
-                                                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap italic">
-                                                        "{selectedAmbassadorApp.reason}"
-                                                    </p>
+                                                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">University</p>
+                                                            <p className="text-lg font-medium text-white">{selectedAmbassadorApp.university}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Major / Field of Study</p>
+                                                            <p className="text-lg font-medium text-white">{selectedAmbassadorApp.major}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Degree Level</p>
+                                                            <p className="text-lg font-medium text-white">{selectedAmbassadorApp.degree}</p>
+                                                        </div>
+                                                    </div>
                                                 </section>
+                                            )}
 
-                                                <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
-                                                    <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
-                                                        <CheckCircle className="w-4 h-4" /> Experience
-                                                    </h3>
-                                                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
-                                                        {selectedAmbassadorApp.experience}
-                                                    </p>
-                                                </section>
-                                            </div>
+                                            {/* Legacy Details if present */}
+                                            {(selectedAmbassadorApp.reason || selectedAmbassadorApp.experience) && (
+                                                <div className="grid md:grid-cols-2 gap-8">
+                                                    {selectedAmbassadorApp.reason && (
+                                                        <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                            <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
+                                                                <AlertCircle className="w-4 h-4" /> Why join?
+                                                            </h3>
+                                                            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap italic">
+                                                                "{selectedAmbassadorApp.reason}"
+                                                            </p>
+                                                        </section>
+                                                    )}
+
+                                                    {selectedAmbassadorApp.experience && (
+                                                        <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                            <h3 className="text-vc-teal font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
+                                                                <CheckCircle className="w-4 h-4" /> Experience
+                                                            </h3>
+                                                            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                                                                {selectedAmbassadorApp.experience}
+                                                            </p>
+                                                        </section>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Sidebar: Decision Center */}

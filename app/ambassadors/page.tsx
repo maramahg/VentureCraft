@@ -5,6 +5,8 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
 import CallToAction from "@/components/CallToAction";
 import {
     Globe,
@@ -100,6 +102,7 @@ const benefits = [
 
 
 export default function AmbassadorsPage() {
+    const router = useRouter();
     const { scrollY } = useScroll();
     const [currentStep, setCurrentStep] = useState(0);
     const [benefitsPerView, setBenefitsPerView] = useState(3);
@@ -127,6 +130,16 @@ export default function AmbassadorsPage() {
     const prevBenefit = () => {
         setCurrentStep((prev) => (prev - 1 + (benefits.length - (benefitsPerView - 1))) % (benefits.length - (benefitsPerView - 1)));
     };
+
+    const handleApplyClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!auth.currentUser) {
+            router.push(`/signin?redirect=${encodeURIComponent('/ambassadors/apply')}`);
+        } else {
+            router.push('/ambassadors/apply');
+        }
+    };
+
     return (
         <main className="relative flex flex-col overflow-hidden bg-[#001D1B]">
             {/* Background Decorations */}
@@ -184,6 +197,7 @@ export default function AmbassadorsPage() {
                                 <motion.div variants={fadeInUp}>
                                     <Link
                                         href="/ambassadors/apply"
+                                        onClick={handleApplyClick}
                                         className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)] inline-block"
                                     >
                                         Apply Now
@@ -269,7 +283,7 @@ export default function AmbassadorsPage() {
                             className="max-w-3xl mx-auto"
                         >
                             <h2 className="text-2xl md:text-4xl font-black text-white mb-6 font-poppins uppercase leading-tight tracking-tighter">
-                                "<span className="text-vc-mint">Partners</span>, Not Just Promoters."
+                                "<span className="text-vc-mint"> Partners</span>, Not Just Promoters. "
                             </h2>
                             <p className="text-white/50 text-base md:text-lg font-poppins max-w-2xl mx-auto leading-relaxed">
                                 Building a diverse global community united by ambition, innovation, and collaboration.
@@ -430,6 +444,7 @@ export default function AmbassadorsPage() {
                     title="Join Us"
                     description="If you are a motivated university student with an interest in startups, technology, and sustainability, we invite you to join the Venture Craft Ambassadors Program and be part of a global movement driving innovation forward."
                     registerHref="/ambassadors/apply"
+                    onRegisterClick={handleApplyClick}
                 />
             </div>
             <Footer />
