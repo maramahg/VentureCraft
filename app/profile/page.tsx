@@ -17,6 +17,8 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isJudge, setIsJudge] = useState(false);
+    const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [isAmbassador, setIsAmbassador] = useState(false);
     const [displayName, setDisplayName] = useState('');
     const [photoURL, setPhotoURL] = useState('');
@@ -40,9 +42,23 @@ export default function ProfilePage() {
             try {
                 // 1. Check Admin
                 const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
-                setIsAdmin(adminDoc.exists());
+                if (adminDoc.exists()) {
+                    setIsAdmin(true);
+                }
 
-                // 2. Check Ambassador
+                // 2. Check Judge
+                const judgeDoc = await getDoc(doc(db, 'judges', currentUser.uid));
+                if (judgeDoc.exists()) {
+                    setIsJudge(true);
+                }
+
+                // 3. Check Ambassador Lead
+                const leadDoc = await getDoc(doc(db, 'ambassadors_lead', currentUser.uid));
+                if (leadDoc.exists()) {
+                    setIsAmbassadorLead(true);
+                }
+
+                // 4. Check Ambassador Status (from users collection)
                 const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
@@ -180,14 +196,34 @@ export default function ProfilePage() {
                             </div>
                             <div className="text-center">
                                 <div className="flex flex-wrap justify-center gap-2">
-                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border ${isAdmin ? 'bg-vc-mint/10 border-vc-mint/30 text-vc-mint' : 'bg-white/5 border-white/10 text-white/50'}`}>
-                                        {isAdmin ? <Shield className="w-3 h-3" /> : <UserIcon className="w-3 h-3" />}
-                                        {isAdmin ? 'Administrator' : 'User'}
-                                    </span>
+                                    {isAdmin && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-vc-mint/10 border-vc-mint/30 text-vc-mint">
+                                            <Shield className="w-3 h-3" />
+                                            Administrator
+                                        </span>
+                                    )}
+                                    {isJudge && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-[#21428f]/10 border-[#21428f]/30 text-[#21428f]">
+                                            <Shield className="w-3 h-3" />
+                                            Judge
+                                        </span>
+                                    )}
+                                    {isAmbassadorLead && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-vc-mint/10 border-vc-mint/30 text-vc-mint">
+                                            <Shield className="w-3 h-3" />
+                                            Ambassador Lead
+                                        </span>
+                                    )}
                                     {isAmbassador && (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-vc-teal/10 border-vc-teal/30 text-vc-teal">
                                             <Shield className="w-3 h-3" />
                                             Ambassador
+                                        </span>
+                                    )}
+                                    {!isAdmin && !isJudge && !isAmbassadorLead && !isAmbassador && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-white/5 border-white/10 text-white/50">
+                                            <UserIcon className="w-3 h-3" />
+                                            User
                                         </span>
                                     )}
                                 </div>

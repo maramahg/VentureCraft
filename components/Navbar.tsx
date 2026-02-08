@@ -39,6 +39,8 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isJudge, setIsJudge] = useState(false);
+  const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
   const [isAmbassador, setIsAmbassador] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const pathname = usePathname();
@@ -82,7 +84,15 @@ export default function Navbar() {
         const adminDoc = await getDoc(doc(db, 'admins', user.uid));
         setIsAdmin(adminDoc.exists());
 
-        // 2. Check if Ambassador
+        // 2. Check if Judge
+        const judgeDoc = await getDoc(doc(db, 'judges', user.uid));
+        setIsJudge(judgeDoc.exists());
+
+        // 3. Check if Ambassador Lead
+        const leadDoc = await getDoc(doc(db, 'ambassadors_lead', user.uid));
+        setIsAmbassadorLead(leadDoc.exists());
+
+        // 4. Check if Ambassador
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -219,6 +229,12 @@ export default function Navbar() {
                               {isAdmin && (
                                 <span className="px-1.5 py-0.5 bg-vc-mint/20 border border-vc-mint/30 rounded text-[9px] font-bold text-vc-mint uppercase tracking-wider">Admin</span>
                               )}
+                              {isJudge && !isAdmin && (
+                                <span className="px-1.5 py-0.5 bg-vc-mint/20 border border-vc-mint/30 rounded text-[9px] font-bold text-vc-mint uppercase tracking-wider">Judge</span>
+                              )}
+                              {isAmbassadorLead && !isAdmin && (
+                                <span className="px-1.5 py-0.5 bg-vc-mint/20 border border-vc-mint/30 rounded text-[9px] font-bold text-vc-mint uppercase tracking-wider">Lead</span>
+                              )}
                             </div>
                           </div>
 
@@ -232,39 +248,45 @@ export default function Navbar() {
                               My Profile
                             </Link>
 
-                            {isAdmin && (
+                            {(isAdmin || isJudge || isAmbassadorLead) && (
                               <div className="mt-1 pt-1 border-t border-white/10">
-                                <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Admin</p>
-                                <Link
-                                  href="/admin"
-                                  onClick={() => setIsProfileOpen(false)}
-                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                >
-                                  <div className="w-[18px] flex justify-center">
-                                    <div className="w-1.5 h-1.5 bg-vc-mint rounded-full" />
-                                  </div>
-                                  Applications
-                                </Link>
-                                <Link
-                                  href="/admin?tab=ambassadors"
-                                  onClick={() => setIsProfileOpen(false)}
-                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                >
-                                  <div className="w-[18px] flex justify-center">
-                                    <Users size={14} className="text-vc-mint" />
-                                  </div>
-                                  Ambassadors
-                                </Link>
-                                <Link
-                                  href="/qr"
-                                  onClick={() => setIsProfileOpen(false)}
-                                  className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                >
-                                  <div className="w-[18px] flex justify-center">
-                                    <QrCode size={14} className="text-vc-mint" />
-                                  </div>
-                                  QR Generator
-                                </Link>
+                                <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Management</p>
+                                {(isAdmin || isJudge) && (
+                                  <Link
+                                    href="/admin"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <div className="w-1.5 h-1.5 bg-vc-mint rounded-full" />
+                                    </div>
+                                    Startup Applications
+                                  </Link>
+                                )}
+                                {(isAdmin || isAmbassadorLead) && (
+                                  <Link
+                                    href="/admin?tab=ambassadors"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <Users size={14} className="text-vc-mint" />
+                                    </div>
+                                    Ambassador Management
+                                  </Link>
+                                )}
+                                {isAdmin && (
+                                  <Link
+                                    href="/qr"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <QrCode size={14} className="text-vc-mint" />
+                                    </div>
+                                    QR Generator
+                                  </Link>
+                                )}
                               </div>
                             )}
                           </div>
@@ -377,32 +399,38 @@ export default function Navbar() {
                           My Profile
                         </Link>
 
-                        {isAdmin && (
+                        {(isAdmin || isJudge || isAmbassadorLead) && (
                           <>
-                            <Link
-                              href="/admin"
-                              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <Shield size={20} />
-                              Admin Panel
-                            </Link>
-                            <Link
-                              href="/admin?tab=ambassadors"
-                              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <Users size={20} />
-                              Ambassadors Management
-                            </Link>
-                            <Link
-                              href="/qr"
-                              className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <QrCode size={20} />
-                              QR Generator
-                            </Link>
+                            {(isAdmin || isJudge) && (
+                              <Link
+                                href="/admin"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Shield size={20} />
+                                Startup Applications
+                              </Link>
+                            )}
+                            {(isAdmin || isAmbassadorLead) && (
+                              <Link
+                                href="/admin?tab=ambassadors"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Users size={20} />
+                                Ambassador Management
+                              </Link>
+                            )}
+                            {isAdmin && (
+                              <Link
+                                href="/qr"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <QrCode size={20} />
+                                QR Generator
+                              </Link>
+                            )}
                           </>
                         )}
                         <button

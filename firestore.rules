@@ -7,33 +7,58 @@ service cloud.firestore {
       return request.auth != null && 
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
+
+    // Helper: Check if the user is in the 'judges' collection
+    function isJudge() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/judges/$(request.auth.uid));
+    }
+
+    // Helper: Check if the user is in the 'ambassadors_lead' collection
+    function isAmbassadorLead() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/ambassadors_lead/$(request.auth.uid));
+    }
+
     // Admins Collection
     match /admins/{userId} {
-      // Allow any logged-in user to read their own admin record to verify status
-      allow read: if request.auth != null && request.auth.uid == userId;
-      // Admins can read all admin records
-      allow read: if isAdmin();
-      // Writing to admins is restricted to Console only for security
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow write: if false;
     }
+
+    // Judges Collection
+    match /judges/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if false;
+    }
+
+    // Ambassador Leads Collection
+    match /ambassadors_lead/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if false;
+    }
+
     // Startup Applications
     match /applications/{docId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
-      allow write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
+      allow write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
       allow create: if request.auth != null;
     }
+
     // Ambassador Applications
     match /ambassador_applications/{docId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
-      allow write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isAmbassadorLead());
+      allow write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isAmbassadorLead());
       allow create: if request.auth != null;
     }
+
     // Users Collection (Profiles)
     match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isJudge());
       allow write: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null;
     }
+
     // System Settings
     match /settings/{docId} {
       allow read: if true;

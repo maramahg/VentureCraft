@@ -324,6 +324,8 @@ function AdminDashboardContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isJudge, setIsJudge] = useState(false);
+    const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -368,6 +370,15 @@ function AdminDashboardContent() {
 
     useEffect(() => {
         const tab = searchParams.get('tab');
+        if (isJudge) {
+            setActiveTab('startups');
+            return;
+        }
+        if (isAmbassadorLead) {
+            setActiveTab('ambassadors');
+            return;
+        }
+
         if (tab === 'ambassadors' && activeTab !== 'ambassadors') {
             setActiveTab('ambassadors');
         } else if (tab === 'startups' && activeTab !== 'startups') {
@@ -375,12 +386,8 @@ function AdminDashboardContent() {
         } else if (!tab && activeTab !== 'startups') {
             setActiveTab('startups');
         }
-    }, [searchParams, activeTab]);
+    }, [searchParams, activeTab, isJudge, isAmbassadorLead]);
 
-    useEffect(() => {
-        console.log('Admin Status:', isAdmin);
-        console.log('Active Tab:', activeTab);
-    }, [isAdmin, activeTab]);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -390,18 +397,38 @@ function AdminDashboardContent() {
             }
 
             try {
-                // Simple Admin Check: Check if user document in 'admins' collection exists
-                const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+                const uid = user.uid;
+                // Check roles in order: Admin -> Judge -> Ambassador Lead
+                const adminDoc = await getDoc(doc(db, 'admins', uid));
                 if (adminDoc.exists()) {
                     setIsAdmin(true);
-                } else {
-                    setError('Access Denied: You do not have admin privileges. If you just applied for access, please wait for activation.');
-                    router.push('/');
+                    setLoading(false);
+                    return;
                 }
+
+                const judgeDoc = await getDoc(doc(db, 'judges', uid));
+                if (judgeDoc.exists()) {
+                    setIsJudge(true);
+                    setActiveTab('startups');
+                    setLoading(false);
+                    return;
+                }
+
+                const leadDoc = await getDoc(doc(db, 'ambassadors_lead', uid));
+                if (leadDoc.exists()) {
+                    setIsAmbassadorLead(true);
+                    setActiveTab('ambassadors');
+                    setLoading(false);
+                    return;
+                }
+
+                // If no role found
+                setError('Access Denied: You do not have admin or evaluator privileges.');
+                router.push('/');
             } catch (err: any) {
                 console.error('Error checking admin status:', err);
                 if (err.code === 'permission-denied') {
-                    setError('Firebase Permission Error: Please ensure your Firestore Security Rules allow admins to read the "admins" collection.');
+                    setError('Access Denied: You do not have sufficient permissions to view this page. Please ensure you are authorized in the Firebase console.');
                 } else {
                     setError('Database Error: ' + err.message);
                 }
@@ -415,7 +442,7 @@ function AdminDashboardContent() {
     // Countries are imported from @/lib/countries
 
     useEffect(() => {
-        if (!isAdmin) return;
+        if (!isAdmin && !isJudge) return;
         const fetchRegStatus = async () => {
             const regDoc = await getDoc(doc(db, 'settings', 'registration'));
             if (regDoc.exists()) {
@@ -455,7 +482,7 @@ function AdminDashboardContent() {
     }, [selectedApp]);
 
     useEffect(() => {
-        if (!isAdmin) return;
+        if (!isAdmin && !isJudge) return;
 
         const q = query(collection(db, 'applications'), orderBy('submittedAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -472,11 +499,11 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin]);
+    }, [isAdmin, isJudge]);
 
     // Fetch Ambassador Applications
     useEffect(() => {
-        if (!isAdmin || activeTab !== 'ambassadors') return;
+        if (!(isAdmin || isAmbassadorLead) || activeTab !== 'ambassadors') return;
 
         console.log('FETCHING: ambassador_applications...');
         const q = query(collection(db, 'ambassador_applications'), orderBy('submittedAt', 'desc'));
@@ -493,11 +520,11 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, activeTab]);
+    }, [isAdmin, isAmbassadorLead, activeTab]);
 
     // Fetch Current Ambassadors
     useEffect(() => {
-        if (!isAdmin || activeTab !== 'ambassadors') return;
+        if (!(isAdmin || isAmbassadorLead) || activeTab !== 'ambassadors') return;
 
         console.log('FETCHING: ambassadors (users role == ambassador)...');
         const q = query(collection(db, 'users'), where('role', '==', 'ambassador'));
@@ -514,7 +541,7 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, activeTab]);
+    }, [isAdmin, isAmbassadorLead, activeTab]);
 
 
     const handleStatusUpdate = async (appId: string, newStatus: string) => {
@@ -733,7 +760,7 @@ function AdminDashboardContent() {
         );
     }
 
-    if (!isAdmin) return null;
+    if (!isAdmin && !isJudge && !isAmbassadorLead) return null;
 
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-32 pb-12">
@@ -754,17 +781,19 @@ function AdminDashboardContent() {
                         {/* Tab Switcher - Controlled via Navbar / URL */}
                     </div>
                     <div className="flex flex-wrap items-center gap-4">
-                        <button
-                            onClick={toggleRegistration}
-                            disabled={updatingReg}
-                            className={`px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-3 border shadow-xl ${isRegistrationOpen
-                                ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
-                                : 'bg-red-500/10 text-red-500 border-red-500/20'
-                                }`}
-                        >
-                            {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                            <span>Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={toggleRegistration}
+                                disabled={updatingReg}
+                                className={`px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-3 border shadow-xl ${isRegistrationOpen
+                                    ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
+                                    : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                    }`}
+                            >
+                                {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                                <span>Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
+                            </button>
+                        )}
 
                         {activeTab === 'startups' ? (
                             <>
