@@ -184,7 +184,7 @@ function ApplicationFormContent() {
         const newErrors: Record<string, string> = {};
         if (!formData.name.trim()) newErrors.name = "Please enter your name.";
         if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = "Please enter a valid email.";
-        if (formData.phone.length < 9) newErrors.phone = "Please check the phone number.";
+        if (formData.phone.length < 7 || formData.phone.length > 15) newErrors.phone = "Please check the phone number.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -398,10 +398,10 @@ function ApplicationFormContent() {
                                                 type="tel"
                                                 placeholder="512345678"
                                                 value={formData.phone}
-                                                maxLength={9}
+                                                maxLength={15}
                                                 onChange={(e) => {
                                                     const val = e.target.value.replace(/\D/g, '');
-                                                    if (val.length <= 9) {
+                                                    if (val.length <= 15) {
                                                         setFormData({ ...formData, phone: val });
                                                         if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
                                                     }

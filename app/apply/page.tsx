@@ -381,7 +381,7 @@ const ApplyPageContent = () => {
         if (!formData.leaderEmail) {
             newErrors.leaderEmail = "Please enter the team leader's email address.";
         }
-        if (formData.leaderPhoneNumber.length !== 9) {
+        if (formData.leaderPhoneNumber.length < 7 || formData.leaderPhoneNumber.length > 15) {
             newErrors.leaderPhoneNumber = "Please check the phone number.";
         }
         formData.teamMembers.forEach((m, idx) => {
@@ -997,10 +997,10 @@ const ApplyPageContent = () => {
                                                 type="tel"
                                                 placeholder="512345678"
                                                 value={formData.leaderPhoneNumber}
-                                                maxLength={9}
+                                                maxLength={15}
                                                 onChange={(e) => {
                                                     const val = e.target.value.replace(/\D/g, '');
-                                                    if (val.length <= 9) {
+                                                    if (val.length <= 15) {
                                                         setFormData({ ...formData, leaderPhoneNumber: val });
                                                         if (errors.leaderPhoneNumber) setErrors(prev => ({ ...prev, leaderPhoneNumber: '' }));
                                                     }
