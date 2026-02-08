@@ -11,7 +11,7 @@ const pillars = [
         title: 'DECARBONIZATION',
         subTitle: 'Decarbonization',
         icon: Leaf,
-        points: ['Carbon Capture', 'Net-Zero Emissions', 'Hydrogen Tech', 'Greenhouse Gas Reduction'],
+        points: ['Carbon Capture', 'Net-Zero Emissions', 'Hydrogen Tech', 'Renewable Energy'],
         color: '#00A383', // Teal
     },
     {
@@ -137,7 +137,7 @@ function Card({
                                 <pillar.icon style={{ color: pillar.color }} size={32} />
                             </div>
                         </div>
-                        <h3 className="text-2xl font-extrabold uppercase leading-none text-white mb-2 font-poppins tracking-tight">
+                        <h3 className="text-2xl font-black uppercase leading-none text-white mb-2 font-poppins tracking-tighter">
                             {pillar.title}
                         </h3>
                     </div>
@@ -203,7 +203,7 @@ function MobileStack({ pillars }: { pillars: any[] }) {
                             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
                                 <pillar.icon style={{ color: pillar.color }} size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-white leading-tight uppercase font-poppins">{pillar.title}</h3>
+                            <h3 className="text-xl font-black text-white leading-tight uppercase font-poppins tracking-tighter">{pillar.title}</h3>
                         </div>
 
                         <div className="flex flex-col gap-3 relative">
@@ -325,7 +325,7 @@ export default function ThemePillars() {
                                 <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                                     <pillar.icon style={{ color: pillar.color }} size={20} />
                                 </div>
-                                <h3 className="text-lg font-bold text-white leading-tight uppercase font-poppins">{pillar.title}</h3>
+                                <h3 className="text-lg font-black text-white leading-tight uppercase font-poppins tracking-tighter">{pillar.title}</h3>
                             </div>
 
                             <div className="flex flex-col gap-2">
@@ -357,7 +357,7 @@ export default function ThemePillars() {
                                     <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
                                         <pillar.icon style={{ color: pillar.color }} size={24} />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white leading-tight uppercase font-poppins">{pillar.title}</h3>
+                                    <h3 className="text-xl font-black text-white leading-tight uppercase font-poppins tracking-tighter">{pillar.title}</h3>
                                 </div>
 
                                 <div className="flex flex-col gap-3">
