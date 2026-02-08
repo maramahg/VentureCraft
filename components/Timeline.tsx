@@ -28,12 +28,12 @@ export default function Timeline() {
 
   const nodes: TimelineNode[] = useMemo(
     () => [
-      { id: 1, top: { title: 'Idea Submission', dates: '1 Feb - 1 Mar', description: 'Launch your journey. Submit your initial concept for review by our technical committee.' } },
-      { id: 2, bottom: { title: 'Screening \n (Round 1 & 2)', dates: '1 Mar - 15 Mar', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
-      { id: 3, top: { title: 'Online Bootcamp', dates: '23 Mar - 30 Mar', description: 'A virtual deep-dive into startup fundamentals, IP strategy, and go-to-market planning.' } },
-      { id: 4, bottom: { title: 'Finalist Notification', dates: '1 April - 5 April', description: 'The big announcement. Selected teams receive full travel support for the in-person acceleration program.' } },
-      { id: 5, top: { title: 'Acceleration Program', dates: '5 April - 12 April', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
-      { id: 6, bottom: { title: 'Final Competition', dates: 'TBD', description: 'Pitch your venture to global investors and energy leaders for the grand prize and partnership deals.' } },
+      { id: 1, top: { title: 'Idea Submission', dates: 'Closes on March 1', description: 'Launch your journey. Submit your initial concept for review by our technical committee.' } },
+      { id: 2, bottom: { title: 'Screening \n (Round 1 & 2)', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
+      { id: 3, top: { title: 'Online Bootcamp', description: 'A virtual deep-dive into startup fundamentals, IP strategy, and go-to-market planning.' } },
+      { id: 4, bottom: { title: 'Finalist Notification', description: 'The big announcement. Selected teams receive full travel support for the in-person acceleration program.' } },
+      { id: 5, top: { title: 'Acceleration Program', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
+      { id: 6, bottom: { title: 'Final Competition', description: 'Pitch your venture to global investors and energy leaders for the grand prize and partnership deals.' } },
     ],
     []
   );
