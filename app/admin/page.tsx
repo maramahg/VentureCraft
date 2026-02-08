@@ -9,6 +9,7 @@ import {
     Check, X, AlertCircle, Shield, FileText, FileCode,
     User, Link as LinkIcon, Share2, GraduationCap, WifiOff
 } from 'lucide-react';
+import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -19,6 +20,8 @@ import { countries as countriesList } from '@/lib/countries';
 interface Application {
     id: string;
     userId: string;
+    startupName?: string;
+    location?: string;
     status: 'pending' | 'accepted' | 'rejected' | 'submitted';
     submittedAt: any;
     teamSize: number;
@@ -46,7 +49,56 @@ interface Application {
         ageConfirmed: boolean;
         educationConfirmed: boolean;
     };
+    screening?: {
+        round1?: {
+            scores: {
+                problemClarity: number; // 30%
+                solutionInnovation: number; // 30%
+                earlyBusinessLogic: number; // 20%
+                communicationConviction: number; // 20%
+            };
+            totalScore: number; // Weighted 0-100
+            evaluatorId: string;
+            evaluatedAt: any; // Timestamp
+            feedback?: string;
+            isCompleted: boolean;
+        };
+        round2?: {
+            status: 'locked' | 'pending' | 'completed';
+        };
+    };
 }
+
+const RUBRICS = [
+    {
+        id: 'problemClarity',
+        label: 'Problem & Market Clarity',
+        weight: 0.3,
+        maxPoints: 10,
+        description: 'Assesses whether the problem is clearly defined, significant, and grounded in a real, identifiable need. The team should articulate who experiences the problem, why it matters, and why it is worth solving now.'
+    },
+    {
+        id: 'solutionInnovation',
+        label: 'Solution & Innovation',
+        weight: 0.3,
+        maxPoints: 10,
+        description: 'Evaluates the novelty and originality of the proposed solution, including whether it is grounded in credible science or technology and meaningfully differentiated from existing approaches.'
+    },
+    {
+        id: 'earlyBusinessLogic',
+        label: 'Early Business Logic',
+        weight: 0.2,
+        maxPoints: 10,
+        description: 'Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high-level revenue logic.'
+    },
+    {
+        id: 'communicationConviction',
+        label: 'Communication & Conviction',
+        weight: 0.2,
+        maxPoints: 10,
+        description: 'Evaluates clarity, coherence, and persuasiveness of the pitch deck and the video pitch, including the team’s ability to explain the problem and solution clearly and confidently.'
+    },
+];
 
 interface AmbassadorApplication {
     id: string;
@@ -282,6 +334,17 @@ function AdminDashboardContent() {
     const [nationalityFilter, setNationalityFilter] = useState<string>('all');
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [updatingReg, setUpdatingReg] = useState(false);
+    const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
+
+    // Screening State
+    const [currentScores, setCurrentScores] = useState({
+        problemClarity: 0,
+        solutionInnovation: 0,
+        earlyBusinessLogic: 0,
+        communicationConviction: 0
+    });
+    const [savingScore, setSavingScore] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
     const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors'>('startups');
@@ -372,11 +435,24 @@ function AdminDashboardContent() {
             setIsRegistrationOpen(newStatus);
         } catch (error) {
             console.error("Error toggling registration:", error);
-            alert("Failed to update registration status. Please try again.");
+            setToast({ message: "Failed to update registration status.", type: 'error' });
         } finally {
             setUpdatingReg(false);
         }
     };
+
+    useEffect(() => {
+        if (selectedApp?.screening?.round1?.scores) {
+            setCurrentScores(selectedApp.screening.round1.scores);
+        } else {
+            setCurrentScores({
+                problemClarity: 0,
+                solutionInnovation: 0,
+                earlyBusinessLogic: 0,
+                communicationConviction: 0
+            });
+        }
+    }, [selectedApp]);
 
     useEffect(() => {
         if (!isAdmin) return;
@@ -451,7 +527,51 @@ function AdminDashboardContent() {
             }
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Failed to update status.');
+            setToast({ message: 'Failed to update status.', type: 'error' });
+        }
+    };
+
+    const handleSaveScreening = async () => {
+        if (!selectedApp) return;
+        setSavingScore(true);
+
+        const totalScore = RUBRICS.reduce((acc, rubric) => {
+            return acc + (currentScores[rubric.id as keyof typeof currentScores] * (rubric.weight * 10)); // Scale to 100
+        }, 0);
+
+        const screeningData = {
+            round1: {
+                scores: currentScores,
+                totalScore: Math.round(totalScore),
+                evaluatorId: auth.currentUser?.uid || 'admin',
+                evaluatedAt: new Date(),
+                isCompleted: true
+            }
+        };
+
+        try {
+            await updateDoc(doc(db, 'applications', selectedApp.id), {
+                screening: {
+                    ...selectedApp.screening,
+                    ...screeningData
+                }
+            });
+
+            // Update local state
+            setSelectedApp({
+                ...selectedApp,
+                screening: {
+                    ...selectedApp.screening,
+                    ...screeningData
+                }
+            });
+
+            setToast({ message: 'Screening evaluation saved successfully!', type: 'success' });
+        } catch (error) {
+            console.error('Error saving screening:', error);
+            setToast({ message: 'Failed to save screening evaluation.', type: 'error' });
+        } finally {
+            setSavingScore(false);
         }
     };
 
@@ -477,10 +597,10 @@ function AdminDashboardContent() {
             if (selectedAmbassadorApp?.id === appId) {
                 setSelectedAmbassadorApp({ ...selectedAmbassadorApp, status: newStatus as any });
             }
-            alert(`Application ${newStatus} successfully!`);
+            setToast({ message: `Application ${newStatus} successfully!`, type: 'success' });
         } catch (error) {
             console.error('Error updating ambassador status:', error);
-            alert('Failed to update status.');
+            setToast({ message: 'Failed to update status.', type: 'error' });
         }
     };
 
@@ -490,10 +610,10 @@ function AdminDashboardContent() {
             await updateDoc(doc(db, 'users', userId), {
                 role: 'user'
             });
-            alert('User removed from Ambassadors.');
+            setToast({ message: 'User removed from Ambassadors.', type: 'success' });
         } catch (error) {
             console.error('Error removing ambassador:', error);
-            alert('Failed to remove ambassador.');
+            setToast({ message: 'Failed to remove ambassador.', type: 'error' });
         }
     };
 
@@ -515,6 +635,13 @@ function AdminDashboardContent() {
             app.teamMembers?.some(m => m.nationality === nationalityFilter);
 
         return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality;
+    }).sort((a, b) => {
+        if (sortBy === 'score') {
+            const scoreA = a.screening?.round1?.totalScore || 0;
+            const scoreB = b.screening?.round1?.totalScore || 0;
+            return scoreB - scoreA;
+        }
+        return 0; // Default matches query order (date desc)
     });
 
     const filteredAmbassadorApps = useMemo(() => {
@@ -646,12 +773,12 @@ function AdminDashboardContent() {
                                     <span className="text-2xl font-bold text-white">{applications.length}</span>
                                 </div>
                                 <div className="bg-vc-mint/10 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-vc-mint/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Accepted</span>
-                                    <span className="text-2xl font-bold text-vc-mint">{applications.filter(a => a.status === 'accepted').length}</span>
+                                    <span className="text-vc-mint/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Scored</span>
+                                    <span className="text-2xl font-bold text-vc-mint">{applications.filter(a => a.screening?.round1?.isCompleted).length}</span>
                                 </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
                                     <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
-                                    <span className="text-2xl font-bold text-white">{applications.filter(a => !a.status || a.status === 'pending' || a.status === 'submitted').length}</span>
+                                    <span className="text-2xl font-bold text-white">{applications.filter(a => !a.screening?.round1?.isCompleted).length}</span>
                                 </div>
                             </>
                         ) : (
@@ -700,21 +827,23 @@ function AdminDashboardContent() {
                                     </div>
                                 </div>
 
-                                {/* Status Filter */}
-                                <div className="space-y-3">
-                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Status</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['all', 'pending', 'accepted', 'rejected'].map(s => (
-                                            <button
-                                                key={s}
-                                                onClick={() => activeTab === 'startups' ? setStatusFilter(s) : setAmbStatusFilter(s)}
-                                                className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${(activeTab === 'startups' ? statusFilter : ambStatusFilter) === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                            >
-                                                {s.toUpperCase()}
-                                            </button>
-                                        ))}
+                                {/* Status Filter (Only for Ambassadors) */}
+                                {activeTab !== 'startups' && (
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Status</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {['all', 'pending', 'accepted', 'rejected'].map(s => (
+                                                <button
+                                                    key={s}
+                                                    onClick={() => setAmbStatusFilter(s)}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${ambStatusFilter === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                >
+                                                    {s.toUpperCase()}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {activeTab === 'startups' ? (
                                     <>
@@ -784,9 +913,8 @@ function AdminDashboardContent() {
                                     setStatusFilter('all');
                                     setPillarFilter('all');
                                     setStageFilter('all');
-                                    setTeamSizeFilter('all');
-                                    setAgeFilter('all');
                                     setNationalityFilter('all');
+                                    setSortBy('date');
                                 } else {
                                     setAmbSearchTerm('');
                                     setAmbStatusFilter('all');
@@ -798,6 +926,26 @@ function AdminDashboardContent() {
                         >
                             Reset Filters
                         </button>
+
+                        {activeTab === 'startups' && (
+                            <div className="pt-4 border-t border-white/5">
+                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Sort By</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => setSortBy('date')}
+                                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'date' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                    >
+                                        DATE
+                                    </button>
+                                    <button
+                                        onClick={() => setSortBy('score')}
+                                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'score' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                    >
+                                        SCORE
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Main Content Area */}
@@ -845,10 +993,16 @@ function AdminDashboardContent() {
                                                     <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.leaderEmail}</h3>
+                                                    <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">
+                                                        {app.leaderEmail}
+                                                    </h3>
                                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
+                                                        <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {app.teamMembers?.[0]?.name || 'Leader'}</span>
                                                         <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
-                                                        <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
+                                                        <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
+                                                        {app.startupName && (
+                                                            <span className="flex items-center gap-1.5 text-vc-mint/60"><Rocket className="w-3 h-3" /> {app.startupName}</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -859,29 +1013,23 @@ function AdminDashboardContent() {
                                                     <span className="text-sm text-white/60">{app.pillar}</span>
                                                 </div>
 
-                                                <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
-                                                    app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                        'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
+                                                {app.screening?.round1?.totalScore !== undefined && (
+                                                    <div className="hidden lg:flex flex-col items-end">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-vc-mint/60">Score</span>
+                                                        <span className="text-xl font-black text-vc-mint">{app.screening.round1.totalScore}</span>
+                                                    </div>
+                                                )}
+
+                                                <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark border-vc-mint' :
+                                                    app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                                                        app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                            'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
                                                     }`}>
-                                                    {(app.status === 'submitted' ? 'pending' : app.status) || 'pending'}
+                                                    {app.screening?.round1?.isCompleted ? 'SCORED' : (app.status === 'submitted' ? 'pending' : app.status) || 'pending'}
                                                 </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); handleStatusUpdate(app.id, 'accepted'); }}
-                                                        className="p-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
-                                                        title="Accept"
-                                                    >
-                                                        <Check className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); handleStatusUpdate(app.id, 'rejected'); }}
-                                                        className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
-                                                        title="Reject"
-                                                    >
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </div>
+
+
                                             </div>
                                         </motion.div>
                                     ))}
@@ -917,7 +1065,7 @@ function AdminDashboardContent() {
                                                             <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.email}</h3>
                                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
                                                                 <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {app.name || app.fullName}</span>
-                                                                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleDateString()}</span>
+                                                                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1035,8 +1183,15 @@ function AdminDashboardContent() {
                                             <Rocket className="text-vc-mint w-8 h-8" />
                                         </div>
                                         <div>
-                                            <h2 className="text-2xl font-bold">{selectedApp.leaderEmail}</h2>
-                                            <span className="text-white/40 text-sm">Submitted on {selectedApp.submittedAt?.toDate().toLocaleString()}</span>
+                                            <h2 className="text-2xl font-bold">{selectedApp.startupName || selectedApp.pillar}</h2>
+                                            <div className="flex items-center gap-4 text-white/40 text-sm mt-1">
+                                                <span>Submitted on {selectedApp.submittedAt?.toDate().toLocaleString()}</span>
+                                                {selectedApp.location && (
+                                                    <span className="flex items-center gap-1.5 px-2.5 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                                        <Globe className="w-3 h-3" /> {selectedApp.location}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                     <button
@@ -1049,7 +1204,7 @@ function AdminDashboardContent() {
 
                                 {/* Modal Content - New 2-Column Layout */}
                                 <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
-                                    <div className="grid lg:grid-cols-[1fr_360px] gap-8 md:gap-12">
+                                    <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
                                         {/* Main Column: In-depth Details */}
                                         <div className="space-y-10">
                                             {/* Startup Profile Section */}
@@ -1070,6 +1225,12 @@ function AdminDashboardContent() {
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Established over 5 Years ago?</p>
                                                         <p className="text-lg font-medium text-white">{selectedApp.isOlderThan5Years}</p>
                                                     </div>
+                                                    {selectedApp.location && (
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Primary Location</p>
+                                                            <p className="text-lg font-medium text-white">{selectedApp.location}</p>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="mt-10 pt-8 border-t border-white/5">
@@ -1105,7 +1266,7 @@ function AdminDashboardContent() {
                                                     <Users className="w-4 h-4" /> Team Foundation
                                                 </h3>
 
-                                                <div className="grid md:grid-cols-[1.2fr_1fr] gap-12">
+                                                <div className="flex flex-col gap-8">
                                                     <div className="space-y-6">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Breakdown ({selectedApp.teamSize} Member{selectedApp.teamSize > 1 ? 's' : ''})</p>
                                                         <div className="space-y-3">
@@ -1114,32 +1275,37 @@ function AdminDashboardContent() {
                                                                     <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20 shrink-0">
                                                                         {i + 1}
                                                                     </div>
-                                                                    <div className="flex flex-wrap items-baseline gap-2 min-w-0">
+                                                                    <div className="flex flex-wrap items-center gap-2 min-w-0">
                                                                         <span className="font-bold text-sm text-white/90 truncate">{m.name || 'Anonymous Member'}</span>
                                                                         <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap opacity-60">
                                                                             ({m.nationality})
                                                                         </span>
+                                                                        {i === 0 && (
+                                                                            <span className="ml-2 px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md">
+                                                                                Team Leader
+                                                                            </span>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             ))}
                                                         </div>
                                                     </div>
 
-                                                    <div className="space-y-8">
+                                                    <div className="grid lg:grid-cols-2 gap-8">
                                                         <div className="space-y-4">
                                                             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Leader Contact</p>
                                                             <div className="space-y-3 text-sm">
                                                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
                                                                     <Mail className="w-4 h-4 text-vc-mint" />
-                                                                    <span className="font-medium underline decoration-vc-mint/30">{selectedApp.leaderEmail}</span>
+                                                                    <span className="font-medium underline decoration-vc-mint/30 truncate" title={selectedApp.leaderEmail}>{selectedApp.leaderEmail}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
                                                                     <Phone className="w-4 h-4 text-white/40" />
-                                                                    <span className="font-medium">{selectedApp.leaderPhone}</span>
+                                                                    <span className="font-medium truncate">{selectedApp.leaderPhone}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
                                                                     <Globe className="w-4 h-4 text-white/40" />
-                                                                    <span className="font-medium">{selectedApp.leaderNationality}</span>
+                                                                    <span className="font-medium truncate">{selectedApp.leaderNationality}</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1175,10 +1341,7 @@ function AdminDashboardContent() {
                                                     </p>
                                                 </div>
                                             </section>
-                                        </div>
 
-                                        {/* Sidebar: Materials & Quick Actions */}
-                                        <div className="space-y-8">
                                             {/* Submission Materials */}
                                             <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
@@ -1214,43 +1377,103 @@ function AdminDashboardContent() {
                                                 </div>
                                             </section>
 
-                                            {/* Take Action Center */}
-                                            <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-[2.5rem] p-8 shadow-2xl shadow-vc-mint/5">
-                                                <h3 className="text-vc-mint font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
-                                                    Review Decision
-                                                </h3>
-                                                <div className="space-y-4">
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(selectedApp.id, 'accepted')}
-                                                        className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedApp.status === 'accepted'
-                                                            ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20 scale-[1.02]'
-                                                            : 'bg-white/5 text-vc-mint border border-vc-mint/20 hover:bg-vc-mint/20'
-                                                            }`}
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(selectedApp.id, 'rejected')}
-                                                        className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedApp.status === 'rejected'
-                                                            ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 scale-[1.02]'
-                                                            : 'bg-white/5 text-red-400 border border-red-500/20 hover:bg-red-500/20'
-                                                            }`}
-                                                    >
-                                                        Reject
-                                                    </button>
 
-                                                    {selectedApp.status !== 'pending' && (
-                                                        <div className="pt-4 flex justify-center">
-                                                            <button
-                                                                onClick={() => handleStatusUpdate(selectedApp.id, 'pending')}
-                                                                className="text-[10px] font-bold text-white/30 hover:text-vc-mint transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
-                                                            >
-                                                                Reset Decision
-                                                            </button>
+                                        </div>
+
+
+
+
+                                        {/* Right Column: Scoring */}
+                                        <div className="space-y-8">
+                                            {/* Screening & Scoring Section */}
+                                            <section className="bg-[#0f2a27]/50 border border-vc-mint/20 rounded-[2rem] p-8 relative overflow-hidden">
+
+
+                                                <div className="flex items-center justify-between mb-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                                        <Shield className="w-4 h-4" /> Screening Round 1
+                                                    </h3>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
+                                                        <span className="text-4xl font-black text-vc-mint">
+                                                            {Math.round(RUBRICS.reduce((acc, r) => acc + (currentScores[r.id as keyof typeof currentScores] * (r.weight * 10)), 0))}
+                                                            <span className="text-base font-bold text-white/30 ml-2">/ 100</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-8">
+                                                    {RUBRICS.map((rubric) => (
+                                                        <div key={rubric.id} className="space-y-3">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="space-y-1">
+                                                                    <label className="text-base font-bold text-white flex items-center gap-2">
+                                                                        {rubric.label}
+                                                                        <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
+                                                                            {rubric.weight * 100}% Weight
+                                                                        </span>
+                                                                    </label>
+                                                                    <p className="text-sm text-white/60 max-w-lg leading-relaxed">{rubric.description}</p>
+                                                                </div>
+                                                                <span className="text-2xl font-bold text-vc-mint w-12 text-right">
+                                                                    {currentScores[rubric.id as keyof typeof currentScores]}
+                                                                </span>
+                                                            </div>
+                                                            <input
+                                                                type="range"
+                                                                min="0"
+                                                                max="10"
+                                                                step="1"
+                                                                value={currentScores[rubric.id as keyof typeof currentScores]}
+                                                                onChange={(e) => setCurrentScores({
+                                                                    ...currentScores,
+                                                                    [rubric.id]: parseInt(e.target.value)
+                                                                })}
+                                                                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint"
+                                                            />
+                                                            <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
+                                                                <span>Poor (0)</span>
+                                                                <span>Excellent (10)</span>
+                                                            </div>
                                                         </div>
-                                                    )}
+                                                    ))}
+                                                </div>
+
+                                                <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                                                    <button
+                                                        onClick={handleSaveScreening}
+                                                        disabled={savingScore}
+                                                        className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
+                                                    >
+                                                        {savingScore ? (
+                                                            <>
+                                                                <div className="w-4 h-4 border-2 border-vc-green-dark border-t-transparent rounded-full animate-spin" />
+                                                                Saving...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <CheckCircle className="w-5 h-5" /> Save Evaluation
+                                                            </>
+                                                        )}
+                                                    </button>
                                                 </div>
                                             </section>
+
+                                            {/* Round 2 Placeholder */}
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 opacity-50 grayscale select-none cursor-not-allowed relative">
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3">
+                                                        <Shield className="w-4 h-4 text-white/40" />
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-white/60">Round 2 Locked</span>
+                                                    </div>
+                                                </div>
+                                                <h3 className="text-white/40 font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                    <Shield className="w-4 h-4" /> Screening Round 2
+                                                </h3>
+                                                <div className="h-40"></div>
+                                            </section>
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -1452,6 +1675,14 @@ function AdminDashboardContent() {
                     )}
                 </AnimatePresence>
             </div >
+
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </main >
     );
 }

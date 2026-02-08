@@ -14,6 +14,7 @@ import Navbar from '@/components/Navbar';
 
 
 import { countries } from '@/lib/countries';
+import { isValidUrl, isValidYoutubeUrl, isValidLinkedinUrl } from '@/lib/utils';
 
 // Custom Dropdown Component
 function FlagDropdown({
@@ -288,6 +289,7 @@ const ApplyPageContent = () => {
 
         // Part 2
         startupName: '',
+        location: '',
         pillar: '',
         isOlderThan5Years: 'No',
         stage: '',
@@ -396,6 +398,9 @@ const ApplyPageContent = () => {
         if (!formData.startupName.trim()) {
             newErrors.startupName = "Please enter your Startup / Project Name.";
         }
+        if (!formData.location.trim()) {
+            newErrors.location = "Please enter your Startup Location.";
+        }
         if (!formData.pillar) {
             newErrors.pillar = "Please select which pillar your startup aligns with.";
         }
@@ -404,6 +409,12 @@ const ApplyPageContent = () => {
         }
         if (!formData.coiDeclaration.trim()) {
             newErrors.coiDeclaration = "Please provide a Conflict of Interest declaration (or state 'None').";
+        }
+        if (formData.website && !isValidUrl(formData.website)) {
+            newErrors.website = "Please enter a valid URL (e.g., https://example.com).";
+        }
+        if (formData.linkedin && !isValidLinkedinUrl(formData.linkedin)) {
+            newErrors.linkedin = "Please enter a valid LinkedIn URL.";
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -419,6 +430,8 @@ const ApplyPageContent = () => {
         }
         if (!formData.videoPitchUrl.trim()) {
             newErrors.videoPitchUrl = "Please provide the link to your Video Pitch.";
+        } else if (!isValidYoutubeUrl(formData.videoPitchUrl)) {
+            newErrors.videoPitchUrl = "Please provide a valid YouTube URL (youtube.com or youtu.be).";
         }
         if (!formData.agreedToTerms) {
             newErrors.agreedToTerms = "You must agree to the Terms and Conditions to submit.";
@@ -468,6 +481,7 @@ const ApplyPageContent = () => {
 
                 // Form Data
                 startupName: formData.startupName,
+                location: formData.location,
                 teamSize: formData.teamSize,
                 teamMembers: formData.teamMembers,
                 leaderEmail: formData.leaderEmail,
@@ -1113,9 +1127,26 @@ const ApplyPageContent = () => {
 
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
+                                            Startup Location <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.location}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, location: e.target.value });
+                                                if (errors.location) setErrors(prev => ({ ...prev, location: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.location ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="City, Country"
+                                        />
+                                        {errors.location && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.location}</p>}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-base font-medium text-white/70">
                                             Which of the following pillars does your startup most closely align with? <span className="text-vc-mint">*</span>
                                         </label>
-                                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
+                                        <div className={`grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
                                             {[
                                                 'Decarbonization Technologies',
                                                 'Circular Economy & Resource Efficiency',
@@ -1128,7 +1159,7 @@ const ApplyPageContent = () => {
                                                         setFormData({ ...formData, pillar: p });
                                                         if (errors.pillar) setErrors(prev => ({ ...prev, pillar: '' }));
                                                     }}
-                                                    className={`p-4 rounded-xl border text-left transition-all ${formData.pillar === p ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                                    className={`p-4 h-full flex items-center rounded-xl border text-left transition-all ${formData.pillar === p ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
                                                 >
                                                     {p}
                                                 </button>
@@ -1196,20 +1227,28 @@ const ApplyPageContent = () => {
                                             <input
                                                 type="url"
                                                 value={formData.website}
-                                                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, website: e.target.value });
+                                                    if (errors.website) setErrors(prev => ({ ...prev, website: '' }));
+                                                }}
+                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.website ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
                                                 placeholder="https://..."
                                             />
+                                            {errors.website && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.website}</p>}
                                         </div>
                                         <div className="space-y-4">
                                             <label className="block text-base font-medium text-white/70">LinkedIn Page</label>
                                             <input
                                                 type="url"
                                                 value={formData.linkedin}
-                                                onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, linkedin: e.target.value });
+                                                    if (errors.linkedin) setErrors(prev => ({ ...prev, linkedin: '' }));
+                                                }}
+                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.linkedin ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
                                                 placeholder="https://linkedin.com/company/..."
                                             />
+                                            {errors.linkedin && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.linkedin}</p>}
                                         </div>
                                     </div>
 

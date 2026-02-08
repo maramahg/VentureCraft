@@ -9,6 +9,7 @@ import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { countries } from '@/lib/countries';
+import { isValidUrl } from '@/lib/utils';
 
 // Custom Dropdown Component (Identical to competition apply page)
 function FlagDropdown({
@@ -193,7 +194,11 @@ function ApplicationFormContent() {
         if (!formData.university.trim()) newErrors.university = "Please enter your university.";
         if (!formData.major.trim()) newErrors.major = "Please enter your major.";
         if (!formData.degree) newErrors.degree = "Please select your degree.";
-        if (!formData.socialMedia.trim()) newErrors.socialMedia = "Please enter your social media profile URL.";
+        if (!formData.socialMedia.trim()) {
+            newErrors.socialMedia = "Please enter your social media profile URL.";
+        } else if (!isValidUrl(formData.socialMedia)) {
+            newErrors.socialMedia = "Please enter a valid URL (e.g., https://linkedin.com/in/...).";
+        }
         if (!formData.reason.trim()) newErrors.reason = "Please tell us why you want to join.";
         if (!formData.experience.trim()) newErrors.experience = "Please tell us about your experience.";
         setErrors(newErrors);
