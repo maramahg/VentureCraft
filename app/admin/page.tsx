@@ -737,7 +737,15 @@ function AdminDashboardContent() {
             setDecisionConfig(null);
         } catch (error: any) {
             console.error('Error updating ambassador status:', error);
-            setToast({ message: `Failed to update status: ${error.message || 'Unknown error'}`, type: 'error' });
+            let userMessage = error.message || 'Unknown error';
+
+            if (error.code === 'permission-denied' || error.message?.includes('permission-denied')) {
+                userMessage = "Action denied. This usually happens if you manually deleted the document in Firebase or don't have update permissions. Please refresh and try again.";
+            } else if (error.code === 'not-found' || error.message?.includes('not-found')) {
+                userMessage = "Document not found. It may have been already deleted from Firebase.";
+            }
+
+            setToast({ message: `Failed to update status: ${userMessage}`, type: 'error' });
         } finally {
             setProcessingDecision(false);
         }
