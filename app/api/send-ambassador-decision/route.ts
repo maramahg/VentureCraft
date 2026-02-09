@@ -41,12 +41,12 @@ export async function POST(request: Request) {
                             <p style="font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.8); margin-bottom: 32px;">
                                 ${isAccepted
                     ? `Great news! We have reviewed your application and are thrilled to invite you to join the <strong>Venture Craft Ambassadors Program</strong>. Your passion for innovation and community engagement stood out to our team.`
-                    : `Thank you for your interest in the Venture Craft Ambassadors Program and for taking the time to share your background with us. Our team has carefully reviewed your application.`
+                    : `Thank you so much for your interest in the Venture Craft Ambassadors Program and for the effort you put into your application. It was a pleasure to learn about your background, goals, and your vision for the deep-tech ecosystem.`
                 }
                             </p>
                             
                             <!-- Main Message Box -->
-                            <div style="background-color: ${isAccepted ? 'rgba(57, 204, 137, 0.05)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${isAccepted ? 'rgba(57, 204, 137, 0.1)' : 'rgba(255,255,255,0.05)'}; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+                            <div style="background-color: ${isAccepted ? 'rgba(57, 204, 137, 0.05)' : 'rgba(255, 255, 255, 0.03)'}; border: 1px solid ${isAccepted ? 'rgba(57, 204, 137, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
                                 ${isAccepted ? `
                                     <h3 style="color: #39cc89; font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 16px;">What's Next?</h3>
                                     <ul style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
@@ -57,10 +57,10 @@ export async function POST(request: Request) {
                                     </ul>
                                 ` : `
                                     <p style="margin: 0; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
-                                        At this time, we will not be moving forward with your application for the Ambassadors Program. We received many high-quality submissions and had to make some very difficult choices.
+                                        While our team was genuinely impressed by your profile, we are unfortunately unable to offer you a position in the Ambassadors Program at this time. This was a very difficult choice, as we received many exceptional applications this cycle.
                                     </p>
                                     <p style="margin: 16px 0 0; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
-                                        We encourage you to remain a part of the Venture Craft community, participate in our challenges, and reapply for the program in future cycles.
+                                        Please know that this decision doesn't reflect your potential as a future leader. We truly value your enthusiasm and would love for you to stay involved with Venture Craft—whether by joining our challenges, attending events, or reapplying in the future.
                                     </p>
                                 `}
                             </div>
