@@ -6,15 +6,42 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { email, name, status } = body;
+        const { email, name, status, location } = body;
 
         if (!email || !status) {
             return NextResponse.json({ error: 'Email and status are required' }, { status: 400 });
         }
 
         const isAccepted = status === 'accepted';
+        const isLocal = location?.toLowerCase().includes('saudi') || location?.toLowerCase() === 'sa';
+        const ambassadorType = isLocal ? 'Local Ambassador' : 'Global Ambassador';
+        const whatsappLink = isLocal
+            ? 'https://chat.whatsapp.com/G9YksQLG5xhK3XMeVnBdyc?mode=gi_t'
+            : 'https://chat.whatsapp.com/E5bMs10LbpLAWXGOXVfY6S?mode=gi_t';
+
+        // Personalized Card Logic (Dynamic Image Route for 100% reliability)
+        let cardImageHtml = '';
+        if (isAccepted) {
+            // Determine the base URL dynamically to support local development and production
+            const host = request.headers.get('host');
+            const protocol = host?.includes('localhost') ? 'http' : 'https';
+            const baseUrl = `${protocol}://${host}`;
+
+            // Encode the name for the URL (original casing)
+            const encodedName = encodeURIComponent(name);
+            const cardImageUrl = `${baseUrl}/api/ambassador-card-image?name=${encodedName}`;
+
+            cardImageHtml = `
+                <div style="margin-bottom: 32px; text-align: center;">
+                    <a href="${cardImageUrl}" target="_blank">
+                        <img src="${cardImageUrl}" alt="Welcome ${name}" style="width: 100%; max-width: 600px; height: auto; border-radius: 20px; display: block; margin: 0 auto;" />
+                    </a>
+                </div>
+            `;
+        }
+
         const subject = isAccepted
-            ? "Congratulations! You've been accepted to the Venture Craft Ambassadors Program"
+            ? `Congratulations! You've been accepted as a ${ambassadorType}`
             : "Update regarding your Ambassador Application: Venture Craft";
 
         const { data, error } = await resend.emails.send({
@@ -33,14 +60,14 @@ export async function POST(request: Request) {
                         <!-- Content -->
                         <div style="padding: 0 40px 40px;">
                             <h2 style="color: ${isAccepted ? '#39cc89' : '#ffffff'}; font-size: 24px; font-weight: bold; margin-bottom: 24px; text-align: center;">
-                                ${isAccepted ? 'Welcome to the Team!' : 'Application Update'}
+                                ${isAccepted ? `Welcome to the Team, ${ambassadorType}!` : 'Application Update'}
                             </h2>
                             
                             <p style="font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9);">Dear ${name},</p>
                             
                             <p style="font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.8); margin-bottom: 32px;">
-                                ${isAccepted
-                    ? `Great news! We have reviewed your application and are thrilled to invite you to join the <strong>Venture Craft Ambassadors Program</strong>. Your passion for innovation and community engagement stood out to our team.`
+                                 ${isAccepted
+                    ? `Congratulations! We have carefully reviewed your application, and we are thrilled to officially invite you to join the <strong>Venture Craft Ambassadors Program</strong> as a <strong>${ambassadorType}</strong>. Your dedication to fostering innovation and your vision for community engagement stood out to our team.`
                     : `Thank you so much for your interest in the Venture Craft Ambassadors Program and for the effort you put into your application. It was a pleasure to learn about your background, goals, and your vision for the deep-tech ecosystem.`
                 }
                             </p>
@@ -48,28 +75,33 @@ export async function POST(request: Request) {
                             <!-- Main Message Box -->
                             <div style="background-color: ${isAccepted ? 'rgba(57, 204, 137, 0.05)' : 'rgba(255, 255, 255, 0.03)'}; border: 1px solid ${isAccepted ? 'rgba(57, 204, 137, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
                                 ${isAccepted ? `
-                                    <h3 style="color: #39cc89; font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 16px;">What's Next?</h3>
+                                    <h3 style="color: #39cc89; font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 16px;">Next Steps</h3>
                                     <ul style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
                                         <li>You now have active Ambassador status on the Venture Craft platform.</li>
-                                        <li>Log in to your dashboard to access exclusive ambassador resources.</li>
-                                        <li>We will reach out soon with details regarding our upcoming orientation and community events.</li>
-                                        <li>Stay tuned for opportunities to represent Venture Craft at your institution.</li>
+                                        <li><strong>Join the Community:</strong> Please join our official WhatsApp community and your dedicated ambassador group via the link below:
+                                            <div style="margin-top: 12px; margin-bottom: 20px; text-align: center;">
+                                                <a href="${whatsappLink}" style="background-color: #39cc89; color: #001311; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: bold; display: inline-block;">Join WhatsApp Group</a>
+                                            </div>
+                                        </li>
+                                        <li>Further details regarding orientation and upcoming tasks will be shared directly within the WhatsApp group.</li>
                                     </ul>
                                 ` : `
                                     <p style="margin: 0; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
                                         While our team was genuinely impressed by your profile, we are unfortunately unable to offer you a position in the Ambassadors Program at this time. This was a very difficult choice, as we received many exceptional applications this cycle.
                                     </p>
                                     <p style="margin: 16px 0 0; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
-                                        Please know that this decision doesn't reflect your potential as a future leader. We truly value your enthusiasm and would love for you to stay involved with Venture Craft—whether by joining our challenges, attending events, or reapplying in the future.
+                                        Please know that this decision doesn't reflect your potential as a future leader. We truly value your enthusiasm and would love for you to stay involved with Venture Craft- whether by joining our challenges, attending events, or reapplying in the future.
                                     </p>
                                 `}
                             </div>
+                            
+                            ${cardImageHtml}
 
                             <p style="font-size: 15px; line-height: 1.6; color: rgba(255,255,255,0.6);">
-                                Please note that this is an automated message regarding your application status.
+                                Please note that this is an automated message and replies to this email address are not monitored.
                             </p>
                             
-                            <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); pt-24; padding-top: 24px;">
+                            <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;">
                                 <p style="font-size: 15px; color: rgba(255,255,255,0.9); margin-bottom: 4px;">Best regards,</p>
                                 <p style="font-size: 16px; font-weight: bold; color: #39cc89; margin: 0;">The Venture Craft Team</p>
                             </div>
@@ -82,6 +114,7 @@ export async function POST(request: Request) {
                             </p>
                             <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; letter-spacing: 1px; text-transform: uppercase;">
                                 Venture Craft - Shaping the Future of Tech
+                                <span style="display: none !important; color: transparent; opacity: 0; font-size: 0;">${Date.now()}</span>
                             </p>
                         </div>
                     </div>

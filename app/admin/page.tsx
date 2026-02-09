@@ -7,7 +7,7 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, GraduationCap, WifiOff, QrCode, Download
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
@@ -376,6 +376,7 @@ function AdminDashboardContent() {
         userName: string;
         userEmail: string;
         status: 'accepted' | 'rejected' | 'pending';
+        location?: string;
     } | null>(null);
 
     // We use the imported countriesList directly or map it if needed
@@ -464,9 +465,7 @@ function AdminDashboardContent() {
             { id: 'pitchDeck', url: selectedApp.materials.pitchDeckUrl },
             { id: 'execSummary', url: selectedApp.materials.execSummaryUrl },
             { id: 'supportingData', url: selectedApp.materials.supportingDataUrl }
-        ].filter(f => f.url) : [
-            { id: 'socialMedia', url: selectedAmbassadorApp?.socialMedia }
-        ].filter(f => f.url);
+        ].filter(f => f.url) : []; // No security scan for ambassadors
 
         filesToScan.forEach(async (file) => {
             try {
@@ -493,12 +492,12 @@ function AdminDashboardContent() {
     };
 
     useEffect(() => {
-        if (!selectedApp && !selectedAmbassadorApp) {
+        if (!selectedApp) {
             setSecurityStatus({});
             return;
         }
         refreshScans();
-    }, [selectedApp, selectedAmbassadorApp]);
+    }, [selectedApp]);
 
     // Countries are imported from @/lib/countries
 
@@ -672,7 +671,8 @@ function AdminDashboardContent() {
             userId,
             userName: app.name || app.fullName || 'Applicant',
             userEmail: app.email,
-            status: newStatus as any
+            status: newStatus as any,
+            location: app.location || app.nationality || ''
         });
         setShowDecisionModal(true);
     };
@@ -709,7 +709,8 @@ function AdminDashboardContent() {
                         body: JSON.stringify({
                             email: userEmail,
                             name: userName,
-                            status: status
+                            status: status,
+                            location: decisionConfig.location
                         })
                     });
                 } catch (emailErr) {
@@ -1921,45 +1922,24 @@ function AdminDashboardContent() {
                                                     {selectedAmbassadorApp.socialMedia && (
                                                         <div className="pt-4 border-t border-white/5 space-y-3">
                                                             <div className="flex items-center justify-between mb-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest text-vc-mint/60">Social Verification</p>
-                                                                <button onClick={refreshScans} className="text-[9px] font-bold text-vc-mint/40 hover:text-vc-mint transition-colors uppercase tracking-tighter underline">Refresh Scan</button>
+                                                                <p className="text-[9px] font-bold text-vc-mint/40 uppercase tracking-widest">Digital Presence</p>
                                                             </div>
-                                                            <div className="flex flex-col gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all relative">
-                                                                <div className="flex items-center justify-between">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <Share2 className="text-vc-mint/60 group-hover:text-vc-mint w-5 h-5 transition-colors" />
-                                                                        <div className="flex flex-col">
-                                                                            <span className="text-sm font-bold">Social Profile</span>
-                                                                            <a
-                                                                                href={selectedAmbassadorApp.socialMedia}
-                                                                                target="_blank"
-                                                                                className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate max-w-[150px]"
-                                                                            >
-                                                                                Open Link
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {securityStatus['socialMedia'] ? (
-                                                                        <div className={`flex items-center gap-1.5 px-2 py-1 border rounded-md ${securityStatus['socialMedia'].status === 'clean' ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' :
-                                                                            securityStatus['socialMedia'].status === 'malicious' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                                                'bg-white/5 border-white/10 text-white/40'
-                                                                            }`}>
-                                                                            <Shield className="w-3 h-3" />
-                                                                            <span className="text-[9px] font-bold uppercase tracking-widest">
-                                                                                {securityStatus['socialMedia'].status === 'clean' ? 'Safe' :
-                                                                                    securityStatus['socialMedia'].status === 'malicious' ? 'Flagged' :
-                                                                                        securityStatus['socialMedia'].status === 'pending_submission' ? 'Scanning' : 'Unknown'}
-                                                                            </span>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 text-white/20 rounded-md animate-pulse">
-                                                                            <Shield className="w-3 h-3" />
-                                                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Analyzing...</span>
-                                                                        </div>
-                                                                    )}
+                                                            <a
+                                                                href={selectedAmbassadorApp.socialMedia}
+                                                                target="_blank"
+                                                                className="flex items-center gap-4 p-5 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
+                                                            >
+                                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0 border border-vc-mint/20 group-hover:scale-110 transition-transform">
+                                                                    <Share2 className="text-vc-mint w-5 h-5" />
                                                                 </div>
-                                                            </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-xs font-bold text-white/90 mb-0.5">Social Profile</p>
+                                                                    <p className="text-[10px] text-vc-mint/60 underline decoration-vc-mint/20 truncate">
+                                                                        {selectedAmbassadorApp.socialMedia}
+                                                                    </p>
+                                                                </div>
+                                                                <ExternalLink className="w-4 h-4 text-vc-mint/40 group-hover:text-vc-mint transition-colors" />
+                                                            </a>
                                                         </div>
                                                     )}
                                                 </div>
