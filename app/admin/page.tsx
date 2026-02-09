@@ -2047,7 +2047,9 @@ function AdminDashboardContent() {
                                 <div className="space-y-2">
                                     <h3 className="text-2xl font-bold">Confirm Decision</h3>
                                     <p className="text-white/60 text-sm leading-relaxed px-4">
-                                        Are you sure you want to <span className={`font-bold ${decisionConfig.status === 'accepted' ? 'text-vc-mint' : 'text-red-400'}`}>{decisionConfig.status}</span> the application for <span className="text-white font-medium">{decisionConfig.userName}</span>?
+                                        Are you sure you want to <span className={`font-bold ${decisionConfig.status === 'accepted' ? 'text-vc-mint' : decisionConfig.status === 'rejected' ? 'text-red-400' : 'text-white/80'}`}>
+                                            {decisionConfig.status === 'accepted' ? 'accept' : decisionConfig.status === 'rejected' ? 'reject' : 'reset'}
+                                        </span> the application for <span className="text-white font-medium">{decisionConfig.userName}</span>?
                                     </p>
                                 </div>
 
