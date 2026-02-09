@@ -458,12 +458,14 @@ function AdminDashboardContent() {
 
     // Security Scanning Logic
     const refreshScans = async () => {
-        if (!selectedApp) return;
+        if (!selectedApp && !selectedAmbassadorApp) return;
 
-        const filesToScan = [
+        const filesToScan = selectedApp ? [
             { id: 'pitchDeck', url: selectedApp.materials.pitchDeckUrl },
             { id: 'execSummary', url: selectedApp.materials.execSummaryUrl },
             { id: 'supportingData', url: selectedApp.materials.supportingDataUrl }
+        ].filter(f => f.url) : [
+            { id: 'socialMedia', url: selectedAmbassadorApp?.socialMedia }
         ].filter(f => f.url);
 
         filesToScan.forEach(async (file) => {
@@ -491,12 +493,12 @@ function AdminDashboardContent() {
     };
 
     useEffect(() => {
-        if (!selectedApp) {
+        if (!selectedApp && !selectedAmbassadorApp) {
             setSecurityStatus({});
             return;
         }
         refreshScans();
-    }, [selectedApp]);
+    }, [selectedApp, selectedAmbassadorApp]);
 
     // Countries are imported from @/lib/countries
 
@@ -1917,18 +1919,47 @@ function AdminDashboardContent() {
                                                         </div>
                                                     </div>
                                                     {selectedAmbassadorApp.socialMedia && (
-                                                        <div className="pt-4 border-t border-white/5">
-                                                            <a
-                                                                href={selectedAmbassadorApp.socialMedia}
-                                                                target="_blank"
-                                                                className="flex items-center justify-between p-4 rounded-2xl bg-vc-mint/10 border border-vc-mint/20 hover:bg-vc-mint hover:text-vc-green-dark group transition-all"
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <Share2 className="text-vc-mint group-hover:text-vc-green-dark w-5 h-5 transition-colors" />
-                                                                    <span className="text-sm font-bold">Social Profile</span>
+                                                        <div className="pt-4 border-t border-white/5 space-y-3">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest text-vc-mint/60">Social Verification</p>
+                                                                <button onClick={refreshScans} className="text-[9px] font-bold text-vc-mint/40 hover:text-vc-mint transition-colors uppercase tracking-tighter underline">Refresh Scan</button>
+                                                            </div>
+                                                            <div className="flex flex-col gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all relative">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <Share2 className="text-vc-mint/60 group-hover:text-vc-mint w-5 h-5 transition-colors" />
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-sm font-bold">Social Profile</span>
+                                                                            <a
+                                                                                href={selectedAmbassadorApp.socialMedia}
+                                                                                target="_blank"
+                                                                                className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate max-w-[150px]"
+                                                                            >
+                                                                                Open Link
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {securityStatus['socialMedia'] ? (
+                                                                        <div className={`flex items-center gap-1.5 px-2 py-1 border rounded-md ${securityStatus['socialMedia'].status === 'clean' ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' :
+                                                                            securityStatus['socialMedia'].status === 'malicious' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                                                'bg-white/5 border-white/10 text-white/40'
+                                                                            }`}>
+                                                                            <Shield className="w-3 h-3" />
+                                                                            <span className="text-[9px] font-bold uppercase tracking-widest">
+                                                                                {securityStatus['socialMedia'].status === 'clean' ? 'Safe' :
+                                                                                    securityStatus['socialMedia'].status === 'malicious' ? 'Flagged' :
+                                                                                        securityStatus['socialMedia'].status === 'pending_submission' ? 'Scanning' : 'Unknown'}
+                                                                            </span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 text-white/20 rounded-md animate-pulse">
+                                                                            <Shield className="w-3 h-3" />
+                                                                            <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Analyzing...</span>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                                <Eye className="w-4 h-4 opacity-50 transition-colors" />
-                                                            </a>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>

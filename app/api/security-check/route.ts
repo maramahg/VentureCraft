@@ -29,42 +29,54 @@ export async function POST(request: Request) {
 
         if (apiKey) {
             try {
-                // 1. Check if VT already knows this file
-                const vtResponse = await fetch(`https://www.virustotal.com/api/v3/files/${hash}`, {
-                    headers: { 'x-apikey': apiKey }
-                });
+                if (buffer || (fileUrl && (fileUrl.endsWith('.pdf') || fileUrl.endsWith('.doc') || fileUrl.endsWith('.docx') || fileUrl.endsWith('.png') || fileUrl.endsWith('.jpg')))) {
+                    // --- FILE SCANNING LOGIC ---
+                    // 1. Check if VT already knows this file
+                    const vtResponse = await fetch(`https://www.virustotal.com/api/v3/files/${hash}`, {
+                        headers: { 'x-apikey': apiKey }
+                    });
 
-                if (vtResponse.ok) {
-                    const vtData = await vtResponse.json();
-                    stats = vtData.data.attributes.last_analysis_stats;
-                    // Differentiate between absolute safety and suspicion
-                    if (stats.malicious > 0) {
-                        scanStatus = 'malicious';
-                    } else if (stats.suspicious > 0) {
-                        scanStatus = 'suspicious';
-                    } else {
-                        scanStatus = 'clean';
-                    }
-                } else if (vtResponse.status === 404) {
-                    // 2. File not seen before: Submit it for scanning if we have the buffer
-                    if (buffer) {
-                        console.log(`[Security] File not found on VT. Submitting for scan: ${hash}`);
-
+                    if (vtResponse.ok) {
+                        const vtData = await vtResponse.json();
+                        stats = vtData.data.attributes.last_analysis_stats;
+                        if (stats.malicious > 0) scanStatus = 'malicious';
+                        else if (stats.suspicious > 0) scanStatus = 'suspicious';
+                        else scanStatus = 'clean';
+                    } else if (vtResponse.status === 404 && buffer) {
+                        // Submit for scanning
                         const formData = new FormData();
                         formData.append('file', new Blob([Buffer.from(buffer)]), 'upload');
-
                         const submitResponse = await fetch('https://www.virustotal.com/api/v3/files', {
                             method: 'POST',
                             headers: { 'x-apikey': apiKey },
                             body: formData
                         });
+                        if (submitResponse.ok) scanStatus = 'pending_submission';
+                    }
+                } else if (fileUrl) {
+                    // --- URL SCANNING LOGIC (for social profiles, etc.) ---
+                    const urlId = Buffer.from(fileUrl).toString('base64').replace(/=/g, '');
+                    const vtUrlResponse = await fetch(`https://www.virustotal.com/api/v3/urls/${urlId}`, {
+                        headers: { 'x-apikey': apiKey }
+                    });
 
-                        if (submitResponse.ok) {
-                            scanStatus = 'pending_submission';
-                        }
-                    } else {
-                        // Just an integrity check with no file to upload
-                        scanStatus = 'pending_submission';
+                    if (vtUrlResponse.ok) {
+                        const vtData = await vtUrlResponse.json();
+                        stats = vtData.data.attributes.last_analysis_stats;
+                        if (stats.malicious > 0) scanStatus = 'malicious';
+                        else if (stats.suspicious > 0) scanStatus = 'suspicious';
+                        else scanStatus = 'clean';
+                    } else if (vtUrlResponse.status === 404) {
+                        // Submit URL for scan
+                        const submitRes = await fetch('https://www.virustotal.com/api/v3/urls', {
+                            method: 'POST',
+                            headers: {
+                                'x-apikey': apiKey,
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `url=${encodeURIComponent(fileUrl)}`
+                        });
+                        if (submitRes.ok) scanStatus = 'pending_submission';
                     }
                 }
             } catch (vtError) {
