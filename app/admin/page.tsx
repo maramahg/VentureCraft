@@ -667,13 +667,13 @@ function AdminDashboardContent() {
         }
     };
 
-    const handleAmbassadorStatusUpdate = (appId: string, userId: string, newStatus: string) => {
+    const handleAmbassadorStatusUpdate = (appId: string, userId: string | undefined, newStatus: string) => {
         const app = ambassadorApps.find(a => a.id === appId);
         if (!app) return;
 
         setDecisionConfig({
             appId,
-            userId,
+            userId: userId || appId, // Fallback to appId since for ambassador_applications, the doc ID is the user's UID
             userName: app.name || app.fullName || 'Applicant',
             userEmail: app.email,
             status: newStatus as any,
@@ -735,9 +735,9 @@ function AdminDashboardContent() {
 
             setShowDecisionModal(false);
             setDecisionConfig(null);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating ambassador status:', error);
-            setToast({ message: 'Failed to update status.', type: 'error' });
+            setToast({ message: `Failed to update status: ${error.message || 'Unknown error'}`, type: 'error' });
         } finally {
             setProcessingDecision(false);
         }
