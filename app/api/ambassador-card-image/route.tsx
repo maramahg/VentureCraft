@@ -62,20 +62,24 @@ export async function GET(request: Request) {
                             width: '100%',
                             justifyContent: 'center',
                             position: 'absolute',
-                            top: '460px', // Moved up more from 500px
+                            top: name.length > 25 ? '480px' : '460px',
                             left: 0,
+                            padding: '0 80px', // Prevent name from touching edges
                         }}
                     >
                         <h1
                             style={{
-                                fontSize: 84,
+                                fontSize: name.length <= 15 ? 84 :
+                                    name.length <= 25 ? 64 :
+                                        name.length <= 35 ? 48 : 38,
                                 fontWeight: 700,
-                                color: '#ffffff', // Changed from Venture Craft green to White
+                                color: '#ffffff',
                                 margin: 0,
                                 letterSpacing: '-1.5px',
                                 fontFamily: fontData ? 'Poppins' : 'sans-serif',
                                 textShadow: '0 4px 12px rgba(0,0,0,0.5)',
                                 textAlign: 'center',
+                                lineHeight: 1.1,
                             }}
                         >
                             {name}

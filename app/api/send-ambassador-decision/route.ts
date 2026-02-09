@@ -19,25 +19,45 @@ export async function POST(request: Request) {
             ? 'https://chat.whatsapp.com/G9YksQLG5xhK3XMeVnBdyc?mode=gi_t'
             : 'https://chat.whatsapp.com/E5bMs10LbpLAWXGOXVfY6S?mode=gi_t';
 
-        // Personalized Card Logic (Dynamic Image Route for 100% reliability)
+        // Personalized Card Logic (Inline CID Attachment for 100% reliability)
         let cardImageHtml = '';
+        let attachments: any[] = [];
+
         if (isAccepted) {
-            // Determine the base URL dynamically to support local development and production
-            const host = request.headers.get('host');
-            const protocol = host?.includes('localhost') ? 'http' : 'https';
-            const baseUrl = `${protocol}://${host}`;
+            try {
+                // Determine the base URL dynamically
+                const host = request.headers.get('host');
+                const protocol = host?.includes('localhost') ? 'http' : 'https';
+                const baseUrl = `${protocol}://${host}`;
 
-            // Encode the name for the URL (original casing)
-            const encodedName = encodeURIComponent(name);
-            const cardImageUrl = `${baseUrl}/api/ambassador-card-image?name=${encodedName}`;
+                // Fetch the personalized image server-side
+                const encodedName = encodeURIComponent(name);
+                const cardImageUrl = `${baseUrl}/api/ambassador-card-image?name=${encodedName}`;
 
-            cardImageHtml = `
-                <div style="margin-bottom: 32px; text-align: center;">
-                    <a href="${cardImageUrl}" target="_blank">
-                        <img src="${cardImageUrl}" alt="Welcome ${name}" style="width: 100%; max-width: 600px; height: auto; border-radius: 20px; display: block; margin: 0 auto;" />
-                    </a>
-                </div>
-            `;
+                const response = await fetch(cardImageUrl);
+                if (response.ok) {
+                    const imageBuffer = await response.arrayBuffer();
+                    const base64Content = Buffer.from(imageBuffer).toString('base64');
+
+                    // Add as attachment with CID
+                    attachments.push({
+                        filename: 'ambassador-card.png',
+                        content: base64Content,
+                        content_type: 'image/png',
+                        disposition: 'inline',
+                        content_id: 'ambassador-card'
+                    });
+
+                    cardImageHtml = `
+                        <div style="margin-bottom: 32px; text-align: center;">
+                            <img src="cid:ambassador-card" alt="" style="width: 100%; max-width: 600px; height: auto; border-radius: 20px; display: block; margin: 0 auto;" />
+                        </div>
+                    `;
+                }
+            } catch (fetchError) {
+                console.error('Failed to fetch personalized card for attachment:', fetchError);
+                // No fallback needed here, cardImageHtml will remain empty
+            }
         }
 
         const subject = isAccepted
@@ -49,6 +69,7 @@ export async function POST(request: Request) {
             to: [email],
             subject: subject,
             replyTo: 'no-reply@kfupm-venturecraft.org',
+            attachments: attachments,
             html: `
                 <div style="background-color: #001311; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff;">
                     <div style="max-width: 600px; margin: 0 auto; background-color: #0c1e1c; border: 1px solid ${isAccepted ? 'rgba(57, 204, 137, 0.2)' : 'rgba(255, 255, 255, 0.1)'}; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
@@ -108,14 +129,16 @@ export async function POST(request: Request) {
                         </div>
 
                         <!-- Footer -->
-                        <div style="background-color: rgba(0,0,0,0.2); padding: 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <div style="background-color: rgba(0,0,0,0.2); padding: 32px 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
                             <p style="font-size: 10px; color: rgba(255,255,255,0.3); margin-bottom: 12px; letter-spacing: 0.5px;">
                                 This is an automated email. Please do not reply directly to this message.
                             </p>
                             <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; letter-spacing: 1px; text-transform: uppercase;">
                                 Venture Craft - Shaping the Future of Tech
-                                <span style="display: none !important; color: transparent; opacity: 0; font-size: 0;">${Date.now()}</span>
                             </p>
+                            <div style="display: none !important; color: transparent; opacity: 0; font-size: 0; line-height: 0; height: 0; overflow: hidden;">
+                                ${Math.random().toString(36).substring(7)} - ${Date.now()}
+                            </div>
                         </div>
                     </div>
                 </div>

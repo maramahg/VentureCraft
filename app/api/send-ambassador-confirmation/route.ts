@@ -57,13 +57,16 @@ export async function POST(request: Request) {
                         </div>
 
                         <!-- Footer -->
-                        <div style="background-color: rgba(0,0,0,0.2); padding: 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <div style="background-color: rgba(0,0,0,0.2); padding: 32px 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
                             <p style="font-size: 10px; color: rgba(255,255,255,0.3); margin-bottom: 12px; letter-spacing: 0.5px;">
                                 This is an automated email. Please do not reply directly to this message.
                             </p>
                             <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; letter-spacing: 1px; text-transform: uppercase;">
                                 Venture Craft - Shaping the Future of Tech
                             </p>
+                            <div style="display: none !important; color: transparent; opacity: 0; font-size: 0; line-height: 0; height: 0; overflow: hidden;">
+                                ${Math.random().toString(36).substring(7)} - ${Date.now()}
+                            </div>
                         </div>
                     </div>
                 </div>

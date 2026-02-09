@@ -379,6 +379,11 @@ function AdminDashboardContent() {
         location?: string;
     } | null>(null);
 
+    // Removal Modal State
+    const [showRemoveModal, setShowRemoveModal] = useState(false);
+    const [userToRemove, setUserToRemove] = useState<{ id: string, name: string } | null>(null);
+    const [processingRemoval, setProcessingRemoval] = useState(false);
+
     // We use the imported countriesList directly or map it if needed
 
     const router = useRouter();
@@ -738,16 +743,26 @@ function AdminDashboardContent() {
         }
     };
 
-    const handleRemoveAmbassador = async (userId: string) => {
-        if (!window.confirm('Are you sure you want to remove this user from the Ambassadors?')) return;
+    const handleRemoveAmbassador = (userId: string, userName: string) => {
+        setUserToRemove({ id: userId, name: userName });
+        setShowRemoveModal(true);
+    };
+
+    const executeAmbassadorRemoval = async () => {
+        if (!userToRemove) return;
+        setProcessingRemoval(true);
         try {
-            await updateDoc(doc(db, 'users', userId), {
+            await updateDoc(doc(db, 'users', userToRemove.id), {
                 role: 'user'
             });
-            setToast({ message: 'User removed from Ambassadors.', type: 'success' });
+            setToast({ message: `${userToRemove.name} removed from Ambassadors.`, type: 'success' });
+            setShowRemoveModal(false);
+            setUserToRemove(null);
         } catch (error) {
             console.error('Error removing ambassador:', error);
             setToast({ message: 'Failed to remove ambassador.', type: 'error' });
+        } finally {
+            setProcessingRemoval(false);
         }
     };
 
@@ -1375,7 +1390,7 @@ function AdminDashboardContent() {
                                                         </div>
                                                     </div>
                                                     <button
-                                                        onClick={() => handleRemoveAmbassador(user.id)}
+                                                        onClick={() => handleRemoveAmbassador(user.id, user.displayName)}
                                                         className="px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20 text-xs font-bold uppercase tracking-widest"
                                                     >
                                                         Remove
@@ -2067,6 +2082,62 @@ function AdminDashboardContent() {
                                             <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                                         ) : (
                                             'Confirm'
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+            <AnimatePresence>
+                {showRemoveModal && userToRemove && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => !processingRemoval && setShowRemoveModal(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-lg bg-[#0c1e1c] border border-red-500/20 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
+                        >
+                            {/* Abstract Glow Background */}
+                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-[60px] pointer-events-none" />
+
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/20 text-red-500">
+                                    <XCircle className="w-8 h-8" />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h3 className="text-2xl font-bold">Remove Ambassador?</h3>
+                                    <p className="text-white/60 text-sm leading-relaxed px-4">
+                                        Are you sure you want to remove <span className="text-white font-medium">{userToRemove.name}</span> from the Ambassadors? This will revert their role to 'User'.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 w-full pt-4">
+                                    <button
+                                        onClick={() => setShowRemoveModal(false)}
+                                        disabled={processingRemoval}
+                                        className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={executeAmbassadorRemoval}
+                                        disabled={processingRemoval}
+                                        className="w-full py-4 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl shadow-red-500/10"
+                                    >
+                                        {processingRemoval ? (
+                                            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            'Confirm Removal'
                                         )}
                                     </button>
                                 </div>
