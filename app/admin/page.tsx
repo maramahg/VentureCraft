@@ -7,8 +7,9 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, GraduationCap, WifiOff
+    User, Link as LinkIcon, Share2, GraduationCap, WifiOff, QrCode, Download
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where } from 'firebase/firestore';
@@ -349,7 +350,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
 
     // Ambassador Data
@@ -383,6 +384,8 @@ function AdminDashboardContent() {
             setActiveTab('ambassadors');
         } else if (tab === 'startups' && activeTab !== 'startups') {
             setActiveTab('startups');
+        } else if (tab === 'qr' && activeTab !== 'qr') {
+            setActiveTab('qr');
         } else if (!tab && activeTab !== 'startups') {
             setActiveTab('startups');
         }
@@ -774,12 +777,32 @@ function AdminDashboardContent() {
                         <p className="text-white/40 uppercase tracking-[0.3em] font-bold text-[10px]">
                             {activeTab === 'startups'
                                 ? 'Manage and review Venture Craft startup applications'
-                                : 'Manage and review Venture Craft ambassador applications'
+                                : activeTab === 'ambassadors'
+                                    ? 'Manage and review Venture Craft ambassador applications'
+                                    : 'Generate and download official persistent QR codes'
                             }
                         </p>
 
                         {/* Tab Switcher - Controlled via Navbar / URL */}
                     </div>
+
+                    <div className="flex bg-white/5 border border-white/10 p-1 rounded-2xl">
+                        {[
+                            { id: 'startups', label: 'Startups', icon: Rocket, show: isAdmin || isJudge },
+                            { id: 'ambassadors', label: 'Ambassadors', icon: Users, show: isAdmin || isAmbassadorLead },
+                            { id: 'qr', label: 'QR Tool', icon: QrCode, show: isAdmin }
+                        ].filter(t => t.show).map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white'}`}
+                            >
+                                <tab.icon className="w-4 h-4" />
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
                     <div className="flex flex-wrap items-center gap-4">
                         {isAdmin && (
                             <button
@@ -1001,6 +1024,65 @@ function AdminDashboardContent() {
                                     <span>Directory</span>
                                     <span className={`sm:ml-2 text-[10px] sm:text-xs opacity-40`}>({ambassadorsList.length})</span>
                                 </button>
+                            </div>
+                        )}
+                        {activeTab === 'qr' && (
+                            <div className="glass-panel p-12 flex flex-col items-center justify-center text-center space-y-8 min-h-[500px] relative overflow-hidden">
+                                <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
+
+                                <div className="relative z-10 max-w-xl">
+                                    <h2 className="text-3xl font-bold mb-4 font-poppins">Persistent QR Generator</h2>
+                                    <p className="text-white/40 text-sm mb-12">
+                                        This QR code points to <span className="text-vc-mint">kfupm-venturecraft.org</span>.
+                                        When you migrate to the university domain, we will set up a redirect so this QR remains valid.
+                                    </p>
+
+                                    <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl mx-auto w-fit mb-8 border-[12px] border-vc-mint/20">
+                                        <QRCodeSVG
+                                            id="admin-qr-code-svg"
+                                            value="https://kfupm-venturecraft.org/"
+                                            size={300}
+                                            level="H"
+                                            includeMargin={false}
+                                            imageSettings={{
+                                                src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                                height: 80,
+                                                width: 80,
+                                                excavate: true,
+                                            }}
+                                        />
+                                    </div>
+
+                                    <button
+                                        onClick={() => {
+                                            const svg = document.getElementById('admin-qr-code-svg');
+                                            if (!svg) return;
+                                            const svgData = new XMLSerializer().serializeToString(svg);
+                                            const canvas = document.createElement('canvas');
+                                            const ctx = canvas.getContext('2d');
+                                            const img = new Image();
+                                            img.onload = () => {
+                                                canvas.width = 1000;
+                                                canvas.height = 1000;
+                                                if (ctx) {
+                                                    ctx.fillStyle = 'white';
+                                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                                    ctx.drawImage(img, 0, 0, 1000, 1000);
+                                                    const pngFile = canvas.toDataURL('image/png');
+                                                    const downloadLink = document.createElement('a');
+                                                    downloadLink.download = 'VentureCraft-Official-QR.png';
+                                                    downloadLink.href = pngFile;
+                                                    downloadLink.click();
+                                                }
+                                            };
+                                            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                                        }}
+                                        className="inline-flex items-center gap-3 px-8 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-mint/20"
+                                    >
+                                        <Download className="w-5 h-5" />
+                                        Download High-Res PNG
+                                    </button>
+                                </div>
                             </div>
                         )}
                         {activeTab === 'startups' ? (
