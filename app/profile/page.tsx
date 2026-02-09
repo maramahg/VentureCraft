@@ -101,9 +101,32 @@ export default function ProfilePage() {
 
             // 1. Upload new image if selected
             if (imageFile) {
-                const storageRef = ref(storage, `profile_pictures/${user.uid}`);
-                const snapshot = await uploadBytes(storageRef, imageFile);
-                newPhotoURL = await getDownloadURL(snapshot.ref);
+                // Security check before upload
+                const computeSHA256 = async (file: File) => {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                };
+
+                const hash = await computeSHA256(imageFile);
+                const checkRes = await fetch('/api/security-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hash })
+                });
+
+                if (checkRes.ok) {
+                    const checkData = await checkRes.json();
+                    if (checkData.status === 'malicious' || checkData.status === 'suspicious') {
+                        const detections = (checkData.stats?.malicious || 0) + (checkData.stats?.suspicious || 0);
+                        throw new Error(`Security Alert: This image file has been flagged by ${detections} security engine${detections > 1 ? 's' : ''}. For safety, we cannot accept flagged files. Please use a different image.`);
+                    }
+                }
+
+                const storageRef = ref(storage, `profiles/${user.uid}/${Date.now()}-${imageFile.name}`);
+                await uploadBytes(storageRef, imageFile);
+                newPhotoURL = await getDownloadURL(storageRef);
             }
 
             // 2. Update Auth Profile
@@ -193,6 +216,10 @@ export default function ProfilePage() {
                                         />
                                     </>
                                 )}
+                            </div>
+                            <div className="text-[10px] text-white/30 text-center max-w-[200px] leading-relaxed italic">
+                                <Shield className="w-3 h-3 inline mr-1 text-vc-mint/40" />
+                                All uploads are automatically scanned for malware.
                             </div>
                             <div className="text-center">
                                 <div className="flex flex-wrap justify-center gap-2">

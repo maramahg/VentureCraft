@@ -129,7 +129,7 @@ export default function SignUp() {
 
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
-                                        Email Address
+                                        Personal Email Address
                                     </label>
                                     <input
                                         id="email"
@@ -138,7 +138,7 @@ export default function SignUp() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem' }}
                                         className="w-full py-3 rounded-xl bg-[#0A1F1F]/50 border border-[#39cc89]/20 text-white placeholder-gray-500 focus:outline-none focus:border-[#39cc89] focus:ring-1 focus:ring-[#39cc89] transition-all duration-300"
-                                        placeholder="Enter your email"
+                                        placeholder="Enter your personal email"
                                         required
                                     />
                                 </div>

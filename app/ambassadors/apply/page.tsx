@@ -64,17 +64,17 @@ function FlagDropdown({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 flex items-center justify-between hover:bg-white/10 transition-all text-left ${type === 'phone' ? 'h-[52px]' : 'py-3'}`}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-3 flex items-center gap-2 hover:bg-white/10 transition-all text-left ${type === 'phone' ? 'h-[52px]' : 'py-3'}`}
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                     {selectedOption ? (
                         <>
                             <img
                                 src={`https://flagcdn.com/w40/${selectedOption.code.toLowerCase()}.png`}
                                 alt={selectedOption.name}
-                                className="w-5 h-auto rounded-sm"
+                                className="w-5 h-auto rounded-sm shrink-0"
                             />
-                            <span className="text-white text-base">
+                            <span className="text-white text-base truncate">
                                 {type === 'country' ? (
                                     <span className="hidden sm:inline">{selectedOption.name}</span>
                                 ) : selectedOption.dialCode}
@@ -82,7 +82,7 @@ function FlagDropdown({
                             </span>
                         </>
                     ) : (
-                        <span className="text-white/40 text-base">{placeholder}</span>
+                        <span className="text-white/40 text-base truncate">{placeholder}</span>
                     )}
                 </div>
                 <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -155,6 +155,7 @@ function ApplicationFormContent() {
     const [formData, setFormData] = useState({
         name: '',
         nationality: 'Saudi Arabia',
+        location: 'Saudi Arabia',
         email: '',
         phoneCode: '+966',
         phone: '',
@@ -183,6 +184,8 @@ function ApplicationFormContent() {
     const validateStep1 = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.name.trim()) newErrors.name = "Please enter your name.";
+        if (!formData.nationality) newErrors.nationality = "Please select your nationality.";
+        if (!formData.location) newErrors.location = "Please select your current location.";
         if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = "Please enter a valid email.";
         if (formData.phone.length < 7 || formData.phone.length > 15) newErrors.phone = "Please check the phone number.";
         setErrors(newErrors);
@@ -365,8 +368,18 @@ function ApplicationFormContent() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
+                                        <FlagDropdown
+                                            options={countries}
+                                            value={formData.location}
+                                            onChange={(val) => setFormData({ ...formData, location: val })}
+                                            label="3. Current Location (Residing) *"
+                                            type="country"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
-                                            3. Email <span className="text-vc-mint">*</span>
+                                            4. Personal Email <span className="text-vc-mint">*</span>
                                         </label>
                                         <input
                                             type="email"
@@ -376,17 +389,19 @@ function ApplicationFormContent() {
                                                 if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
                                             }}
                                             className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.email ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                            placeholder="Please enter an email"
+                                            placeholder="personal.email@example.com"
                                         />
                                         {errors.email && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.email}</p>}
                                     </div>
+                                </div>
 
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
-                                            4. Phone number <span className="text-vc-mint">*</span>
+                                            5. Phone number <span className="text-vc-mint">*</span>
                                         </label>
                                         <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.phone ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
-                                            <div className="w-[100px] border-r border-white/10">
+                                            <div className="w-fit border-r border-white/10">
                                                 <FlagDropdown
                                                     options={countries}
                                                     value={formData.phoneCode}
@@ -443,7 +458,7 @@ function ApplicationFormContent() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
-                                            5. University <span className="text-vc-mint">*</span>
+                                            6. University <span className="text-vc-mint">*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -460,7 +475,7 @@ function ApplicationFormContent() {
 
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
-                                            6. Major <span className="text-vc-mint">*</span>
+                                            7. Major <span className="text-vc-mint">*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -478,7 +493,7 @@ function ApplicationFormContent() {
 
                                 <div className="space-y-4">
                                     <label className="block text-base font-medium text-white/70">
-                                        7. DEGREE <span className="text-vc-mint">*</span>
+                                        8. DEGREE <span className="text-vc-mint">*</span>
                                     </label>
                                     <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border transition-all ${errors.degree ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
                                         {['Bachelor', 'Master', 'PhD', 'Other'].map((d) => (
@@ -501,7 +516,7 @@ function ApplicationFormContent() {
                                 <div className="space-y-4">
                                     <label className="block text-base font-medium text-white/70 flex items-center gap-2">
                                         <Share2 className="w-4 h-4 text-vc-mint" />
-                                        8. Social media (X, LinkedIn, Instagram) <span className="text-vc-mint">*</span>
+                                        9. Social media (X, LinkedIn, Instagram) <span className="text-vc-mint">*</span>
                                     </label>
                                     <input
                                         type="url"
@@ -518,7 +533,7 @@ function ApplicationFormContent() {
 
                                 <div className="space-y-4">
                                     <label className="block text-base font-medium text-white/70">
-                                        9. Why do you want to be a Venture Craft Ambassador? <span className="text-vc-mint">*</span>
+                                        10. Why do you want to be a Venture Craft Ambassador? <span className="text-vc-mint">*</span>
                                     </label>
                                     <textarea
                                         value={formData.reason}
@@ -534,7 +549,7 @@ function ApplicationFormContent() {
 
                                 <div className="space-y-4">
                                     <label className="block text-base font-medium text-white/70">
-                                        10. Tell us about your relevant experience (Clubs, Communities, Startups) <span className="text-vc-mint">*</span>
+                                        11. Tell us about your relevant experience (Clubs, Communities, Startups) <span className="text-vc-mint">*</span>
                                     </label>
                                     <textarea
                                         value={formData.experience}

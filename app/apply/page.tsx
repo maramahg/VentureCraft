@@ -69,17 +69,17 @@ function FlagDropdown({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 flex items-center justify-between hover:bg-white/10 transition-all text-left ${type === 'phone' ? 'h-[52px]' : 'py-3'}`}
+                className={`w-full bg-white/5 border border-white/10 rounded-xl px-3 flex items-center gap-2 hover:bg-white/10 transition-all text-left ${type === 'phone' ? 'h-[52px]' : 'py-3'}`}
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                     {selectedOption ? (
                         <>
                             <img
                                 src={`https://flagcdn.com/w40/${selectedOption.code.toLowerCase()}.png`}
                                 alt={selectedOption.name}
-                                className="w-5 h-auto rounded-sm"
+                                className="w-5 h-auto rounded-sm shrink-0"
                             />
-                            <span className="text-white text-base">
+                            <span className="text-white text-base truncate">
                                 {type === 'country' ? (
                                     <span className="hidden sm:inline">{selectedOption.name}</span>
                                 ) : selectedOption.dialCode}
@@ -87,7 +87,7 @@ function FlagDropdown({
                             </span>
                         </>
                     ) : (
-                        <span className="text-white/40 text-base">{placeholder}</span>
+                        <span className="text-white/40 text-base truncate">{placeholder}</span>
                     )}
                 </div>
                 <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -448,12 +448,44 @@ const ApplyPageContent = () => {
 
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
+    const computeSHA256 = async (file: File) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateStep3()) return;
         setLoading(true);
         try {
-            // 1. Upload Files first
+            // 0. Security Pre-Check (Before Upload)
+            const filesToCheck = [
+                { file: files.pitchDeck, label: 'Pitch Deck' },
+                { file: files.execSummary, label: 'Executive Summary' },
+                { file: files.supportingData, label: 'Supporting Data' }
+            ].filter(f => f.file);
+
+            for (const item of filesToCheck) {
+                if (!item.file) continue;
+                const hash = await computeSHA256(item.file);
+                const checkRes = await fetch('/api/security-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hash })
+                });
+
+                if (checkRes.ok) {
+                    const checkData = await checkRes.json();
+                    if (checkData.status === 'malicious' || checkData.status === 'suspicious') {
+                        const detections = (checkData.stats?.malicious || 0) + (checkData.stats?.suspicious || 0);
+                        throw new Error(`Security Alert: The file "${item.label}" (${item.file.name}) has been flagged by ${detections} security engine${detections > 1 ? 's' : ''}. While false positives can occur, we cannot accept flagged files for safety. Please check your file or upload a different version.`);
+                    }
+                }
+            }
+
+            // 1. Upload Files first (Only if they passed security)
             const uploadFile = async (file: File | null, folder: string) => {
                 if (!file) return null;
                 const timestamp = Date.now();
@@ -628,6 +660,15 @@ const ApplyPageContent = () => {
                 </div>
             ),
             notes: 'Ensures impartial evaluation.'
+        },
+        {
+            category: 'Security',
+            requirement: (
+                <span>
+                    All uploaded files <strong className="text-vc-mint">will be automatically scanned for malware</strong>. Encrypted or password-protected files that cannot be scanned may lead to disqualification.
+                </span>
+            ),
+            notes: 'Maintains system security and complies with university network safety standards.'
         },
         {
             category: 'Complete Submission',
@@ -965,7 +1006,7 @@ const ApplyPageContent = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
-                                            Leader Email Address <span className="text-vc-mint">*</span>
+                                            Leader Personal Email Address <span className="text-vc-mint">*</span>
                                         </label>
                                         <input
                                             type="email"
@@ -975,7 +1016,7 @@ const ApplyPageContent = () => {
                                                 if (errors.leaderEmail) setErrors(prev => ({ ...prev, leaderEmail: '' }));
                                             }}
                                             className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.leaderEmail ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                            placeholder="email@example.com"
+                                            placeholder="personal.email@example.com"
                                         />
                                         {errors.leaderEmail && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.leaderEmail}</p>}
                                     </div>
@@ -985,7 +1026,7 @@ const ApplyPageContent = () => {
                                             Leader Phone Number <span className="text-vc-mint">*</span>
                                         </label>
                                         <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.leaderPhoneNumber ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
-                                            <div className="w-[100px] border-r border-white/10">
+                                            <div className="w-fit border-r border-white/10">
                                                 <FlagDropdown
                                                     options={countries}
                                                     value={formData.leaderPhoneCode}

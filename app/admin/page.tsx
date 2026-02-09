@@ -338,6 +338,7 @@ function AdminDashboardContent() {
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [updatingReg, setUpdatingReg] = useState(false);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
+    const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
 
     // Screening State
     const [currentScores, setCurrentScores] = useState({
@@ -348,6 +349,7 @@ function AdminDashboardContent() {
     });
     const [savingScore, setSavingScore] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    const [securityStatus, setSecurityStatus] = useState<Record<string, { status: string, reportUrl: string, stats?: any }>>({});
 
     // Tab Management
     const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr'>('startups');
@@ -362,7 +364,19 @@ function AdminDashboardContent() {
     const [ambSearchTerm, setAmbSearchTerm] = useState('');
     const [ambStatusFilter, setAmbStatusFilter] = useState<string>('all');
     const [ambNationalityFilter, setAmbNationalityFilter] = useState<string>('all');
+    const [ambLocationFilter, setAmbLocationFilter] = useState<string>('all');
     const [ambDegreeFilter, setAmbDegreeFilter] = useState<string>('all');
+
+    // Decision Modal State
+    const [showDecisionModal, setShowDecisionModal] = useState(false);
+    const [processingDecision, setProcessingDecision] = useState(false);
+    const [decisionConfig, setDecisionConfig] = useState<{
+        appId: string;
+        userId: string;
+        userName: string;
+        userEmail: string;
+        status: 'accepted' | 'rejected' | 'pending';
+    } | null>(null);
 
     // We use the imported countriesList directly or map it if needed
 
@@ -441,6 +455,48 @@ function AdminDashboardContent() {
 
         return () => unsubscribeAuth();
     }, [router]);
+
+    // Security Scanning Logic
+    const refreshScans = async () => {
+        if (!selectedApp) return;
+
+        const filesToScan = [
+            { id: 'pitchDeck', url: selectedApp.materials.pitchDeckUrl },
+            { id: 'execSummary', url: selectedApp.materials.execSummaryUrl },
+            { id: 'supportingData', url: selectedApp.materials.supportingDataUrl }
+        ].filter(f => f.url);
+
+        filesToScan.forEach(async (file) => {
+            try {
+                const res = await fetch('/api/security-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileUrl: file.url })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setSecurityStatus(prev => ({
+                        ...prev,
+                        [file.id]: {
+                            status: data.status,
+                            reportUrl: data.reportUrl,
+                            stats: data.stats
+                        }
+                    }));
+                }
+            } catch (err) {
+                console.error('Scan failed for', file.id, err);
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (!selectedApp) {
+            setSecurityStatus({});
+            return;
+        }
+        refreshScans();
+    }, [selectedApp]);
 
     // Countries are imported from @/lib/countries
 
@@ -605,32 +661,77 @@ function AdminDashboardContent() {
         }
     };
 
-    const handleAmbassadorStatusUpdate = async (appId: string, userId: string, newStatus: string) => {
+    const handleAmbassadorStatusUpdate = (appId: string, userId: string, newStatus: string) => {
+        const app = ambassadorApps.find(a => a.id === appId);
+        if (!app) return;
+
+        setDecisionConfig({
+            appId,
+            userId,
+            userName: app.name || app.fullName || 'Applicant',
+            userEmail: app.email,
+            status: newStatus as any
+        });
+        setShowDecisionModal(true);
+    };
+
+    const executeAmbassadorDecision = async () => {
+        if (!decisionConfig) return;
+        setProcessingDecision(true);
+
+        const { appId, userId, userName, userEmail, status } = decisionConfig;
+
         try {
-            // Update application status
+            // 1. Update application status
             await updateDoc(doc(db, 'ambassador_applications', appId), {
-                status: newStatus
+                status: status
             });
 
-            // If accepted, update user role
-            if (newStatus === 'accepted') {
+            // 2. If accepted/rejected, update user role
+            if (status === 'accepted') {
                 await updateDoc(doc(db, 'users', userId), {
                     role: 'ambassador'
                 });
-            } else if (newStatus === 'rejected') {
-                // If rejected, ensure role is 'user' (optional, but good for consistency)
+            } else if (status === 'rejected' || status === 'pending') {
                 await updateDoc(doc(db, 'users', userId), {
                     role: 'user'
                 });
             }
 
-            if (selectedAmbassadorApp?.id === appId) {
-                setSelectedAmbassadorApp({ ...selectedAmbassadorApp, status: newStatus as any });
+            // 3. Send Email (only for accept/reject)
+            if (status === 'accepted' || status === 'rejected') {
+                try {
+                    await fetch('/api/send-ambassador-decision', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: userEmail,
+                            name: userName,
+                            status: status
+                        })
+                    });
+                } catch (emailErr) {
+                    console.error('Failed to send decision email:', emailErr);
+                    // We don't block the UI for email failure, but we log it
+                }
             }
-            setToast({ message: `Application ${newStatus} successfully!`, type: 'success' });
+
+            if (selectedAmbassadorApp?.id === appId) {
+                setSelectedAmbassadorApp({ ...selectedAmbassadorApp, status: status as any });
+            }
+
+            setToast({
+                message: `Application ${status} successfully! Confirmation email sent.`,
+                type: 'success'
+            });
+
+            setShowDecisionModal(false);
+            setDecisionConfig(null);
         } catch (error) {
             console.error('Error updating ambassador status:', error);
             setToast({ message: 'Failed to update status.', type: 'error' });
+        } finally {
+            setProcessingDecision(false);
         }
     };
 
@@ -664,7 +765,10 @@ function AdminDashboardContent() {
             app.leaderNationality === nationalityFilter ||
             app.teamMembers?.some(m => m.nationality === nationalityFilter);
 
-        return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality;
+        const matchesScreening = screeningFilter === 'all' ||
+            (screeningFilter === 'scored' ? app.screening?.round1?.isCompleted : !app.screening?.round1?.isCompleted);
+
+        return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality && matchesScreening;
     }).sort((a, b) => {
         if (sortBy === 'score') {
             const scoreA = a.screening?.round1?.totalScore || 0;
@@ -682,12 +786,13 @@ function AdminDashboardContent() {
                 (app.email?.toLowerCase().includes(ambSearchTerm.toLowerCase()));
 
             const matchesStatus = ambStatusFilter === 'all' || app.status === ambStatusFilter;
-            const matchesNationality = ambNationalityFilter === 'all' || app.nationality === ambNationalityFilter || app.location === ambNationalityFilter;
+            const matchesNationality = ambNationalityFilter === 'all' || app.nationality === ambNationalityFilter;
+            const matchesLocation = ambLocationFilter === 'all' || app.location === ambLocationFilter;
             const matchesDegree = ambDegreeFilter === 'all' || app.degree === ambDegreeFilter;
 
-            return matchesSearch && matchesStatus && matchesNationality && matchesDegree;
+            return matchesSearch && matchesStatus && matchesNationality && matchesLocation && matchesDegree;
         });
-    }, [ambassadorApps, ambSearchTerm, ambStatusFilter, ambNationalityFilter, ambDegreeFilter]);
+    }, [ambassadorApps, ambSearchTerm, ambStatusFilter, ambNationalityFilter, ambLocationFilter, ambDegreeFilter]);
 
 
     const pillars = [
@@ -786,22 +891,6 @@ function AdminDashboardContent() {
                         {/* Tab Switcher - Controlled via Navbar / URL */}
                     </div>
 
-                    <div className="flex bg-white/5 border border-white/10 p-1 rounded-2xl">
-                        {[
-                            { id: 'startups', label: 'Startups', icon: Rocket, show: isAdmin || isJudge },
-                            { id: 'ambassadors', label: 'Ambassadors', icon: Users, show: isAdmin || isAmbassadorLead },
-                            { id: 'qr', label: 'QR Tool', icon: QrCode, show: isAdmin }
-                        ].filter(t => t.show).map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
-                                className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === tab.id ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white'}`}
-                            >
-                                <tab.icon className="w-4 h-4" />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
 
                     <div className="flex flex-wrap items-center gap-4">
                         {isAdmin && (
@@ -856,7 +945,7 @@ function AdminDashboardContent() {
 
                 <div className="grid lg:grid-cols-[300px_1fr] gap-12">
                     {/* Sidebar Filters */}
-                    <div className="space-y-8">
+                    <div className="space-y-8 max-w-xl mx-auto lg:max-w-none lg:mx-0">
                         <div className="glass-panel p-6 space-y-6">
                             <div className="flex items-center gap-2 text-vc-mint">
                                 <Filter className="w-5 h-5" />
@@ -939,7 +1028,17 @@ function AdminDashboardContent() {
                                             <AdminFlagDropdown
                                                 value={ambNationalityFilter}
                                                 onChange={setAmbNationalityFilter}
-                                                placeholder="All Countries"
+                                                placeholder="All Nationalities"
+                                            />
+                                        </div>
+
+                                        {/* Ambassador Location Filter */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</label>
+                                            <AdminFlagDropdown
+                                                value={ambLocationFilter}
+                                                onChange={setAmbLocationFilter}
+                                                placeholder="All Locations"
                                             />
                                         </div>
 
@@ -971,7 +1070,9 @@ function AdminDashboardContent() {
                                     setAmbSearchTerm('');
                                     setAmbStatusFilter('all');
                                     setAmbNationalityFilter('all');
+                                    setAmbLocationFilter('all');
                                     setAmbDegreeFilter('all');
+                                    setScreeningFilter('all');
                                 }
                             }}
                             className="w-full py-3 text-xs font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-xl uppercase tracking-widest mt-4"
@@ -980,21 +1081,40 @@ function AdminDashboardContent() {
                         </button>
 
                         {activeTab === 'startups' && (
-                            <div className="pt-4 border-t border-white/5">
-                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Sort By</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        onClick={() => setSortBy('date')}
-                                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'date' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                    >
-                                        DATE
-                                    </button>
-                                    <button
-                                        onClick={() => setSortBy('score')}
-                                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'score' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                    >
-                                        SCORE
-                                    </button>
+                            <div className="pt-4 border-t border-white/5 space-y-4">
+                                <div>
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Screening Status</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => setScreeningFilter(screeningFilter === 'pending' ? 'all' : 'pending')}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'pending' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                        >
+                                            <Clock className="w-3 h-3" /> PENDING
+                                        </button>
+                                        <button
+                                            onClick={() => setScreeningFilter(screeningFilter === 'scored' ? 'all' : 'scored')}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'scored' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                        >
+                                            <CheckCircle className="w-3 h-3" /> SCORED
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Sort By</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => setSortBy('date')}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'date' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                        >
+                                            DATE
+                                        </button>
+                                        <button
+                                            onClick={() => setSortBy('score')}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'score' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                        >
+                                            SCORE
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -1096,29 +1216,32 @@ function AdminDashboardContent() {
                                         <motion.div
                                             layout
                                             key={app.id}
-                                            className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
+                                            className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer items-center md:items-start text-center md:text-left"
                                             onClick={() => setSelectedApp(app)}
                                         >
-                                            <div className="flex items-center gap-4 sm:gap-6">
+                                            <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
                                                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
                                                     <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                 </div>
                                                 <div className="min-w-0">
                                                     <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">
-                                                        {app.leaderEmail}
+                                                        {isAdmin ? (app.teamMembers?.[0]?.name || 'Leader') : (app.startupName || 'Startup Application')}
                                                     </h3>
-                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
-                                                        <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {app.teamMembers?.[0]?.name || 'Leader'}</span>
+                                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
+                                                        {app.startupName && isAdmin && (
+                                                            <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold"><Rocket className="w-3 h-3" /> {app.startupName}</span>
+                                                        )}
+                                                        <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {isAdmin ? app.leaderEmail : 'Applicant Email'}</span>
                                                         <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
                                                         <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
-                                                        {app.startupName && (
-                                                            <span className="flex items-center gap-1.5 text-vc-mint/60"><Rocket className="w-3 h-3" /> {app.startupName}</span>
+                                                        {!isAdmin && (
+                                                            <span className="flex items-center gap-1.5 opacity-50"><User className="w-3 h-3" /> Anonymous Applicant</span>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
+                                            <div className="flex items-center justify-center md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5 w-full md:w-auto">
                                                 <div className="hidden xl:block text-right">
                                                     <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Pillar</span>
                                                     <span className="text-sm text-white/60">{app.pillar}</span>
@@ -1173,10 +1296,11 @@ function AdminDashboardContent() {
                                                             <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate">{app.email}</h3>
+                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.email}</h3>
                                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
                                                                 <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {app.name || app.fullName}</span>
                                                                 <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
+                                                                {app.location && <span className="flex items-center gap-1.5 font-bold text-vc-mint/60"><Globe className="w-3 h-3" /> {app.location}</span>}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1272,7 +1396,7 @@ function AdminDashboardContent() {
                 {/* Application Details Modal */}
                 <AnimatePresence>
                     {selectedApp && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -1387,9 +1511,9 @@ function AdminDashboardContent() {
                                                                         {i + 1}
                                                                     </div>
                                                                     <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                                                        <span className="font-bold text-sm text-white/90 truncate">{m.name || 'Anonymous Member'}</span>
+                                                                        <span className="font-bold text-sm text-white/90 truncate">{isAdmin ? (m.name || 'Anonymous Member') : 'Anonymous Member'}</span>
                                                                         <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap opacity-60">
-                                                                            ({m.nationality})
+                                                                            ({isAdmin ? m.nationality : 'Hidden'})
                                                                         </span>
                                                                         {i === 0 && (
                                                                             <span className="ml-2 px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md">
@@ -1408,15 +1532,15 @@ function AdminDashboardContent() {
                                                             <div className="space-y-3 text-sm">
                                                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
                                                                     <Mail className="w-4 h-4 text-vc-mint" />
-                                                                    <span className="font-medium underline decoration-vc-mint/30 truncate" title={selectedApp.leaderEmail}>{selectedApp.leaderEmail}</span>
+                                                                    <span className="font-medium underline decoration-vc-mint/30 truncate" title={selectedApp.leaderEmail}>{isAdmin ? selectedApp.leaderEmail : 'Applicant Email'}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
                                                                     <Phone className="w-4 h-4 text-white/40" />
-                                                                    <span className="font-medium truncate">{selectedApp.leaderPhone}</span>
+                                                                    <span className="font-medium truncate">{isAdmin ? selectedApp.leaderPhone : 'Hidden'}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
                                                                     <Globe className="w-4 h-4 text-white/40" />
-                                                                    <span className="font-medium truncate">{selectedApp.leaderNationality}</span>
+                                                                    <span className="font-medium truncate">{isAdmin ? selectedApp.leaderNationality : 'Hidden'}</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1458,25 +1582,89 @@ function AdminDashboardContent() {
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
                                                     <FileText className="w-4 h-4" /> Required Materials
                                                 </h3>
+                                                <div className="mb-6 p-4 rounded-2xl bg-vc-mint/5 border border-vc-mint/10 flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-full bg-vc-mint/10 flex items-center justify-center shrink-0 border border-vc-mint/20">
+                                                        <Shield className="w-5 h-5 text-vc-mint" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center justify-between mb-0.5">
+                                                            <p className="text-[10px] font-bold text-vc-mint uppercase tracking-widest">Security Filtering Active</p>
+                                                            <button
+                                                                onClick={refreshScans}
+                                                                className="text-[9px] font-black uppercase tracking-tighter text-vc-mint/60 hover:text-vc-mint transition-colors underline"
+                                                            >
+                                                                Refresh
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-[10px] text-white/40 leading-relaxed">
+                                                            All materials are automatically scanned. {isAdmin && "Reports provided via VirusTotal."}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
                                                 <div className="space-y-3">
                                                     {[
-                                                        { label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
-                                                        { label: 'Exec Summary', url: selectedApp.materials.execSummaryUrl, icon: FileText },
-                                                        { label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
+                                                        { id: 'pitchDeck', label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
+                                                        { id: 'execSummary', label: 'Exec Summary', url: selectedApp.materials.execSummaryUrl, icon: FileText },
+                                                        { id: 'supportingData', label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
                                                     ].map((item, idx) => (
                                                         item.url ? (
-                                                            <a
-                                                                key={idx}
-                                                                href={item.url}
-                                                                target="_blank"
-                                                                className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <item.icon className="text-vc-mint w-5 h-5" />
-                                                                    <span className="text-sm font-medium">{item.label}</span>
+                                                            <div key={idx} className="flex flex-col gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all">
+                                                                <div className="flex items-center justify-between w-full">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <item.icon className="text-vc-mint w-5 h-5" />
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-sm font-medium">{item.label}</span>
+                                                                            {(!isAdmin && (securityStatus[item.id]?.status === 'malicious' || securityStatus[item.id]?.status === 'suspicious')) ? (
+                                                                                <span className="text-[10px] text-red-400/60 font-medium italic">Access restricted for safety</span>
+                                                                            ) : (
+                                                                                <a
+                                                                                    href={item.url}
+                                                                                    target="_blank"
+                                                                                    className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2"
+                                                                                >
+                                                                                    Open File
+                                                                                </a>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="flex items-center gap-2">
+                                                                        {securityStatus[item.id] ? (
+                                                                            <div className={`flex items-center gap-1.5 px-2 py-1 border rounded-md ${securityStatus[item.id].status === 'clean' ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' :
+                                                                                securityStatus[item.id].status === 'malicious' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                                                    'bg-white/5 border-white/10 text-white/40'
+                                                                                }`}>
+                                                                                <Shield className="w-3 h-3" />
+                                                                                <span className="text-[9px] font-bold uppercase tracking-widest">
+                                                                                    {securityStatus[item.id].status === 'clean' ? 'Safe' :
+                                                                                        securityStatus[item.id].status === 'malicious' ?
+                                                                                            (isAdmin ? `Flagged (${securityStatus[item.id].stats?.malicious || 1} alert${(securityStatus[item.id].stats?.malicious || 1) > 1 ? 's' : ''})` : 'Flagged') :
+                                                                                            securityStatus[item.id].status === 'suspicious' ?
+                                                                                                (isAdmin ? `Suspicious (${securityStatus[item.id].stats?.suspicious || 1} flag${(securityStatus[item.id].stats?.suspicious || 1) > 1 ? 's' : ''})` : 'Suspicious') :
+                                                                                                securityStatus[item.id].status === 'pending_submission' ? 'Analysis Started' :
+                                                                                                    'Scanning...'}
+                                                                                </span>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 text-white/20 rounded-md animate-pulse">
+                                                                                <Shield className="w-3 h-3" />
+                                                                                <span className="text-[9px] font-bold uppercase tracking-widest">Verifying</span>
+                                                                            </div>
+                                                                        )}
+                                                                        {isAdmin && (
+                                                                            <a
+                                                                                href={securityStatus[item.id]?.reportUrl || `https://www.virustotal.com/gui/search/${encodeURIComponent(item.url)}`}
+                                                                                target="_blank"
+                                                                                className="p-1 px-2 rounded-md bg-white/5 hover:bg-white/10 text-[9px] font-bold text-white/40 hover:text-vc-mint transition-all"
+                                                                                title="View VirusTotal Report"
+                                                                            >
+                                                                                REPORT
+                                                                            </a>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-                                                                <Eye className="w-4 h-4 text-white/20 group-hover:text-vc-mint transition-colors" />
-                                                            </a>
+                                                            </div>
                                                         ) : (
                                                             <div key={idx} className="flex items-center gap-3 p-4 rounded-2xl bg-white/2 border border-white/5 opacity-30 grayscale">
                                                                 <item.icon className="w-5 h-5" />
@@ -1591,7 +1779,8 @@ function AdminDashboardContent() {
                             </motion.div>
                         </div>
                     )}
-                    {/* Ambassador Application Modal */}
+                </AnimatePresence>
+                <AnimatePresence>
                     {selectedAmbassadorApp && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
                             <motion.div
@@ -1642,8 +1831,12 @@ function AdminDashboardContent() {
                                                         <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality / Location</p>
-                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality || selectedAmbassadorApp.location}</p>
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</p>
+                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality}</p>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</p>
+                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.location}</p>
                                                     </div>
                                                 </div>
                                             </section>
@@ -1783,8 +1976,9 @@ function AdminDashboardContent() {
                                 </div>
                             </motion.div>
                         </div>
-                    )}
-                </AnimatePresence>
+                    )
+                    }
+                </AnimatePresence >
             </div >
 
             {toast && (
@@ -1794,6 +1988,80 @@ function AdminDashboardContent() {
                     onClose={() => setToast(null)}
                 />
             )}
+
+            <AnimatePresence>
+                {showDecisionModal && decisionConfig && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => !processingDecision && setShowDecisionModal(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-lg bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
+                        >
+                            {/* Abstract Glow Background */}
+                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-vc-mint/10 rounded-full blur-[60px] pointer-events-none" />
+
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${decisionConfig.status === 'accepted' ? 'bg-vc-mint/20 text-vc-mint' : 'bg-red-500/20 text-red-500'}`}>
+                                    {decisionConfig.status === 'accepted' ? <CheckCircle className="w-8 h-8" /> : <XCircle className="w-8 h-8" />}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h3 className="text-2xl font-bold">Confirm Decision</h3>
+                                    <p className="text-white/60 text-sm leading-relaxed px-4">
+                                        Are you sure you want to <span className={`font-bold ${decisionConfig.status === 'accepted' ? 'text-vc-mint' : 'text-red-400'}`}>{decisionConfig.status}</span> the application for <span className="text-white font-medium">{decisionConfig.userName}</span>?
+                                    </p>
+                                </div>
+
+                                <div className="w-full p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                                    <div className="flex items-start gap-4 text-left">
+                                        <div className="p-2 rounded-lg bg-vc-mint/10 mt-1">
+                                            <Mail className="w-4 h-4 text-vc-mint" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold text-vc-mint/60 uppercase tracking-widest">Notification Flow</p>
+                                            <p className="text-xs text-white/50 leading-relaxed">
+                                                An official {decisionConfig.status === 'accepted' ? 'acceptance' : 'rejection'} email will be sent automatically to <span className="text-white/80">{decisionConfig.userEmail}</span>.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 w-full pt-4">
+                                    <button
+                                        onClick={() => setShowDecisionModal(false)}
+                                        disabled={processingDecision}
+                                        className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={executeAmbassadorDecision}
+                                        disabled={processingDecision}
+                                        className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${decisionConfig.status === 'accepted'
+                                            ? 'bg-vc-mint text-vc-green-dark hover:bg-white'
+                                            : 'bg-red-500 text-white hover:bg-red-400'
+                                            } disabled:opacity-50 shadow-xl ${decisionConfig.status === 'accepted' ? 'shadow-vc-mint/10' : 'shadow-red-500/10'}`}
+                                    >
+                                        {processingDecision ? (
+                                            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            'Confirm'
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </main >
     );
 }
