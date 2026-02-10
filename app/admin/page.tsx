@@ -7,12 +7,12 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -383,6 +383,11 @@ function AdminDashboardContent() {
     const [showRemoveModal, setShowRemoveModal] = useState(false);
     const [userToRemove, setUserToRemove] = useState<{ id: string, name: string } | null>(null);
     const [processingRemoval, setProcessingRemoval] = useState(false);
+
+    // Application Deletion State
+    const [showDeleteAppModal, setShowDeleteAppModal] = useState(false);
+    const [appToDelete, setAppToDelete] = useState<{ id: string, name: string } | null>(null);
+    const [processingAppDeletion, setProcessingAppDeletion] = useState(false);
 
     // We use the imported countriesList directly or map it if needed
 
@@ -756,14 +761,14 @@ function AdminDashboardContent() {
         setShowRemoveModal(true);
     };
 
-    const executeAmbassadorRemoval = async () => {
+    const confirmRemoveAmbassador = async () => {
         if (!userToRemove) return;
         setProcessingRemoval(true);
         try {
             await updateDoc(doc(db, 'users', userToRemove.id), {
                 role: 'user'
             });
-            setToast({ message: `${userToRemove.name} removed from Ambassadors.`, type: 'success' });
+            setToast({ message: `${userToRemove.name} has been removed from ambassadors.`, type: 'success' });
             setShowRemoveModal(false);
             setUserToRemove(null);
         } catch (error) {
@@ -771,6 +776,27 @@ function AdminDashboardContent() {
             setToast({ message: 'Failed to remove ambassador.', type: 'error' });
         } finally {
             setProcessingRemoval(false);
+        }
+    };
+
+    const handleDeleteApplication = (appId: string, applicantName: string) => {
+        setAppToDelete({ id: appId, name: applicantName });
+        setShowDeleteAppModal(true);
+    };
+
+    const confirmDeleteApplication = async () => {
+        if (!appToDelete) return;
+        setProcessingAppDeletion(true);
+        try {
+            await deleteDoc(doc(db, 'ambassador_applications', appToDelete.id));
+            setToast({ message: `Application for ${appToDelete.name} deleted successfully.`, type: 'success' });
+            setShowDeleteAppModal(false);
+            setAppToDelete(null);
+        } catch (error: any) {
+            console.error('Error deleting application:', error);
+            setToast({ message: `Failed to delete application: ${error.message}`, type: 'error' });
+        } finally {
+            setProcessingAppDeletion(false);
         }
     };
 
@@ -1357,6 +1383,13 @@ function AdminDashboardContent() {
                                                                 title="Reject"
                                                             >
                                                                 <X className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); handleDeleteApplication(app.id, app.name || app.fullName || 'Applicant'); }}
+                                                                className="p-2.5 rounded-xl bg-white/5 text-white/40 hover:bg-white/10 hover:text-red-400 transition-all border border-white/10 hover:border-red-500/30"
+                                                                title="Delete Application"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -2138,7 +2171,7 @@ function AdminDashboardContent() {
                                         Cancel
                                     </button>
                                     <button
-                                        onClick={executeAmbassadorRemoval}
+                                        onClick={confirmRemoveAmbassador}
                                         disabled={processingRemoval}
                                         className="w-full py-4 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl shadow-red-500/10"
                                     >
