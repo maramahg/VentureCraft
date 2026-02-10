@@ -349,7 +349,6 @@ function AdminDashboardContent() {
     });
     const [savingScore, setSavingScore] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const [securityStatus, setSecurityStatus] = useState<Record<string, { status: string, reportUrl: string, stats?: any }>>({});
 
     // Tab Management
     const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr'>('startups');
@@ -466,48 +465,6 @@ function AdminDashboardContent() {
 
         return () => unsubscribeAuth();
     }, [router]);
-
-    // Security Scanning Logic
-    const refreshScans = async () => {
-        if (!selectedApp && !selectedAmbassadorApp) return;
-
-        const filesToScan = selectedApp ? [
-            { id: 'pitchDeck', url: selectedApp.materials.pitchDeckUrl },
-            { id: 'execSummary', url: selectedApp.materials.execSummaryUrl },
-            { id: 'supportingData', url: selectedApp.materials.supportingDataUrl }
-        ].filter(f => f.url) : []; // No security scan for ambassadors
-
-        filesToScan.forEach(async (file) => {
-            try {
-                const res = await fetch('/api/security-check', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileUrl: file.url })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setSecurityStatus(prev => ({
-                        ...prev,
-                        [file.id]: {
-                            status: data.status,
-                            reportUrl: data.reportUrl,
-                            stats: data.stats
-                        }
-                    }));
-                }
-            } catch (err) {
-                console.error('Scan failed for', file.id, err);
-            }
-        });
-    };
-
-    useEffect(() => {
-        if (!selectedApp) {
-            setSecurityStatus({});
-            return;
-        }
-        refreshScans();
-    }, [selectedApp]);
 
     // Countries are imported from @/lib/countries
 
@@ -1686,26 +1643,6 @@ function AdminDashboardContent() {
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
                                                     <FileText className="w-4 h-4" /> Required Materials
                                                 </h3>
-                                                <div className="mb-6 p-4 rounded-2xl bg-vc-mint/5 border border-vc-mint/10 flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-full bg-vc-mint/10 flex items-center justify-center shrink-0 border border-vc-mint/20">
-                                                        <Shield className="w-5 h-5 text-vc-mint" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center justify-between mb-0.5">
-                                                            <p className="text-[10px] font-bold text-vc-mint uppercase tracking-widest">Security Filtering Active</p>
-                                                            <button
-                                                                onClick={refreshScans}
-                                                                className="text-[9px] font-black uppercase tracking-tighter text-vc-mint/60 hover:text-vc-mint transition-colors underline"
-                                                            >
-                                                                Refresh
-                                                            </button>
-                                                        </div>
-                                                        <p className="text-[10px] text-white/40 leading-relaxed">
-                                                            All materials are automatically scanned. {isAdmin && "Reports provided via VirusTotal."}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
                                                 <div className="space-y-3">
                                                     {[
                                                         { id: 'pitchDeck', label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
@@ -1719,53 +1656,14 @@ function AdminDashboardContent() {
                                                                         <item.icon className="text-vc-mint w-5 h-5 shrink-0" />
                                                                         <div className="flex flex-col min-w-0">
                                                                             <span className="text-sm font-medium truncate">{item.label}</span>
-                                                                            {(!isAdmin && (securityStatus[item.id]?.status === 'malicious' || securityStatus[item.id]?.status === 'suspicious')) ? (
-                                                                                <span className="text-[10px] text-red-400/60 font-medium italic truncate">Access restricted for safety</span>
-                                                                            ) : (
-                                                                                <a
-                                                                                    href={item.url}
-                                                                                    target="_blank"
-                                                                                    className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate"
-                                                                                >
-                                                                                    Open File
-                                                                                </a>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
-                                                                        {securityStatus[item.id] ? (
-                                                                            <div className={`flex items-center gap-1.5 px-2 py-1 border rounded-md w-full md:w-auto justify-center md:justify-start ${securityStatus[item.id].status === 'clean' ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' :
-                                                                                securityStatus[item.id].status === 'malicious' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                                                    'bg-white/5 border-white/10 text-white/40'
-                                                                                }`}>
-                                                                                <Shield className="w-3 h-3 shrink-0" />
-                                                                                <span className="text-[9px] font-bold uppercase tracking-widest truncate">
-                                                                                    {securityStatus[item.id].status === 'clean' ? 'Safe' :
-                                                                                        securityStatus[item.id].status === 'malicious' ?
-                                                                                            (isAdmin ? `Flagged (${securityStatus[item.id].stats?.malicious || 1} alert${(securityStatus[item.id].stats?.malicious || 1) > 1 ? 's' : ''})` : 'Flagged') :
-                                                                                            securityStatus[item.id].status === 'suspicious' ?
-                                                                                                (isAdmin ? `Suspicious (${securityStatus[item.id].stats?.suspicious || 1} flag${(securityStatus[item.id].stats?.suspicious || 1) > 1 ? 's' : ''})` : 'Suspicious') :
-                                                                                                securityStatus[item.id].status === 'pending_submission' ? 'Analysis Started' :
-                                                                                                    'Scanning...'}
-                                                                                </span>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 text-white/20 rounded-md animate-pulse w-full md:w-auto justify-center md:justify-start">
-                                                                                <Shield className="w-3 h-3 shrink-0" />
-                                                                                <span className="text-[9px] font-bold uppercase tracking-widest">Verifying</span>
-                                                                            </div>
-                                                                        )}
-                                                                        {isAdmin && (
                                                                             <a
-                                                                                href={securityStatus[item.id]?.reportUrl || `https://www.virustotal.com/gui/search/${encodeURIComponent(item.url)}`}
+                                                                                href={item.url}
                                                                                 target="_blank"
-                                                                                className="p-1 px-2 rounded-md bg-white/5 hover:bg-white/10 text-[9px] font-bold text-white/40 hover:text-vc-mint transition-all shrink-0"
-                                                                                title="View VirusTotal Report"
+                                                                                className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate"
                                                                             >
-                                                                                REPORT
+                                                                                Open File
                                                                             </a>
-                                                                        )}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>

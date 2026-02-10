@@ -448,42 +448,12 @@ const ApplyPageContent = () => {
 
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
-    const computeSHA256 = async (file: File) => {
-        const arrayBuffer = await file.arrayBuffer();
-        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateStep3()) return;
         setLoading(true);
         try {
-            // 0. Security Pre-Check (Before Upload)
-            const filesToCheck = [
-                { file: files.pitchDeck, label: 'Pitch Deck' },
-                { file: files.execSummary, label: 'Executive Summary' },
-                { file: files.supportingData, label: 'Supporting Data' }
-            ].filter(f => f.file);
-
-            for (const item of filesToCheck) {
-                if (!item.file) continue;
-                const hash = await computeSHA256(item.file);
-                const checkRes = await fetch('/api/security-check', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ hash })
-                });
-
-                if (checkRes.ok) {
-                    const checkData = await checkRes.json();
-                    if (checkData.status === 'malicious' || checkData.status === 'suspicious') {
-                        const detections = (checkData.stats?.malicious || 0) + (checkData.stats?.suspicious || 0);
-                        throw new Error(`Security Alert: The file "${item.label}" (${item.file.name}) has been flagged by ${detections} security engine${detections > 1 ? 's' : ''}. While false positives can occur, we cannot accept flagged files for safety. Please check your file or upload a different version.`);
-                    }
-                }
-            }
 
             // 1. Upload Files first (Only if they passed security)
             const uploadFile = async (file: File | null, folder: string) => {
@@ -660,15 +630,6 @@ const ApplyPageContent = () => {
                 </div>
             ),
             notes: 'Ensures impartial evaluation.'
-        },
-        {
-            category: 'Security',
-            requirement: (
-                <span>
-                    All uploaded files <strong className="text-vc-mint">will be automatically scanned for malware</strong>. Encrypted or password-protected files that cannot be scanned may lead to disqualification.
-                </span>
-            ),
-            notes: 'Maintains system security and complies with university network safety standards.'
         },
         {
             category: 'Complete Submission',
