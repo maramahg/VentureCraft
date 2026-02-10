@@ -1375,16 +1375,22 @@ function AdminDashboardContent() {
                                                     className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
                                                     onClick={() => setSelectedAmbassadorApp(app)}
                                                 >
-                                                    <div className="flex items-center gap-4 sm:gap-6">
+                                                    <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left w-full md:w-auto">
                                                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
                                                             <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                         </div>
-                                                        <div className="min-w-0">
+                                                        <div className="min-w-0 flex flex-col items-center md:items-start">
                                                             <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.name || app.fullName || 'Unknown Applicant'}</h3>
-                                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
-                                                                <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {app.email}</span>
-                                                                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
-                                                                {app.location && <span className="flex items-center gap-1.5 font-bold text-vc-mint/60"><Globe className="w-3 h-3" /> {app.location}</span>}
+                                                            <div className="flex flex-col gap-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest w-full">
+                                                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1">
+                                                                    <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {app.email}</span>
+                                                                    <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
+                                                                </div>
+                                                                {app.location && (
+                                                                    <div className="text-vc-mint/60 font-bold flex justify-center md:justify-start">
+                                                                        <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.location}</span>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1484,10 +1490,9 @@ function AdminDashboardContent() {
                     </div>
                 </div>
 
-                {/* Application Details Modal */}
                 <AnimatePresence>
                     {selectedApp && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 md:p-8">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -1500,16 +1505,16 @@ function AdminDashboardContent() {
                                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
                                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                                className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+                                className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
                             >
                                 {/* Modal Header */}
-                                <div className="p-8 border-b border-white/5 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center">
-                                            <Rocket className="text-vc-mint w-8 h-8" />
+                                <div className="p-4 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                            <Rocket className="text-vc-mint w-6 h-6 md:w-8 md:h-8" />
                                         </div>
-                                        <div>
-                                            <h2 className="text-2xl font-bold">{selectedApp.startupName || selectedApp.pillar}</h2>
+                                        <div className="min-w-0">
+                                            <h2 className="text-lg md:text-2xl font-bold truncate leading-tight">{selectedApp.startupName || selectedApp.pillar}</h2>
                                             <div className="flex items-center gap-4 text-white/40 text-sm mt-1">
                                                 <span>Submitted on {selectedApp.submittedAt?.toDate().toLocaleString()}</span>
                                                 {selectedApp.location && (
@@ -1522,39 +1527,39 @@ function AdminDashboardContent() {
                                     </div>
                                     <button
                                         onClick={() => setSelectedApp(null)}
-                                        className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors"
+                                        className="p-2 md:p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors shrink-0"
                                     >
-                                        <X className="w-6 h-6" />
+                                        <X className="w-5 h-5 md:w-6 md:h-6" />
                                     </button>
                                 </div>
 
                                 {/* Modal Content - New 2-Column Layout */}
-                                <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
-                                    <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
+                                <div className="flex-1 overflow-y-auto p-3 md:p-10 custom-scrollbar overflow-x-hidden">
+                                    <div className="flex flex-col lg:flex-row gap-8 md:gap-12 min-w-0">
                                         {/* Main Column: In-depth Details */}
-                                        <div className="space-y-10">
+                                        <div className="flex-1 min-w-0 space-y-10">
                                             {/* Startup Profile Section */}
-                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
                                                     <Rocket className="w-4 h-4" /> Startup Profile
                                                 </h3>
-                                                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                                                <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Venture Pillar</p>
-                                                        <p className="text-lg font-medium text-white">{selectedApp.pillar}</p>
+                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.pillar}</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Development Stage</p>
-                                                        <p className="text-lg font-medium text-white">{selectedApp.stage}</p>
+                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.stage}</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Established over 5 Years ago?</p>
-                                                        <p className="text-lg font-medium text-white">{selectedApp.isOlderThan5Years}</p>
+                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.isOlderThan5Years}</p>
                                                     </div>
                                                     {selectedApp.location && (
                                                         <div className="space-y-1">
                                                             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Primary Location</p>
-                                                            <p className="text-lg font-medium text-white">{selectedApp.location}</p>
+                                                            <p className="text-base md:text-lg font-medium text-white">{selectedApp.location}</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1587,7 +1592,7 @@ function AdminDashboardContent() {
                                             </section>
 
                                             {/* Team Foundation Section */}
-                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
                                                     <Users className="w-4 h-4" /> Team Foundation
                                                 </h3>
@@ -1597,17 +1602,25 @@ function AdminDashboardContent() {
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Breakdown ({selectedApp.teamSize} Member{selectedApp.teamSize > 1 ? 's' : ''})</p>
                                                         <div className="space-y-3">
                                                             {selectedApp.teamMembers.map((m, i) => (
-                                                                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
-                                                                    <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20 shrink-0">
-                                                                        {i + 1}
+                                                                <div key={i} className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
+                                                                    <div className="flex items-center gap-3 w-full md:w-auto">
+                                                                        <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20 shrink-0">
+                                                                            {i + 1}
+                                                                        </div>
+                                                                        {i === 0 && (
+                                                                            <span className="md:hidden px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md ml-auto">
+                                                                                Team Leader
+                                                                            </span>
+                                                                        )}
                                                                     </div>
-                                                                    <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                                                        <span className="font-bold text-sm text-white/90 truncate">{isAdmin ? (m.name || 'Anonymous Member') : 'Anonymous Member'}</span>
+
+                                                                    <div className="flex flex-wrap items-center gap-2 min-w-0 w-full md:w-auto">
+                                                                        <span className="font-bold text-sm text-white/90 truncate max-w-full">{isAdmin ? (m.name || 'Anonymous Member') : 'Anonymous Member'}</span>
                                                                         <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap opacity-60">
                                                                             ({isAdmin ? m.nationality : 'Hidden'})
                                                                         </span>
                                                                         {i === 0 && (
-                                                                            <span className="ml-2 px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md">
+                                                                            <span className="hidden md:inline-flex ml-2 px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md">
                                                                                 Team Leader
                                                                             </span>
                                                                         )}
@@ -1656,11 +1669,11 @@ function AdminDashboardContent() {
                                             </section>
 
                                             {/* Context & Disclosure */}
-                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
                                                     <AlertCircle className="w-4 h-4" /> Context & Disclosure
                                                 </h3>
-                                                <div className="p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
+                                                <div className="p-4 md:p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
                                                     <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Conflict of Interest Declaration</p>
                                                     <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap">
                                                         {selectedApp.coiDeclaration || "No conflict of interest or organizational relationships declared by the team."}
@@ -1669,7 +1682,7 @@ function AdminDashboardContent() {
                                             </section>
 
                                             {/* Submission Materials */}
-                                            <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-8">
+                                            <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-6 md:p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
                                                     <FileText className="w-4 h-4" /> Required Materials
                                                 </h3>
@@ -1700,19 +1713,19 @@ function AdminDashboardContent() {
                                                         { id: 'supportingData', label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
                                                     ].map((item, idx) => (
                                                         item.url ? (
-                                                            <div key={idx} className="flex flex-col gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all">
-                                                                <div className="flex items-center justify-between w-full">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <item.icon className="text-vc-mint w-5 h-5" />
-                                                                        <div className="flex flex-col">
-                                                                            <span className="text-sm font-medium">{item.label}</span>
+                                                            <div key={idx} className="flex flex-col gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all">
+                                                                <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-3">
+                                                                    <div className="flex items-center gap-3 min-w-0">
+                                                                        <item.icon className="text-vc-mint w-5 h-5 shrink-0" />
+                                                                        <div className="flex flex-col min-w-0">
+                                                                            <span className="text-sm font-medium truncate">{item.label}</span>
                                                                             {(!isAdmin && (securityStatus[item.id]?.status === 'malicious' || securityStatus[item.id]?.status === 'suspicious')) ? (
-                                                                                <span className="text-[10px] text-red-400/60 font-medium italic">Access restricted for safety</span>
+                                                                                <span className="text-[10px] text-red-400/60 font-medium italic truncate">Access restricted for safety</span>
                                                                             ) : (
                                                                                 <a
                                                                                     href={item.url}
                                                                                     target="_blank"
-                                                                                    className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2"
+                                                                                    className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate"
                                                                                 >
                                                                                     Open File
                                                                                 </a>
@@ -1720,14 +1733,14 @@ function AdminDashboardContent() {
                                                                         </div>
                                                                     </div>
 
-                                                                    <div className="flex items-center gap-2">
+                                                                    <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
                                                                         {securityStatus[item.id] ? (
-                                                                            <div className={`flex items-center gap-1.5 px-2 py-1 border rounded-md ${securityStatus[item.id].status === 'clean' ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' :
+                                                                            <div className={`flex items-center gap-1.5 px-2 py-1 border rounded-md w-full md:w-auto justify-center md:justify-start ${securityStatus[item.id].status === 'clean' ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' :
                                                                                 securityStatus[item.id].status === 'malicious' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
                                                                                     'bg-white/5 border-white/10 text-white/40'
                                                                                 }`}>
-                                                                                <Shield className="w-3 h-3" />
-                                                                                <span className="text-[9px] font-bold uppercase tracking-widest">
+                                                                                <Shield className="w-3 h-3 shrink-0" />
+                                                                                <span className="text-[9px] font-bold uppercase tracking-widest truncate">
                                                                                     {securityStatus[item.id].status === 'clean' ? 'Safe' :
                                                                                         securityStatus[item.id].status === 'malicious' ?
                                                                                             (isAdmin ? `Flagged (${securityStatus[item.id].stats?.malicious || 1} alert${(securityStatus[item.id].stats?.malicious || 1) > 1 ? 's' : ''})` : 'Flagged') :
@@ -1738,8 +1751,8 @@ function AdminDashboardContent() {
                                                                                 </span>
                                                                             </div>
                                                                         ) : (
-                                                                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 text-white/20 rounded-md animate-pulse">
-                                                                                <Shield className="w-3 h-3" />
+                                                                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 text-white/20 rounded-md animate-pulse w-full md:w-auto justify-center md:justify-start">
+                                                                                <Shield className="w-3 h-3 shrink-0" />
                                                                                 <span className="text-[9px] font-bold uppercase tracking-widest">Verifying</span>
                                                                             </div>
                                                                         )}
@@ -1747,7 +1760,7 @@ function AdminDashboardContent() {
                                                                             <a
                                                                                 href={securityStatus[item.id]?.reportUrl || `https://www.virustotal.com/gui/search/${encodeURIComponent(item.url)}`}
                                                                                 target="_blank"
-                                                                                className="p-1 px-2 rounded-md bg-white/5 hover:bg-white/10 text-[9px] font-bold text-white/40 hover:text-vc-mint transition-all"
+                                                                                className="p-1 px-2 rounded-md bg-white/5 hover:bg-white/10 text-[9px] font-bold text-white/40 hover:text-vc-mint transition-all shrink-0"
                                                                                 title="View VirusTotal Report"
                                                                             >
                                                                                 REPORT
@@ -1770,13 +1783,10 @@ function AdminDashboardContent() {
 
                                         </div>
 
-
-
-
                                         {/* Right Column: Scoring */}
-                                        <div className="space-y-8">
+                                        <div className="w-full lg:w-[400px] shrink-0 space-y-8 min-w-0">
                                             {/* Screening & Scoring Section */}
-                                            <section className="bg-[#0f2a27]/50 border border-vc-mint/20 rounded-[2rem] p-8 relative overflow-hidden">
+                                            <section className="bg-[#0f2a27]/50 border border-vc-mint/20 rounded-3xl md:rounded-[2rem] p-4 md:p-8 relative overflow-hidden">
 
 
                                                 <div className="flex items-center justify-between mb-8">
@@ -1785,9 +1795,9 @@ function AdminDashboardContent() {
                                                     </h3>
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
-                                                        <span className="text-4xl font-black text-vc-mint">
+                                                        <span className="text-2xl md:text-4xl font-black text-vc-mint">
                                                             {Math.round(RUBRICS.reduce((acc, r) => acc + (currentScores[r.id as keyof typeof currentScores] * (r.weight * 10)), 0))}
-                                                            <span className="text-base font-bold text-white/30 ml-2">/ 100</span>
+                                                            <span className="text-xs md:text-base font-bold text-white/30 ml-2">/ 100</span>
                                                         </span>
                                                     </div>
                                                 </div>
@@ -1795,15 +1805,15 @@ function AdminDashboardContent() {
                                                 <div className="space-y-8">
                                                     {RUBRICS.map((rubric) => (
                                                         <div key={rubric.id} className="space-y-3">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="space-y-1">
+                                                            <div className="flex items-center justify-between gap-4">
+                                                                <div className="space-y-1 min-w-0">
                                                                     <label className="text-base font-bold text-white flex items-center gap-2">
                                                                         {rubric.label}
                                                                         <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
                                                                             {rubric.weight * 100}% Weight
                                                                         </span>
                                                                     </label>
-                                                                    <p className="text-sm text-white/60 max-w-lg leading-relaxed">{rubric.description}</p>
+                                                                    <p className="text-xs md:text-sm text-white/60 leading-relaxed">{rubric.description}</p>
                                                                 </div>
                                                                 <span className="text-2xl font-bold text-vc-mint w-12 text-right">
                                                                     {currentScores[rubric.id as keyof typeof currentScores]}
@@ -1850,7 +1860,7 @@ function AdminDashboardContent() {
                                             </section>
 
                                             {/* Round 2 Placeholder */}
-                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 opacity-50 grayscale select-none cursor-not-allowed relative">
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8 opacity-50 grayscale select-none cursor-not-allowed relative">
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3">
                                                         <Shield className="w-4 h-4 text-white/40" />
@@ -1873,7 +1883,7 @@ function AdminDashboardContent() {
                 </AnimatePresence>
                 <AnimatePresence>
                     {selectedAmbassadorApp && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 md:p-8">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -1885,67 +1895,67 @@ function AdminDashboardContent() {
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+                                className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
                             >
                                 {/* Modal Header */}
-                                <div className="p-8 border-b border-white/5 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center">
-                                            <Users className="text-vc-mint w-8 h-8" />
+                                <div className="p-4 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                            <Users className="text-vc-mint w-6 h-6 md:w-8 md:h-8" />
                                         </div>
-                                        <div>
-                                            <h2 className="text-2xl font-bold">{selectedAmbassadorApp.email}</h2>
-                                            <span className="text-white/40 text-sm">Submitted on {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
+                                        <div className="min-w-0">
+                                            <h2 className="text-lg md:text-2xl font-bold truncate leading-tight">{selectedAmbassadorApp.email}</h2>
+                                            <span className="text-white/40 text-[10px] md:text-sm block mt-0.5 truncate">Submitted on {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => setSelectedAmbassadorApp(null)}
-                                        className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors"
+                                        className="p-2 md:p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors shrink-0"
                                     >
-                                        <X className="w-6 h-6" />
+                                        <X className="w-5 h-5 md:w-6 md:h-6" />
                                     </button>
                                 </div>
 
                                 {/* Modal Content - Synced with Startup Layout */}
-                                <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
-                                    <div className="grid lg:grid-cols-[1fr_360px] gap-8 md:gap-12">
+                                <div className="flex-1 overflow-y-auto p-3 md:p-10 custom-scrollbar overflow-x-hidden">
+                                    <div className="flex flex-col lg:flex-row gap-8 md:gap-12 min-w-0">
                                         {/* Main Column: Profiles & Experience */}
-                                        <div className="space-y-10">
+                                        <div className="flex-1 min-w-0 space-y-10">
                                             {/* Person Profile Section */}
-                                            <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                            <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
                                                     <User className="w-4 h-4" /> Personal Profile
                                                 </h3>
-                                                <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                                                <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Full Name</p>
-                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
+                                                        <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</p>
-                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality}</p>
+                                                        <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality}</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</p>
-                                                        <p className="text-lg font-bold text-white/90">{selectedAmbassadorApp.location}</p>
+                                                        <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.location}</p>
                                                     </div>
                                                 </div>
                                             </section>
 
                                             {/* Education Section */}
                                             {(selectedAmbassadorApp.university || selectedAmbassadorApp.major) && (
-                                                <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                     <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
                                                         <GraduationCap className="w-4 h-4" /> Academic Background
                                                     </h3>
-                                                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                                                    <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
                                                         <div className="space-y-1">
                                                             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">University</p>
-                                                            <p className="text-lg font-medium text-white">{selectedAmbassadorApp.university}</p>
+                                                            <p className="text-base md:text-lg font-medium text-white">{selectedAmbassadorApp.university}</p>
                                                         </div>
                                                         <div className="space-y-1">
                                                             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Major / Field of Study</p>
-                                                            <p className="text-lg font-medium text-white">{selectedAmbassadorApp.major}</p>
+                                                            <p className="text-base md:text-lg font-medium text-white">{selectedAmbassadorApp.major}</p>
                                                         </div>
                                                         <div className="space-y-1">
                                                             <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Degree Level</p>
@@ -1959,23 +1969,23 @@ function AdminDashboardContent() {
 
                                             {/* Experience & Motivation */}
                                             {(selectedAmbassadorApp.reason || selectedAmbassadorApp.experience) && (
-                                                <section className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                     <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
                                                         <AlertCircle className="w-4 h-4" /> Context & Motivation
                                                     </h3>
                                                     <div className="space-y-6">
                                                         {selectedAmbassadorApp.reason && (
-                                                            <div className="p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
+                                                            <div className="p-4 md:p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 overflow-hidden">
                                                                 <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Why join?</p>
-                                                                <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap">
+                                                                <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap break-words min-w-0">
                                                                     "{selectedAmbassadorApp.reason}"
                                                                 </p>
                                                             </div>
                                                         )}
                                                         {selectedAmbassadorApp.experience && (
-                                                            <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
+                                                            <div className="p-4 md:p-6 rounded-2xl bg-white/5 border border-white/5 overflow-hidden">
                                                                 <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3">Relevant Experience</p>
-                                                                <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                                                                <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap break-words min-w-0">
                                                                     {selectedAmbassadorApp.experience}
                                                                 </p>
                                                             </div>
@@ -1986,9 +1996,9 @@ function AdminDashboardContent() {
                                         </div>
 
                                         {/* Sidebar: Contact & Decision */}
-                                        <div className="space-y-8">
+                                        <div className="w-full lg:w-[360px] shrink-0 space-y-8 min-w-0">
                                             {/* Contact & Digital Presence */}
-                                            <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-8">
+                                            <section className="bg-[#0f2a27] border border-white/10 rounded-3xl md:rounded-[2.5rem] p-4 md:p-8">
                                                 <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
                                                     <Mail className="w-4 h-4" /> Contact & Social
                                                 </h3>
@@ -2015,7 +2025,7 @@ function AdminDashboardContent() {
                                                             <a
                                                                 href={selectedAmbassadorApp.socialMedia}
                                                                 target="_blank"
-                                                                className="flex items-center gap-4 p-5 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
+                                                                className="flex items-center gap-4 p-4 md:p-5 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
                                                             >
                                                                 <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0 border border-vc-mint/20 group-hover:scale-110 transition-transform">
                                                                     <Share2 className="text-vc-mint w-5 h-5" />
@@ -2034,7 +2044,7 @@ function AdminDashboardContent() {
                                             </section>
 
                                             {/* Review Decision Center */}
-                                            <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-[2.5rem] p-8 shadow-2xl shadow-vc-mint/5">
+                                            <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl shadow-vc-mint/5">
                                                 <h3 className="text-vc-mint font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
                                                     Review Decision
                                                 </h3>
