@@ -1375,7 +1375,7 @@ function AdminDashboardContent() {
                                                             }`}>
                                                             {app.status || 'pending'}
                                                         </div>
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-2 relative z-10">
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'accepted'); }}
                                                                 className="p-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
