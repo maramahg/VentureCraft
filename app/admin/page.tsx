@@ -1380,9 +1380,9 @@ function AdminDashboardContent() {
                                                             <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.email}</h3>
+                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.name || app.fullName || 'Unknown Applicant'}</h3>
                                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
-                                                                <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {app.name || app.fullName}</span>
+                                                                <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {app.email}</span>
                                                                 <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
                                                                 {app.location && <span className="flex items-center gap-1.5 font-bold text-vc-mint/60"><Globe className="w-3 h-3" /> {app.location}</span>}
                                                             </div>

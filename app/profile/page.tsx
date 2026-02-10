@@ -217,10 +217,7 @@ export default function ProfilePage() {
                                     </>
                                 )}
                             </div>
-                            <div className="text-[10px] text-white/30 text-center max-w-[200px] leading-relaxed italic">
-                                <Shield className="w-3 h-3 inline mr-1 text-vc-mint/40" />
-                                All uploads are automatically scanned for malware.
-                            </div>
+
                             <div className="text-center">
                                 <div className="flex flex-wrap justify-center gap-2">
                                     {isAdmin && (
