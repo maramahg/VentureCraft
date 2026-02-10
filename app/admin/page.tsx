@@ -794,7 +794,13 @@ function AdminDashboardContent() {
             setAppToDelete(null);
         } catch (error: any) {
             console.error('Error deleting application:', error);
-            setToast({ message: `Failed to delete application: ${error.message}`, type: 'error' });
+            let errorMessage = error.message || 'Unknown error';
+            if (error.code === 'permission-denied') {
+                errorMessage = "Permission denied. Please ensure you have admin rights and refresh the page.";
+            } else if (error.code === 'not-found') {
+                errorMessage = "Document not found. It may have already been deleted.";
+            }
+            setToast({ message: `Failed to delete application: ${errorMessage}`, type: 'error' });
         } finally {
             setProcessingAppDeletion(false);
         }
