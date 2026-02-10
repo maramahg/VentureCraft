@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import CallToAction from "@/components/CallToAction";
 import AmbassadorsFAQ from "@/src/components/AmbassadorsFAQ";
+import AmbassadorStandards from "@/src/components/AmbassadorStandards";
 import {
     Globe,
     Award,
@@ -209,6 +210,29 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
+                {/* Vision Quote Section (Shrunk Bridge Style) */}
+                <section className="py-16 relative overflow-hidden group">
+                    {/* The Ribbon Decoration */}
+                    <div className="absolute inset-0 z-0 bg-vc-mint/15" />
+
+                    <div className="container mx-auto px-6 relative z-10 text-center">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="max-w-3xl mx-auto"
+                        >
+                            <h2 className="text-2xl md:text-4xl font-black text-white mb-6 font-poppins uppercase leading-tight tracking-tighter">
+                                "<span className="text-vc-mint"> Partners</span>, Not Just Promoters. "
+                            </h2>
+                            <p className="text-white/50 text-base md:text-lg font-poppins max-w-2xl mx-auto leading-relaxed">
+                                Building a diverse global community united by ambition, innovation, and collaboration.
+                            </p>
+                        </motion.div>
+                    </div>
+                </section>
+
                 {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
                 <section className="py-32 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/05">
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
@@ -224,7 +248,7 @@ export default function AmbassadorsPage() {
                                 <div className="lg:w-1/2 flex flex-col items-center text-center md:items-start md:text-left">
                                     <motion.h2
                                         variants={fadeInUp}
-                                        className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20 w-full"
+                                        className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white w-full"
                                     >
                                         Ambassador Mission
                                     </motion.h2>
@@ -270,28 +294,7 @@ export default function AmbassadorsPage() {
                     </div>
                 </section>
 
-                {/* Vision Quote Section (Shrunk Bridge Style) */}
-                <section className="py-16 relative overflow-hidden group">
-                    {/* The Ribbon Decoration */}
-                    <div className="absolute inset-0 z-0 bg-vc-mint/15" />
-
-                    <div className="container mx-auto px-6 relative z-10 text-center">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
-                            className="max-w-3xl mx-auto"
-                        >
-                            <h2 className="text-2xl md:text-4xl font-black text-white mb-6 font-poppins uppercase leading-tight tracking-tighter">
-                                "<span className="text-vc-mint"> Partners</span>, Not Just Promoters. "
-                            </h2>
-                            <p className="text-white/50 text-base md:text-lg font-poppins max-w-2xl mx-auto leading-relaxed">
-                                Building a diverse global community united by ambition, innovation, and collaboration.
-                            </p>
-                        </motion.div>
-                    </div>
-                </section>
+                <AmbassadorStandards />
 
                 {/* The Role Section */}
                 <section className="py-24 relative z-20 overflow-hidden">
@@ -305,7 +308,7 @@ export default function AmbassadorsPage() {
                             >
                                 <motion.h2
                                     variants={fadeInUp}
-                                    className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20 text-center md:text-left"
+                                    className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white text-center md:text-left"
                                 >
                                     Ambassador Role
                                 </motion.h2>
@@ -345,7 +348,7 @@ export default function AmbassadorsPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6 }}
-                                className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white"
                             >
                                 Ambassador Benefits
                             </motion.h2>
