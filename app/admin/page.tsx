@@ -12,7 +12,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -699,15 +699,33 @@ function AdminDashboardContent() {
                 status: status
             });
 
-            // 2. If accepted/rejected, update user role
+            // 2. If accepted/rejected, update user role AND sync to 'ambassadors' collection
             if (status === 'accepted') {
-                await updateDoc(doc(db, 'users', userId), {
+                const userRef = doc(db, 'users', userId);
+                await updateDoc(userRef, {
                     role: 'ambassador'
                 });
+
+                // Add to ambassadors collection
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.data();
+
+                await setDoc(doc(db, 'ambassadors', userId), {
+                    userId: userId,
+                    name: userName,
+                    email: userEmail,
+                    location: decisionConfig.location || '',
+                    joinedAt: serverTimestamp(),
+                    ...(userData || {}) // Copy other user data like photoURL
+                });
+
             } else if (status === 'rejected' || status === 'pending') {
                 await updateDoc(doc(db, 'users', userId), {
                     role: 'user'
                 });
+
+                // Remove from ambassadors collection
+                await deleteDoc(doc(db, 'ambassadors', userId));
             }
 
             // 3. Send Email (only for accept/reject)
@@ -768,6 +786,9 @@ function AdminDashboardContent() {
             await updateDoc(doc(db, 'users', userToRemove.id), {
                 role: 'user'
             });
+            // Also remove from 'ambassadors' collection
+            await deleteDoc(doc(db, 'ambassadors', userToRemove.id));
+
             setToast({ message: `${userToRemove.name} has been removed from ambassadors.`, type: 'success' });
             setShowRemoveModal(false);
             setUserToRemove(null);
