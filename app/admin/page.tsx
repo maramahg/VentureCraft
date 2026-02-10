@@ -801,6 +801,7 @@ function AdminDashboardContent() {
     };
 
     const handleDeleteApplication = (appId: string, applicantName: string) => {
+        console.log("Delete button clicked for:", appId, applicantName);
         setAppToDelete({ id: appId, name: applicantName });
         setShowDeleteAppModal(true);
     };
@@ -808,8 +809,12 @@ function AdminDashboardContent() {
     const confirmDeleteApplication = async () => {
         if (!appToDelete) return;
         setProcessingAppDeletion(true);
+        console.log("Attempting to delete application:", appToDelete);
         try {
-            await deleteDoc(doc(db, 'ambassador_applications', appToDelete.id));
+            const docRef = doc(db, 'ambassador_applications', appToDelete.id);
+            console.log("Deleting document at path:", docRef.path);
+            await deleteDoc(docRef);
+            console.log("Deletion successful!");
             setToast({ message: `Application for ${appToDelete.name} deleted successfully.`, type: 'success' });
             setShowDeleteAppModal(false);
             setAppToDelete(null);
