@@ -91,7 +91,7 @@ export default function AmbassadorStandards() {
 
                                     {/* Icon Hub */}
                                     <div className="relative shrink-0 z-10">
-                                        <div className="w-12 h-12 rounded-xl bg-[#002A26] border border-vc-mint/20 flex items-center justify-center text-vc-mint shadow-[0_0_30px_rgba(79,209,197,0.05)] group-hover:border-vc-mint group-hover:shadow-[0_0_40px_rgba(79,209,197,0.15)] transition-all duration-700">
+                                        <div className="w-12 h-12 rounded-xl bg-[#002A26] border border-vc-mint/20 flex items-center justify-center text-vc-mint group-hover:border-vc-mint transition-all duration-700">
                                             {item.icon}
                                         </div>
                                     </div>

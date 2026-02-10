@@ -211,7 +211,7 @@ export default function AmbassadorsPage() {
                 </section>
 
                 {/* Vision Quote Section (Shrunk Bridge Style) */}
-                <section className="py-16 relative overflow-hidden group">
+                <section className="py-16 relative overflow-hidden">
                     {/* The Ribbon Decoration */}
                     <div className="absolute inset-0 z-0 bg-vc-mint/15" />
 
@@ -234,7 +234,7 @@ export default function AmbassadorsPage() {
                 </section>
 
                 {/* VC Mission Section - Unique Feature Layout (Not a Duplicate) */}
-                <section className="py-32 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/05">
+                <section className="py-32 relative z-20 overflow-hidden border-t border-white/5 bg-[#157369]/[0.05]">
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
                         <div className="max-w-6xl mx-auto">
                             <motion.div
@@ -262,9 +262,7 @@ export default function AmbassadorsPage() {
 
                                 {/* Right Side: Feature Stack in Glass Container */}
                                 <div className="lg:w-1/2 w-full">
-                                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl relative overflow-hidden">
-                                        {/* Accent Glow */}
-                                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-vc-mint/10 rounded-full blur-3xl" />
+                                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 md:p-12 relative overflow-hidden">
 
                                         <div className="space-y-12">
                                             {[
@@ -277,7 +275,7 @@ export default function AmbassadorsPage() {
                                                     variants={fadeInUp}
                                                     className="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start text-center md:text-left group"
                                                 >
-                                                    <div className="shrink-0 bg-vc-mint/10 w-12 h-12 rounded-xl flex items-center justify-center text-vc-mint border border-vc-mint/20 group-hover:bg-vc-mint group-hover:text-[#001D1B] transition-all duration-500">
+                                                    <div className="shrink-0 bg-vc-mint w-12 h-12 rounded-xl flex items-center justify-center text-[#001D1B] border border-vc-mint/20 group-hover:bg-vc-mint/10 group-hover:text-vc-mint transition-all duration-500">
                                                         {goal.icon}
                                                     </div>
                                                     <div>
