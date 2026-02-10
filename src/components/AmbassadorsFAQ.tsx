@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { ChevronDown, Users, Award, Target, Rocket, Globe, UserPlus } from 'lucide-react';
+import { ChevronDown, Users, Award, Target, Rocket, Globe, UserPlus, Clock, GraduationCap, MapPin, Star, Zap, CheckCircle, Flag } from 'lucide-react';
 
 interface FAQItem {
     id: string;
@@ -13,107 +13,73 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
     {
-        id: 'what-is',
-        question: 'What is the Venture Craft Ambassadors Program?',
-        answer: 'The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities. Ambassadors play a key role in expanding the reach of the Venture Craft Challenge by raising awareness, encouraging participation, and representing the initiative across universities and student ecosystems worldwide.',
+        id: 'younger-students',
+        question: 'Can younger students apply?',
+        answer: 'Yes, any university student can apply to become an ambassador.',
+        icon: <Users className="w-5 h-5" />,
+    },
+    {
+        id: 'duration',
+        question: 'How long does the ambassador role last?',
+        answer: 'The role continues until the competition registration closes.',
+        icon: <Clock className="w-5 h-5" />,
+    },
+    {
+        id: 'major',
+        question: 'Is a specific major required?',
+        answer: (
+            <div className="space-y-2">
+                <p>No, students from all majors are welcome.</p>
+                <p className="text-vc-mint/80 font-medium">However, being in an engineering or technology-related field may increase your chances of selection.</p>
+            </div>
+        ),
+        icon: <GraduationCap className="w-5 h-5" />,
+    },
+    {
+        id: 'in-person',
+        question: 'Is the work in-person?',
+        answer: (
+            <div className="space-y-2">
+                <p>No, the role is primarily online.</p>
+                <p>However, occasional on-campus activities at your university may be required.</p>
+            </div>
+        ),
         icon: <Globe className="w-5 h-5" />,
     },
     {
-        id: 'why-become',
-        question: 'Why Become a Venture Craft Ambassador?',
-        answer: (
-            <ul className="space-y-2 text-white/70">
-                <li className="flex items-start gap-2">
-                    <span className="text-vc-mint mt-1">●</span>
-                    Represent a prestigious global innovation initiative
-                </li>
-                <li className="flex items-start gap-2">
-                    <span className="text-vc-mint mt-1">●</span>
-                    Gain official recognition and certification
-                </li>
-                <li className="flex items-start gap-2">
-                    <span className="text-vc-mint mt-1">●</span>
-                    Expand your professional and entrepreneurial network
-                </li>
-                <li className="flex items-start gap-2">
-                    <span className="text-vc-mint mt-1">●</span>
-                    Contribute to student-led innovation and community impact
-                </li>
-                <li className="flex items-start gap-2">
-                    <span className="text-vc-mint mt-1">●</span>
-                    Receive global exposure through Venture Craft platforms
-                </li>
-            </ul>
-        ),
-        icon: <Rocket className="w-5 h-5" />,
+        id: 'location',
+        question: 'Do I need to be located at King Fahad University of Petroleum and Minerals (KFUPM)?',
+        answer: 'No, your work will be within your own university only.',
+        icon: <MapPin className="w-5 h-5" />,
     },
     {
-        id: 'role',
-        question: 'What is the Ambassador Role?',
+        id: 'ceremony',
+        question: 'Is attending the final ceremony mandatory?',
         answer: (
-            <div className="space-y-4 text-white/70">
-                <p>Ambassadors help expand the reach of the Venture Craft Challenge by promoting it to a wider audience and supporting its presence within their communities. This can be done through various optional activities, based on availability and comfort:</p>
-                <ul className="space-y-2">
-                    <li className="flex items-start gap-2">
-                        <span className="text-vc-mint mt-1">●</span>
-                        Sharing content on personal social media platforms
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-vc-mint mt-1">●</span>
-                        Introducing the challenge to peers, student communities, and professional networks
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-vc-mint mt-1">●</span>
-                        Encouraging potential participants to engage and apply
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-vc-mint mt-1">●</span>
-                        Supporting physical marketing efforts, such as distributing materials
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-vc-mint mt-1">●</span>
-                        Assisting in identifying or facilitating collaborations with student clubs and organizations
-                    </li>
-                </ul>
-            </div>
-        ),
-        icon: <Target className="w-5 h-5" />,
-    },
-    {
-        id: 'benefits',
-        question: 'What are the Benefits?',
-        answer: (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
-                {[
-                    'Official Certificate',
-                    'Public Recognition',
-                    'Networking Access',
-                    'Event Invitations',
-                    'Global Exposure',
-                    'Special Appreciation',
-                ].map((benefit) => (
-                    <div
-                        key={benefit}
-                        className="p-3 rounded-xl bg-white/5 border border-white/10 text-white/80 text-sm"
-                    >
-                        {benefit}
-                    </div>
-                ))}
+            <div className="space-y-2">
+                <p>No, attendance is not mandatory.</p>
+                <p>Only the top three ambassadors (based on points) will be given the opportunity to attend the final ceremony.</p>
             </div>
         ),
         icon: <Award className="w-5 h-5" />,
     },
     {
-        id: 'vision',
-        question: 'What is Our Vision?',
-        answer: 'We believe ambassadors are partners, not just promoters. Our vision is to build a diverse, global community of students united by ambition, innovation, and collaboration. Through the ambassadors program, we aim to foster mutual growth, shared success, and long-term impact, empowering students to actively shape the future of innovation.',
-        icon: <Users className="w-5 h-5" />,
+        id: 'points',
+        question: 'What are ambassador points?',
+        answer: 'Points are awarded for each completed task. These points are used to rank ambassadors.',
+        icon: <Star className="w-5 h-5" />,
     },
     {
-        id: 'join',
-        question: 'How Do I Join?',
-        answer: 'You can join the Venture Craft Ambassadors Program by clicking apply at the bottom or top of the page.',
-        icon: <UserPlus className="w-5 h-5" />,
+        id: 'difficulty',
+        question: 'Are the tasks difficult or time-consuming?',
+        answer: 'No, the tasks are simple and manageable.',
+        icon: <CheckCircle className="w-5 h-5" />,
+    },
+    {
+        id: 'on-ground',
+        question: 'Is on-ground activity required?',
+        answer: 'Yes, in some cases you may be asked to help at booths or distribute posters to promote the competition.',
+        icon: <Flag className="w-5 h-5" />,
     },
 ];
 
@@ -148,22 +114,27 @@ export default function AmbassadorsFAQ() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.05 }}
-                                className={`border-b border-white/10 transition-all duration-300 ${openId === item.id
-                                    ? 'bg-white/5 border border-white/20 rounded-xl my-2 translate-x-2'
+                                className={`border-b border-white/10 transition-all duration-500 overflow-hidden ${openId === item.id
+                                    ? 'bg-vc-mint/[0.03] border-vc-mint/20 rounded-2xl my-3 shadow-[0_0_40px_-15px_rgba(45,212,191,0.1)]'
                                     : 'hover:bg-white/[0.02]'
                                     }`}
                             >
                                 <button
                                     onClick={() => toggle(item.id)}
-                                    className="w-full py-6 px-6 flex items-center justify-between text-left group"
+                                    className="w-full py-6 px-6 flex items-center justify-between text-left group transition-all"
                                 >
-                                    <span className={`text-lg md:text-xl font-bold tracking-tight transition-colors ${openId === item.id ? 'text-vc-mint' : 'text-white'
-                                        }`}>
-                                        {item.question}
-                                    </span>
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2 rounded-lg transition-all duration-300 ${openId === item.id ? 'bg-vc-mint text-vc-green-dark' : 'bg-white/5 text-white/40'}`}>
+                                            {item.icon}
+                                        </div>
+                                        <span className={`text-lg md:text-xl font-bold tracking-tight transition-colors duration-300 ${openId === item.id ? 'text-vc-mint' : 'text-white'
+                                            }`}>
+                                            {item.question}
+                                        </span>
+                                    </div>
                                     <motion.div
                                         animate={{ rotate: openId === item.id ? 180 : 0 }}
-                                        transition={{ duration: 0.3 }}
+                                        transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
                                         className={`${openId === item.id ? 'text-vc-mint' : 'text-white/40'}`}
                                     >
                                         <ChevronDown className="w-5 h-5" />
@@ -176,10 +147,9 @@ export default function AmbassadorsFAQ() {
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                            className="overflow-hidden"
+                                            transition={{ duration: 0.5, ease: [0.04, 0.62, 0.23, 0.98] }}
                                         >
-                                            <div className="px-6 pb-6 text-white/70 text-base leading-relaxed">
+                                            <div className="px-6 pb-8 pl-[72px] text-white/70 text-base md:text-lg leading-relaxed border-t border-vc-mint/5 pt-4">
                                                 {typeof item.answer === 'string' ? (
                                                     <p>{item.answer}</p>
                                                 ) : (
