@@ -2219,6 +2219,61 @@ function AdminDashboardContent() {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Application Deletion Modal */}
+            <AnimatePresence>
+                {showDeleteAppModal && appToDelete && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                        onClick={() => setShowDeleteAppModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl"
+                        >
+                            <div className="flex items-center gap-4 mb-4 text-red-400">
+                                <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+                                    <Trash2 className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white">Delete Application?</h3>
+                            </div>
+
+                            <p className="text-white/60 mb-6 font-poppins">
+                                Are you sure you want to permanently delete the application for <span className="text-white font-bold">{appToDelete.name}</span>? This action cannot be undone.
+                            </p>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowDeleteAppModal(false)}
+                                    className="px-4 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors font-medium"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmDeleteApplication}
+                                    disabled={processingAppDeletion}
+                                    className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {processingAppDeletion ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        'Delete Application'
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </main >
     );
 }
