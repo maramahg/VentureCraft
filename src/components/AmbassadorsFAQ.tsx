@@ -2,84 +2,72 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { ChevronDown, Users, Award, Target, Rocket, Globe, UserPlus, Clock, GraduationCap, MapPin, Star, Zap, CheckCircle, Flag } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 interface FAQItem {
     id: string;
     question: string;
     answer: string | React.ReactNode;
-    icon: React.ReactNode;
 }
 
 const faqData: FAQItem[] = [
     {
-        id: 'younger-students',
-        question: 'Can younger students apply?',
-        answer: 'Yes, any university student can apply to become an ambassador.',
-        icon: <Users className="w-5 h-5" />,
+        id: 'eligibility',
+        question: 'Can university students of any year apply?',
+        answer: 'Yes, all university students are welcome to apply, regardless of their current year of study.',
     },
     {
         id: 'duration',
         question: 'How long does the ambassador role last?',
-        answer: 'The role continues until the competition registration closes.',
-        icon: <Clock className="w-5 h-5" />,
+        answer: 'The role lasts until the competition registration period closes.',
     },
     {
         id: 'major',
         question: 'Is a specific major required?',
         answer: (
             <div className="space-y-2">
-                <p>No, students from all majors are welcome.</p>
-                <p className="text-vc-mint/80 font-medium">However, being in an engineering or technology-related field may increase your chances of selection.</p>
+                <p>No, students from all academic backgrounds are welcome.</p>
+                <p className="text-vc-mint/80 font-medium italic">Note: Being in an engineering or technology-related field may increase your chances of selection.</p>
             </div>
         ),
-        icon: <GraduationCap className="w-5 h-5" />,
     },
     {
         id: 'in-person',
-        question: 'Is the work in-person?',
+        question: 'Is the work in-person or remote?',
         answer: (
             <div className="space-y-2">
-                <p>No, the role is primarily online.</p>
-                <p>However, occasional on-campus activities at your university may be required.</p>
+                <p>The role is primarily online, though you may occasionally be asked to help with on-campus activities at your university.</p>
             </div>
         ),
-        icon: <Globe className="w-5 h-5" />,
     },
     {
         id: 'location',
-        question: 'Do I need to be located at King Fahad University of Petroleum and Minerals (KFUPM)?',
-        answer: 'No, your work will be within your own university only.',
-        icon: <MapPin className="w-5 h-5" />,
+        question: 'Do I need to be at King Fahad University of Petroleum and Minerals (KFUPM)?',
+        answer: 'No, your work will be carried out within your own university only.',
     },
     {
         id: 'ceremony',
         question: 'Is attending the final ceremony mandatory?',
         answer: (
             <div className="space-y-2">
-                <p>No, attendance is not mandatory.</p>
-                <p>Only the top three ambassadors (based on points) will be given the opportunity to attend the final ceremony.</p>
+                <p>No, attendance is not required. However, the top three ambassadors (based on points earned) will be invited to attend the final ceremony.</p>
             </div>
         ),
-        icon: <Award className="w-5 h-5" />,
     },
     {
         id: 'points',
         question: 'What are ambassador points?',
-        answer: 'Points are awarded for each completed task. These points are used to rank ambassadors.',
-        icon: <Star className="w-5 h-5" />,
+        answer: 'Points are earned for each task you complete. These points are used to rank ambassadors and determine awards.',
     },
     {
         id: 'difficulty',
         question: 'Are the tasks difficult or time-consuming?',
-        answer: 'No, the tasks are simple and manageable.',
-        icon: <CheckCircle className="w-5 h-5" />,
+        answer: 'No, the tasks are designed to be simple and easily balanced with your studies.',
     },
     {
         id: 'on-ground',
-        question: 'Is on-ground activity required?',
-        answer: 'Yes, in some cases you may be asked to help at booths or distribute posters to promote the competition.',
-        icon: <Flag className="w-5 h-5" />,
+        question: 'Is on-campus activity expected?',
+        answer: 'In some cases, yes. You may be asked to help at booths or distribute posters to promote the competition on your campus.',
     },
 ];
 
@@ -123,10 +111,7 @@ export default function AmbassadorsFAQ() {
                                     onClick={() => toggle(item.id)}
                                     className="w-full py-6 px-6 flex items-center justify-between text-left group transition-all"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-lg transition-all duration-300 ${openId === item.id ? 'bg-vc-mint text-vc-green-dark' : 'bg-white/5 text-white/40'}`}>
-                                            {item.icon}
-                                        </div>
+                                    <div className="flex items-center">
                                         <span className={`text-lg md:text-xl font-bold tracking-tight transition-colors duration-300 ${openId === item.id ? 'text-vc-mint' : 'text-white'
                                             }`}>
                                             {item.question}
@@ -149,7 +134,7 @@ export default function AmbassadorsFAQ() {
                                             exit={{ height: 0, opacity: 0 }}
                                             transition={{ duration: 0.5, ease: [0.04, 0.62, 0.23, 0.98] }}
                                         >
-                                            <div className="px-6 pb-8 pl-[72px] text-white/70 text-base md:text-lg leading-relaxed border-t border-vc-mint/5 pt-4">
+                                            <div className="px-6 pb-8 text-white/70 text-base md:text-lg leading-relaxed border-t border-vc-mint/5 pt-4">
                                                 {typeof item.answer === 'string' ? (
                                                     <p>{item.answer}</p>
                                                 ) : (
