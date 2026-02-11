@@ -9,7 +9,7 @@ import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { countries } from '@/lib/countries';
-import { isValidUrl } from '@/lib/utils';
+import { isValidUrl, isPersonalEmail } from '@/lib/utils';
 
 // Custom Dropdown Component (Identical to competition apply page)
 function FlagDropdown({
@@ -186,7 +186,11 @@ function ApplicationFormContent() {
         if (!formData.name.trim()) newErrors.name = "Please enter your name.";
         if (!formData.nationality) newErrors.nationality = "Please select your nationality.";
         if (!formData.location) newErrors.location = "Please select your current location.";
-        if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = "Please enter a valid email.";
+        if (!formData.email.trim() || !formData.email.includes('@')) {
+            newErrors.email = "Please enter a valid email.";
+        } else if (!isPersonalEmail(formData.email)) {
+            newErrors.email = "Please enter a personal email address. University emails (.edu) are not allowed.";
+        }
         if (formData.phone.length < 7 || formData.phone.length > 15) newErrors.phone = "Please check the phone number.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

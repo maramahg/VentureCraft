@@ -14,7 +14,7 @@ import Navbar from '@/components/Navbar';
 
 
 import { countries } from '@/lib/countries';
-import { isValidUrl, isValidYoutubeUrl, isValidLinkedinUrl } from '@/lib/utils';
+import { isValidUrl, isValidYoutubeUrl, isValidLinkedinUrl, isPersonalEmail } from '@/lib/utils';
 
 // Custom Dropdown Component
 function FlagDropdown({
@@ -380,6 +380,8 @@ const ApplyPageContent = () => {
         }
         if (!formData.leaderEmail) {
             newErrors.leaderEmail = "Please enter the team leader's email address.";
+        } else if (!isPersonalEmail(formData.leaderEmail)) {
+            newErrors.leaderEmail = "Please enter a personal email address (e.g., Gmail, Outlook). School or work emails are not allowed.";
         }
         if (formData.leaderPhoneNumber.length < 7 || formData.leaderPhoneNumber.length > 15) {
             newErrors.leaderPhoneNumber = "Please check the phone number.";

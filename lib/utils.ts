@@ -40,3 +40,8 @@ export function isValidLinkedinUrl(url: string) {
     return false;
   }
 }
+export function isPersonalEmail(email: string) {
+  const domain = email.split('@')[1]?.toLowerCase() || '';
+  const organizationalPatterns = ['.edu', '.gov', '.ac.'];
+  return !organizationalPatterns.some(pattern => domain.includes(pattern));
+}
