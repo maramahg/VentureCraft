@@ -14,7 +14,13 @@ export async function POST(request: Request): Promise<NextResponse> {
                 // if (!user) throw new Error('Unauthorized');
 
                 return {
-                    allowedContentTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                    allowedContentTypes: [
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-powerpoint',
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+                    ],
                     tokenPayload: JSON.stringify({
                         // optional, sent to your server on upload completion
                         // userId: user.id,

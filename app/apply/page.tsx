@@ -538,9 +538,17 @@ const ApplyPageContent = () => {
             }
 
             setIsSuccessOpen(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error submitting application:', error);
-            alert('Failed to submit application. Please try again.');
+            const errorMessage = error.message || '';
+
+            if (errorMessage.includes('Blob') || errorMessage.includes('upload')) {
+                alert('File upload failed. Your storage might be full or the file type is not supported. Please try again or use a smaller file.');
+            } else if (errorMessage.includes('Firestore') || errorMessage.includes('permission')) {
+                alert('Database submission failed. Please check your internet connection and try again.');
+            } else {
+                alert('Failed to submit application. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
