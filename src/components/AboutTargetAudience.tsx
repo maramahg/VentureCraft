@@ -1,23 +1,28 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { GraduationCap, Microscope, Briefcase } from 'lucide-react';
+import { GraduationCap, Microscope, Briefcase, Rocket } from 'lucide-react';
 
 const audience = [
   {
     icon: GraduationCap,
-    title: 'Students',
-    description: "Bachelor's, Master's, and PhD Students currently enrolled in academic programs."
+    title: 'Fresh STEM Graduates',
+    description: "Individuals from technical universities within their first 5 years post-graduation."
   },
   {
     icon: Microscope,
-    title: 'Researchers',
-    description: "Post-doctoral researchers advancing frontiers in science and deep-tech."
+    title: 'Researchers & Postdocs',
+    description: "Post-doctoral researchers and assistants with tangible prototypes or new methods."
   },
   {
     icon: Briefcase,
-    title: 'Recent Graduates',
-    description: "Recent graduates (up to 5 years post-graduation) ready to launch."
+    title: 'Early-Career R&D',
+    description: "Technical professionals in labs or startups with up to 3 years of experience."
+  },
+  {
+    icon: Rocket,
+    title: 'Academic Spinouts',
+    description: "Graduate students or researchers ready to commercialize lab-validated research."
   }
 ];
 
@@ -35,7 +40,7 @@ export default function AboutTargetAudience() {
         </div>
 
         {/* Mobile Horizontal Scroll Container / Desktop Grid */}
-        <div className="flex flex-nowrap lg:grid lg:grid-cols-3 gap-6 overflow-x-auto lg:overflow-visible pb-8 lg:pb-0 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
+        <div className="flex flex-nowrap md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
           {audience.map((item, index) => (
             <motion.div
               key={index}

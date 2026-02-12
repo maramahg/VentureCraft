@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 import { motion } from 'framer-motion';
+import { GraduationCap, Microscope, Briefcase, Rocket } from 'lucide-react';
 
 const eligibilityCriteria = [
     {
@@ -28,11 +29,14 @@ const eligibilityCriteria = [
     {
         category: 'Education',
         requirement: (
-            <span>
-                All team members must be <strong className="text-vc-mint">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.
-            </span>
+            <div className="space-y-2">
+                <p>All team members must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
+                <div className="pt-2 border-t border-white/5 mt-2">
+                    <p className="text-sm text-white/60">For graduates, the focus is on <strong className="text-white">Fresh Graduates (0–5 years)</strong> and <strong className="text-white">Early-Career Researchers (≤3 years experience)</strong>.</p>
+                </div>
+            </div>
         ),
-        notes: 'Focuses on qualified candidates.'
+        notes: 'Ensures the competition targets high-potential early-stage talent.'
     },
     {
         category: 'Startup Stage',
@@ -101,6 +105,29 @@ const additionalPoints = [
     { title: 'Conflict of Interest', detail: 'Teams must disclose any existing mentor, investor, or organizational relationships with judges or organizers.', reason: 'Ensures impartial evaluation.' },
 ];
 
+const targetAudience = [
+    {
+        category: 'Fresh STEM Graduates',
+        description: 'Individuals who have graduated from technical universities within the last 0–5 years.',
+        profile: 'Often motivated to prove their innovation and looking for high-impact opportunities.'
+    },
+    {
+        category: 'Postdocs & Researchers',
+        description: 'Individuals or research assistants who have developed tangible results, prototypes, or new methods.',
+        profile: 'Highly capable of leading technical ventures with proper commercialization support.'
+    },
+    {
+        category: 'Early-Career R&D',
+        description: 'Researchers working in labs, startups, or R&D departments with a strong technical background.',
+        profile: 'Possess deep technical expertise and ≤3 years of professional experience.'
+    },
+    {
+        category: 'Academic Spinouts',
+        description: 'Graduate students or researchers with lab-validated prototypes but no formal company established yet.',
+        profile: 'Ready to transition research outcomes into commercial deep-tech startups.'
+    }
+];
+
 export default function EligibilityPage() {
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-24 md:pt-40 relative overflow-x-hidden">
@@ -137,6 +164,32 @@ export default function EligibilityPage() {
                                     </div>
                                     <div className="md:w-1/4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
                                         <p className="text-white/40 text-base italic">{item.notes}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
+                            <div className="w-2 h-8 bg-vc-mint rounded-full" />
+                            Targeted Audience
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {targetAudience.map((item, idx) => (
+                                <div key={idx} className="glass-panel p-6 space-y-4 group hover:border-vc-mint/30 transition-all border border-white/5 bg-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                                            {idx === 0 && <GraduationCap size={24} />}
+                                            {idx === 1 && <Microscope size={24} />}
+                                            {idx === 2 && <Briefcase size={24} />}
+                                            {idx === 3 && <Rocket size={24} />}
+                                        </div>
+                                        <h4 className="font-bold text-white text-lg uppercase tracking-tight">{item.category}</h4>
+                                    </div>
+                                    <p className="text-white/80 text-base leading-relaxed">{item.description}</p>
+                                    <div className="pt-4 border-t border-white/5">
+                                        <p className="text-white/40 text-sm italic">{item.profile}</p>
                                     </div>
                                 </div>
                             ))}

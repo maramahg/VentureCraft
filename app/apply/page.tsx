@@ -587,11 +587,14 @@ const ApplyPageContent = () => {
         {
             category: 'Education',
             requirement: (
-                <span>
-                    All team members must be <strong className="text-vc-mint">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.
-                </span>
+                <div className="space-y-2">
+                    <p>All team members must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
+                    <div className="pt-2 border-t border-white/5 mt-2">
+                        <p className="text-sm text-white/60">For graduates, the focus is on <strong className="text-white">Fresh Graduates (0–5 years)</strong> and <strong className="text-white">Early-Career Researchers (≤3 years experience)</strong>.</p>
+                    </div>
+                </div>
             ),
-            notes: 'Focuses on qualified candidates.'
+            notes: 'Ensures the competition targets high-potential early-stage talent.'
         },
         {
             category: 'Startup Stage',
@@ -1085,8 +1088,8 @@ const ApplyPageContent = () => {
                                             }}
                                             className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
-                                        <span className="text-base text-white/70">
-                                            I confirm that all team members are either actively pursuing or have completed an undergraduate (bachelor’s) degree.
+                                        <span className="text-base text-white/70 leading-relaxed">
+                                            I confirm that all team members are either actively pursuing or have completed an undergraduate degree (within the last 5 years for fresh graduates or 3 years for early-career researchers).
                                         </span>
                                     </label>
                                     {errors.eligibility && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibility}</p>}
