@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { auth, db, storage } from '@/lib/firebase';
 import { onAuthStateChanged, updateProfile, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { User as UserIcon, Mail, Shield, Camera, Save, Loader2, ArrowLeft } from 'lucide-react';
+import { User as UserIcon, Mail, Shield, Camera, Save, Loader2, Trophy, Star, TrendingUp, CircleDollarSign, Link as LinkIcon, Edit2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -21,10 +21,18 @@ export default function ProfilePage() {
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [isAmbassador, setIsAmbassador] = useState(false);
     const [displayName, setDisplayName] = useState('');
+    const [linkedin, setLinkedin] = useState('');
+    const [portfolio, setPortfolio] = useState('');
     const [photoURL, setPhotoURL] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [points, setPoints] = useState(0);
+    const [rank, setRank] = useState<number | null>(null);
+    const [totalAmbassadors, setTotalAmbassadors] = useState<number>(0);
+    const [pointHistory, setPointHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [showAllHistory, setShowAllHistory] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
@@ -38,6 +46,19 @@ export default function ProfilePage() {
             setUser(currentUser);
             setDisplayName(currentUser.displayName || '');
             setPhotoURL(currentUser.photoURL || '');
+
+            // Fetch profile links from users collection
+            try {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const data = userDocSnap.data();
+                    setLinkedin(data.linkedin || '');
+                    setPortfolio(data.portfolio || '');
+                }
+            } catch (err) {
+                console.error("Error fetching user profile links:", err);
+            }
 
             try {
                 // 1. Check Admin
@@ -60,9 +81,61 @@ export default function ProfilePage() {
 
                 // 4. Check Ambassador Status (from users collection)
                 const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                let userIsAmbassador = false;
+                let userPoints = 0;
+
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    setIsAmbassador(userData.role === 'ambassador');
+                    userIsAmbassador = userData.role === 'ambassador';
+                    userPoints = userData.points || 0;
+                }
+
+                // fallback: check ambassadors collection directly if not marked in users
+                if (!userIsAmbassador) {
+                    const ambDoc = await getDoc(doc(db, 'ambassadors', currentUser.uid));
+                    if (ambDoc.exists()) {
+                        userIsAmbassador = true;
+                        userPoints = ambDoc.data().points || 0;
+                    }
+                }
+
+                setIsAmbassador(userIsAmbassador);
+                setPoints(userPoints);
+
+                if (userIsAmbassador) {
+                    // Calculate Rank using the ambassadors collection for consistency
+                    // We fetch all to get an accurate total count and rank even for those with 0 points
+                    const ambSnapshot = await getDocs(collection(db, 'ambassadors'));
+                    const ambDocs = ambSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                    // Sort by points desc
+                    const sortedAmbs = ambDocs.sort((a: any, b: any) => (b.points || 0) - (a.points || 0));
+
+                    // Only calculate rank if user has points
+                    let userRank = null;
+                    if (userPoints > 0) {
+                        const foundIndex = sortedAmbs.findIndex(doc => doc.id === currentUser.uid);
+                        if (foundIndex !== -1) {
+                            userRank = foundIndex + 1;
+                        }
+                    }
+
+                    setRank(userRank);
+                    setTotalAmbassadors(sortedAmbs.length);
+
+                    // Fetch Point History
+                    setLoadingHistory(true);
+                    const historyQuery = query(
+                        collection(db, 'users', currentUser.uid, 'point_history'),
+                        orderBy('timestamp', 'desc')
+                    );
+                    const historySnapshot = await getDocs(historyQuery);
+                    setPointHistory(historySnapshot.docs.map(doc => ({
+                        points: doc.data().points,
+                        reason: doc.data().reason,
+                        timestamp: doc.data().timestamp
+                    })));
+                    setLoadingHistory(false);
                 }
             } catch (error) {
                 console.error('Error checking role:', error);
@@ -112,6 +185,12 @@ export default function ProfilePage() {
                 displayName: displayName,
                 photoURL: newPhotoURL
             });
+
+            // 3. Update User Document with Profile Links
+            await setDoc(doc(db, 'users', user.uid), {
+                linkedin: linkedin,
+                portfolio: portfolio
+            }, { merge: true });
 
             setSuccess('Profile updated successfully!');
             setTimeout(() => setSuccess(''), 3000); // Clear message after 3 seconds
@@ -232,6 +311,100 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
+                        {/* Ambassador Rewards Card */}
+                        {isAmbassador && (
+                            <div className="space-y-6">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="relative overflow-hidden rounded-3xl p-px bg-gradient-to-br from-vc-mint/40 via-vc-mint/5 to-transparent border border-white/10"
+                                >
+                                    <div className="bg-[#0a1b1a] rounded-[1.4rem] p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+                                        <div className="flex flex-col gap-1 items-center sm:items-start">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-vc-mint/60">Venture Coins</span>
+                                            <div className="flex items-center gap-2">
+                                                <CircleDollarSign className="w-6 h-6 text-vc-mint" />
+                                                <span className="text-2xl font-black text-white">{points} <span className="text-xs font-normal text-white/40 ml-1 uppercase">Venture Coins</span></span>
+                                            </div>
+                                        </div>
+
+                                        <div className="hidden sm:block h-10 w-px bg-white/5" />
+
+                                        <div className="flex flex-col gap-1 items-center sm:items-end">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-vc-mint/60">Your Rank</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl font-black text-white">#{rank || '--'} <span className="text-[10px] font-normal text-white/40 ml-1 uppercase">out of {totalAmbassadors || '--'}</span></span>
+                                                {rank && rank <= 3 ? (
+                                                    <Trophy className={`w-5 h-5 ${rank === 1 ? 'text-yellow-500 fill-yellow-500/20' :
+                                                        rank === 2 ? 'text-slate-300 fill-slate-300/20' :
+                                                            'text-amber-600 fill-amber-600/20'
+                                                        }`} />
+                                                ) : (
+                                                    <TrendingUp className="w-5 h-5 text-vc-mint" />
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-vc-mint/10 rounded-full blur-2xl pointer-events-none" />
+                                </motion.div>
+
+                                {/* Reward History List */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between px-1">
+                                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/40">Contribution History</h3>
+                                        <Star className="w-4 h-4 text-vc-mint/30" />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {loadingHistory ? (
+                                            <div className="py-8 flex flex-col items-center justify-center gap-3 text-white/20">
+                                                <Loader2 className="w-6 h-6 animate-spin" />
+                                                <p className="text-[10px] uppercase tracking-widest font-bold">Loading history...</p>
+                                            </div>
+                                        ) : pointHistory.length === 0 ? (
+                                            <div className="py-12 px-6 rounded-2xl bg-white/0 border border-dashed border-white/10 text-center">
+                                                <p className="text-xs text-white/30 italic font-poppins">No rewards logged yet. Keep up the great work!</p>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {(showAllHistory ? pointHistory : pointHistory.slice(0, 3)).map((item, idx) => (
+                                                    <motion.div
+                                                        key={idx}
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: idx * 0.05 }}
+                                                        className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between gap-4 group hover:bg-white/[0.07] transition-all"
+                                                    >
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm text-white/80 font-medium truncate font-poppins mb-1">{item.reason}</p>
+                                                            <p className="text-[10px] text-white/20 uppercase tracking-widest font-black">
+                                                                {item.timestamp?.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) || 'Recent'}
+                                                            </p>
+                                                        </div>
+                                                        <div className={`px-2.5 py-1 rounded-lg text-[10px] font-black border ${item.points > 0 ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                                            }`}>
+                                                            {item.points > 0 ? '+' : ''}{item.points}
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+
+                                                {pointHistory.length > 3 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowAllHistory(!showAllHistory)}
+                                                        className="w-full py-2 text-xs font-bold uppercase tracking-widest text-white/40 hover:text-white/60 transition-colors flex items-center justify-center gap-2"
+                                                    >
+                                                        {showAllHistory ? 'Show Less' : 'Show More'}
+                                                    </button>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="h-4" /> {/* Spacer */}
+                            </div>
+                        )}
+
                         {/* Form Fields */}
                         <div className="space-y-6">
                             <div className="space-y-2">
@@ -249,6 +422,43 @@ export default function ProfilePage() {
                                             }`}
                                         placeholder="Enter your name"
                                     />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-white/60 ml-1">LinkedIn</label>
+                                    <div className="relative">
+                                        <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                        <input
+                                            type="url"
+                                            value={linkedin}
+                                            onChange={(e) => setLinkedin(e.target.value)}
+                                            disabled={!isEditing}
+                                            className={`w-full rounded-xl pl-12 pr-4 py-3.5 transition-all text-white placeholder-white/20 ${isEditing
+                                                ? 'bg-black/20 border border-white/10 focus:outline-none focus:border-vc-mint focus:bg-white/5'
+                                                : 'bg-transparent border border-transparent pl-12'
+                                                }`}
+                                            placeholder="https://linkedin.com/in/..."
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-white/60 ml-1">Portfolio</label>
+                                    <div className="relative">
+                                        <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                        <input
+                                            type="url"
+                                            value={portfolio}
+                                            onChange={(e) => setPortfolio(e.target.value)}
+                                            disabled={!isEditing}
+                                            className={`w-full rounded-xl pl-12 pr-4 py-3.5 transition-all text-white placeholder-white/20 ${isEditing
+                                                ? 'bg-black/20 border border-white/10 focus:outline-none focus:border-vc-mint focus:bg-white/5'
+                                                : 'bg-transparent border border-transparent pl-12'
+                                                }`}
+                                            placeholder="https://yourportfolio.com"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
