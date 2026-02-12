@@ -43,7 +43,10 @@ interface Application {
         execSummaryUrl?: string;
         supportingDataName?: string;
         supportingDataUrl?: string;
+        eligibilityProofName?: string;
+        eligibilityProofUrl?: string;
     };
+    audienceCategory?: string;
     coiDeclaration?: string;
     additionalLinks?: string;
     confirmations?: {
@@ -1619,6 +1622,12 @@ function AdminDashboardContent() {
                                                                     <span className="text-white/60">Education qualification</span>
                                                                     {selectedApp.confirmations?.educationConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
                                                                 </div>
+                                                                {selectedApp.audienceCategory && (
+                                                                    <div className="flex items-center gap-3 text-xs bg-vc-mint/5 border border-vc-mint/10 p-3 rounded-xl mt-1">
+                                                                        <GraduationCap className="w-3 h-3 text-vc-mint" />
+                                                                        <span className="text-vc-mint/80 font-medium">{selectedApp.audienceCategory}</span>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1647,6 +1656,7 @@ function AdminDashboardContent() {
                                                     {[
                                                         { id: 'pitchDeck', label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
                                                         { id: 'execSummary', label: 'Exec Summary', url: selectedApp.materials.execSummaryUrl, icon: FileText },
+                                                        { id: 'eligibilityProof', label: 'Eligibility Evidence', url: selectedApp.materials.eligibilityProofUrl, icon: Shield },
                                                         { id: 'supportingData', label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
                                                     ].map((item, idx) => (
                                                         item.url ? (

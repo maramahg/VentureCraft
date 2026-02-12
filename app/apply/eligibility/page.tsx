@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 import { motion } from 'framer-motion';
-import { GraduationCap, Microscope, Briefcase, Rocket } from 'lucide-react';
+import { GraduationCap, Microscope, Briefcase, Rocket, ShieldCheck } from 'lucide-react';
 
 const eligibilityCriteria = [
     {
@@ -109,22 +109,26 @@ const targetAudience = [
     {
         category: 'Fresh STEM Graduates',
         description: 'Individuals who have graduated from technical universities within the last 0–5 years.',
-        profile: 'Often motivated to prove their innovation and looking for high-impact opportunities.'
+        profile: 'Often motivated to prove their innovation and looking for high-impact opportunities.',
+        evidence: 'Graduation Certificate, Official Transcript, or Degree Completion Letter.'
     },
     {
         category: 'Postdocs & Researchers',
         description: 'Individuals or research assistants who have developed tangible results, prototypes, or new methods.',
-        profile: 'Highly capable of leading technical ventures with proper commercialization support.'
+        profile: 'Highly capable of leading technical ventures with proper commercialization support.',
+        evidence: 'Affiliation Letter, Research Contract, or Official Academic Appointment.'
     },
     {
         category: 'Early-Career R&D',
         description: 'Researchers working in labs, startups, or R&D departments with a strong technical background.',
-        profile: 'Possess deep technical expertise and ≤3 years of professional experience.'
+        profile: 'Possess deep technical expertise and ≤3 years of professional experience.',
+        evidence: 'Employment Certificate, R&D Lab Letter, or Professional Reference.'
     },
     {
         category: 'Academic Spinouts',
         description: 'Graduate students or researchers with lab-validated prototypes but no formal company established yet.',
-        profile: 'Ready to transition research outcomes into commercial deep-tech startups.'
+        profile: 'Ready to transition research outcomes into commercial deep-tech startups.',
+        evidence: 'University Spinout Letter, Lab Validation Report, or Tech-Disclosure Form.'
     }
 ];
 
@@ -170,7 +174,7 @@ export default function EligibilityPage() {
                         </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div id="targeted-audience" className="space-y-6 scroll-mt-[20vh]">
                         <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
                             <div className="w-2 h-8 bg-vc-mint rounded-full" />
                             Targeted Audience
@@ -188,8 +192,18 @@ export default function EligibilityPage() {
                                         <h4 className="font-bold text-white text-lg uppercase tracking-tight">{item.category}</h4>
                                     </div>
                                     <p className="text-white/80 text-base leading-relaxed">{item.description}</p>
-                                    <div className="pt-4 border-t border-white/5">
-                                        <p className="text-white/40 text-sm italic">{item.profile}</p>
+                                    <div className="space-y-4 pt-8 mt-auto border-t border-white/5">
+                                        <div>
+                                            <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-1">Target Profile</p>
+                                            <p className="text-white/40 text-sm italic">{item.profile}</p>
+                                        </div>
+                                        <div className="pt-2">
+                                            <p className="text-[10px] font-bold text-vc-mint/60 uppercase tracking-widest mb-2">Required Evidence</p>
+                                            <div className="flex items-start gap-2 bg-vc-mint/5 border border-vc-mint/10 p-3 rounded-lg">
+                                                <ShieldCheck className="w-3.5 h-3.5 text-vc-mint mt-0.5 shrink-0" />
+                                                <p className="text-vc-mint/80 text-[11px] font-medium leading-tight">{item.evidence}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}

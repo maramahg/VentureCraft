@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
@@ -58,7 +58,7 @@ function FlagDropdown({
     return (
         <div className="space-y-2 relative w-full" ref={dropdownRef}>
             {label && (
-                <label className="block text-base font-medium text-white/70">
+                <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
                     {label.includes('*') ? (
                         <>
                             {label.replace('*', '').trim()} <span className="text-vc-mint">*</span>
@@ -177,7 +177,7 @@ function SimpleDropdown({
     return (
         <div className="space-y-2 relative w-full" ref={dropdownRef}>
             {label && (
-                <label className="block text-base font-medium text-white/70">
+                <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
                     {label.includes('*') ? (
                         <>
                             {label.replace('*', '').trim()} <span className="text-vc-mint">*</span>
@@ -286,6 +286,7 @@ const ApplyPageContent = () => {
         leaderPhoneCode: '+966',
         leaderPhoneNumber: '',
         leaderNationality: 'Saudi Arabia',
+        audienceCategory: '',
 
         // Part 2
         startupName: '',
@@ -308,10 +309,12 @@ const ApplyPageContent = () => {
         pitchDeck: File | null;
         execSummary: File | null;
         supportingData: File | null;
+        eligibilityProof: File | null;
     }>({
         pitchDeck: null,
         execSummary: null,
-        supportingData: null
+        supportingData: null,
+        eligibilityProof: null
     });
 
     useEffect(() => {
@@ -377,6 +380,12 @@ const ApplyPageContent = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.ageConfirmed || !formData.educationConfirmed) {
             newErrors.eligibility = "Please confirm all eligibility checkboxes to proceed.";
+        }
+        if (!formData.audienceCategory) {
+            newErrors.audienceCategory = "Please select your team's audience category.";
+        }
+        if (!files.eligibilityProof) {
+            newErrors.eligibilityProof = "Please upload evidence for your eligibility category.";
         }
         if (!formData.leaderEmail) {
             newErrors.leaderEmail = "Please enter the team leader's email address.";
@@ -468,10 +477,11 @@ const ApplyPageContent = () => {
                 return newBlob.url;
             };
 
-            const [pitchDeckUrl, execSummaryUrl, supportingDataUrl] = await Promise.all([
+            const [pitchDeckUrl, execSummaryUrl, supportingDataUrl, eligibilityProofUrl] = await Promise.all([
                 uploadFile(files.pitchDeck, 'pitch_decks'),
                 uploadFile(files.execSummary, 'exec_summaries'),
-                uploadFile(files.supportingData, 'supporting_data')
+                uploadFile(files.supportingData, 'supporting_data'),
+                uploadFile(files.eligibilityProof, 'eligibility_proofs')
             ]);
 
             const combinedPhone = `${formData.leaderPhoneCode} ${formData.leaderPhoneNumber}`;
@@ -512,7 +522,10 @@ const ApplyPageContent = () => {
                     execSummaryUrl: execSummaryUrl,
                     supportingDataName: files.supportingData?.name || null,
                     supportingDataUrl: supportingDataUrl,
+                    eligibilityProofName: files.eligibilityProof?.name || null,
+                    eligibilityProofUrl: eligibilityProofUrl,
                 },
+                audienceCategory: formData.audienceCategory,
 
                 // Confirmations
                 confirmations: {
@@ -962,8 +975,8 @@ const ApplyPageContent = () => {
                                 </div>
 
                                 <div className="space-y-4 max-w-xs mb-8">
-                                    <label className="block text-base font-medium text-white/70 flex items-center gap-2">
-                                        <Users className="w-4 h-4 text-vc-mint" />
+                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
+                                        <Users className="w-3 h-3 text-vc-mint" />
                                         Team size (including leader)
                                     </label>
                                     <input
@@ -979,7 +992,7 @@ const ApplyPageContent = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">
+                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
                                             Leader Personal Email Address <span className="text-vc-mint">*</span>
                                         </label>
                                         <input
@@ -996,7 +1009,7 @@ const ApplyPageContent = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">
+                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
                                             Leader Phone Number <span className="text-vc-mint">*</span>
                                         </label>
                                         <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.leaderPhoneNumber ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
@@ -1025,6 +1038,57 @@ const ApplyPageContent = () => {
                                         </div>
                                         {errors.leaderPhoneNumber && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.leaderPhoneNumber}</p>}
                                     </div>
+
+                                    <div className="md:col-span-2 space-y-4">
+                                        <SimpleDropdown
+                                            label="Audience Category *"
+                                            placeholder="Select who best describes your team..."
+                                            options={[
+                                                "Fresh STEM Graduates (0-5 years)",
+                                                "Postdocs & Researchers",
+                                                "Early-Career R&D (≤3 years)",
+                                                "Academic Spinouts"
+                                            ]}
+                                            value={formData.audienceCategory}
+                                            onChange={(val) => {
+                                                setFormData({ ...formData, audienceCategory: val });
+                                                if (errors.audienceCategory) setErrors(prev => ({ ...prev, audienceCategory: '' }));
+                                            }}
+                                        />
+                                        {errors.audienceCategory && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.audienceCategory}</p>}
+                                        <p className="text-sm text-white/40 italic">
+                                            This helps us understand your team's background and alignment with the targeted audience.
+                                        </p>
+                                    </div>
+
+                                    <div className="md:col-span-2 space-y-4">
+                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
+                                            <ShieldCheck className="w-3 h-3 text-vc-mint" />
+                                            Eligibility Evidence <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={(e) => {
+                                                    setFiles({ ...files, eligibilityProof: e.target.files?.[0] || null });
+                                                    if (errors.eligibilityProof) setErrors(prev => ({ ...prev, eligibilityProof: '' }));
+                                                }}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            />
+                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : errors.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                <ShieldCheck className={`w-6 h-6 ${files.eligibilityProof ? 'text-vc-mint' : errors.eligibilityProof ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                <div>
+                                                    <p className="text-sm font-medium">{files.eligibilityProof ? files.eligibilityProof.name : 'Upload Eligibility Evidence'}</p>
+                                                    <p className="text-sm text-white/40">Certificate, lab letter, or work contract (PDF/JPG)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] text-white/40 mt-2 ml-1">
+                                            Not sure what to upload? Review the <Link href="/apply/eligibility#targeted-audience" target="_blank" className="text-vc-mint hover:underline font-medium">Targeted Audience profiles</Link> for guidance.
+                                        </p>
+                                        {errors.eligibilityProof && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibilityProof}</p>}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10 mt-12">
@@ -1035,7 +1099,7 @@ const ApplyPageContent = () => {
                                     {formData.teamMembers.map((member, idx) => (
                                         <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
                                             <div className="space-y-2">
-                                                <label className="text-base text-white/40 uppercase tracking-widest font-medium">
+                                                <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
                                                     {idx === 0 ? 'Team Leader Full Name' : `Member ${idx + 1} Full Name`} <span className="text-vc-mint">*</span>
                                                 </label>
                                                 <input
@@ -1310,6 +1374,12 @@ const ApplyPageContent = () => {
                                         </div>
                                         <h2 className="text-3xl font-bold">Application Material</h2>
                                     </div>
+                                    <p className="text-sm text-white/50 -mt-4 mb-4">
+                                        Please ensure all files meet the required standards.
+                                        <Link href="/apply/materials" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">
+                                            Review the detailed Application Materials documentation
+                                        </Link>
+                                    </p>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
