@@ -181,10 +181,12 @@ export default function ProfilePage() {
             }
 
             // 2. Update Auth Profile
-            await updateProfile(user, {
-                displayName: displayName,
-                photoURL: newPhotoURL
-            });
+            if (auth.currentUser) {
+                await updateProfile(auth.currentUser, {
+                    displayName: displayName,
+                    photoURL: newPhotoURL
+                });
+            }
 
             // 3. Update User Document with Profile Links
             await setDoc(doc(db, 'users', user.uid), {
