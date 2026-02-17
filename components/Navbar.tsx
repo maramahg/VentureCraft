@@ -27,6 +27,7 @@ const navItems = [
       { name: 'ELIGIBILITY & CRITERIA', href: '/apply/eligibility' },
       { name: 'JUDGING RUBRICS', href: '/apply/rubrics' },
       { name: 'APPLICATION MATERIALS', href: '/apply/materials' },
+      { name: 'FAQ', href: '/apply/faq' },
       { name: 'Apply Now', href: '/apply' },
     ]
   },
@@ -190,16 +191,22 @@ export default function Navbar() {
                           className="absolute left-0 mt-2 w-64 bg-[#111111] border border-white/5 shadow-2xl z-50 top-full"
                         >
                           <div className="flex flex-col">
-                            {item.subItems.map((subItem) => (
-                              <Link
-                                key={subItem.name}
-                                href={subItem.href}
-                                className="flex items-center px-6 py-4 text-[13px] font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint hover:bg-white/5 transition-all border-b border-white/[0.03] last:border-b-0"
-                                onClick={() => setActiveDropdown(null)}
-                              >
-                                {subItem.name}
-                              </Link>
-                            ))}
+                            {item.subItems.map((subItem) => {
+                              const isApplyNow = subItem.name === 'Apply Now';
+                              return (
+                                <Link
+                                  key={subItem.name}
+                                  href={subItem.href}
+                                  className={`flex items-center px-6 py-4 text-[13px] font-bold uppercase tracking-widest transition-all border-b border-white/[0.03] last:border-b-0 ${isApplyNow
+                                    ? 'text-vc-mint hover:text-vc-mint/80 hover:bg-white/5'
+                                    : 'text-white/90 hover:text-vc-mint hover:bg-white/5'
+                                    }`}
+                                  onClick={() => setActiveDropdown(null)}
+                                >
+                                  {subItem.name}
+                                </Link>
+                              );
+                            })}
                           </div>
                         </motion.div>
                       )}
@@ -386,16 +393,22 @@ export default function Navbar() {
                             {item.name}
                           </div>
                           <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-1">
-                            {item.subItems.map((subItem) => (
-                              <Link
-                                key={subItem.name}
-                                href={subItem.href}
-                                className="text-base font-bold uppercase tracking-widest text-white/90 hover:text-vc-mint"
-                                onClick={() => setIsOpen(false)}
-                              >
-                                {subItem.name}
-                              </Link>
-                            ))}
+                            {item.subItems.map((subItem) => {
+                              const isApplyNow = subItem.name === 'Apply Now';
+                              return (
+                                <Link
+                                  key={subItem.name}
+                                  href={subItem.href}
+                                  className={`block py-3 px-4 text-xs font-bold uppercase tracking-widest border-l border-white/5 transition-all ${isApplyNow
+                                    ? 'text-vc-mint hover:text-vc-mint/80 border-l-vc-mint'
+                                    : 'text-white/70 hover:text-vc-mint hover:border-vc-mint'
+                                    }`}
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  {subItem.name}
+                                </Link>
+                              );
+                            })}
                           </div>
                         </>
                       ) : (

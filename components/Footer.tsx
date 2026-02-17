@@ -103,6 +103,11 @@ export default function Footer() {
                                     Register
                                 </Link>
                             </li>
+                            <li>
+                                <Link href="/apply/faq" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
+                                    FAQ
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

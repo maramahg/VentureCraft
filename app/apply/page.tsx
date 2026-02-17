@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
@@ -235,7 +235,7 @@ function SimpleDropdown({
 }
 
 const ApplyPageContent = () => {
-    const [step, setStep] = useState(1); // 1-3 = Form
+    const [step, setStep] = useState(0); // 0 = Intro, 1-3 = Form
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -1017,10 +1017,20 @@ const ApplyPageContent = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.6 }}
-                        className="glass-panel px-8 py-4 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center gap-3"
+                        className="flex flex-col items-center gap-6"
                     >
-                        <span className="w-2 h-2 rounded-full bg-vc-mint animate-ping" />
-                        <p className="text-lg font-medium text-white tracking-wide italic">More coming soon!</p>
+                        <div className="glass-panel px-8 py-4 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center gap-3">
+                            <span className="w-2 h-2 rounded-full bg-vc-mint animate-ping" />
+                            <p className="text-lg font-medium text-white tracking-wide italic">More coming soon!</p>
+                        </div>
+
+                        <Link
+                            href="/apply/faq"
+                            className="text-vc-mint/60 hover:text-vc-mint transition-all flex items-center gap-2 text-sm font-medium tracking-wide uppercase group"
+                        >
+                            <span className="border-b border-transparent group-hover:border-vc-mint/40 py-0.5 transition-all">Check Application FAQ</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
                     </motion.div>
 
                     {/* Decorative Grid */}
@@ -1039,11 +1049,15 @@ const ApplyPageContent = () => {
             <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
 
             <div className="max-w-4xl mx-auto px-4 pb-24 relative z-10 min-h-[calc(100vh-200px)]">
+                {step === 0 && null}
                 {step === 1 && (
-                    <Link href="/" className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group">
+                    <button
+                        onClick={() => setStep(0)}
+                        className="inline-flex items-center gap-2 text-vc-mint/60 hover:text-vc-mint transition-colors mb-8 group"
+                    >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span>Go Back</span>
-                    </Link>
+                        <span>Back to Intro</span>
+                    </button>
                 )}
                 {step > 1 && (
                     <button
@@ -1061,6 +1075,7 @@ const ApplyPageContent = () => {
                     </h1>
                     <p className="text-white/60 max-w-xl mx-auto mb-4">
                         Please fill out all the required information to apply for the KFUPM Venture Craft Challenge.
+                        Have questions? Check our <Link href="/apply/faq" target="_blank" className="text-vc-mint hover:underline font-medium">Application FAQ</Link>.
                     </p>
                     <p className="text-sm text-white/40 flex items-center justify-center gap-1.5">
                         <span className="text-vc-mint">*</span> Indicates a required field
@@ -1073,6 +1088,88 @@ const ApplyPageContent = () => {
 
                 <div className="glass-panel p-8 md:p-12">
                     <AnimatePresence mode="wait">
+                        {step === 0 && (
+                            <motion.div
+                                key="step0"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-8"
+                            >
+                                <div className="text-center space-y-4 mb-8">
+                                    <h2 className="text-3xl font-bold font-poppins text-white mb-2">Before You Begin</h2>
+                                    <p className="text-white/60 max-w-2xl mx-auto leading-relaxed">
+                                        To ensure a successful application, please review the following resources carefully.
+                                        Understanding the eligibility criteria and required materials will help you prepare a strong submission.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                                    {[
+                                        {
+                                            title: "Eligibility Criteria",
+                                            description: "Check if your team and startup qualify.",
+                                            icon: ShieldCheck,
+                                            href: "/apply/eligibility",
+                                            color: "text-vc-mint"
+                                        },
+                                        {
+                                            title: "Application Materials",
+                                            description: "Required documents and formats.",
+                                            icon: FileText,
+                                            href: "/apply/materials",
+                                            color: "text-blue-400"
+                                        },
+                                        {
+                                            title: "Judging Rubrics",
+                                            description: "How your application will be judged.",
+                                            icon: CheckCircle,
+                                            href: "/apply/rubrics",
+                                            color: "text-purple-400"
+                                        },
+                                        {
+                                            title: "Application FAQ",
+                                            description: "Common questions and answers.",
+                                            icon: HelpCircle,
+                                            href: "/apply/faq",
+                                            color: "text-orange-400"
+                                        }
+                                    ].map((item) => (
+                                        <Link
+                                            key={item.title}
+                                            href={item.href}
+                                            target="_blank"
+                                            className="group relative p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all flex items-start gap-4 overflow-hidden"
+                                        >
+                                            <div className={`p-3 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${item.color}`}>
+                                                <item.icon className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white mb-1 group-hover:text-vc-mint transition-colors flex items-center gap-2">
+                                                    {item.title}
+                                                    <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                                                </h3>
+                                                <p className="text-sm text-white/50">{item.description}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-center pt-8">
+                                    <button
+                                        onClick={() => {
+                                            setStep(1);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="px-8 py-4 bg-gradient-to-r from-vc-teal to-vc-mint text-white font-bold rounded-xl shadow-lg shadow-vc-mint/20 hover:shadow-vc-mint/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group text-lg uppercase tracking-wider"
+                                    >
+                                        <span>Start Application</span>
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+
                         {step === 1 && (
                             <motion.div
                                 key="step1"
@@ -1506,9 +1603,8 @@ const ApplyPageContent = () => {
                                     </div>
                                     <p className="text-sm text-white/50 -mt-4 mb-4">
                                         Please ensure all files meet the required standards.
-                                        <Link href="/apply/materials" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">
-                                            Review the detailed Application Materials documentation
-                                        </Link>
+                                        Check our <Link href="/apply/faq" target="_blank" className="text-vc-mint hover:underline font-medium mx-1">Application FAQ</Link>
+                                        or review the detailed <Link href="/apply/materials" target="_blank" className="text-vc-mint hover:underline font-medium text-vc-mint/80">Application Materials</Link> documentation.
                                     </p>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
