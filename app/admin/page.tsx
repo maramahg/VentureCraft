@@ -443,8 +443,7 @@ function AdminDashboardContent() {
             setActiveTab('startups');
         } else if (tab === 'qr' && activeTab !== 'qr') {
             setActiveTab('qr');
-        } else if (tab === 'analytics' && activeTab !== 'analytics') {
-            setActiveTab('analytics');
+
         } else if (!tab && activeTab !== 'startups') {
             setActiveTab('startups');
         }
