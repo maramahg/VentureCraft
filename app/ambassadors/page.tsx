@@ -10,6 +10,7 @@ import { auth } from '@/lib/firebase';
 import CallToAction from "@/components/CallToAction";
 import AmbassadorsFAQ from "@/src/components/AmbassadorsFAQ";
 import AmbassadorStandards from "@/src/components/AmbassadorStandards";
+import AmbassadorRewards from "@/src/components/AmbassadorRewards";
 import {
     Globe,
     Award,
@@ -450,6 +451,8 @@ export default function AmbassadorsPage() {
                         </p>
                     </div>
                 </section>
+
+                <AmbassadorRewards />
 
                 <AmbassadorsFAQ />
 

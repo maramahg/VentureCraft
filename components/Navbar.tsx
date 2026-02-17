@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 const navItems = [
   { name: 'Home', href: '/' },
@@ -46,7 +46,28 @@ export default function Navbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [notificationCount, setNotificationCount] = useState(0);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setNotificationCount(0);
+      return;
+    }
+    const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc: any) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        const points = data.points || 0;
+        const lastSeen = data.lastSeenPoints || 0;
+        if (points > lastSeen) {
+          setNotificationCount(points - lastSeen);
+        } else {
+          setNotificationCount(0);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -204,8 +225,19 @@ export default function Navbar() {
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="flex items-center gap-2 p-1 pl-1 pr-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#21428f] to-vc-teal flex items-center justify-center text-white">
-                      <User size={18} />
+                    <div className="relative">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#21428f] to-vc-teal flex items-center justify-center text-white">
+                        <User size={18} />
+                      </div>
+                      {notificationCount > 0 && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center px-1 border border-[#0D1B1A]"
+                        >
+                          <span className="text-[9px] font-black text-white">+{notificationCount}</span>
+                        </motion.div>
+                      )}
                     </div>
                     <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/90 group-hover:text-white">
                       {user.displayName?.split(' ')[0] || 'Account'}

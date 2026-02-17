@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp, getDoc, runTransaction, collection, query, where, getDocs, addDoc, updateDoc } from 'firebase/firestore';
 import { upload } from '@vercel/blob/client';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
@@ -22,10 +22,12 @@ function FlagDropdown({
     value,
     onChange,
     label,
+    description,
     placeholder = "Select...",
     type = 'country' // 'country' or 'phone'
 }: {
     options: typeof countries,
+    description?: string,
     value: string,
     onChange: (val: string) => void,
     label?: string,
@@ -92,6 +94,12 @@ function FlagDropdown({
                 </div>
                 <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
+
+            {description && (
+                <p className="text-xs text-vc-mint italic ml-1 mt-1">
+                    {description}
+                </p>
+            )}
 
             <AnimatePresence>
                 {isOpen && (
@@ -286,6 +294,7 @@ const ApplyPageContent = () => {
         leaderPhoneCode: '+966',
         leaderPhoneNumber: '',
         leaderNationality: 'Saudi Arabia',
+        leaderLocation: 'Saudi Arabia',
         audienceCategory: '',
 
         // Part 2
@@ -302,6 +311,10 @@ const ApplyPageContent = () => {
         // Part 3
         videoPitchUrl: '',
         agreedToTerms: false,
+        referralSource: '',
+        referralPlatform: '',
+        referralAmbassadorId: '',
+        referralAmbassadorName: '',
         // Files will be handled separately for state
     });
 
@@ -394,6 +407,9 @@ const ApplyPageContent = () => {
         }
         if (formData.leaderPhoneNumber.length < 7 || formData.leaderPhoneNumber.length > 15) {
             newErrors.leaderPhoneNumber = "Please check the phone number.";
+        }
+        if (!formData.leaderLocation) {
+            newErrors.leaderLocation = "Please select the team leader's current location.";
         }
         formData.teamMembers.forEach((m, idx) => {
             if (!m.name.trim()) {
@@ -501,6 +517,7 @@ const ApplyPageContent = () => {
                 leaderEmail: formData.leaderEmail,
                 leaderPhone: combinedPhone,
                 leaderNationality: formData.leaderNationality,
+                leaderLocation: formData.leaderLocation,
 
                 // Details
                 pillar: formData.pillar,
@@ -531,10 +548,75 @@ const ApplyPageContent = () => {
                 confirmations: {
                     ageConfirmed: formData.ageConfirmed,
                     educationConfirmed: formData.educationConfirmed
+                },
+
+                // Referral Info
+                referral: {
+                    source: formData.referralSource,
+                    platform: formData.referralPlatform || null,
+                    ambassadorId: formData.referralAmbassadorId || null,
+                    ambassadorName: formData.referralAmbassadorName || null
                 }
             };
 
             await setDoc(applicationRef, submissionData);
+
+            // 3. Award Venture Coins if referred by an ambassador
+            if (formData.referralSource === 'Ambassadors' && (formData.referralAmbassadorId || formData.referralAmbassadorName)) {
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        let ambDocId = null;
+
+                        // Try to find by ID first if provided
+                        if (formData.referralAmbassadorId) {
+                            const ambId = parseInt(formData.referralAmbassadorId.replace('#', ''));
+                            if (!isNaN(ambId)) {
+                                const q = query(collection(db, 'ambassadors'), where('ambassadorId', '==', ambId));
+                                const qSnap = await getDocs(q);
+                                if (!qSnap.empty) {
+                                    ambDocId = qSnap.docs[0].id;
+                                }
+                            }
+                        }
+
+                        // If not found by ID, try by name (exact match)
+                        if (!ambDocId && formData.referralAmbassadorName) {
+                            const q = query(collection(db, 'ambassadors'), where('name', '==', formData.referralAmbassadorName));
+                            const qSnap = await getDocs(q);
+                            if (!qSnap.empty) {
+                                ambDocId = qSnap.docs[0].id;
+                            }
+                        }
+
+                        if (ambDocId) {
+                            const ambRef = doc(db, 'ambassadors', ambDocId);
+                            const userRef = doc(db, 'users', ambDocId);
+
+                            const ambSnap = await transaction.get(ambRef);
+
+                            if (ambSnap.exists()) {
+                                const currentPoints = ambSnap.data().points || 0;
+                                const newPoints = currentPoints + 10;
+
+                                transaction.update(ambRef, { points: newPoints });
+                                transaction.set(userRef, { points: newPoints }, { merge: true });
+
+                                // Log in point history
+                                const historyRef = doc(collection(userRef, 'point_history'));
+                                transaction.set(historyRef, {
+                                    points: 10,
+                                    reason: `Referral: ${formData.startupName || 'New Startup Application'}`,
+                                    timestamp: serverTimestamp(),
+                                    type: 'referral'
+                                });
+                            }
+                        }
+                    });
+                } catch (rewardErr) {
+                    console.error('Failed to award referral points:', rewardErr);
+                    // Don't block submission success if reward fails
+                }
+            }
 
             // 3. Send Confirmation Email to Team Leader
             try {
@@ -1123,6 +1205,22 @@ const ApplyPageContent = () => {
                                                     type="country"
                                                 />
                                             </div>
+                                            {idx === 0 && (
+                                                <div className="md:col-span-2 space-y-2 mt-4">
+                                                    <FlagDropdown
+                                                        options={countries}
+                                                        value={formData.leaderLocation}
+                                                        onChange={(val) => {
+                                                            setFormData({ ...formData, leaderLocation: val });
+                                                            if (errors.leaderLocation) setErrors(prev => ({ ...prev, leaderLocation: '' }));
+                                                        }}
+                                                        label="Leader Current Location (Residing) *"
+                                                        description="Note: Current location refers to where you are physically residing at this time."
+                                                        type="country"
+                                                    />
+                                                    {errors.leaderLocation && <p className="text-xs text-vc-mint/80 mt-1">{errors.leaderLocation}</p>}
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -1463,6 +1561,60 @@ const ApplyPageContent = () => {
                                                     <p className="text-sm text-white/40">Optional technical documents</p>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6 mt-12">
+                                        <label className="block text-base font-medium text-white/70 flex items-center gap-2">
+                                            <Hash className="w-4 h-4 text-vc-mint" />
+                                            How did you hear about us? <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <SimpleDropdown
+                                                label="Referral Source *"
+                                                placeholder="Select source..."
+                                                options={["Colleagues", "Social Media", "Ambassadors", "Other"]}
+                                                value={formData.referralSource}
+                                                onChange={(val) => setFormData({ ...formData, referralSource: val })}
+                                            />
+
+                                            {formData.referralSource === "Social Media" && (
+                                                <div className="space-y-2">
+                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Specify Platform <span className="text-vc-mint">*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.referralPlatform}
+                                                        onChange={(e) => setFormData({ ...formData, referralPlatform: e.target.value })}
+                                                        placeholder="e.g., LinkedIn, Instagram"
+                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {formData.referralSource === "Ambassadors" && (
+                                                <>
+                                                    <div className="space-y-2">
+                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Ambassador ID</label>
+                                                        <input
+                                                            type="text"
+                                                            value={formData.referralAmbassadorId}
+                                                            onChange={(e) => setFormData({ ...formData, referralAmbassadorId: e.target.value })}
+                                                            placeholder="ID (if known)"
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Ambassador Name</label>
+                                                        <input
+                                                            type="text"
+                                                            value={formData.referralAmbassadorName}
+                                                            onChange={(e) => setFormData({ ...formData, referralAmbassadorName: e.target.value })}
+                                                            placeholder="Full Name (if ID unknown)"
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 

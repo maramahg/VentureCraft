@@ -17,6 +17,7 @@ function FlagDropdown({
     value,
     onChange,
     label,
+    description,
     placeholder = "Select...",
     type = 'country'
 }: {
@@ -24,6 +25,7 @@ function FlagDropdown({
     value: string,
     onChange: (val: string) => void,
     label?: string,
+    description?: string,
     placeholder?: string,
     type?: 'country' | 'phone'
 }) {
@@ -51,7 +53,7 @@ function FlagDropdown({
     }, []);
 
     return (
-        <div className="space-y-2 relative w-full" ref={dropdownRef}>
+        <div className="space-y-4 relative w-full" ref={dropdownRef}>
             {label && (
                 <label className="block text-base font-medium text-white/70">
                     {label.includes('*') ? (
@@ -87,6 +89,12 @@ function FlagDropdown({
                 </div>
                 <ChevronDown className={`w-4 h-4 text-vc-mint shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
+
+            {description && (
+                <p className="text-xs text-vc-mint italic ml-1 mt-1">
+                    {description}
+                </p>
+            )}
 
             <AnimatePresence>
                 {isOpen && (
@@ -341,7 +349,7 @@ function ApplicationFormContent() {
                                     <h2 className="text-2xl font-bold">About you</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
                                             1. Your name <span className="text-vc-mint">*</span>
@@ -359,27 +367,22 @@ function ApplicationFormContent() {
                                         {errors.name && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.name}</p>}
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <FlagDropdown
-                                            options={countries}
-                                            value={formData.nationality}
-                                            onChange={(val) => setFormData({ ...formData, nationality: val })}
-                                            label="2. Nationality *"
-                                            type="country"
-                                        />
-                                    </div>
-                                </div>
+                                    <FlagDropdown
+                                        options={countries}
+                                        value={formData.nationality}
+                                        onChange={(val) => setFormData({ ...formData, nationality: val })}
+                                        label="2. Nationality *"
+                                        type="country"
+                                    />
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-4">
-                                        <FlagDropdown
-                                            options={countries}
-                                            value={formData.location}
-                                            onChange={(val) => setFormData({ ...formData, location: val })}
-                                            label="3. Current Location (Residing) *"
-                                            type="country"
-                                        />
-                                    </div>
+                                    <FlagDropdown
+                                        options={countries}
+                                        value={formData.location}
+                                        onChange={(val) => setFormData({ ...formData, location: val })}
+                                        label="3. Current Location (Residing) *"
+                                        description="Note: Current location refers to where you are physically residing at this time."
+                                        type="country"
+                                    />
 
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
@@ -397,10 +400,8 @@ function ApplicationFormContent() {
                                         />
                                         {errors.email && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.email}</p>}
                                     </div>
-                                </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-4">
+                                    <div className="space-y-4 md:col-span-2">
                                         <label className="block text-base font-medium text-white/70">
                                             5. Phone number <span className="text-vc-mint">*</span>
                                         </label>
@@ -450,7 +451,7 @@ function ApplicationFormContent() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
+                                className="space-y-10"
                             >
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
@@ -459,7 +460,7 @@ function ApplicationFormContent() {
                                     <h2 className="text-2xl font-bold">Education & Socials</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
                                     <div className="space-y-4">
                                         <label className="block text-base font-medium text-white/70">
                                             6. University <span className="text-vc-mint">*</span>
@@ -493,78 +494,78 @@ function ApplicationFormContent() {
                                         />
                                         {errors.major && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.major}</p>}
                                     </div>
-                                </div>
 
-                                <div className="space-y-4">
-                                    <label className="block text-base font-medium text-white/70">
-                                        8. DEGREE <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border transition-all ${errors.degree ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
-                                        {['Bachelor', 'Master', 'PhD', 'Other'].map((d) => (
-                                            <button
-                                                key={d}
-                                                type="button"
-                                                onClick={() => {
-                                                    setFormData({ ...formData, degree: d });
-                                                    if (errors.degree) setErrors(prev => ({ ...prev, degree: '' }));
-                                                }}
-                                                className={`p-4 rounded-xl border text-left transition-all ${formData.degree === d ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
-                                            >
-                                                {d}
-                                            </button>
-                                        ))}
+                                    <div className="space-y-4 md:col-span-2">
+                                        <label className="block text-base font-medium text-white/70">
+                                            8. DEGREE <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border transition-all ${errors.degree ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
+                                            {['Bachelor', 'Master', 'PhD', 'Other'].map((d) => (
+                                                <button
+                                                    key={d}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData({ ...formData, degree: d });
+                                                        if (errors.degree) setErrors(prev => ({ ...prev, degree: '' }));
+                                                    }}
+                                                    className={`p-4 rounded-xl border text-left transition-all ${formData.degree === d ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                                >
+                                                    {d}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {errors.degree && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.degree}</p>}
                                     </div>
-                                    {errors.degree && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.degree}</p>}
-                                </div>
 
-                                <div className="space-y-4">
-                                    <label className="block text-base font-medium text-white/70 flex items-center gap-2">
-                                        <Share2 className="w-4 h-4 text-vc-mint" />
-                                        9. Social media (X, LinkedIn, Instagram) <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <input
-                                        type="url"
-                                        value={formData.socialMedia}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, socialMedia: e.target.value });
-                                            if (errors.socialMedia) setErrors(prev => ({ ...prev, socialMedia: '' }));
-                                        }}
-                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.socialMedia ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                        placeholder="Enter your social media URL"
-                                    />
-                                    {errors.socialMedia && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.socialMedia}</p>}
-                                </div>
+                                    <div className="space-y-4 md:col-span-2">
+                                        <label className="block text-base font-medium text-white/70 flex items-center gap-2">
+                                            <Share2 className="w-4 h-4 text-vc-mint" />
+                                            9. Social media (X, LinkedIn, Instagram) <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={formData.socialMedia}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, socialMedia: e.target.value });
+                                                if (errors.socialMedia) setErrors(prev => ({ ...prev, socialMedia: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.socialMedia ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Enter your social media URL"
+                                        />
+                                        {errors.socialMedia && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.socialMedia}</p>}
+                                    </div>
 
-                                <div className="space-y-4">
-                                    <label className="block text-base font-medium text-white/70">
-                                        10. Why do you want to be a Venture Craft Ambassador? <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.reason}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, reason: e.target.value });
-                                            if (errors.reason) setErrors(prev => ({ ...prev, reason: '' }));
-                                        }}
-                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors min-h-[120px] resize-none ${errors.reason ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                        placeholder="Tell us what motivates you to join the program..."
-                                    />
-                                    {errors.reason && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.reason}</p>}
-                                </div>
+                                    <div className="space-y-4 md:col-span-2">
+                                        <label className="block text-base font-medium text-white/70">
+                                            10. Why do you want to be a Venture Craft Ambassador? <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.reason}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, reason: e.target.value });
+                                                if (errors.reason) setErrors(prev => ({ ...prev, reason: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors min-h-[120px] resize-none ${errors.reason ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Tell us what motivates you to join the program..."
+                                        />
+                                        {errors.reason && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.reason}</p>}
+                                    </div>
 
-                                <div className="space-y-4">
-                                    <label className="block text-base font-medium text-white/70">
-                                        11. Tell us about your relevant experience (Clubs, Communities, Startups) <span className="text-vc-mint">*</span>
-                                    </label>
-                                    <textarea
-                                        value={formData.experience}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, experience: e.target.value });
-                                            if (errors.experience) setErrors(prev => ({ ...prev, experience: '' }));
-                                        }}
-                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors min-h-[120px] resize-none ${errors.experience ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                        placeholder="Share your background and any relevant initiatives you've been part of..."
-                                    />
-                                    {errors.experience && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.experience}</p>}
+                                    <div className="space-y-4 md:col-span-2">
+                                        <label className="block text-base font-medium text-white/70">
+                                            11. Tell us about your relevant experience (Clubs, Communities, Startups) <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.experience}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, experience: e.target.value });
+                                                if (errors.experience) setErrors(prev => ({ ...prev, experience: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors min-h-[120px] resize-none ${errors.experience ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            placeholder="Share your background and any relevant initiatives you've been part of..."
+                                        />
+                                        {errors.experience && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.experience}</p>}
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-between pt-8">

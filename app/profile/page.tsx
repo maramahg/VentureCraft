@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { auth, db, storage } from '@/lib/firebase';
 import { onAuthStateChanged, updateProfile, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { User as UserIcon, Mail, Shield, Camera, Save, Loader2, Trophy, Star, TrendingUp, CircleDollarSign, Link as LinkIcon, Edit2 } from 'lucide-react';
+import { User as UserIcon, Mail, Shield, Camera, Save, Loader2, Trophy, Star, TrendingUp, CircleDollarSign, Link as LinkIcon, Edit2, Hash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -30,6 +30,7 @@ export default function ProfilePage() {
     const [points, setPoints] = useState(0);
     const [rank, setRank] = useState<number | null>(null);
     const [totalAmbassadors, setTotalAmbassadors] = useState<number>(0);
+    const [ambassadorId, setAmbassadorId] = useState<number | null>(null);
     const [pointHistory, setPointHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [showAllHistory, setShowAllHistory] = useState(false);
@@ -88,19 +89,31 @@ export default function ProfilePage() {
                     const userData = userDoc.data();
                     userIsAmbassador = userData.role === 'ambassador';
                     userPoints = userData.points || 0;
+                    setAmbassadorId(userData.ambassadorId || null);
                 }
 
-                // fallback: check ambassadors collection directly if not marked in users
-                if (!userIsAmbassador) {
-                    const ambDoc = await getDoc(doc(db, 'ambassadors', currentUser.uid));
-                    if (ambDoc.exists()) {
-                        userIsAmbassador = true;
-                        userPoints = ambDoc.data().points || 0;
-                    }
+                // Always check the ambassadors collection for points/role as it's the source of truth for coins
+                const ambDoc = await getDoc(doc(db, 'ambassadors', currentUser.uid));
+                if (ambDoc.exists()) {
+                    const ambData = ambDoc.data();
+                    userIsAmbassador = true;
+                    userPoints = ambData.points || 0;
+                    setAmbassadorId(ambData.ambassadorId || null);
                 }
 
                 setIsAmbassador(userIsAmbassador);
                 setPoints(userPoints);
+
+                // 5. Update lastSeenPoints to clear notification badge
+                if (currentUser) {
+                    try {
+                        await updateDoc(doc(db, 'users', currentUser.uid), {
+                            lastSeenPoints: userPoints
+                        });
+                    } catch (err) {
+                        console.error('Failed to update lastSeenPoints:', err);
+                    }
+                }
 
                 if (userIsAmbassador) {
                     // Calculate Rank using the ambassadors collection for consistency
@@ -298,10 +311,10 @@ export default function ProfilePage() {
                                         </span>
                                     )}
                                     {isAmbassador && (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-vc-teal/10 border-vc-teal/30 text-vc-teal">
-                                            <Shield className="w-3 h-3" />
+                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] border bg-vc-mint/5 border-vc-mint/20 text-vc-mint shadow-[0_0_20px_rgba(20,250,230,0.05)]">
+                                            <Shield className="w-3.5 h-3.5 fill-vc-mint/20" />
                                             Ambassador
-                                        </span>
+                                        </div>
                                     )}
                                     {!isAdmin && !isJudge && !isAmbassadorLead && !isAmbassador && (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-white/5 border-white/10 text-white/50">
@@ -409,6 +422,17 @@ export default function ProfilePage() {
 
                         {/* Form Fields */}
                         <div className="space-y-6">
+                            {isAmbassador && ambassadorId && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-white/60 ml-1">Ambassador ID</label>
+                                    <div className="relative">
+                                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-vc-mint/40" />
+                                        <div className="w-full rounded-xl pl-12 pr-4 py-3.5 bg-vc-mint/5 border border-vc-mint/20 text-vc-mint font-black tracking-widest text-sm">
+                                            #{ambassadorId}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-white/60 ml-1">Full Name</label>
                                 <div className="relative">

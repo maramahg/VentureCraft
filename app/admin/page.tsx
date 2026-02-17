@@ -7,12 +7,12 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -70,6 +70,12 @@ interface Application {
         round2?: {
             status: 'locked' | 'pending' | 'completed';
         };
+    };
+    referral?: {
+        source: string;
+        platform?: string | null;
+        ambassadorId?: string | null;
+        ambassadorName?: string | null;
     };
 }
 
@@ -133,6 +139,7 @@ interface UserProfile {
     photoURL?: string;
     location?: string;
     points?: number;
+    ambassadorId?: number;
     createdAt?: any;
 }
 
@@ -409,6 +416,57 @@ function AdminDashboardContent() {
     const [historyUser, setHistoryUser] = useState<{ id: string, name: string } | null>(null);
     const [userHistory, setUserHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
+    const [isMigrating, setIsMigrating] = useState(false);
+
+    const handleMigrateAmbassadorIds = async () => {
+        if (!confirm("Are you sure you want to assign sequential IDs to all ambassadors who don't have one?")) return;
+        setIsMigrating(true);
+        try {
+            const ambassadorsRef = collection(db, 'ambassadors');
+            const snapshot = await getDocs(ambassadorsRef);
+
+            // Get current lastId
+            const counterRef = doc(db, 'counters', 'ambassadors');
+            const counterSnap = await getDoc(counterRef);
+            let currentId = counterSnap.exists() ? (counterSnap.data().lastId || 0) : 0;
+
+            const sortedDocs = snapshot.docs.sort((a, b) => {
+                const aTime = a.data().joinedAt?.toMillis() || 0;
+                const bTime = b.data().joinedAt?.toMillis() || 0;
+                return aTime - bTime;
+            });
+
+            let migratedCount = 0;
+            for (const ambDoc of sortedDocs) {
+                if (!ambDoc.data().ambassadorId) {
+                    currentId++;
+                    const updates = { ambassadorId: currentId };
+
+                    // Update ambassadors collection
+                    await updateDoc(doc(db, 'ambassadors', ambDoc.id), updates);
+
+                    // Update users collection
+                    try {
+                        await updateDoc(doc(db, 'users', ambDoc.id), updates);
+                    } catch (e) {
+                        // User doc might not exist if manually added to ambassadors
+                        console.warn(`User doc ${ambDoc.id} not found for ID update`);
+                    }
+                    migratedCount++;
+                } else {
+                    currentId = Math.max(currentId, ambDoc.data().ambassadorId);
+                }
+            }
+
+            await setDoc(counterRef, { lastId: currentId }, { merge: true });
+            setToast({ message: `Migration complete. ${migratedCount} IDs assigned. Last ID: ${currentId}`, type: 'success' });
+        } catch (error: any) {
+            console.error('Error migrating ambassador IDs:', error);
+            setToast({ message: `Migration failed: ${error.message || 'Unknown error'}`, type: 'error' });
+        } finally {
+            setIsMigrating(false);
+        }
+    };
 
     // We use the imported countriesList directly or map it if needed
 
@@ -583,14 +641,15 @@ function AdminDashboardContent() {
             const userPromises = snapshot.docs.map(async (docRef) => {
                 const data = docRef.data();
 
-                // If name is already there (cached), use it
-                if (data.displayName || data.name) {
+                // If name AND ID are already there (cached), use it
+                if ((data.displayName || data.name) && data.ambassadorId) {
                     return {
                         id: docRef.id,
                         ...data,
                         displayName: data.displayName || data.name,
                         email: data.email || 'No email provided',
-                        points: data.points || 0
+                        points: data.points || 0,
+                        ambassadorId: data.ambassadorId
                     };
                 }
 
@@ -605,7 +664,8 @@ function AdminDashboardContent() {
                             displayName: userData.displayName || 'Unnamed User',
                             email: userData.email || 'No email provided',
                             points: data.points || 0,
-                            photoURL: userData.photoURL
+                            photoURL: userData.photoURL,
+                            ambassadorId: userData.ambassadorId || data.ambassadorId
                         };
                     }
                 } catch (err) {
@@ -713,40 +773,73 @@ function AdminDashboardContent() {
         const { appId, userId, userName, userEmail, status } = decisionConfig;
 
         try {
-            // 1. Update application status
-            await updateDoc(doc(db, 'ambassador_applications', appId), {
-                status: status
-            });
-
-            // 2. If accepted/rejected, update user role AND sync to 'ambassadors' collection
+            // 1. If accepted/rejected, update user role AND sync to 'ambassadors' collection
             if (status === 'accepted') {
-                const userRef = doc(db, 'users', userId);
-                const userSnap = await getDoc(userRef);
-                const userData = userSnap.data();
+                await runTransaction(db, async (transaction) => {
+                    // Get current counter
+                    const counterRef = doc(db, 'counters', 'ambassadors');
+                    const counterSnap = await transaction.get(counterRef);
+                    let nextId = 1;
 
-                await updateDoc(userRef, {
-                    role: 'ambassador',
-                    points: userData?.points ?? 0
+                    if (counterSnap.exists()) {
+                        nextId = (counterSnap.data().lastId || 0) + 1;
+                    }
+
+                    // Check if already an ambassador and has ID
+                    const ambRef = doc(db, 'ambassadors', userId);
+                    const ambSnap = await transaction.get(ambRef);
+                    const existingAmbData = ambSnap.data();
+
+                    const finalAmbassadorId = existingAmbData?.ambassadorId || nextId;
+
+                    // Update counter ONLY IF we assigned a new ID
+                    if (!existingAmbData?.ambassadorId) {
+                        transaction.set(counterRef, { lastId: finalAmbassadorId }, { merge: true });
+                    }
+
+                    // Update application status
+                    transaction.update(doc(db, 'ambassador_applications', appId), {
+                        status: status
+                    });
+
+                    // Update user role
+                    const userRef = doc(db, 'users', userId);
+                    const userSnap = await transaction.get(userRef);
+                    const userData = userSnap.data();
+
+                    transaction.set(userRef, {
+                        role: 'ambassador',
+                        points: userData?.points ?? 0,
+                        ambassadorId: finalAmbassadorId
+                    }, { merge: true });
+
+                    // Add to ambassadors collection
+                    transaction.set(ambRef, {
+                        userId: userId,
+                        name: userName,
+                        email: userEmail,
+                        location: decisionConfig.location || '',
+                        joinedAt: serverTimestamp(),
+                        points: userData?.points ?? 0,
+                        ambassadorId: finalAmbassadorId,
+                        ...(userData || {}) // Copy other user data like photoURL
+                    });
                 });
 
-                // Add to ambassadors collection
-                await setDoc(doc(db, 'ambassadors', userId), {
-                    userId: userId,
-                    name: userName,
-                    email: userEmail,
-                    location: decisionConfig.location || '',
-                    joinedAt: serverTimestamp(),
-                    points: userData?.points ?? 0,
-                    ...(userData || {}) // Copy other user data like photoURL
+            } else {
+                // Normal update for non-accepted status
+                await updateDoc(doc(db, 'ambassador_applications', appId), {
+                    status: status
                 });
 
-            } else if (status === 'rejected' || status === 'pending') {
-                await updateDoc(doc(db, 'users', userId), {
-                    role: 'user'
-                });
+                if (status === 'rejected' || status === 'pending') {
+                    await updateDoc(doc(db, 'users', userId), {
+                        role: 'user'
+                    });
 
-                // Remove from ambassadors collection
-                await deleteDoc(doc(db, 'ambassadors', userId));
+                    // Remove from ambassadors collection
+                    await deleteDoc(doc(db, 'ambassadors', userId));
+                }
             }
 
             // 3. Send Email (only for accept/reject)
@@ -1585,9 +1678,23 @@ function AdminDashboardContent() {
                                             <div className="flex flex-col">
                                                 <span className="text-sm text-white/40">Showing {ambassadorsList.length} active ambassadors</span>
                                             </div>
-                                            <div className="flex items-center gap-2 px-4 py-2 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
-                                                <Trophy className="w-4 h-4 text-vc-mint" />
-                                                <span className="text-xs uppercase tracking-widest text-vc-mint font-black">Leaderboard</span>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={handleMigrateAmbassadorIds}
+                                                    disabled={isMigrating}
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint disabled:opacity-50"
+                                                >
+                                                    {isMigrating ? (
+                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                    ) : (
+                                                        <Hash className="w-3 h-3" />
+                                                    )}
+                                                    Migrate IDs
+                                                </button>
+                                                <div className="flex items-center gap-2 px-4 py-2 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
+                                                    <Trophy className="w-4 h-4 text-vc-mint" />
+                                                    <span className="text-xs uppercase tracking-widest text-vc-mint font-black">Leaderboard</span>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -1627,6 +1734,7 @@ function AdminDashboardContent() {
                                                                 </div>
                                                                 <div className="flex items-center gap-4 text-xs text-white/30 uppercase tracking-[0.1em]">
                                                                     <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {user.email}</span>
+                                                                    <span className="flex items-center gap-1 text-vc-mint/60 font-black whitespace-nowrap"><Hash className="w-3 h-3" /> ID: #{user.ambassadorId || '---'}</span>
                                                                     {user.location && <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {user.location}</span>}
                                                                 </div>
                                                             </div>
@@ -1866,6 +1974,39 @@ function AdminDashboardContent() {
                                                             </p>
                                                         </div>
                                                     </section>
+
+                                                    {/* Referral Information Section */}
+                                                    {selectedApp.referral && (
+                                                        <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                                <Share2 className="w-4 h-4" /> Referral Information
+                                                            </h3>
+                                                            <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Referral Source</p>
+                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.source}</p>
+                                                                </div>
+                                                                {selectedApp.referral.platform && (
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Platform</p>
+                                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.platform}</p>
+                                                                    </div>
+                                                                )}
+                                                                {selectedApp.referral.ambassadorId && (
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador ID</p>
+                                                                        <p className="text-base md:text-lg font-medium text-vc-mint">#{selectedApp.referral.ambassadorId}</p>
+                                                                    </div>
+                                                                )}
+                                                                {selectedApp.referral.ambassadorName && (
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador Name</p>
+                                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.ambassadorName}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </section>
+                                                    )}
 
                                                     {/* Submission Materials */}
                                                     <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-6 md:p-8">
@@ -2583,7 +2724,7 @@ function AdminDashboardContent() {
                             >
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-vc-mint/5 rounded-full blur-[60px] -mr-24 -mt-24" />
 
-                                <div className="relative z-10 flex flex-col h-full">
+                                <div className="relative z-10 flex flex-col flex-1 min-h-0">
                                     <div className="flex items-center justify-between mb-8">
                                         <div className="flex items-center gap-4">
                                             <div className="p-3 bg-vc-mint/10 rounded-xl border border-vc-mint/20">

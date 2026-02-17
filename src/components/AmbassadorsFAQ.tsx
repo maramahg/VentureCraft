@@ -13,61 +13,68 @@ interface FAQItem {
 const faqData: FAQItem[] = [
     {
         id: 'eligibility',
-        question: 'Can university students of any year apply?',
-        answer: 'Yes, all university students are welcome to apply, regardless of their current year of study.',
+        question: 'Who can apply to become an ambassador?',
+        answer: 'University students and recent graduates are welcome to apply.',
     },
     {
         id: 'duration',
-        question: 'How long does the ambassador role last?',
-        answer: 'The role lasts until the competition registration period closes.',
+        question: 'When does the ambassador role end?',
+        answer: (
+            <div className="space-y-2">
+                <p>The official ambassador duties continue until the competition registration closes.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, ambassadors remain part of the program community until the end of the competition.</p>
+            </div>
+        ),
     },
     {
         id: 'major',
         question: 'Is a specific major required?',
         answer: (
             <div className="space-y-2">
-                <p>No, students from all academic backgrounds are welcome.</p>
-                <p className="text-vc-mint/80 font-medium italic">Note: Being in an engineering or technology-related field may increase your chances of selection.</p>
+                <p>No, students from all majors are welcome.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, being in an engineering or technology-related field may increase your chances of selection.</p>
             </div>
         ),
     },
     {
-        id: 'in-person',
-        question: 'Is the work in-person or remote?',
+        id: 'remote',
+        question: 'Is the work in-person?',
         answer: (
             <div className="space-y-2">
-                <p>The role is primarily online, though you may occasionally be asked to help with on-campus activities at your university.</p>
+                <p>No, the role is primarily online.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, occasional on-campus activities at your university may be required.</p>
             </div>
         ),
     },
     {
         id: 'location',
-        question: 'Do I need to be at King Fahad University of Petroleum and Minerals (KFUPM)?',
-        answer: 'No, your work will be carried out within your own university only.',
+        question: 'Do I need to be located at KFUPM?',
+        answer: 'No, your work will be within your own university only.',
     },
     {
         id: 'ceremony',
         question: 'Is attending the final ceremony mandatory?',
         answer: (
             <div className="space-y-2">
-                <p>No, attendance is not required. However, the top three ambassadors (based on points earned) will be invited to attend the final ceremony.</p>
+                <p>No, attendance is not mandatory.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">Only the top three ambassadors (based on points) will be given the opportunity to attend the final ceremony.</p>
             </div>
         ),
     },
     {
         id: 'points',
         question: 'What are ambassador points?',
-        answer: 'Points are earned for each task you complete. These points are used to rank ambassadors and determine awards.',
+        answer: 'Points are awarded for each completed task. These points are used to rank ambassadors.',
     },
     {
         id: 'difficulty',
         question: 'Are the tasks difficult or time-consuming?',
-        answer: 'No, the tasks are designed to be simple and easily balanced with your studies.',
+        answer: 'No, the tasks are simple and manageable.',
     },
     {
         id: 'on-ground',
-        question: 'Is on-campus activity expected?',
-        answer: 'In some cases, yes. You may be asked to help at booths or distribute posters to promote the competition on your campus.',
+        question: 'Is on-ground activity required?',
+        answer: 'Yes, in some cases you may be asked to help at booths or distribute posters to promote the competition.',
     },
 ];
 
