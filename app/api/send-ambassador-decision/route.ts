@@ -6,14 +6,19 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { email, name, status, location } = body;
+        const { email, name, status, location, ambassadorType: manualType } = body;
 
         if (!email || !status) {
             return NextResponse.json({ error: 'Email and status are required' }, { status: 400 });
         }
 
         const isAccepted = status === 'accepted';
-        const isLocal = location?.toLowerCase().includes('saudi') || location?.toLowerCase() === 'sa';
+
+        // Use manual override if provided, otherwise fallback to location-based logic
+        let isLocal = location?.toLowerCase().includes('saudi') || location?.toLowerCase() === 'sa';
+        if (manualType === 'local') isLocal = true;
+        if (manualType === 'global') isLocal = false;
+
         const ambassadorType = isLocal ? 'Local Ambassador' : 'Global Ambassador';
         const whatsappLink = isLocal
             ? 'https://chat.whatsapp.com/G9YksQLG5xhK3XMeVnBdyc?mode=gi_t'

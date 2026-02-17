@@ -247,16 +247,6 @@ const ApplyPageContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Sync URL to Step on mount/update
-    useEffect(() => {
-        const s = searchParams.get('step');
-        if (s) {
-            const newStep = parseInt(s);
-            if (!isNaN(newStep) && newStep !== step) {
-                setStep(newStep);
-            }
-        }
-    }, [searchParams]);
 
     // Force clear step parameter if registration is closed to show header
     useEffect(() => {
@@ -329,6 +319,32 @@ const ApplyPageContent = () => {
         supportingData: null,
         eligibilityProof: null
     });
+
+    // Sync URL to Step on mount/update (Moved after formData/files for visibility)
+    useEffect(() => {
+        const s = searchParams.get('step');
+        if (s) {
+            const newStep = parseInt(s);
+            if (!isNaN(newStep) && newStep !== step) {
+                // Prevent skipping steps via URL
+                if (newStep === 2 && !validateStep1()) {
+                    router.replace('/apply?step=1', { scroll: false });
+                    return;
+                }
+                if (newStep === 3) {
+                    if (!validateStep1()) {
+                        router.replace('/apply?step=1', { scroll: false });
+                        return;
+                    }
+                    if (!validateStep2()) {
+                        router.replace('/apply?step=2', { scroll: false });
+                        return;
+                    }
+                }
+                setStep(newStep);
+            }
+        }
+    }, [searchParams, formData, files]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -478,7 +494,23 @@ const ApplyPageContent = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validateStep3()) return;
+
+        // 1. Full Validation Check
+        if (!validateStep1()) {
+            setStep(1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        if (!validateStep2()) {
+            setStep(2);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        if (!validateStep3()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         setLoading(true);
         try {
 

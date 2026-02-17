@@ -7,8 +7,9 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
@@ -140,6 +141,7 @@ interface UserProfile {
     location?: string;
     points?: number;
     ambassadorId?: number;
+    joinedAt?: any;
     createdAt?: any;
 }
 
@@ -387,6 +389,7 @@ function AdminDashboardContent() {
         userEmail: string;
         status: 'accepted' | 'rejected' | 'pending';
         location?: string;
+        ambassadorType?: 'local' | 'global';
     } | null>(null);
 
     // Removal Modal State
@@ -416,57 +419,7 @@ function AdminDashboardContent() {
     const [historyUser, setHistoryUser] = useState<{ id: string, name: string } | null>(null);
     const [userHistory, setUserHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
-    const [isMigrating, setIsMigrating] = useState(false);
 
-    const handleMigrateAmbassadorIds = async () => {
-        if (!confirm("Are you sure you want to assign sequential IDs to all ambassadors who don't have one?")) return;
-        setIsMigrating(true);
-        try {
-            const ambassadorsRef = collection(db, 'ambassadors');
-            const snapshot = await getDocs(ambassadorsRef);
-
-            // Get current lastId
-            const counterRef = doc(db, 'counters', 'ambassadors');
-            const counterSnap = await getDoc(counterRef);
-            let currentId = counterSnap.exists() ? (counterSnap.data().lastId || 0) : 0;
-
-            const sortedDocs = snapshot.docs.sort((a, b) => {
-                const aTime = a.data().joinedAt?.toMillis() || 0;
-                const bTime = b.data().joinedAt?.toMillis() || 0;
-                return aTime - bTime;
-            });
-
-            let migratedCount = 0;
-            for (const ambDoc of sortedDocs) {
-                if (!ambDoc.data().ambassadorId) {
-                    currentId++;
-                    const updates = { ambassadorId: currentId };
-
-                    // Update ambassadors collection
-                    await updateDoc(doc(db, 'ambassadors', ambDoc.id), updates);
-
-                    // Update users collection
-                    try {
-                        await updateDoc(doc(db, 'users', ambDoc.id), updates);
-                    } catch (e) {
-                        // User doc might not exist if manually added to ambassadors
-                        console.warn(`User doc ${ambDoc.id} not found for ID update`);
-                    }
-                    migratedCount++;
-                } else {
-                    currentId = Math.max(currentId, ambDoc.data().ambassadorId);
-                }
-            }
-
-            await setDoc(counterRef, { lastId: currentId }, { merge: true });
-            setToast({ message: `Migration complete. ${migratedCount} IDs assigned. Last ID: ${currentId}`, type: 'success' });
-        } catch (error: any) {
-            console.error('Error migrating ambassador IDs:', error);
-            setToast({ message: `Migration failed: ${error.message || 'Unknown error'}`, type: 'error' });
-        } finally {
-            setIsMigrating(false);
-        }
-    };
 
     // We use the imported countriesList directly or map it if needed
 
@@ -755,13 +708,17 @@ function AdminDashboardContent() {
         const app = ambassadorApps.find(a => a.id === appId);
         if (!app) return;
 
+        const location = app.location || app.nationality || '';
+        const defaultType = (location.toLowerCase().includes('saudi') || location.toLowerCase() === 'sa') ? 'local' : 'global';
+
         setDecisionConfig({
             appId,
             userId: userId || appId, // Fallback to appId since for ambassador_applications, the doc ID is the user's UID
             userName: app.name || app.fullName || 'Applicant',
             userEmail: app.email,
             status: newStatus as any,
-            location: app.location || app.nationality || ''
+            location: location,
+            ambassadorType: defaultType
         });
         setShowDecisionModal(true);
     };
@@ -790,7 +747,14 @@ function AdminDashboardContent() {
                     const ambSnap = await transaction.get(ambRef);
                     const existingAmbData = ambSnap.data();
 
+                    // Get user data for role update and point sync
+                    const userRef = doc(db, 'users', userId);
+                    const userSnap = await transaction.get(userRef);
+                    const userData = userSnap.data();
+
                     const finalAmbassadorId = existingAmbData?.ambassadorId || nextId;
+
+                    // --- ALL WRITES MUST BE BELOW ALL READS ---
 
                     // Update counter ONLY IF we assigned a new ID
                     if (!existingAmbData?.ambassadorId) {
@@ -803,10 +767,6 @@ function AdminDashboardContent() {
                     });
 
                     // Update user role
-                    const userRef = doc(db, 'users', userId);
-                    const userSnap = await transaction.get(userRef);
-                    const userData = userSnap.data();
-
                     transaction.set(userRef, {
                         role: 'ambassador',
                         points: userData?.points ?? 0,
@@ -852,7 +812,8 @@ function AdminDashboardContent() {
                             email: userEmail,
                             name: userName,
                             status: status,
-                            location: decisionConfig.location
+                            location: decisionConfig.location,
+                            ambassadorType: decisionConfig.ambassadorType
                         })
                     });
                 } catch (emailErr) {
@@ -1051,6 +1012,35 @@ function AdminDashboardContent() {
             setToast({ message: 'Failed to fetch reward history.', type: 'error' });
         } finally {
             setLoadingHistory(false);
+        }
+    };
+
+    const exportToExcel = (data: any[], fileName: string) => {
+        try {
+            const worksheet = XLSX.utils.json_to_sheet(data);
+
+            // Calculate dynamic column widths
+            if (data.length > 0) {
+                const allKeys = Array.from(new Set(data.flatMap(row => Object.keys(row))));
+                const colWidths = allKeys.map(key => {
+                    const headerLen = key.toString().length;
+                    const maxValLen = data.reduce((max, row) => {
+                        const val = row[key];
+                        if (val === null || val === undefined) return max;
+                        return Math.max(max, val.toString().length);
+                    }, 0);
+                    return { wch: Math.max(headerLen, maxValLen) + 4 }; // Added more padding
+                });
+                worksheet['!cols'] = colWidths;
+            }
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+            XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            setToast({ message: `Exported ${fileName} successfully!`, type: 'success' });
+        } catch (error) {
+            console.error('Error exporting to excel:', error);
+            setToast({ message: 'Failed to export to excel.', type: 'error' });
         }
     };
 
@@ -1514,6 +1504,37 @@ function AdminDashboardContent() {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm text-white/40">Showing {filteredApps.length} startup applications</span>
+                                    <button
+                                        onClick={() => {
+                                            const exportData = filteredApps.map(app => ({
+                                                'Startup Name': app.startupName || 'N/A',
+                                                'Leader Name': (app.teamMembers && app.teamMembers.length > 0) ? app.teamMembers[0].name : 'N/A',
+                                                'Leader Email': app.leaderEmail || 'N/A',
+                                                'Leader Phone': app.leaderPhone || 'N/A',
+                                                'Leader Nationality': app.leaderNationality || 'N/A',
+                                                'Pillar': app.pillar || 'N/A',
+                                                'Stage': app.stage || 'N/A',
+                                                'Team Size': app.teamSize || 0,
+                                                'Location': app.location || 'N/A',
+                                                'Status': app.status || 'N/A',
+                                                'Score': app.screening?.round1?.totalScore || 'N/A',
+                                                'Submitted At': app.submittedAt?.toDate().toLocaleString() || 'N/A',
+                                                'Website': app.website || 'N/A',
+                                                'LinkedIn': app.linkedin || 'N/A',
+                                                'Video Pitch': app.videoPitchUrl || 'N/A',
+                                                'Pitch Deck': app.materials?.pitchDeckUrl || 'N/A',
+                                                'Executive Summary': app.materials?.execSummaryUrl || 'N/A',
+                                                'Supporting Data': app.materials?.supportingDataUrl || 'N/A',
+                                                'Audience Category': app.audienceCategory || 'N/A',
+                                                'COI Declaration': app.coiDeclaration || 'N/A'
+                                            }));
+                                            exportToExcel(exportData, 'Startup_Applications');
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all"
+                                    >
+                                        <FileSpreadsheet className="w-4 h-4" />
+                                        Export Excel
+                                    </button>
                                 </div>
 
                                 <div className="grid gap-4">
@@ -1597,6 +1618,28 @@ function AdminDashboardContent() {
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="text-sm text-white/40">Showing {filteredAmbassadorApps.length} ambassador applications</span>
+                                            <button
+                                                onClick={() => {
+                                                    const exportData = filteredAmbassadorApps.map(app => ({
+                                                        'Applicant Name': app.name || app.fullName || 'N/A',
+                                                        'Email': app.email,
+                                                        'Phone': app.phone || 'N/A',
+                                                        'Nationality': app.nationality || 'N/A',
+                                                        'University': app.university || 'N/A',
+                                                        'Major': app.major || 'N/A',
+                                                        'Degree': app.degree || 'N/A',
+                                                        'Location': app.location || 'N/A',
+                                                        'Status': app.status,
+                                                        'Submitted At': app.submittedAt?.toDate().toLocaleString() || 'N/A',
+                                                        'Social Media': app.socialMedia || 'N/A'
+                                                    }));
+                                                    exportToExcel(exportData, 'Ambassador_Applications');
+                                                }}
+                                                className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all"
+                                            >
+                                                <FileSpreadsheet className="w-4 h-4" />
+                                                Export Excel
+                                            </button>
                                         </div>
                                         <div className="grid gap-4">
                                             {filteredAmbassadorApps.map((app) => (
@@ -1680,16 +1723,21 @@ function AdminDashboardContent() {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <button
-                                                    onClick={handleMigrateAmbassadorIds}
-                                                    disabled={isMigrating}
-                                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint disabled:opacity-50"
+                                                    onClick={() => {
+                                                        const exportData = ambassadorsList.map(amb => ({
+                                                            'Name': amb.displayName || 'N/A',
+                                                            'Email': amb.email || 'N/A',
+                                                            'Ambassador ID': amb.ambassadorId || '---',
+                                                            'Points': amb.points || 0,
+                                                            'Location': amb.location || 'N/A',
+                                                            'Joined At': amb.joinedAt?.toDate().toLocaleString() || 'N/A'
+                                                        }));
+                                                        exportToExcel(exportData, 'Ambassador_Directory');
+                                                    }}
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-vc-mint/5 border border-vc-mint/10 rounded-lg hover:bg-vc-mint/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint"
                                                 >
-                                                    {isMigrating ? (
-                                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                                    ) : (
-                                                        <Hash className="w-3 h-3" />
-                                                    )}
-                                                    Migrate IDs
+                                                    <FileSpreadsheet className="w-3 h-3" />
+                                                    Export Excel
                                                 </button>
                                                 <div className="flex items-center gap-2 px-4 py-2 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
                                                     <Trophy className="w-4 h-4 text-vc-mint" />
@@ -2412,6 +2460,26 @@ function AdminDashboardContent() {
                                                     </p>
                                                 </div>
                                             </div>
+
+                                            {decisionConfig.status === 'accepted' && (
+                                                <div className="pt-4 border-t border-white/5 space-y-3">
+                                                    <p className="text-[10px] font-bold text-vc-mint/60 uppercase tracking-widest text-left">Choose Ambassador Type</p>
+                                                    <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+                                                        <button
+                                                            onClick={() => setDecisionConfig({ ...decisionConfig, ambassadorType: 'local' })}
+                                                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${decisionConfig.ambassadorType === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg' : 'text-white/40 hover:text-white/60'}`}
+                                                        >
+                                                            Local Ambassador
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setDecisionConfig({ ...decisionConfig, ambassadorType: 'global' })}
+                                                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${decisionConfig.ambassadorType === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg' : 'text-white/40 hover:text-white/60'}`}
+                                                        >
+                                                            Global Ambassador
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4 w-full pt-4">

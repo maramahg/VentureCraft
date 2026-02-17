@@ -87,5 +87,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // Counters (Internal tracking)
+    match /counters/{docId} {
+      allow read, write: if isAdmin() || isAmbassadorLead();
+    }
   }
 }

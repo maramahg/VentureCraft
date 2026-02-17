@@ -229,7 +229,18 @@ function ApplicationFormContent() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validateStep2()) return;
+
+        // Full Validation
+        if (!validateStep1()) {
+            setStep(1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        if (!validateStep2()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         setLoading(true);
 
         try {
