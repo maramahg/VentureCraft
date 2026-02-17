@@ -26,13 +26,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} font-poppins antialiased`}
+        className={`${poppins.variable} font - poppins antialiased`}
       >
         <Suspense fallback={null}>
           <Navbar />
         </Suspense>
         <Cursor />
         {children}
+
         <Script src="https://t.contentsquare.net/uxa/6dbc7bf2a02fd.js" strategy="afterInteractive" />
       </body>
     </html>

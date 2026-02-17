@@ -7,7 +7,7 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
@@ -443,6 +443,8 @@ function AdminDashboardContent() {
             setActiveTab('startups');
         } else if (tab === 'qr' && activeTab !== 'qr') {
             setActiveTab('qr');
+        } else if (tab === 'analytics' && activeTab !== 'analytics') {
+            setActiveTab('analytics');
         } else if (!tab && activeTab !== 'startups') {
             setActiveTab('startups');
         }
@@ -1183,7 +1185,45 @@ function AdminDashboardContent() {
                             }
                         </p>
 
-                        {/* Tab Switcher - Controlled via Navbar / URL */}
+                    </div>
+
+                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto">
+                        {(isAdmin || isJudge) && (
+                            <button
+                                onClick={() => setActiveTab('startups')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                            >
+                                <Rocket className="w-4 h-4" />
+                                <span className="hidden md:inline">Startups</span>
+                            </button>
+                        )}
+                        {(isAdmin || isAmbassadorLead) && (
+                            <button
+                                onClick={() => setActiveTab('ambassadors')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                            >
+                                <Users className="w-4 h-4" />
+                                <span className="hidden md:inline">Ambassadors</span>
+                            </button>
+                        )}
+                        {isAdmin && (
+                            <>
+                                <button
+                                    onClick={() => setActiveTab('qr')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'qr' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                >
+                                    <QrCode className="w-4 h-4" />
+                                    <span className="hidden md:inline">QR Code</span>
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('analytics')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'analytics' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                >
+                                    <BarChart className="w-4 h-4" />
+                                    <span className="hidden md:inline">Analytics</span>
+                                </button>
+                            </>
+                        )}
                     </div>
 
 
@@ -1500,7 +1540,7 @@ function AdminDashboardContent() {
                                 </div>
                             </div>
                         )}
-                        {activeTab === 'startups' ? (
+                        {activeTab === 'startups' && (
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm text-white/40">Showing {filteredApps.length} startup applications</span>
@@ -1612,7 +1652,8 @@ function AdminDashboardContent() {
                                     )}
                                 </div>
                             </div>
-                        ) : (
+                        )}
+                        {activeTab === 'ambassadors' && (
                             <div className="space-y-6">
                                 {ambassadorSubTab === 'applications' ? (
                                     <div className="space-y-4">

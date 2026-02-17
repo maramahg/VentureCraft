@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -314,6 +314,7 @@ export default function Navbar() {
                                     Ambassador Management
                                   </Link>
                                 )}
+
                                 {isAdmin && (
                                   <Link
                                     href="/qr"

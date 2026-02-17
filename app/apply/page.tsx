@@ -381,7 +381,7 @@ const ApplyPageContent = () => {
     }, [step, router, isRegistrationOpen]);
 
     const handleTeamSizeChange = (size: number) => {
-        const newSize = Math.max(1, Math.min(10, size));
+        const newSize = Math.max(1, size);
         setFormData(prev => {
             const newMembers = [...prev.teamMembers];
             if (newSize > prev.teamMembers.length) {
@@ -1193,12 +1193,11 @@ const ApplyPageContent = () => {
                                     <input
                                         type="number"
                                         min="1"
-                                        max="10"
                                         value={formData.teamSize}
                                         onChange={(e) => handleTeamSizeChange(parseInt(e.target.value))}
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
                                     />
-                                    <p className="text-base text-white/30 uppercase tracking-widest">Maximum 10 members</p>
+                                    <p className="text-base text-white/30 uppercase tracking-widest">No maximum limit</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

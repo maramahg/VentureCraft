@@ -96,6 +96,16 @@ const eligibilityCriteria = [
         ),
         notes: 'Guarantees fairness and preparedness.'
     },
+    {
+        category: 'Team Composition',
+        requirement: (
+            <span>
+                There is <strong className="text-vc-mint">no minimum or maximum limit</strong> on the number of team members.<br />
+                You may apply as a solo founder or as a team of any size.
+            </span>
+        ),
+        notes: 'Encourages both individual innovators and large collaborative teams.'
+    }
 ];
 
 const additionalPoints = [

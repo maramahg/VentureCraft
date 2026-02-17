@@ -29,7 +29,22 @@ const faqData: FAQItem[] = [
     {
         id: 'team-size',
         question: 'What is the maximum team size?',
-        answer: 'Teams must consist of at least 1 member and no more than 10 members per team.',
+        answer: (
+            <div className="space-y-2">
+                <p>There is no minimum or maximum number of members per team. You can participate as a solo founder or with a large team.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, please note that if your team is selected as a finalist, only a maximum of 5 members will be able to represent the startup in the final competition.</p>
+            </div>
+        ),
+    },
+    {
+        id: 'team-requirement',
+        question: 'Do I have to be a part of a team?',
+        answer: (
+            <div className="space-y-2">
+                <p>No, you do not have to be part of a team. You can apply as an individual (solo founder).</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, we encourage forming teams to bring diverse skills and perspectives to your startup, but it is not a requirement.</p>
+            </div>
+        ),
     },
     {
         id: 'theme',
