@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({
         </Suspense>
         <Cursor />
         {children}
+        <Script src="https://t.contentsquare.net/uxa/6dbc7bf2a02fd.js" strategy="afterInteractive" />
       </body>
     </html>
   );
