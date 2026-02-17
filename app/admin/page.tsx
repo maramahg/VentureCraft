@@ -1214,13 +1214,7 @@ function AdminDashboardContent() {
                                     <QrCode className="w-4 h-4" />
                                     <span className="hidden md:inline">QR Code</span>
                                 </button>
-                                <button
-                                    onClick={() => setActiveTab('analytics')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'analytics' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                >
-                                    <BarChart className="w-4 h-4" />
-                                    <span className="hidden md:inline">Analytics</span>
-                                </button>
+
                             </>
                         )}
                     </div>
