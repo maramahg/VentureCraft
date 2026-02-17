@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { HelpCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -14,7 +15,9 @@ export default function ApplyFAQPage() {
             <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
 
-            <Navbar />
+            <Suspense fallback={<div className="h-20 bg-[#0D1B1A]/80 backdrop-blur-md fixed top-0 w-full z-50" />}>
+                <Navbar />
+            </Suspense>
 
             <div className="pt-32 pb-20 relative">
                 <div className="container mx-auto px-4">
