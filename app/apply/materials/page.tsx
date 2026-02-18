@@ -175,7 +175,7 @@ export default function MaterialsPage() {
                 >
                     <div className="space-y-8">
                         {applicationMaterials.map((material, idx) => (
-                            <div key={idx} className="glass-panel p-6 md:p-8 space-y-6 group hover:border-vc-mint/30 transition-all">
+                            <div key={idx} id={material.title.toLowerCase().replace(/ /g, '-')} className="scroll-mt-32 glass-panel p-6 md:p-8 space-y-6 group hover:border-vc-mint/30 transition-all">
                                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-bold text-lg shrink-0">

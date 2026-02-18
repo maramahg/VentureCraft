@@ -102,6 +102,13 @@ export function HeroScrollDemo() {
             className="flex items-center justify-center xl:justify-start gap-12 sm:gap-14 xl:ml-6"
           >
             <div className="relative group/stat">
+              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-white rounded-full opacity-20 group-hover/stat:opacity-100 transition-opacity duration-500" />
+              <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
+                <span className="block text-xl sm:text-2xl font-black text-vc-mint mb-0.5">March 1st</span>
+                Deadline
+              </div>
+            </div>
+            <div className="relative group/stat">
               <div className="absolute -left-6 top-0 bottom-0 w-1 bg-vc-mint rounded-full opacity-20 group-hover/stat:opacity-100 transition-opacity duration-500" />
               <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
                 <span className="block text-xl sm:text-2xl font-black text-white mb-0.5">$245K</span>

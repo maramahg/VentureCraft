@@ -1102,6 +1102,19 @@ const ApplyPageContent = () => {
                                         To ensure a successful application, please review the following resources carefully.
                                         Understanding the eligibility criteria and required materials will help you prepare a strong submission.
                                     </p>
+
+                                    <div className="mt-4 mb-2 p-3 rounded-xl bg-white/5 border border-vc-mint/20 text-center max-w-xl mx-auto backdrop-blur-sm">
+                                        <p className="text-base text-white/90">
+                                            This Year's Theme: <span className="text-vc-mint font-bold uppercase tracking-wide ml-1">Sustainable Energy</span>
+                                        </p>
+                                    </div>
+                                    <div className="mt-6 p-4 bg-vc-mint/10 border border-vc-mint/20 rounded-xl flex items-start gap-3 max-w-2xl mx-auto text-left">
+                                        <AlertCircle className="w-5 h-5 text-vc-mint shrink-0 mt-0.5" />
+                                        <p className="text-sm text-white/80 leading-relaxed">
+                                            <strong className="text-vc-mint font-bold block mb-1 uppercase tracking-wider text-xs">Important Disclaimer</strong>
+                                            Please review these resources carefully. Failure to adhere to strict eligibility and application material requirements may disqualify an applicant.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
@@ -1139,17 +1152,21 @@ const ApplyPageContent = () => {
                                             key={item.title}
                                             href={item.href}
                                             target="_blank"
-                                            className="group relative p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all flex items-start gap-4 overflow-hidden"
+                                            className="group relative p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-vc-mint/30 hover:shadow-[0_0_20px_rgba(79,209,197,0.1)] transition-all duration-300 flex items-center gap-4 overflow-hidden active:scale-[0.98]"
                                         >
-                                            <div className={`p-3 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${item.color}`}>
+                                            <div className={`p-3 rounded-xl bg-white/5 border border-white/5 group-hover:bg-vc-mint/10 group-hover:border-vc-mint/20 transition-colors ${item.color}`}>
                                                 <item.icon className="w-6 h-6" />
                                             </div>
-                                            <div>
-                                                <h3 className="text-lg font-bold text-white mb-1 group-hover:text-vc-mint transition-colors flex items-center gap-2">
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-bold text-white mb-0.5 group-hover:text-vc-mint transition-colors flex items-center gap-2">
                                                     {item.title}
-                                                    <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                                                 </h3>
-                                                <p className="text-sm text-white/50">{item.description}</p>
+                                                <p className="text-xs text-white/50 font-medium leading-normal">{item.description}</p>
+                                            </div>
+                                            <div className="pr-2">
+                                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-vc-mint text-white/30 group-hover:text-vc-green-dark transition-all duration-300">
+                                                    <ArrowRight className="w-4 h-4" />
+                                                </div>
                                             </div>
                                         </Link>
                                     ))}
@@ -1233,7 +1250,7 @@ const ApplyPageContent = () => {
                                             </div>
                                             <input
                                                 type="tel"
-                                                placeholder="512345678"
+                                                placeholder="5123456789"
                                                 value={formData.leaderPhoneNumber}
                                                 maxLength={15}
                                                 onChange={(e) => {
@@ -1294,8 +1311,12 @@ const ApplyPageContent = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-[11px] text-white/40 mt-2 ml-1">
-                                            Not sure what to upload? Review the <Link href="/apply/eligibility#targeted-audience" target="_blank" className="text-vc-mint hover:underline font-medium">Targeted Audience profiles</Link> for guidance.
+                                        <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
+                                            Provide evidence verifying your specific eligibility category (e.g. proof of enrollment, employment, or graduation).
+                                            <span className="ml-1">Not sure what to upload? Review the <Link href="/apply/eligibility#targeted-audience" target="_blank" className="text-vc-mint hover:underline font-medium">Targeted Audience profiles</Link> for guidance.</span>
+                                        </p>
+                                        <p className="text-xs text-red-400 mt-2 ml-2 italic">
+                                            * Please ensure you upload the correct document. Incorrect evidence may risk your application's eligibility.
                                         </p>
                                         {errors.eligibilityProof && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibilityProof}</p>}
                                     </div>
@@ -1310,7 +1331,7 @@ const ApplyPageContent = () => {
                                         <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
                                             <div className="space-y-2">
                                                 <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                    {idx === 0 ? 'Team Leader Full Name' : `Member ${idx + 1} Full Name`} <span className="text-vc-mint">*</span>
+                                                    {idx === 0 ? 'Team Leader Full Name (First and Last Name)' : `Member ${idx + 1} Full Name (First and Last Name)`} <span className="text-vc-mint">*</span>
                                                 </label>
                                                 <input
                                                     type="text"
@@ -1451,6 +1472,9 @@ const ApplyPageContent = () => {
                                         <label className="block text-base font-medium text-white/70">
                                             Which of the following pillars does your startup most closely align with? <span className="text-vc-mint">*</span>
                                         </label>
+                                        <p className="text-sm text-white/50 mb-3 mt-1">
+                                            The theme for this year is <span className="text-vc-mint font-bold">Sustainable Energy</span>.
+                                        </p>
                                         <div className={`grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
                                             {[
                                                 'Decarbonization Technologies',
@@ -1628,6 +1652,10 @@ const ApplyPageContent = () => {
                                                 </div>
                                             </div>
                                             {errors.pitchDeck && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.pitchDeck}</p>}
+                                            <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
+                                                Provides a concise overview (10-15 slides) covering team, problem, solution, market, business model, and financials.
+                                                <Link href="/apply/materials#pitch-deck" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
+                                            </p>
                                         </div>
 
                                         <div className="space-y-4">
@@ -1651,6 +1679,10 @@ const ApplyPageContent = () => {
                                                 </div>
                                             </div>
                                             {errors.execSummary && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.execSummary}</p>}
+                                            <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
+                                                A 1-2 page standalone document summarizing the full business case, innovation, market opportunity, and impact.
+                                                <Link href="/apply/materials#executive-summary" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
+                                            </p>
                                         </div>
                                     </div>
 
@@ -1670,6 +1702,10 @@ const ApplyPageContent = () => {
                                             placeholder="https://youtube.com/..."
                                         />
                                         {errors.videoPitchUrl && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.videoPitchUrl}</p>}
+                                        <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
+                                            A 3-5 minute unlisted YouTube video where all team members appear and present the pitch deck.
+                                            <Link href="/apply/materials#video-pitch" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
+                                        </p>
                                     </div>
 
                                     <div className="space-y-4">
@@ -1689,11 +1725,14 @@ const ApplyPageContent = () => {
                                                 </div>
                                             </div>
                                         </div>
+                                        <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
+                                            Optional additional proof of concept, technical validation, or detailed data (max 5 pages).
+                                            <Link href="/apply/materials#supporting-data" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
+                                        </p>
                                     </div>
 
                                     <div className="space-y-6 mt-12">
-                                        <label className="block text-base font-medium text-white/70 flex items-center gap-2">
-                                            <Hash className="w-4 h-4 text-vc-mint" />
+                                        <label className="block text-base font-medium text-white/70">
                                             How did you hear about us? <span className="text-vc-mint">*</span>
                                         </label>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

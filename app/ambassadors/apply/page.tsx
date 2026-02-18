@@ -427,7 +427,7 @@ function ApplicationFormContent() {
                                             </div>
                                             <input
                                                 type="tel"
-                                                placeholder="512345678"
+                                                placeholder="5123456789"
                                                 value={formData.phone}
                                                 maxLength={15}
                                                 onChange={(e) => {

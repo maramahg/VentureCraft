@@ -127,11 +127,25 @@ export default function AmbassadorsPage() {
     }, []);
 
     const nextBenefit = () => {
-        setCurrentStep((prev) => (prev + 1) % (benefits.length - (benefitsPerView - 1)));
+        const nextStep = Math.min(currentStep + 1, benefits.length - benefitsPerView);
+        setCurrentStep(nextStep);
+        if ((window as any).carouselRef) {
+            const el = (window as any).carouselRef;
+            const width = el.clientWidth;
+            const itemWidth = width / benefitsPerView;
+            el.scrollTo({ left: nextStep * itemWidth, behavior: 'smooth' });
+        }
     };
 
     const prevBenefit = () => {
-        setCurrentStep((prev) => (prev - 1 + (benefits.length - (benefitsPerView - 1))) % (benefits.length - (benefitsPerView - 1)));
+        const prevStep = Math.max(currentStep - 1, 0);
+        setCurrentStep(prevStep);
+        if ((window as any).carouselRef) {
+            const el = (window as any).carouselRef;
+            const width = el.clientWidth;
+            const itemWidth = width / benefitsPerView;
+            el.scrollTo({ left: prevStep * itemWidth, behavior: 'smooth' });
+        }
     };
 
     const handleApplyClick = (e: React.MouseEvent) => {
@@ -356,14 +370,14 @@ export default function AmbassadorsPage() {
                             </p>
                         </div>
 
-                        <div className="max-w-6xl mx-auto relative group/carousel px-4 md:px-12">
+                        <div className="relative group/carousel px-4 md:px-12">
                             {/* Navigation Buttons (Theme matched) - Hidden on Mobile */}
                             <div className="absolute inset-y-0 left-0 md:-left-6 flex items-center z-30 pointer-events-none hidden md:flex">
                                 <button
                                     onClick={prevBenefit}
                                     className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all duration-500 hover:scale-110
-                                        ${currentStep === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
-                                    `}
+                                            ${currentStep === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
+                                        `}
                                     style={{
                                         background: 'rgba(15, 115, 105, 0.4)',
                                         border: '1px solid rgba(79, 209, 197, 0.3)',
@@ -380,8 +394,8 @@ export default function AmbassadorsPage() {
                                 <button
                                     onClick={nextBenefit}
                                     className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all duration-500 hover:scale-110
-                                        ${currentStep >= benefits.length - benefitsPerView ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
-                                    `}
+                                            ${currentStep >= benefits.length - benefitsPerView ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}
+                                        `}
                                     style={{
                                         background: 'rgba(15, 115, 105, 0.4)',
                                         border: '1px solid rgba(79, 209, 197, 0.3)',
@@ -394,46 +408,47 @@ export default function AmbassadorsPage() {
                                 </button>
                             </div>
 
-                            <div className="overflow-hidden py-12 -my-12">
-                                <motion.div
-                                    className="flex cursor-grab active:cursor-grabbing"
-                                    animate={{ x: `-${currentStep * (100 / benefitsPerView)}%` }}
-                                    transition={{ type: "spring", stiffness: 180, damping: 22 }}
-                                    drag="x"
-                                    dragConstraints={{ left: 0, right: 0 }}
-                                    onDragEnd={(_, info) => {
-                                        const swipeThreshold = 50;
-                                        if (info.offset.x < -swipeThreshold && currentStep < benefits.length - benefitsPerView) {
-                                            nextBenefit();
-                                        } else if (info.offset.x > swipeThreshold && currentStep > 0) {
-                                            prevBenefit();
-                                        }
-                                    }}
-                                >
-                                    {benefits.map((benefit, index) => (
+                            <div
+                                className="overflow-x-auto pb-12 -mb-12 flex snap-x snap-mandatory no-scrollbar"
+                                ref={(el) => {
+                                    if (el) {
+                                        el.addEventListener('scroll', () => {
+                                            const scrollLeft = el.scrollLeft;
+                                            const width = el.clientWidth;
+                                            const itemWidth = width / benefitsPerView;
+                                            const newStep = Math.round(scrollLeft / itemWidth);
+                                            if (newStep !== currentStep) {
+                                                setCurrentStep(newStep);
+                                            }
+                                        });
+                                        // Store ref for buttons
+                                        (window as any).carouselRef = el;
+                                    }
+                                }}
+                            >
+                                {benefits.map((benefit, index) => (
+                                    <div
+                                        key={index}
+                                        className="px-4 shrink-0 snap-center"
+                                        style={{ width: `${100 / benefitsPerView}%` }}
+                                    >
                                         <div
-                                            key={index}
-                                            className="px-4 shrink-0"
-                                            style={{ width: `${100 / benefitsPerView}%` }}
+                                            className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative"
+                                            style={{
+                                                background: 'rgba(15, 115, 105, 0.6)',
+                                                borderColor: 'rgba(79, 209, 197, 0.2)'
+                                            }}
                                         >
-                                            <div
-                                                className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative"
-                                                style={{
-                                                    background: 'rgba(15, 115, 105, 0.6)',
-                                                    borderColor: 'rgba(79, 209, 197, 0.2)'
-                                                }}
-                                            >
-                                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                                                    {benefit.icon}
-                                                </div>
-                                                <h3 className="text-2xl md:text-3xl font-bold mb-4 font-poppins text-white leading-tight uppercase tracking-tight">{benefit.title}</h3>
-                                                <p className="text-white/60 text-lg leading-relaxed font-poppins">
-                                                    {benefit.description}
-                                                </p>
+                                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                                                {benefit.icon}
                                             </div>
+                                            <h3 className="text-2xl md:text-3xl font-bold mb-4 font-poppins text-white leading-tight uppercase tracking-tight">{benefit.title}</h3>
+                                            <p className="text-white/60 text-lg leading-relaxed font-poppins">
+                                                {benefit.description}
+                                            </p>
                                         </div>
-                                    ))}
-                                </motion.div>
+                                    </div>
+                                ))}
                             </div>
 
                             <div className="flex justify-center gap-3 mt-16 md:hidden">

@@ -71,6 +71,9 @@ export default function AmbassadorStandards() {
                     {/* Right Side: Threaded List */}
                     <div className="lg:w-[60%] xl:w-2/3">
                         <div className="space-y-12 relative">
+                            {/* Continuous Vertical Line behind cards */}
+                            <div className="absolute left-1/2 -translate-x-1/2 md:left-[23.5px] md:translate-x-0 top-12 bottom-12 md:top-6 md:bottom-6 w-[1px] bg-vc-mint/20 z-0" />
+
                             {standards.map((item, index) => (
                                 <motion.div
                                     key={index}
@@ -80,14 +83,6 @@ export default function AmbassadorStandards() {
                                     variants={fadeInUp}
                                     className="flex flex-col md:flex-row gap-6 md:gap-10 items-center md:items-start relative group bg-white/5 md:bg-transparent border border-white/10 md:border-none p-6 md:p-0 rounded-2xl md:rounded-none z-10 backdrop-blur-sm md:backdrop-blur-none"
                                 >
-                                    {/* Per-item Vertical Line (except last) */}
-                                    {index !== standards.length - 1 && (
-                                        <div className="absolute left-1/2 -translate-x-1/2 md:left-[23.5px] md:translate-x-0 top-12 bottom-[-48px] w-[1px] bg-vc-mint/20 z-0 hidden md:block" />
-                                    )}
-                                    {/* Mobile Line segment (shorter for mobile box gap) */}
-                                    {index !== standards.length - 1 && (
-                                        <div className="absolute left-1/2 -translate-x-1/2 top-12 bottom-[-48px] w-[1px] bg-vc-mint/20 z-0 md:hidden" />
-                                    )}
 
                                     {/* Icon Hub */}
                                     <div className="relative shrink-0 z-10">

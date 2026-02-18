@@ -1150,7 +1150,7 @@ const ApplyPageContent = () => {
                                             </div>
                                             <input
                                                 type="tel"
-                                                placeholder="512345678"
+                                                placeholder="5123456789"
                                                 value={formData.leaderPhoneNumber}
                                                 onChange={(e) => setFormData({ ...formData, leaderPhoneNumber: e.target.value })}
                                                 className="flex-1 bg-transparent border-none px-4 py-3.5 focus:outline-none focus:ring-0 text-white placeholder:text-white/20"

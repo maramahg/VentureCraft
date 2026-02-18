@@ -77,11 +77,25 @@ export default function AboutObjectives() {
   }, []);
 
   const nextItem = () => {
-    setCurrentStep((prev) => (prev + 1) % (objectives.length - (itemsPerView - 1)));
+    const nextStep = Math.min(currentStep + 1, objectives.length - itemsPerView);
+    setCurrentStep(nextStep);
+    if ((window as any).objectivesCarouselRef) {
+      const el = (window as any).objectivesCarouselRef;
+      const width = el.clientWidth;
+      const itemWidth = width / itemsPerView;
+      el.scrollTo({ left: nextStep * itemWidth, behavior: 'smooth' });
+    }
   };
 
   const prevItem = () => {
-    setCurrentStep((prev) => (prev - 1 + (objectives.length - (itemsPerView - 1))) % (objectives.length - (itemsPerView - 1)));
+    const prevStep = Math.max(currentStep - 1, 0);
+    setCurrentStep(prevStep);
+    if ((window as any).objectivesCarouselRef) {
+      const el = (window as any).objectivesCarouselRef;
+      const width = el.clientWidth;
+      const itemWidth = width / itemsPerView;
+      el.scrollTo({ left: prevStep * itemWidth, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -140,46 +154,47 @@ export default function AboutObjectives() {
             </button>
           </div>
 
-          <div className="overflow-hidden py-12 -my-12">
-            <motion.div
-              className="flex cursor-grab active:cursor-grabbing"
-              animate={{ x: `-${currentStep * (100 / itemsPerView)}%` }}
-              transition={{ type: "spring", stiffness: 180, damping: 22 }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={(_, info) => {
-                const swipeThreshold = 50;
-                if (info.offset.x < -swipeThreshold && currentStep < objectives.length - itemsPerView) {
-                  nextItem();
-                } else if (info.offset.x > swipeThreshold && currentStep > 0) {
-                  prevItem();
-                }
-              }}
-            >
-              {objectives.map((objective, index) => (
+          <div
+            className="overflow-x-auto pb-12 -mb-12 flex snap-x snap-mandatory no-scrollbar"
+            ref={(el) => {
+              if (el) {
+                el.addEventListener('scroll', () => {
+                  const scrollLeft = el.scrollLeft;
+                  const width = el.clientWidth;
+                  const itemWidth = width / itemsPerView;
+                  const newStep = Math.round(scrollLeft / itemWidth);
+                  if (newStep !== currentStep) {
+                    setCurrentStep(newStep);
+                  }
+                });
+                // Store ref for buttons
+                (window as any).objectivesCarouselRef = el;
+              }
+            }}
+          >
+            {objectives.map((objective, index) => (
+              <div
+                key={index}
+                className="px-4 shrink-0 snap-center"
+                style={{ width: `${100 / itemsPerView}%` }}
+              >
                 <div
-                  key={index}
-                  className="px-4 shrink-0"
-                  style={{ width: `${100 / itemsPerView}%` }}
+                  className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative"
+                  style={{
+                    background: 'rgba(15, 115, 105, 0.6)',
+                    borderColor: 'rgba(79, 209, 197, 0.2)'
+                  }}
                 >
-                  <div
-                    className="h-full p-10 rounded-[2.5rem] border transition-all duration-300 group hover:scale-[1.02] relative"
-                    style={{
-                      background: 'rgba(15, 115, 105, 0.6)',
-                      borderColor: 'rgba(79, 209, 197, 0.2)'
-                    }}
-                  >
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                      <objective.icon size={28} />
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold mb-4 font-poppins text-white leading-tight uppercase tracking-tight">{objective.title}</h3>
-                    <div className="text-white/60 text-lg leading-relaxed font-poppins">
-                      {objective.description}
-                    </div>
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/10 flex items-center justify-center text-vc-mint mb-10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                    <objective.icon size={28} />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 font-poppins text-white leading-tight uppercase tracking-tight">{objective.title}</h3>
+                  <div className="text-white/60 text-lg leading-relaxed font-poppins">
+                    {objective.description}
                   </div>
                 </div>
-              ))}
-            </motion.div>
+              </div>
+            ))}
           </div>
 
           <div className="flex justify-center gap-3 mt-16 md:hidden">
