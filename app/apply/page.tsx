@@ -715,7 +715,7 @@ const ApplyPageContent = () => {
             category: 'Education',
             requirement: (
                 <div className="space-y-1">
-                    <p>The team leader and/or main co-founders must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> a degree.</p>
+                    <p>This requirement applies <strong className="text-vc-mint font-bold">only</strong> to the team leader and/or main co-founders.</p>
                     <p className="text-xs text-white/40 italic">Recommended for others.</p>
                 </div>
             ),
