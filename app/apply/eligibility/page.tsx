@@ -69,22 +69,6 @@ const eligibilityCriteria = [
         notes: 'Ensures ventures are rooted in research, innovation, or applied science.'
     },
     {
-        category: 'Conflict of Interest',
-        requirement: (
-            <div className="space-y-2">
-                <p>Teams must <strong className="text-vc-mint font-bold">fully disclose any existing or prior relationships</strong> (mentor, investor, advisory, employment, or organizational) with:</p>
-                <ul className="list-disc pl-5 space-y-1 text-white/70">
-                    <li>Investors</li>
-                    <li>Judges</li>
-                    <li>Organizers</li>
-                    <li>Partner corporations</li>
-                </ul>
-                <p>Disclosure <strong className="text-white italic">does not automatically disqualify</strong> a team but is required to ensure fairness and transparency.</p>
-            </div>
-        ),
-        notes: 'Ensures impartial evaluation.'
-    },
-    {
         category: 'Complete Submission',
         requirement: (
             <span>
@@ -112,7 +96,6 @@ const additionalPoints = [
     { title: 'One-Entry Rule', detail: 'Each participant may join only one team.', reason: 'Prevents duplication and ensures fair participation.' },
     { title: 'Team Core vs. Supporters', detail: 'Only the team leader and main co-founders are required to meet the specific eligibility criteria. Other team members, such as professors, industry experts, or mentors, are welcome to support the startup without needing to meet these requirements.', reason: 'Encourages diverse team structures and expert involvement.' },
     { title: 'Code of Conduct', detail: 'All team members must accept the official competition rules and code of conduct.', reason: 'Maintains professionalism and integrity.' },
-    { title: 'Conflict of Interest', detail: 'Teams must disclose any existing mentor, investor, or organizational relationships with judges or organizers.', reason: 'Ensures impartial evaluation.' },
 ];
 
 const targetAudience = [

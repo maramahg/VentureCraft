@@ -293,7 +293,6 @@ const ApplyPageContent = () => {
         pillar: '',
         isOlderThan5Years: 'No',
         stage: '',
-        coiDeclaration: '',
         website: '',
         linkedin: '',
         additionalLinks: '',
@@ -449,9 +448,6 @@ const ApplyPageContent = () => {
         }
         if (!formData.stage) {
             newErrors.stage = "Please select your startup's current stage.";
-        }
-        if (!formData.coiDeclaration.trim()) {
-            newErrors.coiDeclaration = "Please provide a Conflict of Interest declaration (or state 'None').";
         }
         if (formData.website && !isValidUrl(formData.website)) {
             newErrors.website = "Please enter a valid URL (e.g., https://example.com).";
@@ -1531,22 +1527,6 @@ const ApplyPageContent = () => {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">
-                                            Conflict of Interest Declaration <span className="text-vc-mint">*</span>
-                                        </label>
-                                        <textarea
-                                            value={formData.coiDeclaration}
-                                            onChange={(e) => {
-                                                setFormData({ ...formData, coiDeclaration: e.target.value });
-                                                if (errors.coiDeclaration) setErrors(prev => ({ ...prev, coiDeclaration: '' }));
-                                            }}
-                                            placeholder="Please disclose any relationships or state 'None'."
-                                            rows={4}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.coiDeclaration ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                        />
-                                        {errors.coiDeclaration && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.coiDeclaration}</p>}
-                                    </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
