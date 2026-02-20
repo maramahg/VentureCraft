@@ -41,7 +41,7 @@ const eligibilityCriteria = [
         requirement: (
             <div className="space-y-2">
                 <p>The startup must be <strong className="text-vc-mint">no older than 5 years</strong> from its date of establishment.</p>
-                <p>The competition is targeted <strong className="text-white font-bold">at early-stage startups</strong>, specifically:</p>
+                <p>The competition is targeted <strong className="text-vc-mint font-bold">at early-stage startups</strong>, specifically:</p>
                 <ul className="list-disc pl-5 space-y-1 text-white/70">
                     <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Ideation</span></li>
                     <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Pre-Seed</span></li>
@@ -57,7 +57,7 @@ const eligibilityCriteria = [
         requirement: (
             <div className="space-y-2">
                 <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology-based</strong>.</p>
-                <p>The proposed solution must align with <strong className="text-white">at least one</strong> of the competition’s four pillars:</p>
+                <p>The proposed solution must align with <strong className="text-vc-mint">at least one</strong> of the competition’s four pillars:</p>
                 <ul className="list-disc pl-5 space-y-1 text-white/70">
                     <li><span className="text-vc-mint/80 font-semibold italic">Decarbonization Technologies</span></li>
                     <li><span className="text-vc-mint/80 font-semibold italic">Circular Economy & Resource Efficiency</span></li>
@@ -72,7 +72,7 @@ const eligibilityCriteria = [
         category: 'Complete Submission',
         requirement: (
             <span>
-                Teams must submit <strong className="text-vc-mint">all required application materials</strong> via the online application form <strong className="text-white">before the stated deadline</strong>.<br />
+                Teams must submit <strong className="text-vc-mint">all required application materials</strong> via the online application form <strong className="text-vc-mint font-bold">before the stated deadline</strong>.<br />
                 Incomplete or late submissions will not be considered.
             </span>
         ),
@@ -109,14 +109,14 @@ const additionalPoints = [
     {
         title: 'Member Eligibility',
         detail: (
-            <span><strong className="text-vc-mint">Only</strong> the team leader and main co-founders are <strong className="text-white font-bold">required</strong> to meet the specific eligibility criteria. Other team members (professors, experts, or mentors) are <strong className="text-vc-mint">welcome to support</strong> without meeting these requirements.</span>
+            <span><strong className="text-vc-mint">Only</strong> the team leader and main co-founders are <strong className="text-vc-mint font-bold">required</strong> to meet the specific eligibility criteria. Other team members (professors, experts, or mentors) are <strong className="text-vc-mint">welcome to support</strong> without meeting these requirements.</span>
         ),
         reason: 'Encourages diverse team structures and expert involvement.'
     },
     {
         title: 'Code of Conduct',
         detail: (
-            <span>All team members must <strong className="text-white font-bold">accept the official competition rules</strong> and code of conduct.</span>
+            <span>All team members must <strong className="text-vc-mint font-bold">accept the official competition rules</strong> and code of conduct.</span>
         ),
         reason: 'Maintains professionalism and integrity.'
     },
