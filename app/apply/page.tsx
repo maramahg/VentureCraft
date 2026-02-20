@@ -551,7 +551,6 @@ const ApplyPageContent = () => {
                 pillar: formData.pillar,
                 isOlderThan5Years: formData.isOlderThan5Years,
                 stage: formData.stage,
-                coiDeclaration: formData.coiDeclaration,
 
                 // Links
                 website: formData.website,
