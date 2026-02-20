@@ -57,6 +57,17 @@ const faqData: FAQItem[] = [
         ),
     },
     {
+        id: 'team-eligibility',
+        question: 'Do all team members need to meet the eligibility requirements?',
+        answer: (
+            <div className="space-y-2">
+                <p>Only the <strong className="text-vc-mint">team leader and main co-founders</strong> are required to meet the specific eligibility criteria (such as education level).</p>
+                <p>Other team members, including professors, mentors, or industry experts, are welcome to join and support the startup without needing to meet these requirements.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">Note: All team members, regardless of their role, must be at least 18 years old.</p>
+            </div>
+        ),
+    },
+    {
         id: 'theme',
         question: 'What is the 2026 theme?',
         answer: (
@@ -121,11 +132,6 @@ const faqData: FAQItem[] = [
         id: 'updates',
         question: 'How will we receive updates?',
         answer: 'All official communication and competition updates will be sent via email to the designated team leader.',
-    },
-    {
-        id: 'coi',
-        question: 'Do we need to disclose conflicts of interest?',
-        answer: 'Yes. Teams are required to disclose any existing relationships or potential conflicts with judges or organizers during the application process.',
     },
 ];
 
