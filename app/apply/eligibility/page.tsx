@@ -109,7 +109,7 @@ const additionalPoints = [
     {
         title: 'Member Eligibility',
         detail: (
-            <span><strong className="text-vc-mint">Only</strong> the team leader and main co-founders are <strong className="text-vc-mint font-bold">required</strong> to meet the specific eligibility criteria. Other team members (professors, experts, or mentors) are <strong className="text-vc-mint">welcome to support</strong> without meeting these requirements.</span>
+            <span>Only the <strong className="text-vc-mint">team leader and main co-founders</strong> are required to meet the specific <strong className="text-vc-mint">eligibility criteria</strong>. Other team members (professors, experts, or mentors) are welcome to support without meeting these requirements.</span>
         ),
         reason: 'Encourages diverse team structures and expert involvement.'
     },
