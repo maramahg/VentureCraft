@@ -92,10 +92,34 @@ const eligibilityCriteria = [
 ];
 
 const additionalPoints = [
-    { title: 'IP / Ownership', detail: 'Teams must hold or legally control any intellectual property related to their submission.', reason: 'Protects originality and prevents disputes.' },
-    { title: 'One-Entry Rule', detail: 'Each participant may join only one team.', reason: 'Prevents duplication and ensures fair participation.' },
-    { title: 'Member Eligibility', detail: 'Only the team leader and main co-founders are required to meet the specific eligibility criteria. Other team members, such as professors, industry experts, or mentors, are welcome to support the startup without needing to meet these requirements.', reason: 'Encourages diverse team structures and expert involvement.' },
-    { title: 'Code of Conduct', detail: 'All team members must accept the official competition rules and code of conduct.', reason: 'Maintains professionalism and integrity.' },
+    {
+        title: 'IP / Ownership',
+        detail: (
+            <span>Teams must <strong className="text-vc-mint">hold or legally control</strong> any intellectual property related to their submission.</span>
+        ),
+        reason: 'Protects originality and prevents disputes.'
+    },
+    {
+        title: 'One-Entry Rule',
+        detail: (
+            <span>Each participant may join <strong className="text-vc-mint">only one team</strong>.</span>
+        ),
+        reason: 'Prevents duplication and ensures fair participation.'
+    },
+    {
+        title: 'Member Eligibility',
+        detail: (
+            <span><strong className="text-vc-mint">Only</strong> the team leader and main co-founders are <strong className="text-white font-bold">required</strong> to meet the specific eligibility criteria. Other team members (professors, experts, or mentors) are <strong className="text-vc-mint">welcome to support</strong> without meeting these requirements.</span>
+        ),
+        reason: 'Encourages diverse team structures and expert involvement.'
+    },
+    {
+        title: 'Code of Conduct',
+        detail: (
+            <span>All team members must <strong className="text-white font-bold">accept the official competition rules</strong> and code of conduct.</span>
+        ),
+        reason: 'Maintains professionalism and integrity.'
+    },
 ];
 
 const targetAudience = [
@@ -215,7 +239,7 @@ export default function EligibilityPage() {
                                         <div className="w-1 h-4 bg-vc-mint/50 rounded-full" />
                                         {item.title}
                                     </h4>
-                                    <p className="text-white/80 text-base leading-relaxed">{item.detail}</p>
+                                    <div className="text-white/80 text-base leading-relaxed">{item.detail}</div>
                                     <p className="text-white/30 text-base italic border-t border-white/5 pt-3 mt-auto">{item.reason}</p>
                                 </div>
                             ))}
