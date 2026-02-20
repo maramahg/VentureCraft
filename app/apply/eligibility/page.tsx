@@ -30,8 +30,8 @@ const eligibilityCriteria = [
         category: 'Education',
         requirement: (
             <div className="space-y-2">
-                <p>This requirement applies <strong className="text-vc-mint font-bold">only</strong> to the team leader and/or main co-founders, who must be actively pursuing or have completed an undergraduate (bachelor’s) degree.</p>
-                <p className="text-sm text-white/50 italic">Highly recommended for all other team members.</p>
+                <p>The team leader and main co-founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
+                <p className="text-sm text-white/50 italic">While not mandatory, this is highly recommended for all other team members.</p>
             </div>
         ),
         notes: 'Ensures the competition targets high-potential early-stage talent.'
