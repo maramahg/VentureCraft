@@ -210,13 +210,13 @@ export default function EligibilityPage() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {additionalPoints.map((item, idx) => (
-                                <div key={idx} className="glass-panel p-6 space-y-3 group hover:border-vc-mint/30 transition-all">
+                                <div key={idx} className="glass-panel p-6 space-y-3 group hover:border-vc-mint/30 transition-all h-full flex flex-col">
                                     <h4 className="font-bold text-white uppercase tracking-tight flex items-center gap-2">
                                         <div className="w-1 h-4 bg-vc-mint/50 rounded-full" />
                                         {item.title}
                                     </h4>
                                     <p className="text-white/80 text-base leading-relaxed">{item.detail}</p>
-                                    <p className="text-white/30 text-base italic border-t border-white/5 pt-3">{item.reason}</p>
+                                    <p className="text-white/30 text-base italic border-t border-white/5 pt-3 mt-auto">{item.reason}</p>
                                 </div>
                             ))}
                         </div>
