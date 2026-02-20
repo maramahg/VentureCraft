@@ -17,7 +17,7 @@ const audience = [
   {
     icon: Briefcase,
     title: 'Early-Career R&D',
-    description: "Technical professionals in labs or startups with up to 3 years of experience."
+    description: "Technical professionals in labs or startups with up to 5 years of experience."
   },
   {
     icon: Rocket,

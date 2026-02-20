@@ -30,10 +30,8 @@ const eligibilityCriteria = [
         category: 'Education',
         requirement: (
             <div className="space-y-2">
-                <p>All team members must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
-                <div className="pt-2 border-t border-white/5 mt-2">
-                    <p className="text-sm text-white/60">For graduates, the focus is on <strong className="text-white">Fresh Graduates (0–5 years)</strong> and <strong className="text-white">Early-Career Researchers (≤3 years experience)</strong>.</p>
-                </div>
+                <p>The team leader and/or main co-founders must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
+                <p className="text-sm text-white/50 italic">Highly recommended for all other team members.</p>
             </div>
         ),
         notes: 'Ensures the competition targets high-potential early-stage talent.'
@@ -132,7 +130,7 @@ const targetAudience = [
     {
         category: 'Early-Career R&D',
         description: 'Researchers working in labs, startups, or R&D departments with a strong technical background.',
-        profile: 'Possess deep technical expertise and ≤3 years of professional experience.',
+        profile: 'Possess deep technical expertise and ≤5 years of professional experience.',
         evidence: 'Employment Certificate, R&D Lab Letter, or Professional Reference.'
     },
     {

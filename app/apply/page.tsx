@@ -714,11 +714,9 @@ const ApplyPageContent = () => {
         {
             category: 'Education',
             requirement: (
-                <div className="space-y-2">
-                    <p>All team members must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
-                    <div className="pt-2 border-t border-white/5 mt-2">
-                        <p className="text-sm text-white/60">For graduates, the focus is on <strong className="text-white">Fresh Graduates (0–5 years)</strong> and <strong className="text-white">Early-Career Researchers (≤3 years experience)</strong>.</p>
-                    </div>
+                <div className="space-y-1">
+                    <p>The team leader and/or main co-founders must be <strong className="text-vc-mint font-bold">actively pursuing or have completed</strong> a degree.</p>
+                    <p className="text-xs text-white/40 italic">Recommended for others.</p>
                 </div>
             ),
             notes: 'Ensures the competition targets high-potential early-stage talent.'
@@ -864,8 +862,8 @@ const ApplyPageContent = () => {
             extra: {
                 title: "Presentation & Recording Format:",
                 items: [
-                    "All team members must appear in the video.",
-                    "Each member should briefly introduce themselves and their role in the startup."
+                    "At least one co-founder or the team leader should appear in the video.",
+                    "Participating members are encouraged to briefly introduce themselves and their roles."
                 ],
                 formats: {
                     title: "Teams should present the pitch deck using one of the following formats only:",
@@ -1273,7 +1271,7 @@ const ApplyPageContent = () => {
                                             options={[
                                                 "Fresh STEM Graduates (0-5 years)",
                                                 "Postdocs & Researchers",
-                                                "Early-Career R&D (≤3 years)",
+                                                "Early-Career R&D (≤5 years)",
                                                 "Academic Spinouts"
                                             ]}
                                             value={formData.audienceCategory}
@@ -1400,7 +1398,7 @@ const ApplyPageContent = () => {
                                             className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
                                         <span className="text-base text-white/70 leading-relaxed">
-                                            I confirm that all team members are either actively pursuing or have completed an undergraduate degree (within the last 5 years for fresh graduates or 3 years for early-career researchers).
+                                            I confirm that the team leader and/or co-founders are either actively pursuing or have completed an undergraduate degree.
                                         </span>
                                     </label>
                                     {errors.eligibility && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibility}</p>}
@@ -1703,7 +1701,7 @@ const ApplyPageContent = () => {
                                         />
                                         {errors.videoPitchUrl && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.videoPitchUrl}</p>}
                                         <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
-                                            A 3-5 minute unlisted YouTube video where all team members appear and present the pitch deck.
+                                            A 3-5 minute unlisted YouTube video where the team leader or at least one co-founder appears and presents the pitch deck.
                                             <Link href="/apply/materials#video-pitch" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
                                         </p>
                                     </div>

@@ -62,8 +62,8 @@ const applicationMaterials = [
         extra: {
             title: "Presentation & Recording Format:",
             items: [
-                "All team members must appear in the video.",
-                "Each member should briefly introduce themselves and their role in the startup."
+                "At least one co-founder or the team leader should appear in the video.",
+                "Participating members are encouraged to briefly introduce themselves and their roles."
             ],
             formats: {
                 title: "Teams should present the pitch deck using one of the following formats only:",

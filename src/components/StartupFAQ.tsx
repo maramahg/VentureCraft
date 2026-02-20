@@ -17,7 +17,7 @@ const faqData: FAQItem[] = [
         question: 'Who can apply?',
         answer: (
             <span>
-                Applications are open to current Bachelor’s, Master’s, and PhD students, as well as post-doctoral researchers and recent graduates (up to 5 years post-graduation). For more details, see our <Link href="/apply/eligibility" className="text-vc-mint hover:underline">Eligibility & Criteria</Link>.
+                Applications are open to startups where the team leader and/or main co-founders are current Bachelor’s, Master’s, and PhD students, as well as post-doctoral researchers and recent graduates (up to 5 years post-graduation). For other team members, these qualifications are highly recommended. See <Link href="/apply/eligibility" className="text-vc-mint hover:underline">Eligibility & Criteria</Link> for details.
             </span>
         ),
     },
