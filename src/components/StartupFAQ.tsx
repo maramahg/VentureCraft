@@ -22,6 +22,16 @@ const faqData: FAQItem[] = [
         ),
     },
     {
+        id: 'ambassador-participation',
+        question: 'Can I apply for ambassador and participate in the competition?',
+        answer: (
+            <div className="space-y-2">
+                <p>Yes, you are welcome to apply for the ambassador program even if you are participating in the competition as a team member or leader.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, please note that ambassadors do not receive any advantages or preferential treatment in the competition judging process.</p>
+            </div>
+        ),
+    },
+    {
         id: 'age',
         question: 'What is the minimum age?',
         answer: 'All team members must be at least 18 years old at the time of application.',

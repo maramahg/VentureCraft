@@ -76,6 +76,16 @@ const faqData: FAQItem[] = [
         question: 'Is on-ground activity required?',
         answer: 'Yes, in some cases you may be asked to help at booths or distribute posters to promote the competition.',
     },
+    {
+        id: 'competition-participation',
+        question: 'Can I apply for ambassador and participate in the competition?',
+        answer: (
+            <div className="space-y-2">
+                <p>Yes, you are welcome to apply for the ambassador program even if you are participating in the competition.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, please note that ambassadors do not receive any advantages or preferential treatment in the competition judging process.</p>
+            </div>
+        ),
+    },
 ];
 
 export default function AmbassadorsFAQ() {
