@@ -12,17 +12,22 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
         }
 
+        // Determine the base URL dynamically
+        const host = request.headers.get('host');
+        const protocol = host?.includes('localhost') ? 'http' : 'https';
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+
         // Generate the password reset link using Firebase Admin
         // This handles user existence check implicitly (or we can add one)
         // Note: The generatePasswordResetLink requires a valid actionCodeSettings if you want to redirect specifically
         const resetLink = await adminAuth.generatePasswordResetLink(email, {
-            url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/signin`,
+            url: `${baseUrl}/signin`,
         });
 
         // Parse the link to get the oobCode so we can use our custom reset page
         const url = new URL(resetLink);
         const oobCode = url.searchParams.get('oobCode');
-        const customResetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?oobCode=${oobCode}`;
+        const customResetLink = `${baseUrl}/reset-password?oobCode=${oobCode}`;
 
         // Send the email via Resend with the VentureCraft theme
         const { data, error } = await resend.emails.send({
