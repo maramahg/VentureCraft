@@ -16,6 +16,7 @@ function ResetPasswordContent() {
     const [loading, setLoading] = useState(false);
     const [verifyLoading, setVerifyLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isInvalidLink, setIsInvalidLink] = useState(false);
     const [success, setSuccess] = useState(false);
     const [email, setEmail] = useState('');
 
@@ -26,6 +27,7 @@ function ResetPasswordContent() {
     useEffect(() => {
         if (!oobCode) {
             setError('Invalid or expired password reset link.');
+            setIsInvalidLink(true);
             setVerifyLoading(false);
             return;
         }
@@ -39,6 +41,7 @@ function ResetPasswordContent() {
             .catch((err) => {
                 console.error('Code Verification Error:', err);
                 setError('This password reset link is invalid or has expired.');
+                setIsInvalidLink(true);
                 setVerifyLoading(false);
             });
     }, [oobCode]);
@@ -90,7 +93,27 @@ function ResetPasswordContent() {
 
             <div className="container mx-auto px-4 pt-32 pb-16 relative z-10 flex flex-col items-center">
                 <div className="w-full max-w-lg bg-white/5 backdrop-blur-2xl border border-white/10 p-8 md:p-12 rounded-[2.5rem] animate-fade-in-up shadow-2xl">
-                    {!success ? (
+                    {isInvalidLink ? (
+                        <div className="text-center py-4">
+                            <div className="p-8 rounded-[2.5rem] bg-red-500/5 border border-red-500/10 space-y-6">
+                                <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(239,68,68,0.2)]">
+                                    <AlertCircle className="w-10 h-10 text-red-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-bold text-white mb-2 font-poppins">Invalid Link</h3>
+                                    <p className="text-white/40 text-sm leading-relaxed">
+                                        {error || 'This password reset link is invalid or has expired.'}
+                                    </p>
+                                </div>
+                                <Link
+                                    href="/forgot-password"
+                                    className="flex items-center justify-center gap-2 text-vc-mint font-bold uppercase tracking-[0.2em] text-xs pt-4 hover:gap-4 transition-all"
+                                >
+                                    Request New Link <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
+                        </div>
+                    ) : !success ? (
                         <>
                             <div className="text-center mb-10">
                                 <div className="w-16 h-16 bg-vc-mint/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
