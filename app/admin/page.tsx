@@ -378,6 +378,8 @@ function AdminDashboardContent() {
     const [ambNationalityFilter, setAmbNationalityFilter] = useState<string>('all');
     const [ambLocationFilter, setAmbLocationFilter] = useState<string>('all');
     const [ambDegreeFilter, setAmbDegreeFilter] = useState<string>('all');
+    const [ambAppTypeFilter, setAmbAppTypeFilter] = useState<'all' | 'local' | 'global'>('all');
+    const [ambDirTypeFilter, setAmbDirTypeFilter] = useState<'all' | 'local' | 'global'>('all');
 
     // Decision Modal State
     const [showDecisionModal, setShowDecisionModal] = useState(false);
@@ -1086,9 +1088,55 @@ function AdminDashboardContent() {
             const matchesLocation = ambLocationFilter === 'all' || app.location === ambLocationFilter;
             const matchesDegree = ambDegreeFilter === 'all' || app.degree === ambDegreeFilter;
 
-            return matchesSearch && matchesStatus && matchesNationality && matchesLocation && matchesDegree;
+            const locStr = (app.location || app.nationality || '').toLowerCase();
+            const isLocal = locStr.includes('saudi') || locStr === 'sa';
+            const matchesType = ambAppTypeFilter === 'all' ||
+                (ambAppTypeFilter === 'local' && isLocal) ||
+                (ambAppTypeFilter === 'global' && !isLocal);
+
+            return matchesSearch && matchesStatus && matchesNationality && matchesLocation && matchesDegree && matchesType;
         });
-    }, [ambassadorApps, ambSearchTerm, ambStatusFilter, ambNationalityFilter, ambLocationFilter, ambDegreeFilter]);
+    }, [ambassadorApps, ambSearchTerm, ambStatusFilter, ambNationalityFilter, ambLocationFilter, ambDegreeFilter, ambAppTypeFilter]);
+
+    const ambAppCounts = useMemo(() => {
+        const local = ambassadorApps.filter(app => {
+            const locStr = (app.location || app.nationality || '').toLowerCase();
+            return locStr.includes('saudi') || locStr === 'sa';
+        }).length;
+        return {
+            all: ambassadorApps.length,
+            local,
+            global: ambassadorApps.length - local
+        };
+    }, [ambassadorApps]);
+
+    const ambDirCounts = useMemo(() => {
+        const local = ambassadorsList.filter(user => {
+            const locStr = (user.location || '').toLowerCase();
+            return locStr.includes('saudi') || locStr === 'sa';
+        }).length;
+        return {
+            all: ambassadorsList.length,
+            local,
+            global: ambassadorsList.length - local
+        };
+    }, [ambassadorsList]);
+
+    const filteredAmbassadorsList = useMemo(() => {
+        return ambassadorsList.filter(user => {
+            const matchesSearch =
+                (user.displayName?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
+                (user.email?.toLowerCase().includes(ambSearchTerm.toLowerCase()));
+
+            const locStr = (user.location || '').toLowerCase();
+            const isLocal = locStr.includes('saudi') || locStr === 'sa';
+            const matchesType = ambDirTypeFilter === 'all' ||
+                (ambDirTypeFilter === 'local' && isLocal) ||
+                (ambDirTypeFilter === 'global' && !isLocal);
+
+            return matchesSearch && matchesType;
+        });
+    }, [ambassadorsList, ambSearchTerm, ambDirTypeFilter]);
 
 
     const pillars = [
@@ -1186,38 +1234,7 @@ function AdminDashboardContent() {
 
                     </div>
 
-                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto">
-                        {(isAdmin || isJudge) && (
-                            <button
-                                onClick={() => setActiveTab('startups')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                            >
-                                <Rocket className="w-4 h-4" />
-                                <span className="hidden md:inline">Startups</span>
-                            </button>
-                        )}
-                        {(isAdmin || isAmbassadorLead) && (
-                            <button
-                                onClick={() => setActiveTab('ambassadors')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                            >
-                                <Users className="w-4 h-4" />
-                                <span className="hidden md:inline">Ambassadors</span>
-                            </button>
-                        )}
-                        {isAdmin && (
-                            <>
-                                <button
-                                    onClick={() => setActiveTab('qr')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'qr' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                >
-                                    <QrCode className="w-4 h-4" />
-                                    <span className="hidden md:inline">QR Code</span>
-                                </button>
-
-                            </>
-                        )}
-                    </div>
+                    {/* Tab Navigation Removed */}
 
 
                     <div className="flex flex-wrap items-center gap-4">
@@ -1400,6 +1417,8 @@ function AdminDashboardContent() {
                                     setAmbNationalityFilter('all');
                                     setAmbLocationFilter('all');
                                     setAmbDegreeFilter('all');
+                                    setAmbAppTypeFilter('all');
+                                    setAmbDirTypeFilter('all');
                                     setScreeningFilter('all');
                                 }
                             }}
@@ -1650,8 +1669,27 @@ function AdminDashboardContent() {
                             <div className="space-y-6">
                                 {ambassadorSubTab === 'applications' ? (
                                     <div className="space-y-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm text-white/40">Showing {filteredAmbassadorApps.length} ambassador applications</span>
+                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
+                                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
+                                                <button
+                                                    onClick={() => setAmbAppTypeFilter('all')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    ALL ({ambAppCounts.all})
+                                                </button>
+                                                <button
+                                                    onClick={() => setAmbAppTypeFilter('local')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    LOCAL ({ambAppCounts.local})
+                                                </button>
+                                                <button
+                                                    onClick={() => setAmbAppTypeFilter('global')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    GLOBAL ({ambAppCounts.global})
+                                                </button>
+                                            </div>
                                             <button
                                                 onClick={() => {
                                                     const exportData = filteredAmbassadorApps.map(app => ({
@@ -1669,11 +1707,14 @@ function AdminDashboardContent() {
                                                     }));
                                                     exportToExcel(exportData, 'Ambassador_Applications');
                                                 }}
-                                                className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all"
+                                                className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all w-full sm:w-auto justify-center"
                                             >
                                                 <FileSpreadsheet className="w-4 h-4" />
                                                 Export Excel
                                             </button>
+                                        </div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm text-white/40">Showing {filteredAmbassadorApps.length} ambassador applications</span>
                                         </div>
                                         <div className="grid gap-4">
                                             {filteredAmbassadorApps.map((app) => (
@@ -1751,24 +1792,40 @@ function AdminDashboardContent() {
                                     </div>
                                 ) : (
                                     <div className="space-y-6">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm text-white/40">Showing {ambassadorsList.length} active ambassadors</span>
+                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
+                                                <button
+                                                    onClick={() => setAmbDirTypeFilter('all')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    ALL ({ambDirCounts.all})
+                                                </button>
+                                                <button
+                                                    onClick={() => setAmbDirTypeFilter('local')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    LOCAL ({ambDirCounts.local})
+                                                </button>
+                                                <button
+                                                    onClick={() => setAmbDirTypeFilter('global')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    GLOBAL ({ambDirCounts.global})
+                                                </button>
                                             </div>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 w-full sm:w-auto">
                                                 <button
                                                     onClick={() => {
                                                         const exportData = ambassadorsList.map(amb => ({
                                                             'Name': amb.displayName || 'N/A',
-                                                            'Email': amb.email || 'N/A',
-                                                            'Ambassador ID': amb.ambassadorId || '---',
-                                                            'Points': amb.points || 0,
+                                                            'Email': amb.email,
+                                                            'ID': amb.ambassadorId || 'N/A',
                                                             'Location': amb.location || 'N/A',
-                                                            'Joined At': amb.joinedAt?.toDate().toLocaleString() || 'N/A'
+                                                            'Points': amb.points || 0
                                                         }));
                                                         exportToExcel(exportData, 'Ambassador_Directory');
                                                     }}
-                                                    className="flex items-center gap-2 px-3 py-1.5 bg-vc-mint/5 border border-vc-mint/10 rounded-lg hover:bg-vc-mint/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint"
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-vc-mint/5 border border-vc-mint/10 rounded-lg hover:bg-vc-mint/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint flex-1 sm:flex-initial justify-center"
                                                 >
                                                     <FileSpreadsheet className="w-3 h-3" />
                                                     Export Excel
@@ -1779,9 +1836,12 @@ function AdminDashboardContent() {
                                                 </div>
                                             </div>
                                         </div>
+                                        <div className="flex flex-col mb-4">
+                                            <span className="text-sm text-white/40">Showing {filteredAmbassadorsList.length} active ambassadors</span>
+                                        </div>
 
                                         <div className="grid gap-4">
-                                            {ambassadorsList
+                                            {filteredAmbassadorsList
                                                 .sort((a, b) => (b.points || 0) - (a.points || 0))
                                                 .map((user, index) => (
                                                     <div
