@@ -68,6 +68,15 @@ const faqData: FAQItem[] = [
         ),
     },
     {
+        id: 'travel-requirement',
+        question: 'Is it mandatory for teams to travel to Saudi Arabia?',
+        answer: (
+            <div className="space-y-2">
+                <p>Yes. A maximum of <strong className="text-vc-mint">5 members</strong> from each team qualified for the finals are required to come to Saudi Arabia <strong className="text-white">to attend the in-person bootcamp as well as the final competition</strong>.</p>
+            </div>
+        ),
+    },
+    {
         id: 'theme',
         question: 'What is the 2026 theme?',
         answer: (
