@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
         const ambassadorType = isLocal ? 'Local Ambassador' : 'Global Ambassador';
         const whatsappLink = isLocal
-            ? 'https://chat.whatsapp.com/G9YksQLG5xhK3XMeVnBdyc?mode=gi_t'
+            ? 'https://chat.whatsapp.com/DBr16wI3id909bnqMtMFPP?mode=gi_t'
             : 'https://chat.whatsapp.com/E5bMs10LbpLAWXGOXVfY6S?mode=gi_t';
 
         // Personalized Card Logic (Inline CID Attachment for 100% reliability)
