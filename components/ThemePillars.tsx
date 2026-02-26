@@ -260,7 +260,7 @@ export default function ThemePillars() {
     const deckY = useTransform(smoothProgress, [0, 1], [500, 100]);
 
     return (
-        <section ref={containerRef} className="relative xl:h-[110vh] z-10 overflow-visible py-12 md:py-32 xl:py-0">
+        <section id="pillars" ref={containerRef} className="relative xl:h-[110vh] z-10 overflow-visible py-12 md:py-32 xl:py-0">
             {/* 
             Height: Auto on Mobile/Tablet (with padding), 120vh on Desktop (for scroll animation).
             Spacing: Uniform py-16/24 on non-desktop to match other sections.

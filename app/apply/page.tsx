@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash, HelpCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
@@ -1465,8 +1465,18 @@ const ApplyPageContent = () => {
                                         <label className="block text-base font-medium text-white/70">
                                             Which of the following pillars does your startup most closely align with? <span className="text-vc-mint">*</span>
                                         </label>
-                                        <p className="text-sm text-white/50 mb-3 mt-1">
-                                            The theme for this year is <span className="text-vc-mint font-bold">Sustainable Energy</span>.
+                                        <p className="text-sm text-white/50 mb-3 mt-1 flex items-center justify-between">
+                                            <span>
+                                                The theme for this year is <span className="text-vc-mint font-bold">Sustainable Energy</span>.
+                                            </span>
+                                            <Link
+                                                href="/about/venture-craft#pillars"
+                                                target="_blank"
+                                                className="text-vc-mint hover:underline text-xs flex items-center gap-1 font-medium transition-all"
+                                            >
+                                                Explore detailed theme pillar definitions
+                                                <ExternalLink className="w-3 h-3" />
+                                            </Link>
                                         </p>
                                         <div className={`grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
                                             {[
