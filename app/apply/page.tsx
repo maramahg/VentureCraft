@@ -1264,7 +1264,7 @@ const ApplyPageContent = () => {
                                             label="Audience Category *"
                                             placeholder="Select who best describes your team..."
                                             options={[
-                                                "Fresh STEM Graduates (0-5 years)",
+                                                "Bachelor's Students & Recent STEM Graduates (0-5 years)",
                                                 "Postdocs & Researchers",
                                                 "Early-Career R&D (≤5 years)",
                                                 "Academic Spinouts"

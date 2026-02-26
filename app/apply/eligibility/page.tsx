@@ -124,10 +124,10 @@ const additionalPoints = [
 
 const targetAudience = [
     {
-        category: 'Fresh STEM Graduates',
-        description: 'Individuals who have graduated from technical universities within the last 0–5 years.',
-        profile: 'Often motivated to prove their innovation and looking for high-impact opportunities.',
-        evidence: 'Graduation Certificate, Official Transcript, or Degree Completion Letter.'
+        category: "Bachelor's Students & Recent STEM Graduates",
+        description: "Individuals currently enrolled in a Bachelor's degree program or those who have graduated with a Bachelor's in a STEM field within the last 5 years.",
+        profile: "Bachelor's level innovators developing deep-tech solutions during their academic journey or early professional career.",
+        evidence: "Official Enrollment Certificate, Student ID, Graduation Certificate, or Official Transcript (Bachelor's Level)."
     },
     {
         category: 'Postdocs & Researchers',

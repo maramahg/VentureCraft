@@ -6,8 +6,8 @@ import { GraduationCap, Microscope, Briefcase, Rocket } from 'lucide-react';
 const audience = [
   {
     icon: GraduationCap,
-    title: 'Fresh STEM Graduates',
-    description: "Individuals from technical universities within their first 5 years post-graduation."
+    title: "Bachelor's Students & Recent Graduates",
+    description: "Current Bachelor's students or STEM graduates within their first 5 years post-graduation."
   },
   {
     icon: Microscope,
