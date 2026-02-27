@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { auth, db, storage } from '@/lib/firebase';
 import { onAuthStateChanged, updateProfile, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy, updateDoc, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { User as UserIcon, Mail, Shield, Camera, Save, Loader2, Trophy, Star, TrendingUp, CircleDollarSign, Link as LinkIcon, Edit2, Hash } from 'lucide-react';
+import { User as UserIcon, Mail, Shield, Camera, Save, Loader2, Trophy, Star, TrendingUp, CircleDollarSign, Link as LinkIcon, Edit2, Hash, Rocket } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -34,66 +34,73 @@ export default function ProfilePage() {
     const [pointHistory, setPointHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [showAllHistory, setShowAllHistory] = useState(false);
+
+    // Application States
+    const [application, setApplication] = useState<any>(null);
+    const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
+    const [loadingApp, setLoadingApp] = useState(true);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
+    // 1. Handle Authentication & Initial Loading
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
-                router.push('/signin');
+                if (!loading) router.push('/signin');
                 return;
             }
 
             setUser(currentUser);
             setDisplayName(currentUser.displayName || '');
             setPhotoURL(currentUser.photoURL || '');
+            setLoading(false);
+        });
 
-            // Fetch profile links from users collection
+        return () => unsubscribeAuth();
+    }, [router]);
+
+    // 2. Fetch User Profile Data & Application (Real-time)
+    useEffect(() => {
+        if (!user) return;
+
+        let unsubscribeApp: () => void = () => { };
+        let unsubscribeReg: () => void = () => { };
+
+        const fetchProfileData = async () => {
             try {
-                const userDocRef = doc(db, 'users', currentUser.uid);
+                // Fetch profile links
+                const userDocRef = doc(db, 'users', user.uid);
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
                     const data = userDocSnap.data();
                     setLinkedin(data.linkedin || '');
                     setPortfolio(data.portfolio || '');
                 }
-            } catch (err) {
-                console.error("Error fetching user profile links:", err);
-            }
 
-            try {
-                // 1. Check Admin
-                const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
-                if (adminDoc.exists()) {
-                    setIsAdmin(true);
-                }
+                // Check Roles
+                const [adminDoc, judgeDoc, leadDoc, uDoc, ambDoc] = await Promise.all([
+                    getDoc(doc(db, 'admins', user.uid)),
+                    getDoc(doc(db, 'judges', user.uid)),
+                    getDoc(doc(db, 'ambassadors_lead', user.uid)),
+                    getDoc(doc(db, 'users', user.uid)),
+                    getDoc(doc(db, 'ambassadors', user.uid))
+                ]);
 
-                // 2. Check Judge
-                const judgeDoc = await getDoc(doc(db, 'judges', currentUser.uid));
-                if (judgeDoc.exists()) {
-                    setIsJudge(true);
-                }
+                if (adminDoc.exists()) setIsAdmin(true);
+                if (judgeDoc.exists()) setIsJudge(true);
+                if (leadDoc.exists()) setIsAmbassadorLead(true);
 
-                // 3. Check Ambassador Lead
-                const leadDoc = await getDoc(doc(db, 'ambassadors_lead', currentUser.uid));
-                if (leadDoc.exists()) {
-                    setIsAmbassadorLead(true);
-                }
-
-                // 4. Check Ambassador Status (from users collection)
-                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 let userIsAmbassador = false;
                 let userPoints = 0;
 
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
+                if (uDoc.exists()) {
+                    const userData = uDoc.data();
                     userIsAmbassador = userData.role === 'ambassador';
                     userPoints = userData.points || 0;
                     setAmbassadorId(userData.ambassadorId || null);
                 }
 
-                // Always check the ambassadors collection for points/role as it's the source of truth for coins
-                const ambDoc = await getDoc(doc(db, 'ambassadors', currentUser.uid));
                 if (ambDoc.exists()) {
                     const ambData = ambDoc.data();
                     userIsAmbassador = true;
@@ -104,61 +111,66 @@ export default function ProfilePage() {
                 setIsAmbassador(userIsAmbassador);
                 setPoints(userPoints);
 
-                // 5. Update lastSeenPoints to clear notification badge
-                if (currentUser) {
-                    try {
-                        await updateDoc(doc(db, 'users', currentUser.uid), {
-                            lastSeenPoints: userPoints
-                        });
-                    } catch (err) {
-                        console.error('Failed to update lastSeenPoints:', err);
-                    }
-                }
+                // Update lastSeenPoints
+                await updateDoc(doc(db, 'users', user.uid), {
+                    lastSeenPoints: userPoints
+                });
 
                 if (userIsAmbassador) {
-                    // Calculate Rank using the ambassadors collection for consistency
-                    // We fetch all to get an accurate total count and rank even for those with 0 points
                     const ambSnapshot = await getDocs(collection(db, 'ambassadors'));
                     const ambDocs = ambSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-
-                    // Sort by points desc
                     const sortedAmbs = ambDocs.sort((a: any, b: any) => (b.points || 0) - (a.points || 0));
 
-                    // Only calculate rank if user has points
                     let userRank = null;
                     if (userPoints > 0) {
-                        const foundIndex = sortedAmbs.findIndex(doc => doc.id === currentUser.uid);
-                        if (foundIndex !== -1) {
-                            userRank = foundIndex + 1;
-                        }
+                        const foundIndex = sortedAmbs.findIndex(doc => doc.id === user.uid);
+                        if (foundIndex !== -1) userRank = foundIndex + 1;
                     }
-
                     setRank(userRank);
                     setTotalAmbassadors(sortedAmbs.length);
 
-                    // Fetch Point History
-                    setLoadingHistory(true);
                     const historyQuery = query(
-                        collection(db, 'users', currentUser.uid, 'point_history'),
+                        collection(db, 'users', user.uid, 'point_history'),
                         orderBy('timestamp', 'desc')
                     );
                     const historySnapshot = await getDocs(historyQuery);
-                    setPointHistory(historySnapshot.docs.map(doc => ({
-                        points: doc.data().points,
-                        reason: doc.data().reason,
-                        timestamp: doc.data().timestamp
+                    setPointHistory(historySnapshot.docs.map(d => ({
+                        points: d.data().points,
+                        reason: d.data().reason,
+                        timestamp: d.data().timestamp
                     })));
-                    setLoadingHistory(false);
                 }
-            } catch (error) {
-                console.error('Error checking role:', error);
+
+                // Real-time Subscriptions
+                unsubscribeReg = onSnapshot(doc(db, 'settings', 'registration'), (snapshot) => {
+                    if (snapshot.exists()) {
+                        setIsRegistrationOpen(snapshot.data().isOpen ?? true);
+                    }
+                });
+
+                unsubscribeApp = onSnapshot(doc(db, 'applications', user.uid), (snapshot) => {
+                    if (snapshot.exists()) {
+                        setApplication({ id: snapshot.id, ...snapshot.data() });
+                    }
+                    setLoadingApp(false);
+                }, (err) => {
+                    console.error('App listen error:', err);
+                    setLoadingApp(false);
+                });
+
+            } catch (err) {
+                console.error("Error fetching profile data:", err);
+                setLoadingApp(false);
             }
+        };
 
-            setLoading(false);
-        });
+        fetchProfileData();
 
-        return () => unsubscribe();
-    }, [router]);
+        return () => {
+            unsubscribeReg();
+            unsubscribeApp();
+        };
+    }, [user]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -324,6 +336,70 @@ export default function ProfilePage() {
                                     )}
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Application Card */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between px-1">
+                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/40">My Startup Application</h3>
+                                <Rocket className="w-4 h-4 text-vc-mint/30" />
+                            </div>
+
+                            {loadingApp ? (
+                                <div className="p-8 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center justify-center gap-3">
+                                    <Loader2 className="w-5 h-5 animate-spin text-vc-mint/40" />
+                                    <p className="text-[10px] uppercase tracking-widest font-bold text-white/20">Checking status...</p>
+                                </div>
+                            ) : application ? (
+                                <div className="group relative overflow-hidden rounded-2xl p-6 bg-white/5 border border-white/10 hover:border-vc-mint/30 transition-all duration-300">
+                                    <div className="flex items-start justify-between gap-4 mb-4">
+                                        <div>
+                                            <h4 className="text-xl font-bold text-white mb-1">{application.startupName || 'Unnamed Startup'}</h4>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] uppercase tracking-widest font-bold text-vc-mint">Status: {application.status}</span>
+                                                <span className="w-1 h-1 rounded-full bg-white/20" />
+                                                <span className="text-[10px] uppercase tracking-widest font-medium text-white/30">
+                                                    Submitted {application.submittedAt?.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="p-3 rounded-xl bg-vc-mint/10 border border-vc-mint/20 text-vc-mint">
+                                            <Rocket className="w-5 h-5" />
+                                        </div>
+                                    </div>
+
+                                    {isRegistrationOpen ? (
+                                        <Link
+                                            href="/apply?step=1"
+                                            className="w-full flex items-center justify-center gap-2 py-3 mt-2 rounded-xl bg-vc-mint text-[#001311] font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-vc-mint/10"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                            Maintain / Edit Application
+                                        </Link>
+                                    ) : (
+                                        <div className="w-full flex items-center justify-center gap-2 py-3 mt-2 rounded-xl bg-white/5 border border-white/10 text-white/40 font-bold text-sm cursor-not-allowed">
+                                            <Shield className="w-4 h-4" />
+                                            Registration Closed - Screening Round
+                                        </div>
+                                    )}
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-vc-mint/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-vc-mint/10 mb-4 transition-colors" />
+                                </div>
+                            ) : (
+                                <div className="p-10 rounded-2xl bg-white/0 border border-dashed border-white/10 text-center space-y-4">
+                                    <p className="text-sm text-white/40 italic font-poppins px-8">You haven't submitted an application for the competition yet.</p>
+                                    {isRegistrationOpen ? (
+                                        <Link
+                                            href="/apply"
+                                            className="inline-flex items-center gap-2 text-vc-mint hover:underline font-bold text-sm uppercase tracking-widest"
+                                        >
+                                            Start Application Now
+                                            <TrendingUp className="w-4 h-4" />
+                                        </Link>
+                                    ) : (
+                                        <p className="text-[10px] uppercase tracking-widest font-black text-white/20">Registration is currently closed</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Ambassador Rewards Card */}

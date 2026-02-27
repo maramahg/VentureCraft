@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash, HelpCircle, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash, HelpCircle, ExternalLink, Edit2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
@@ -360,6 +360,59 @@ const ApplyPageContent = () => {
         }
     }, [user, authLoading, router]);
 
+    // PRE-FILL LOGIC: Fetch existing application if it exists
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [existingMaterials, setExistingMaterials] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchOldApplication = async () => {
+            if (!user) return;
+            try {
+                const appDoc = await getDoc(doc(db, 'applications', user.uid));
+                if (appDoc.exists()) {
+                    const data = appDoc.data();
+                    setIsEditMode(true);
+                    setExistingMaterials(data.materials || null);
+
+                    // Pre-fill form data
+                    setFormData(prev => ({
+                        ...prev,
+                        startupName: data.startupName || '',
+                        location: data.location || '',
+                        teamSize: data.teamSize || 1,
+                        teamMembers: data.teamMembers || [{ name: '', nationality: 'Saudi Arabia' }],
+                        leaderEmail: data.leaderEmail || '',
+                        leaderPhoneNumber: data.leaderPhone?.split(' ')[1] || '',
+                        leaderPhoneCode: data.leaderPhone?.split(' ')[0] || '+966',
+                        leaderNationality: data.leaderNationality || 'Saudi Arabia',
+                        leaderLocation: data.leaderLocation || 'Saudi Arabia',
+                        pillar: data.pillar || '',
+                        isOlderThan5Years: data.isOlderThan5Years || 'No',
+                        stage: data.stage || '',
+                        website: data.website || '',
+                        linkedin: data.linkedin || '',
+                        additionalLinks: data.additionalLinks || '',
+                        videoPitchUrl: data.videoPitchUrl || '',
+                        audienceCategory: data.audienceCategory || '',
+                        ageConfirmed: data.confirmations?.ageConfirmed || false,
+                        educationConfirmed: data.confirmations?.educationConfirmed || false,
+                        referralSource: data.referral?.source || '',
+                        referralPlatform: data.referral?.platform || '',
+                        referralAmbassadorId: data.referral?.ambassadorId || '',
+                        referralAmbassadorName: data.referral?.ambassadorName || '',
+                        agreedToTerms: true // They already agreed
+                    }));
+                }
+            } catch (error) {
+                console.error("Error fetching existing application:", error);
+            }
+        };
+
+        if (user) {
+            fetchOldApplication();
+        }
+    }, [user]);
+
     // ... (keep existing sync useEffect)
 
     const handleApplyClick = () => {
@@ -412,7 +465,7 @@ const ApplyPageContent = () => {
         if (!formData.audienceCategory) {
             newErrors.audienceCategory = "Please select your team's audience category.";
         }
-        if (!files.eligibilityProof) {
+        if (!files.eligibilityProof && !existingMaterials?.eligibilityProofUrl) {
             newErrors.eligibilityProof = "Please upload evidence for your eligibility category.";
         }
         if (!formData.leaderEmail) {
@@ -461,10 +514,10 @@ const ApplyPageContent = () => {
 
     const validateStep3 = () => {
         const newErrors: Record<string, string> = {};
-        if (!files.pitchDeck) {
+        if (!files.pitchDeck && !existingMaterials?.pitchDeckUrl) {
             newErrors.pitchDeck = "Please upload your Pitch Deck.";
         }
-        if (!files.execSummary) {
+        if (!files.execSummary && !existingMaterials?.execSummaryUrl) {
             newErrors.execSummary = "Please upload your Executive Summary.";
         }
         if (!formData.videoPitchUrl.trim()) {
@@ -507,6 +560,13 @@ const ApplyPageContent = () => {
             return;
         }
 
+        // 2. Registration Status Check (Strict)
+        if (!isRegistrationOpen) {
+            alert("Registration is now closed. Your application cannot be submitted or edited at this time.");
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         try {
 
@@ -531,11 +591,15 @@ const ApplyPageContent = () => {
             const combinedPhone = `${formData.leaderPhoneCode} ${formData.leaderPhoneNumber}`;
             const applicationRef = doc(db, 'applications', user.uid);
 
-            // 2. Clean up data for Firestore
+            // 3. Award Venture Coins if referred by an ambassador (Only for new applications)
+            const isActuallyNew = !isEditMode;
+
+            // 4. Clean up data for Firestore
             const submissionData = {
                 userId: user.uid,
                 status: 'pending',
                 submittedAt: serverTimestamp(),
+                updatedAt: isEditMode ? serverTimestamp() : null,
 
                 // Form Data
                 startupName: formData.startupName,
@@ -558,16 +622,16 @@ const ApplyPageContent = () => {
                 additionalLinks: formData.additionalLinks,
                 videoPitchUrl: formData.videoPitchUrl,
 
-                // Metadata for materials & URLs
+                // Metadata for materials & URLs (Keep old URL if no new file uploaded)
                 materials: {
-                    pitchDeckName: files.pitchDeck?.name || null,
-                    pitchDeckUrl: pitchDeckUrl,
-                    execSummaryName: files.execSummary?.name || null,
-                    execSummaryUrl: execSummaryUrl,
-                    supportingDataName: files.supportingData?.name || null,
-                    supportingDataUrl: supportingDataUrl,
-                    eligibilityProofName: files.eligibilityProof?.name || null,
-                    eligibilityProofUrl: eligibilityProofUrl,
+                    pitchDeckName: files.pitchDeck?.name || existingMaterials?.pitchDeckName || null,
+                    pitchDeckUrl: pitchDeckUrl || existingMaterials?.pitchDeckUrl || null,
+                    execSummaryName: files.execSummary?.name || existingMaterials?.execSummaryName || null,
+                    execSummaryUrl: execSummaryUrl || existingMaterials?.execSummaryUrl || null,
+                    supportingDataName: files.supportingData?.name || existingMaterials?.supportingDataName || null,
+                    supportingDataUrl: supportingDataUrl || existingMaterials?.supportingDataUrl || null,
+                    eligibilityProofName: files.eligibilityProof?.name || existingMaterials?.eligibilityProofName || null,
+                    eligibilityProofUrl: eligibilityProofUrl || existingMaterials?.eligibilityProofUrl || null,
                 },
                 audienceCategory: formData.audienceCategory,
 
@@ -588,8 +652,8 @@ const ApplyPageContent = () => {
 
             await setDoc(applicationRef, submissionData);
 
-            // 3. Award Venture Coins if referred by an ambassador
-            if (formData.referralSource === 'Ambassadors' && (formData.referralAmbassadorId || formData.referralAmbassadorName)) {
+            // 5. Reward Points (Only if NEW)
+            if (isActuallyNew && formData.referralSource === 'Ambassadors' && (formData.referralAmbassadorId || formData.referralAmbassadorName)) {
                 try {
                     await runTransaction(db, async (transaction) => {
                         let ambDocId = null;
@@ -645,20 +709,22 @@ const ApplyPageContent = () => {
                 }
             }
 
-            // 3. Send Confirmation Email to Team Leader
-            try {
-                await fetch('/api/send-submission-confirmation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: formData.leaderEmail,
-                        leaderName: formData.teamMembers[0]?.name || 'Team Leader',
-                        startupName: formData.startupName || formData.pillar
-                    }),
-                });
-            } catch (emailErr) {
-                console.error('Failed to send confirmation email:', emailErr);
-                // We don't block the UI if the email fails, as the application is already saved
+            // 6. Send Confirmation Email (Only if NEW)
+            if (isActuallyNew) {
+                try {
+                    await fetch('/api/send-submission-confirmation', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: formData.leaderEmail,
+                            leaderName: formData.teamMembers[0]?.name || 'Team Leader',
+                            startupName: formData.startupName || formData.pillar
+                        }),
+                    });
+                } catch (emailErr) {
+                    console.error('Failed to send confirmation email:', emailErr);
+                    // We don't block the UI if the email fails, as the application is already saved
+                }
             }
 
             setIsSuccessOpen(true);
@@ -1804,8 +1870,8 @@ const ApplyPageContent = () => {
                                                 <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                                             ) : (
                                                 <>
-                                                    <span>Submit Application</span>
-                                                    <CheckCircle className="w-5 h-5" />
+                                                    <span>{isEditMode ? 'Update Application' : 'Submit Application'}</span>
+                                                    {isEditMode ? <LinkIcon className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
                                                 </>
                                             )}
                                         </button>
@@ -1930,7 +1996,7 @@ const ApplyPageContent = () => {
                                 transition={{ delay: 0.4 }}
                                 className="text-3xl font-bold text-white mb-4 font-poppins"
                             >
-                                Application Sent!
+                                {isEditMode ? 'Application Updated!' : 'Application Sent!'}
                             </motion.h2>
 
                             <motion.div
@@ -1940,12 +2006,31 @@ const ApplyPageContent = () => {
                                 className="space-y-4 mb-10"
                             >
                                 <p className="text-white/70 leading-relaxed">
-                                    Your team's proposal for the Venture Craft Competition has been successfully received.
+                                    Your team's proposal for the Venture Craft Competition has been successfully {isEditMode ? 'updated' : 'received'}.
                                 </p>
+                                <div className="mt-6 flex flex-col gap-2">
+                                    <div className="flex items-center gap-3 text-white/90">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint" />
+                                        <p className="text-sm font-medium">Your application can now be viewed in your <Link href="/profile" className="text-vc-mint hover:underline">Profile</Link>.</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-white/50">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                                        <p className="text-sm italic">Note: Editing will be disabled once the screening round begins.</p>
+                                    </div>
+                                </div>
                                 <div className="bg-vc-mint/5 border border-vc-mint/10 rounded-2xl p-4 inline-block">
-                                    <p className="text-vc-mint text-sm font-medium flex items-center justify-center gap-2">
-                                        <FileText className="w-4 h-4" />
-                                        Confirmation sent to the leader's email.
+                                    <p className="text-vc-mint text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                                        {isEditMode ? (
+                                            <>
+                                                <Edit2 className="w-4 h-4" />
+                                                Submission Updated
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FileText className="w-4 h-4" />
+                                                Confirmation sent to leader's email
+                                            </>
+                                        )}
                                     </p>
                                 </div>
                             </motion.div>
