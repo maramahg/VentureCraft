@@ -238,6 +238,8 @@ const ApplyPageContent = () => {
     const [step, setStep] = useState(0); // 0 = Intro, 1-3 = Form
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [isErrorOpen, setIsErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
@@ -562,15 +564,42 @@ const ApplyPageContent = () => {
 
         // 2. Registration Status Check (Strict)
         if (!isRegistrationOpen) {
-            alert("Registration is now closed. Your application cannot be submitted or edited at this time.");
+            setErrorMessage("Registration is now closed. Your application cannot be submitted or edited at this time.");
+            setIsErrorOpen(true);
             setLoading(false);
             return;
         }
 
         setLoading(true);
         try {
+            // 1. File Type Validation (Client-side check)
+            const allowedTypes: Record<string, string[]> = {
+                pitchDeck: ['.pdf', '.pptx', '.ppt'],
+                execSummary: ['.pdf', '.doc', '.docx'],
+                supportingData: ['.pdf', '.doc', '.docx'],
+                eligibilityProof: ['.pdf', '.jpg', '.jpeg', '.png']
+            };
 
-            // 1. Upload Files first (Only if they passed security)
+            const checkFileType = (file: File | null, allowed: string[]) => {
+                if (!file) return true;
+                const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+                return allowed.includes(ext);
+            };
+
+            if (!checkFileType(files.pitchDeck, allowedTypes.pitchDeck)) {
+                throw new Error("TYPE_ERROR: The Pitch Deck must be a PDF or PowerPoint file.");
+            }
+            if (!checkFileType(files.execSummary, allowedTypes.execSummary)) {
+                throw new Error("TYPE_ERROR: The Executive Summary must be a PDF or Word document.");
+            }
+            if (!checkFileType(files.supportingData, allowedTypes.supportingData)) {
+                throw new Error("TYPE_ERROR: Supporting Data must be a PDF or Word document.");
+            }
+            if (!checkFileType(files.eligibilityProof, allowedTypes.eligibilityProof)) {
+                throw new Error("TYPE_ERROR: Eligibility Evidence must be a PDF or Image (JPG/PNG).");
+            }
+
+            // 2. Upload Files
             const uploadFile = async (file: File | null, folder: string) => {
                 if (!file) return null;
                 const timestamp = Date.now();
@@ -730,15 +759,18 @@ const ApplyPageContent = () => {
             setIsSuccessOpen(true);
         } catch (error: any) {
             console.error('Error submitting application:', error);
-            const errorMessage = error.message || '';
+            const rawMessage = error.message || '';
 
-            if (errorMessage.includes('Blob') || errorMessage.includes('upload')) {
-                alert('File upload failed. Your storage might be full or the file type is not supported. Please try again or use a smaller file.');
-            } else if (errorMessage.includes('Firestore') || errorMessage.includes('permission')) {
-                alert('Database submission failed. Please check your internet connection and try again.');
+            if (rawMessage.startsWith('TYPE_ERROR:')) {
+                setErrorMessage(rawMessage.replace('TYPE_ERROR:', '').trim() + " Please check your file selection and try again.");
+            } else if (rawMessage.includes('Blob') || rawMessage.includes('upload')) {
+                setErrorMessage("We encountered an issue while uploading your files. Please ensure your files are under 500MB and are in a supported format (PDF, Word, or PowerPoint), then try again.");
+            } else if (rawMessage.includes('Firestore') || rawMessage.includes('permission')) {
+                setErrorMessage("We couldn't save your application details. Please check your internet connection and try submitting once more.");
             } else {
-                alert('Failed to submit application. Please try again.');
+                setErrorMessage("An unexpected error occurred while processing your application. Please try again or contact support if the issue persists.");
             }
+            setIsErrorOpen(true);
         } finally {
             setLoading(false);
         }
@@ -2049,6 +2081,54 @@ const ApplyPageContent = () => {
                             {/* Decorative Sparkles */}
                             <div className="absolute top-10 left-10 w-2 h-2 bg-vc-mint rounded-full animate-ping" />
                             <div className="absolute bottom-20 right-10 w-3 h-3 bg-vc-teal rounded-full animate-pulse" />
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* --- Error Modal --- */}
+                {isErrorOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                            onClick={() => setIsErrorOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            className="relative bg-[#0d0d0d] border border-red-500/20 rounded-[2.5rem] p-10 max-w-lg w-full text-center overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.1)]"
+                        >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
+
+                            <motion.div
+                                initial={{ scale: 0.8, rotate: -10 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                className="w-20 h-20 rounded-full bg-red-500/10 mx-auto flex items-center justify-center mb-6 border border-red-500/20"
+                            >
+                                <AlertCircle className="w-10 h-10 text-red-500" />
+                            </motion.div>
+
+                            <h2 className="text-2xl font-bold text-white mb-4">Submission Issue</h2>
+                            <p className="text-white/60 leading-relaxed mb-8">
+                                {errorMessage}
+                            </p>
+
+                            <button
+                                onClick={() => setIsErrorOpen(false)}
+                                className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold rounded-2xl transition-all active:scale-[0.98]"
+                            >
+                                Close & Try Again
+                            </button>
+
+                            {/* Decorative Red Glow */}
+                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-500/5 rounded-full blur-[80px]" />
+                            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-red-500/5 rounded-full blur-[80px]" />
                         </motion.div>
                     </motion.div>
                 )}
