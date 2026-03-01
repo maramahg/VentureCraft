@@ -1050,7 +1050,8 @@ function AdminDashboardContent() {
     const filteredApps = applications.filter(app => {
         const matchesSearch =
             (app.leaderEmail?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (app.pillar?.toLowerCase().includes(searchTerm.toLowerCase()));
+            (app.startupName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (app.teamMembers?.[0]?.name?.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
         const matchesPillar = pillarFilter === 'all' || app.pillar === pillarFilter;
