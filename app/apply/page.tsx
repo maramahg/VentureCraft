@@ -567,12 +567,13 @@ const ApplyPageContent = () => {
     };
 
     const nextStep = () => {
+        // Always scroll to top when navigation is attempted
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
         if (step === 1 && !validateStep1()) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
         if (step === 2 && !validateStep2()) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
         setStep(prev => Math.min(prev + 1, 3));
