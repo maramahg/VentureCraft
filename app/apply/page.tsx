@@ -1075,7 +1075,7 @@ const ApplyPageContent = () => {
 
     if (!isRegistrationOpen && !regLoading) {
         return (
-            <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden">
+            <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-20">
                 {/* Background Orbs */}
                 <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
                 <div className="absolute bottom-[20%] right-[15%] w-[40%] h-[40%] bg-vc-teal/15 rounded-full blur-[120px] animate-pulse pointer-events-none" />
@@ -1083,13 +1083,13 @@ const ApplyPageContent = () => {
                 {/* Go Back Link - Adjusted for Navbar */}
                 <Link
                     href="/"
-                    className="absolute top-40 left-20 p-3 rounded-full glass-panel hover:bg-white/10 transition-all duration-300 group z-50 focus:outline-none focus:ring-2 focus:ring-vc-mint/50 flex items-center gap-2"
+                    className="absolute top-32 left-8 md:top-40 md:left-20 p-3 rounded-full glass-panel hover:bg-white/10 transition-all duration-300 group z-50 focus:outline-none focus:ring-2 focus:ring-vc-mint/50 flex items-center gap-2"
                 >
                     <ArrowLeft className="w-5 h-5 text-vc-mint group-hover:-translate-x-1 transition-transform duration-300" />
                     <span className="text-sm font-medium pr-2 text-vc-mint/80 group-hover:text-vc-mint transition-colors">Go Back</span>
                 </Link>
 
-                <div className="relative z-10 text-center px-4 max-w-3xl">
+                <div className="relative z-10 text-center max-w-3xl w-full">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1101,38 +1101,84 @@ const ApplyPageContent = () => {
                         </div>
                     </motion.div>
 
-                    <motion.h1
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-5xl md:text-7xl font-extrabold mb-6 font-poppins tracking-tighter text-white"
+                        className="space-y-4 mb-10"
                     >
-                        Registration <br /> <span className="text-vc-mint">Coming Soon</span>
-                    </motion.h1>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
-                    >
-                        Stay tuned for the <span className="text-vc-mint font-bold italic">KFUPM Venture Craft</span> deep-tech startup challenge.
-                    </motion.p>
+                        <h1 className="text-5xl md:text-7xl font-extrabold font-poppins tracking-tighter text-white">
+                            Applications are <br /> <span className="text-vc-mint">Now Closed</span>
+                        </h1>
+                        <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
+                            Thank you for your interest in KFUPM Venture Craft. The application window is currently closed, but the journey doesn't end here!
+                            <br /><br />
+                            Stay connected through our social media for updates, workshops, and future opportunities.
+                        </p>
+                    </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.6 }}
-                        className="flex flex-col items-center gap-6"
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="flex flex-col items-center gap-8"
                     >
-                        <div className="glass-panel px-8 py-4 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-vc-mint animate-ping" />
-                            <p className="text-lg font-medium text-white tracking-wide italic">More coming soon!</p>
+                        {/* Social Media Group */}
+                        <div className="flex gap-4 justify-center">
+                            <a
+                                href="https://x.com/venturecraft_sa?s=21"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-vc-mint hover:bg-vc-mint hover:text-[#001311] transition-all duration-300 hover:scale-110 shadow-lg"
+                                aria-label="X"
+                            >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                </svg>
+                            </a>
+
+                            <a
+                                href="https://www.linkedin.com/company/venturecraftsa/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-vc-mint hover:bg-vc-mint hover:text-[#001311] transition-all duration-300 hover:scale-110 shadow-lg"
+                                aria-label="LinkedIn"
+                            >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                </svg>
+                            </a>
+
+                            <a
+                                href="https://www.instagram.com/venturecraft.sa?igsh=bHJmMjF6dGM2MXU1"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-vc-mint hover:bg-vc-mint hover:text-[#001311] transition-all duration-300 hover:scale-110 shadow-lg"
+                                aria-label="Instagram"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+                                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                                </svg>
+                            </a>
+
+                            <a
+                                href="https://www.tiktok.com/@venturecraft_sa?_r=1&_t=ZS-93h9rM2RRDu"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-vc-mint hover:bg-vc-mint hover:text-[#001311] transition-all duration-300 hover:scale-110 shadow-lg"
+                                aria-label="TikTok"
+                            >
+                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
+                                </svg>
+                            </a>
                         </div>
 
                         <Link
                             href="/apply/faq"
-                            className="text-vc-mint/60 hover:text-vc-mint transition-all flex items-center gap-2 text-sm font-medium tracking-wide uppercase group"
+                            className="text-vc-mint/60 hover:text-vc-mint transition-all flex items-center gap-2 text-sm font-medium tracking-wide uppercase group pt-4"
                         >
                             <span className="border-b border-transparent group-hover:border-vc-mint/40 py-0.5 transition-all">Check Application FAQ</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
