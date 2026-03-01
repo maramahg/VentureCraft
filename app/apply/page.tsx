@@ -16,7 +16,6 @@ import Navbar from '@/components/Navbar';
 import { countries } from '@/lib/countries';
 import { isValidUrl, isValidYoutubeUrl, isValidLinkedinUrl, isPersonalEmail } from '@/lib/utils';
 
-// Custom Dropdown Component
 function FlagDropdown({
     options,
     value,
@@ -24,7 +23,8 @@ function FlagDropdown({
     label,
     description,
     placeholder = "Select...",
-    type = 'country' // 'country' or 'phone'
+    type = 'country',
+    error
 }: {
     options: typeof countries,
     description?: string,
@@ -32,7 +32,8 @@ function FlagDropdown({
     onChange: (val: string) => void,
     label?: string,
     placeholder?: string,
-    type?: 'country' | 'phone'
+    type?: 'country' | 'phone',
+    error?: string
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -71,7 +72,7 @@ function FlagDropdown({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full bg-white/5 border border-white/10 rounded-xl px-3 flex items-center gap-2 hover:bg-white/10 transition-all text-left ${type === 'phone' ? 'h-[52px]' : 'py-3'}`}
+                className={`w-full bg-white/5 border rounded-xl px-3 flex items-center gap-2 hover:bg-white/10 transition-all text-left ${type === 'phone' ? 'h-[52px]' : 'py-3'} ${error ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
             >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                     {selectedOption ? (
@@ -155,19 +156,20 @@ function FlagDropdown({
     );
 }
 
-// Simple Dropdown Component
 function SimpleDropdown({
     options,
     value,
     onChange,
     label,
-    placeholder = "Select..."
+    placeholder = "Select...",
+    error
 }: {
     options: string[],
     value: string,
     onChange: (val: string) => void,
     label?: string,
-    placeholder?: string
+    placeholder?: string,
+    error?: string
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -196,7 +198,7 @@ function SimpleDropdown({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-all text-left"
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-all text-left ${error ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
             >
                 <span className={`text-base ${value ? 'text-white' : 'text-white/40'}`}>
                     {value || placeholder}
@@ -467,8 +469,14 @@ const ApplyPageContent = () => {
         if (!formData.audienceCategory) {
             newErrors.audienceCategory = "Please select your team's audience category.";
         }
+        const allowedEligibility = ['.pdf', '.jpg', '.jpeg', '.png'];
         if (!files.eligibilityProof && !existingMaterials?.eligibilityProofUrl) {
             newErrors.eligibilityProof = "Please upload evidence for your eligibility category.";
+        } else if (files.eligibilityProof) {
+            const ext = '.' + files.eligibilityProof.name.split('.').pop()?.toLowerCase();
+            if (!allowedEligibility.includes(ext)) {
+                newErrors.eligibilityProof = "Invalid file type. Please upload a PDF or an Image (JPG/PNG).";
+            }
         }
         if (!formData.leaderEmail) {
             newErrors.leaderEmail = "Please enter the team leader's email address.";
@@ -516,17 +524,41 @@ const ApplyPageContent = () => {
 
     const validateStep3 = () => {
         const newErrors: Record<string, string> = {};
+        const allowedPitch = ['.pdf', '.pptx', '.ppt'];
+        const allowedExec = ['.pdf', '.doc', '.docx'];
+
         if (!files.pitchDeck && !existingMaterials?.pitchDeckUrl) {
             newErrors.pitchDeck = "Please upload your Pitch Deck.";
+        } else if (files.pitchDeck) {
+            const ext = '.' + files.pitchDeck.name.split('.').pop()?.toLowerCase();
+            if (!allowedPitch.includes(ext)) {
+                newErrors.pitchDeck = "The Pitch Deck must be a PDF or PowerPoint file.";
+            }
         }
+
         if (!files.execSummary && !existingMaterials?.execSummaryUrl) {
             newErrors.execSummary = "Please upload your Executive Summary.";
+        } else if (files.execSummary) {
+            const ext = '.' + files.execSummary.name.split('.').pop()?.toLowerCase();
+            if (!allowedExec.includes(ext)) {
+                newErrors.execSummary = "The Executive Summary must be a PDF or Word document.";
+            }
         }
         if (!formData.videoPitchUrl.trim()) {
             newErrors.videoPitchUrl = "Please provide the link to your Video Pitch.";
-        } else if (!isValidYoutubeUrl(formData.videoPitchUrl)) {
+        } else if (isValidYoutubeUrl(formData.videoPitchUrl)) {
+            // Valid YouTube URL
+        } else {
             newErrors.videoPitchUrl = "Please provide a valid YouTube URL (youtube.com or youtu.be).";
         }
+
+        if (files.supportingData) {
+            const ext = '.' + files.supportingData.name.split('.').pop()?.toLowerCase();
+            if (!allowedExec.includes(ext)) {
+                newErrors.supportingData = "Supporting Data must be a PDF or Word document.";
+            }
+        }
+
         if (!formData.agreedToTerms) {
             newErrors.agreedToTerms = "You must agree to the Terms and Conditions to submit.";
         }
@@ -578,32 +610,8 @@ const ApplyPageContent = () => {
 
         setLoading(true);
         try {
-            // 1. File Type Validation (Client-side check)
-            const allowedTypes: Record<string, string[]> = {
-                pitchDeck: ['.pdf', '.pptx', '.ppt'],
-                execSummary: ['.pdf', '.doc', '.docx'],
-                supportingData: ['.pdf', '.doc', '.docx'],
-                eligibilityProof: ['.pdf', '.jpg', '.jpeg', '.png']
-            };
-
-            const checkFileType = (file: File | null, allowed: string[]) => {
-                if (!file) return true;
-                const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-                return allowed.includes(ext);
-            };
-
-            if (!checkFileType(files.pitchDeck, allowedTypes.pitchDeck)) {
-                throw new Error("TYPE_ERROR: The Pitch Deck must be a PDF or PowerPoint file.");
-            }
-            if (!checkFileType(files.execSummary, allowedTypes.execSummary)) {
-                throw new Error("TYPE_ERROR: The Executive Summary must be a PDF or Word document.");
-            }
-            if (!checkFileType(files.supportingData, allowedTypes.supportingData)) {
-                throw new Error("TYPE_ERROR: Supporting Data must be a PDF or Word document.");
-            }
-            if (!checkFileType(files.eligibilityProof, allowedTypes.eligibilityProof)) {
-                throw new Error("TYPE_ERROR: Eligibility Evidence must be a PDF or Image (JPG/PNG).");
-            }
+            // The validation is now handled in validateStepX to provide field-level feedback
+            // This prevents the generic "Submission Issue" modal from appearing for type mismatches
 
             // 2. Upload Files
             const uploadFile = async (file: File | null, folder: string) => {
@@ -1326,23 +1334,24 @@ const ApplyPageContent = () => {
                                                 setFormData({ ...formData, leaderEmail: e.target.value });
                                                 if (errors.leaderEmail) setErrors(prev => ({ ...prev, leaderEmail: '' }));
                                             }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.leaderEmail ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.leaderEmail ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                             placeholder="personal.email@example.com"
                                         />
-                                        {errors.leaderEmail && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.leaderEmail}</p>}
+                                        {errors.leaderEmail && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.leaderEmail}</p>}
                                     </div>
 
                                     <div className="space-y-4">
                                         <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
                                             Leader Phone Number <span className="text-vc-mint">*</span>
                                         </label>
-                                        <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.leaderPhoneNumber ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
+                                        <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.leaderPhoneNumber ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus-within:border-vc-mint'}`}>
                                             <div className="w-fit border-r border-white/10">
                                                 <FlagDropdown
                                                     options={countries}
                                                     value={formData.leaderPhoneCode}
                                                     onChange={(val) => setFormData({ ...formData, leaderPhoneCode: val })}
                                                     type="phone"
+                                                    error={errors.leaderPhoneNumber}
                                                 />
                                             </div>
                                             <input
@@ -1360,7 +1369,7 @@ const ApplyPageContent = () => {
                                                 className="flex-1 bg-transparent border-none px-4 py-3.5 focus:outline-none focus:ring-0 text-white placeholder:text-white/20"
                                             />
                                         </div>
-                                        {errors.leaderPhoneNumber && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.leaderPhoneNumber}</p>}
+                                        {errors.leaderPhoneNumber && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.leaderPhoneNumber}</p>}
                                     </div>
 
                                     <div className="md:col-span-2 space-y-4">
@@ -1378,8 +1387,9 @@ const ApplyPageContent = () => {
                                                 setFormData({ ...formData, audienceCategory: val });
                                                 if (errors.audienceCategory) setErrors(prev => ({ ...prev, audienceCategory: '' }));
                                             }}
+                                            error={errors.audienceCategory}
                                         />
-                                        {errors.audienceCategory && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.audienceCategory}</p>}
+                                        {errors.audienceCategory && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.audienceCategory}</p>}
                                         <p className="text-sm text-white/40 italic">
                                             This helps us understand your team's background and alignment with the targeted audience.
                                         </p>
@@ -1400,22 +1410,22 @@ const ApplyPageContent = () => {
                                                 }}
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             />
-                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : errors.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                <ShieldCheck className={`w-6 h-6 ${files.eligibilityProof ? 'text-vc-mint' : errors.eligibilityProof ? 'text-vc-mint' : 'text-white/20'}`} />
+                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : errors.eligibilityProof ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                <ShieldCheck className={`w-6 h-6 ${files.eligibilityProof ? 'text-vc-mint' : errors.eligibilityProof ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
                                                 <div>
                                                     <p className="text-sm font-medium">{files.eligibilityProof ? files.eligibilityProof.name : 'Upload Eligibility Evidence'}</p>
                                                     <p className="text-sm text-white/40">Certificate, lab letter, or work contract (PDF/JPG)</p>
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
+                                        {errors.eligibilityProof && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.eligibilityProof}</p>}
+                                        <p className="text-[11px] text-white/40 mt-3 ml-1 leading-relaxed">
                                             Provide evidence verifying your specific eligibility category (e.g. proof of enrollment, employment, or graduation).
                                             <span className="ml-1">Not sure what to upload? Review the <Link href="/apply/eligibility#targeted-audience" target="_blank" className="text-vc-mint hover:underline font-medium">Targeted Audience profiles</Link> for guidance.</span>
                                         </p>
                                         <p className="text-xs text-red-400 mt-2 ml-2 italic">
                                             * Please ensure you upload the correct document. Incorrect evidence may risk your application's eligibility.
                                         </p>
-                                        {errors.eligibilityProof && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibilityProof}</p>}
                                     </div>
                                 </div>
 
@@ -1437,10 +1447,10 @@ const ApplyPageContent = () => {
                                                         handleMemberChange(idx, 'name', e.target.value);
                                                         if (errors[`member_${idx}`]) setErrors(prev => ({ ...prev, [`member_${idx}`]: '' }));
                                                     }}
-                                                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`member_${idx}`] ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`member_${idx}`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                                     placeholder="Enter full name"
                                                 />
-                                                {errors[`member_${idx}`] && <p className="text-xs text-vc-mint/80 mt-1">{errors[`member_${idx}`]}</p>}
+                                                {errors[`member_${idx}`] && <p className="text-xs text-red-500 mt-1 font-medium">{errors[`member_${idx}`]}</p>}
                                             </div>
                                             <div className="space-y-2">
                                                 <FlagDropdown
@@ -1463,8 +1473,9 @@ const ApplyPageContent = () => {
                                                         label="Leader Current Location (Residing) *"
                                                         description="Note: Current location refers to where you are physically residing at this time."
                                                         type="country"
+                                                        error={errors.leaderLocation}
                                                     />
-                                                    {errors.leaderLocation && <p className="text-xs text-vc-mint/80 mt-1">{errors.leaderLocation}</p>}
+                                                    {errors.leaderLocation && <p className="text-xs text-red-500 mt-1 font-medium">{errors.leaderLocation}</p>}
                                                 </div>
                                             )}
                                         </div>
@@ -1472,7 +1483,7 @@ const ApplyPageContent = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-vc-mint/10 border-vc-mint' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
+                                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-red-500/10 border-red-500' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
                                         <input
                                             type="checkbox"
                                             checked={formData.ageConfirmed}
@@ -1482,11 +1493,11 @@ const ApplyPageContent = () => {
                                             }}
                                             className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
-                                        <span className="text-base text-white/70">
+                                        <span className={`text-base transition-colors ${errors.eligibility ? 'text-red-400' : 'text-white/70'}`}>
                                             I confirm that all team members are 18 years of age or older at the time of application.
                                         </span>
                                     </label>
-                                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-vc-mint/10 border-vc-mint' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
+                                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-red-500/10 border-red-500' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
                                         <input
                                             type="checkbox"
                                             checked={formData.educationConfirmed}
@@ -1496,11 +1507,11 @@ const ApplyPageContent = () => {
                                             }}
                                             className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
-                                        <span className="text-base text-white/70 leading-relaxed">
+                                        <span className={`text-base leading-relaxed transition-colors ${errors.eligibility ? 'text-red-400' : 'text-white/70'}`}>
                                             I confirm that the team leader and/or co-founders are either actively pursuing or have completed an undergraduate degree.
                                         </span>
                                     </label>
-                                    {errors.eligibility && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.eligibility}</p>}
+                                    {errors.eligibility && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.eligibility}</p>}
                                 </div>
 
                                 <div className="flex justify-end pt-8">
@@ -1542,10 +1553,10 @@ const ApplyPageContent = () => {
                                                 setFormData({ ...formData, startupName: e.target.value });
                                                 if (errors.startupName) setErrors(prev => ({ ...prev, startupName: '' }));
                                             }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.startupName ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.startupName ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                             placeholder="Enter your startup or project name"
                                         />
-                                        {errors.startupName && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.startupName}</p>}
+                                        {errors.startupName && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.startupName}</p>}
                                     </div>
 
                                     <div className="space-y-4">
@@ -1559,10 +1570,10 @@ const ApplyPageContent = () => {
                                                 setFormData({ ...formData, location: e.target.value });
                                                 if (errors.location) setErrors(prev => ({ ...prev, location: '' }));
                                             }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.location ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.location ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                             placeholder="City, Country"
                                         />
-                                        {errors.location && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.location}</p>}
+                                        {errors.location && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.location}</p>}
                                     </div>
 
                                     <div className="space-y-4">
@@ -1582,7 +1593,7 @@ const ApplyPageContent = () => {
                                                 <ExternalLink className="w-3 h-3" />
                                             </Link>
                                         </p>
-                                        <div className={`grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-vc-mint bg-vc-mint/5' : 'border-white/5'}`}>
+                                        <div className={`grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 p-4 rounded-xl border transition-all ${errors.pillar ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.05)]' : 'border-white/5'}`}>
                                             {[
                                                 'Decarbonization Technologies',
                                                 'Circular Economy & Resource Efficiency',
@@ -1623,6 +1634,7 @@ const ApplyPageContent = () => {
                                                     </button>
                                                 ))}
                                             </div>
+                                            {errors.isOlderThan5Years && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.isOlderThan5Years}</p>}
                                         </div>
 
                                         <div className="space-y-4">
@@ -1635,8 +1647,9 @@ const ApplyPageContent = () => {
                                                 }}
                                                 label="Startup Stage *"
                                                 placeholder="Select stage"
+                                                error={errors.stage}
                                             />
-                                            {errors.stage && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.stage}</p>}
+                                            {errors.stage && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.stage}</p>}
                                         </div>
                                     </div>
 
@@ -1651,10 +1664,10 @@ const ApplyPageContent = () => {
                                                     setFormData({ ...formData, website: e.target.value });
                                                     if (errors.website) setErrors(prev => ({ ...prev, website: '' }));
                                                 }}
-                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.website ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.website ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                                 placeholder="https://..."
                                             />
-                                            {errors.website && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.website}</p>}
+                                            {errors.website && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.website}</p>}
                                         </div>
                                         <div className="space-y-4">
                                             <label className="block text-base font-medium text-white/70">LinkedIn Page</label>
@@ -1665,10 +1678,10 @@ const ApplyPageContent = () => {
                                                     setFormData({ ...formData, linkedin: e.target.value });
                                                     if (errors.linkedin) setErrors(prev => ({ ...prev, linkedin: '' }));
                                                 }}
-                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.linkedin ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.linkedin ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                                 placeholder="https://linkedin.com/company/..."
                                             />
-                                            {errors.linkedin && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.linkedin}</p>}
+                                            {errors.linkedin && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.linkedin}</p>}
                                         </div>
                                     </div>
 
@@ -1679,8 +1692,9 @@ const ApplyPageContent = () => {
                                             onChange={(e) => setFormData({ ...formData, additionalLinks: e.target.value })}
                                             placeholder="Any other relevant links to your startup..."
                                             rows={3}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.additionalLinks ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                         />
+                                        {errors.additionalLinks && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.additionalLinks}</p>}
                                     </div>
 
                                     <div className="flex justify-between pt-8">
@@ -1736,13 +1750,13 @@ const ApplyPageContent = () => {
                                                     }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : errors.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                    <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : errors.pitchDeck ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : errors.pitchDeck ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : errors.pitchDeck ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
                                                     <p className="text-base font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
                                                     <p className="text-sm text-white/40">Drop file here or click to browse</p>
                                                 </div>
                                             </div>
-                                            {errors.pitchDeck && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.pitchDeck}</p>}
+                                            {errors.pitchDeck && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.pitchDeck}</p>}
                                             <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
                                                 Provides a concise overview (15 slides minimum) covering team, problem, solution, market, business model, and financials.
                                                 <Link href="/apply/materials#pitch-deck" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
@@ -1763,13 +1777,13 @@ const ApplyPageContent = () => {
                                                     }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : errors.execSummary ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                    <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : errors.execSummary ? 'text-vc-mint' : 'text-white/20'}`} />
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : errors.execSummary ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : errors.execSummary ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
                                                     <p className="text-base font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
                                                     <p className="text-sm text-white/40">Drop file here or click to browse</p>
                                                 </div>
                                             </div>
-                                            {errors.execSummary && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.execSummary}</p>}
+                                            {errors.execSummary && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.execSummary}</p>}
                                             <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
                                                 A 1-2 page standalone document summarizing the full business case, innovation, market opportunity, and impact.
                                                 <Link href="/apply/materials#executive-summary" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
@@ -1789,10 +1803,10 @@ const ApplyPageContent = () => {
                                                 setFormData({ ...formData, videoPitchUrl: e.target.value });
                                                 if (errors.videoPitchUrl) setErrors(prev => ({ ...prev, videoPitchUrl: '' }));
                                             }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.videoPitchUrl ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.videoPitchUrl ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                             placeholder="https://youtube.com/..."
                                         />
-                                        {errors.videoPitchUrl && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.videoPitchUrl}</p>}
+                                        {errors.videoPitchUrl && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.videoPitchUrl}</p>}
                                         <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
                                             A 3-5 minute unlisted YouTube video where the team leader or at least one co-founder appears and presents the pitch deck.
                                             <Link href="/apply/materials#video-pitch" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
@@ -1808,14 +1822,15 @@ const ApplyPageContent = () => {
                                                 onChange={(e) => setFiles({ ...files, supportingData: e.target.files?.[0] || null })}
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             />
-                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.supportingData ? 'border-vc-mint bg-vc-mint/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                <LinkIcon className={`w-6 h-6 ${files.supportingData ? 'text-vc-mint' : 'text-white/20'}`} />
+                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.supportingData ? 'border-vc-mint bg-vc-mint/5' : errors.supportingData ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                <LinkIcon className={`w-6 h-6 ${files.supportingData ? 'text-vc-mint' : errors.supportingData ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
                                                 <div>
                                                     <p className="text-sm font-medium">{files.supportingData ? files.supportingData.name : 'Upload Supporting Data'}</p>
                                                     <p className="text-sm text-white/40">Optional technical documents</p>
                                                 </div>
                                             </div>
                                         </div>
+                                        {errors.supportingData && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.supportingData}</p>}
                                         <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
                                             Optional additional proof of concept, technical validation, or detailed data (max 5 pages).
                                             <Link href="/apply/materials#supporting-data" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
@@ -1832,8 +1847,13 @@ const ApplyPageContent = () => {
                                                 placeholder="Select source..."
                                                 options={["Colleagues", "Social Media", "Ambassadors", "Other"]}
                                                 value={formData.referralSource}
-                                                onChange={(val) => setFormData({ ...formData, referralSource: val })}
+                                                onChange={(val) => {
+                                                    setFormData({ ...formData, referralSource: val });
+                                                    if (errors.referralSource) setErrors(prev => ({ ...prev, referralSource: '' }));
+                                                }}
+                                                error={errors.referralSource}
                                             />
+                                            {errors.referralSource && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.referralSource}</p>}
 
                                             {formData.referralSource === "Social Media" && (
                                                 <div className="space-y-2">
