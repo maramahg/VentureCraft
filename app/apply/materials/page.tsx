@@ -11,7 +11,7 @@ const applicationMaterials = [
         number: 1,
         title: "PITCH DECK",
         format: "PDF or PowerPoint",
-        length: "10 - 15 slides (maximum)",
+        length: "15 slides minimum",
         purpose: "Provides a concise overview of the startup. Used to assess clarity, logic, and communication quality.",
         content: {
             title: "Expected content includes (but is not limited to):",
@@ -50,26 +50,29 @@ const applicationMaterials = [
         title: "VIDEO PITCH",
         format: "Unlisted YouTube link",
         length: "3 - 5 minutes",
-        purpose: "To clearly communicate the startup's value proposition and why it is worth investing in. The video pitch is your chance to humanize your startup. It puts a face to the business, making it more relatable and memorable than just words.",
+        purpose: "The video pitch is an opportunity to clearly communicate your startup’s value proposition and why it is worth investing in. It allows teams to present their idea in a more engaging and memorable way than written materials alone.",
         content: {
-            title: "Expected content:",
+            title: "Expected Content:",
             items: [
-                "The video pitch should be a presentation of the pitch deck that is also submitted as part of the application.",
-                "Teams are not required to present every slide in the deck.",
-                "Teams may select and present only the slides most relevant to clearly communicating their idea within the 3 - 5 minute timeframe."
+                "The video pitch should explain the startup idea and its value proposition.",
+                "Teams may reference or present parts of their pitch deck, but they are not required to present every slide.",
+                "Teams should focus on the key elements that best communicate their idea within the 3–5 minute timeframe."
             ]
         },
         extra: {
-            title: "Presentation & Recording Format:",
+            title: "Team Representation:",
             items: [
-                "At least one co-founder or the team leader should appear in the video.",
-                "Participating members are encouraged to briefly introduce themselves and their roles."
+                "Not all team members are required to appear in the video.",
+                "One representative (such as the team leader) may present on behalf of the team.",
+                "The presenter should briefly introduce the team and explain each member’s role in the startup."
             ],
             formats: {
-                title: "Teams should present the pitch deck using one of the following formats only:",
+                title: "Acceptable formats include:",
                 list: [
-                    "Presenting in front of a physical screen or display, with the pitch deck shown and the team speaking.",
-                    "Screen-sharing the pitch deck while presenting (e.g., recording via Zoom, Microsoft Teams, or Google Meet)."
+                    "Presenting a pitch deck or slides while explaining the idea.",
+                    "Screen-sharing slides while presenting (using Zoom, Microsoft Teams, Google Meet, or similar tools).",
+                    "Recording in front of a physical screen or display with slides.",
+                    "Creating a creative video pitch (e.g., storytelling, product demonstration, or concept explanation)."
                 ]
             },
             quality: {
@@ -84,7 +87,14 @@ const applicationMaterials = [
                 title: "Video submission instructions:",
                 list: [
                     "Upload: Click the \"Create\" icon in YouTube and select \"Upload video\".",
-                    "Set Visibility: On the \"Visibility\" step, choose Unlisted. Note: Videos must be set to Unlisted (not Public or Private).",
+                    (
+                        <div className="flex flex-col">
+                            <span>Set Visibility: On the "Visibility" step, choose Unlisted.</span>
+                            <span className="text-vc-mint italic font-medium mt-1">
+                                Note: Videos must be set to Unlisted (not Public or Private).
+                            </span>
+                        </div>
+                    ),
                     "Share: Once processed, copy the video link and submit on the form."
                 ]
             }
