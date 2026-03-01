@@ -19,7 +19,10 @@ export async function POST(request: Request): Promise<NextResponse> {
                         'application/msword',
                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                         'application/vnd.ms-powerpoint',
-                        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                        'image/jpeg',
+                        'image/png',
+                        'image/webp'
                     ],
                     tokenPayload: JSON.stringify({
                         // optional, sent to your server on upload completion

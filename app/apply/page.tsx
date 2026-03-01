@@ -764,7 +764,7 @@ const ApplyPageContent = () => {
             if (rawMessage.startsWith('TYPE_ERROR:')) {
                 setErrorMessage(rawMessage.replace('TYPE_ERROR:', '').trim() + " Please check your file selection and try again.");
             } else if (rawMessage.includes('Blob') || rawMessage.includes('upload')) {
-                setErrorMessage("We encountered an issue while uploading your files. Please ensure your files are under 500MB and are in a supported format (PDF, Word, or PowerPoint), then try again.");
+                setErrorMessage("We encountered an issue while uploading your files. Please ensure your files are under 500MB and are in a supported format (PDF, Word, PowerPoint, or Image), then try again.");
             } else if (rawMessage.includes('Firestore') || rawMessage.includes('permission')) {
                 setErrorMessage("We couldn't save your application details. Please check your internet connection and try submitting once more.");
             } else {
@@ -1723,7 +1723,7 @@ const ApplyPageContent = () => {
                                             <div className="relative group">
                                                 <input
                                                     type="file"
-                                                    accept=".pdf,.pptx"
+                                                    accept=".pdf,.pptx,.ppt"
                                                     onChange={(e) => {
                                                         setFiles({ ...files, pitchDeck: e.target.files?.[0] || null });
                                                         if (errors.pitchDeck) setErrors(prev => ({ ...prev, pitchDeck: '' }));
@@ -1738,7 +1738,7 @@ const ApplyPageContent = () => {
                                             </div>
                                             {errors.pitchDeck && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.pitchDeck}</p>}
                                             <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
-                                                Provides a concise overview (10-15 slides) covering team, problem, solution, market, business model, and financials.
+                                                Provides a concise overview (15 slides minimum) covering team, problem, solution, market, business model, and financials.
                                                 <Link href="/apply/materials#pitch-deck" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
                                             </p>
                                         </div>
@@ -1750,7 +1750,7 @@ const ApplyPageContent = () => {
                                             <div className="relative group">
                                                 <input
                                                     type="file"
-                                                    accept=".pdf,.docx"
+                                                    accept=".pdf,.docx,.doc"
                                                     onChange={(e) => {
                                                         setFiles({ ...files, execSummary: e.target.files?.[0] || null });
                                                         if (errors.execSummary) setErrors(prev => ({ ...prev, execSummary: '' }));
