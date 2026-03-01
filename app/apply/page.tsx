@@ -535,8 +535,14 @@ const ApplyPageContent = () => {
     };
 
     const nextStep = () => {
-        if (step === 1 && !validateStep1()) return;
-        if (step === 2 && !validateStep2()) return;
+        if (step === 1 && !validateStep1()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        if (step === 2 && !validateStep2()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
         setStep(prev => Math.min(prev + 1, 3));
     };
 
