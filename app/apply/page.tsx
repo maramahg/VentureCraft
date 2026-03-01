@@ -1075,19 +1075,10 @@ const ApplyPageContent = () => {
 
     if (!isRegistrationOpen && !regLoading) {
         return (
-            <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-20">
+            <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-32">
                 {/* Background Orbs */}
                 <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
                 <div className="absolute bottom-[20%] right-[15%] w-[40%] h-[40%] bg-vc-teal/15 rounded-full blur-[120px] animate-pulse pointer-events-none" />
-
-                {/* Go Back Link - Adjusted for Navbar */}
-                <Link
-                    href="/"
-                    className="absolute top-32 left-8 md:top-40 md:left-20 p-3 rounded-full glass-panel hover:bg-white/10 transition-all duration-300 group z-50 focus:outline-none focus:ring-2 focus:ring-vc-mint/50 flex items-center gap-2"
-                >
-                    <ArrowLeft className="w-5 h-5 text-vc-mint group-hover:-translate-x-1 transition-transform duration-300" />
-                    <span className="text-sm font-medium pr-2 text-vc-mint/80 group-hover:text-vc-mint transition-colors">Go Back</span>
-                </Link>
 
                 <div className="relative z-10 text-center max-w-3xl w-full">
                     <motion.div
