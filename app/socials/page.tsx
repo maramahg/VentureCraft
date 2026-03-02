@@ -29,7 +29,7 @@ const socials = [
         url: 'https://www.linkedin.com/company/venturecraftsa/',
         icon: Linkedin,
         color: 'bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5]',
-        description: 'Professional network & ecosystem growth'
+        description: 'Professional network & ecosystem impact'
     },
     {
         name: 'Instagram',
