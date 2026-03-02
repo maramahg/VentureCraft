@@ -130,7 +130,7 @@ export function HeroScrollDemo() {
             transition={{ duration: 1, delay: 1 }}
             className="mt-10 flex flex-col xl:items-start items-center gap-2"
           >
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-medium pt-2">In Partnership With</span>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-medium pt-2">In Collaboration With</span>
             <div className="flex items-center gap-8">
               <Link
                 href="https://www.kfupm.edu.sa/"

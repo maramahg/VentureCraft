@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp, getDoc, runTransaction, collection, query, where, getDocs, addDoc, updateDoc } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp, runTransaction, collection, addDoc, getDoc, query, where, orderBy, onSnapshot, getDocs, limit, updateDoc } from 'firebase/firestore';
 import { upload } from '@vercel/blob/client';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
@@ -260,21 +260,18 @@ const ApplyPageContent = () => {
     }, [regLoading, isRegistrationOpen, searchParams, router]);
 
     useEffect(() => {
-        // Fetch global settings for registration status
-        const fetchRegStatus = async () => {
-            try {
-                const regDoc = await getDoc(doc(db, 'settings', 'registration'));
-                if (regDoc.exists()) {
-                    setIsRegistrationOpen(regDoc.data().isOpen ?? true);
-                }
-            } catch (error) {
-                console.error("Error fetching registration status:", error);
-            } finally {
-                setRegLoading(false);
+        // Fetch or listen to global settings for registration status
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'registration'), (snapshot) => {
+            if (snapshot.exists()) {
+                setIsRegistrationOpen(snapshot.data().isOpen ?? true);
             }
-        };
+            setRegLoading(false);
+        }, (error) => {
+            console.error("Error fetching registration status:", error);
+            setRegLoading(false);
+        });
 
-        fetchRegStatus();
+        return () => unsubscribe();
     }, []);
 
     // Form State

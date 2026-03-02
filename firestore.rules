@@ -20,6 +20,11 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/ambassadors_lead/$(request.auth.uid));
     }
 
+    // Helper: Check if startup registration is open
+    function isRegistrationOpen() {
+      return get(/databases/$(database)/documents/settings/registration).data.isOpen == true;
+    }
+
     // Admins Collection
     match /admins/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
@@ -41,8 +46,9 @@ service cloud.firestore {
     // Startup Applications
     match /applications/{docId} {
       allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
-      allow write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
-      allow create: if request.auth != null;
+      allow create: if request.auth != null && (isRegistrationOpen() || isAdmin());
+      allow update: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge()) && (isRegistrationOpen() || isAdmin());
+      allow delete: if isAdmin();
     }
 
     // Ambassador Applications
