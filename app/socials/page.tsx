@@ -29,14 +29,14 @@ const socials = [
         url: 'https://www.linkedin.com/company/venturecraftsa/',
         icon: Linkedin,
         color: 'bg-[#0077b5]/20 hover:bg-[#0077b5]/30 text-[#0077b5]',
-        description: 'Professional network & partnerships'
+        description: 'Professional network & corporate news'
     },
     {
         name: 'Instagram',
         url: 'https://www.instagram.com/venturecraft.sa?igsh=bHJmMjF6dGM2MXU1',
         icon: Instagram,
         color: 'bg-[#e4405f]/20 hover:bg-[#e4405f]/30 text-[#e4405f]',
-        description: 'Event highlights & BTS'
+        description: 'Event highlights & community stories'
     },
     {
         name: 'TikTok',
