@@ -103,42 +103,129 @@ export default function QRPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative z-10 text-center max-w-xl mt-24 md:mt-32"
+                className="relative z-10 text-center max-w-5xl mt-24 md:mt-32 w-full px-4"
             >
-                <h1 className="text-4xl md:text-5xl font-black text-white mb-4 font-poppins uppercase tracking-tighter">
-                    Venture Craft <span className="text-vc-mint">QR</span>
-                </h1>
-                <p className="text-white/60 mb-12 font-poppins">
-                    This is a static QR code. It will never expire. The center is emptied so you can place your logo there in any design tool.
-                </p>
+                <div className="mb-12">
+                    <h1 className="text-4xl md:text-5xl font-black text-white mb-4 font-poppins uppercase tracking-tighter">
+                        Venture Craft <span className="text-vc-mint">QR</span> Panel
+                    </h1>
+                    <p className="text-white/60 font-poppins max-w-2xl mx-auto">
+                        Official persistent QR codes for VentureCraft. These codes will never expire and point to our official platforms.
+                    </p>
+                </div>
 
-                <div className="glass-panel p-8 md:p-12 max-w-2xl mx-auto w-full mb-12 relative group">
-                    <div className="absolute inset-0 bg-vc-mint/5 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    {/* Main Website QR */}
+                    <div className="glass-panel p-8 md:p-10 relative group">
+                        <div className="absolute inset-0 bg-vc-mint/5 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                    <div className="bg-white p-6 rounded-[2rem] shadow-2xl mx-auto w-fit">
-                        <QRCodeSVG
-                            id="qr-code-svg"
-                            value="https://kfupm-venturecraft.org/"
-                            size={300}
-                            level="H"
-                            includeMargin={false}
-                            className="w-full h-auto max-w-[250px] md:max-w-[300px]"
-                            imageSettings={{
-                                src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-                                height: 80,
-                                width: 80,
-                                excavate: true,
-                            }}
-                        />
-                    </div>
+                        <div className="mb-8">
+                            <h3 className="text-2xl font-bold text-white mb-2">Main Website</h3>
+                            <p className="text-white/40 text-sm">kfupm-venturecraft.org</p>
+                        </div>
 
-                    <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+                        <div className="bg-white p-6 rounded-[2rem] shadow-2xl mx-auto w-fit mb-8">
+                            <QRCodeSVG
+                                id="qr-main-website"
+                                value="https://kfupm-venturecraft.org/"
+                                size={300}
+                                level="H"
+                                includeMargin={false}
+                                className="w-full h-auto max-w-[300px]"
+                                imageSettings={{
+                                    src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                    height: 80,
+                                    width: 80,
+                                    excavate: true,
+                                }}
+                            />
+                        </div>
+
                         <button
-                            onClick={downloadQR}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-vc-mint/20 text-sm md:text-base whitespace-nowrap"
+                            onClick={() => {
+                                const svg = document.getElementById('qr-main-website');
+                                if (!svg) return;
+                                const svgData = new XMLSerializer().serializeToString(svg);
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                const img = new Image();
+                                img.onload = () => {
+                                    canvas.width = 1000;
+                                    canvas.height = 1000;
+                                    if (ctx) {
+                                        ctx.fillStyle = 'white';
+                                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                        ctx.drawImage(img, 0, 0, 1000, 1000);
+                                        const pngFile = canvas.toDataURL('image/png');
+                                        const downloadLink = document.createElement('a');
+                                        downloadLink.download = 'VentureCraft-Official-QR.png';
+                                        downloadLink.href = pngFile;
+                                        downloadLink.click();
+                                    }
+                                };
+                                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-vc-mint/20"
                         >
                             <Download className="w-5 h-5" />
-                            Download PNG
+                            Download Website QR
+                        </button>
+                    </div>
+
+                    {/* Socials Linktree QR */}
+                    <div className="glass-panel p-8 md:p-10 relative group">
+                        <div className="absolute inset-0 bg-vc-teal/5 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                        <div className="mb-8">
+                            <h3 className="text-2xl font-bold text-white mb-2">Socials Linktree</h3>
+                            <p className="text-white/40 text-sm">kfupm-venturecraft.org/socials</p>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-[2rem] shadow-2xl mx-auto w-fit mb-8">
+                            <QRCodeSVG
+                                id="qr-socials-linktree"
+                                value="https://kfupm-venturecraft.org/socials"
+                                size={300}
+                                level="H"
+                                includeMargin={false}
+                                className="w-full h-auto max-w-[300px]"
+                                imageSettings={{
+                                    src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                    height: 80,
+                                    width: 80,
+                                    excavate: true,
+                                }}
+                            />
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                const svg = document.getElementById('qr-socials-linktree');
+                                if (!svg) return;
+                                const svgData = new XMLSerializer().serializeToString(svg);
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                const img = new Image();
+                                img.onload = () => {
+                                    canvas.width = 1000;
+                                    canvas.height = 1000;
+                                    if (ctx) {
+                                        ctx.fillStyle = 'white';
+                                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                        ctx.drawImage(img, 0, 0, 1000, 1000);
+                                        const pngFile = canvas.toDataURL('image/png');
+                                        const downloadLink = document.createElement('a');
+                                        downloadLink.download = 'VentureCraft-Socials-QR.png';
+                                        downloadLink.href = pngFile;
+                                        downloadLink.click();
+                                    }
+                                };
+                                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-vc-teal text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-vc-teal/20"
+                        >
+                            <Download className="w-5 h-5" />
+                            Download Socials QR
                         </button>
                     </div>
                 </div>

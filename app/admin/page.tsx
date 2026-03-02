@@ -399,6 +399,31 @@ function AdminDashboardContent() {
     const [userToRemove, setUserToRemove] = useState<{ id: string, name: string } | null>(null);
     const [processingRemoval, setProcessingRemoval] = useState(false);
 
+    // QR Download Helper
+    const downloadQR = (elementId: string, fileName: string) => {
+        const svg = document.getElementById(elementId);
+        if (!svg) return;
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => {
+            canvas.width = 1000;
+            canvas.height = 1000;
+            if (ctx) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, 1000, 1000);
+                const pngFile = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.download = `${fileName}.png`;
+                downloadLink.href = pngFile;
+                downloadLink.click();
+            }
+        };
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    };
+
     // Application Deletion State (Ambassadors)
     const [showDeleteAppModal, setShowDeleteAppModal] = useState(false);
     const [appToDelete, setAppToDelete] = useState<{ id: string, name: string } | null>(null);
@@ -1293,9 +1318,35 @@ function AdminDashboardContent() {
                     {/* Sidebar Filters */}
                     <div className="space-y-8 max-w-xl mx-auto lg:max-w-none lg:mx-0">
                         <div className="glass-panel p-6 space-y-6">
-                            <div className="flex items-center gap-2 text-vc-mint">
-                                <Filter className="w-5 h-5" />
-                                <h2 className="font-bold uppercase tracking-widest text-sm">Advanced Filters</h2>
+                            <div className="space-y-4">
+                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Dashboard Sections</label>
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={() => setActiveTab('startups')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                    >
+                                        <Rocket className="w-4 h-4" /> Startups
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('ambassadors')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                    >
+                                        <Users className="w-4 h-4" /> Ambassadors
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('qr')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'qr' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                    >
+                                        <QrCode className="w-4 h-4" /> QR Codes
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="pt-6 border-t border-white/5">
+                                <div className="flex items-center gap-2 text-vc-mint mb-6">
+                                    <Filter className="w-5 h-5" />
+                                    <h2 className="font-bold uppercase tracking-widest text-sm">Advanced Filters</h2>
+                                </div>
                             </div>
 
                             <div className="space-y-6">
@@ -1495,61 +1546,80 @@ function AdminDashboardContent() {
                             </div>
                         )}
                         {activeTab === 'qr' && (
-                            <div className="glass-panel p-12 flex flex-col items-center justify-center text-center space-y-8 min-h-[500px] relative overflow-hidden">
+                            <div className="glass-panel p-8 sm:p-12 min-h-[600px] relative overflow-hidden">
                                 <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
 
-                                <div className="relative z-10 max-w-xl">
-                                    <h2 className="text-3xl font-bold mb-4 font-poppins">Persistent QR Generator</h2>
-                                    <p className="text-white/40 text-sm mb-12">
-                                        This QR code points to <span className="text-vc-mint">kfupm-venturecraft.org</span>.
-                                        When you migrate to the university domain, we will set up a redirect so this QR remains valid.
+                                <div className="relative z-10 text-center mb-12">
+                                    <h2 className="text-3xl font-bold mb-2 font-poppins">Admin QR Code Panel</h2>
+                                    <p className="text-white/40 text-sm">
+                                        Generate and download official persistent QR codes for the website and socials.
                                     </p>
+                                </div>
 
-                                    <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl mx-auto w-fit mb-8 border-[12px] border-vc-mint/20">
-                                        <QRCodeSVG
-                                            id="admin-qr-code-svg"
-                                            value="https://kfupm-venturecraft.org/"
-                                            size={300}
-                                            level="H"
-                                            includeMargin={false}
-                                            imageSettings={{
-                                                src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-                                                height: 80,
-                                                width: 80,
-                                                excavate: true,
-                                            }}
-                                        />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 max-w-5xl mx-auto">
+                                    {/* Official Website QR */}
+                                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center space-y-6 hover:bg-white/[0.08] transition-colors group">
+                                        <div className="text-center">
+                                            <h3 className="text-xl font-bold mb-2">Main Website</h3>
+                                            <p className="text-white/40 text-xs">Points to <span className="text-vc-mint">kfupm-venturecraft.org</span></p>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-3xl shadow-2xl border-[8px] border-vc-mint/20 group-hover:scale-105 transition-transform duration-500">
+                                            <QRCodeSVG
+                                                id="qr-main-website"
+                                                value="https://kfupm-venturecraft.org/"
+                                                size={300}
+                                                level="H"
+                                                includeMargin={false}
+                                                imageSettings={{
+                                                    src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                                    height: 80,
+                                                    width: 80,
+                                                    excavate: true,
+                                                }}
+                                            />
+                                        </div>
+
+                                        <button
+                                            onClick={() => downloadQR('qr-main-website', 'VentureCraft-Official-QR')}
+                                            className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-mint/20"
+                                        >
+                                            <Download className="w-5 h-5" />
+                                            Download PNG
+                                        </button>
                                     </div>
 
-                                    <button
-                                        onClick={() => {
-                                            const svg = document.getElementById('admin-qr-code-svg');
-                                            if (!svg) return;
-                                            const svgData = new XMLSerializer().serializeToString(svg);
-                                            const canvas = document.createElement('canvas');
-                                            const ctx = canvas.getContext('2d');
-                                            const img = new Image();
-                                            img.onload = () => {
-                                                canvas.width = 1000;
-                                                canvas.height = 1000;
-                                                if (ctx) {
-                                                    ctx.fillStyle = 'white';
-                                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                                    ctx.drawImage(img, 0, 0, 1000, 1000);
-                                                    const pngFile = canvas.toDataURL('image/png');
-                                                    const downloadLink = document.createElement('a');
-                                                    downloadLink.download = 'VentureCraft-Official-QR.png';
-                                                    downloadLink.href = pngFile;
-                                                    downloadLink.click();
-                                                }
-                                            };
-                                            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-                                        }}
-                                        className="inline-flex items-center gap-3 px-8 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-mint/20"
-                                    >
-                                        <Download className="w-5 h-5" />
-                                        Download High-Res PNG
-                                    </button>
+                                    {/* Socials Linktree QR */}
+                                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center space-y-6 hover:bg-white/[0.08] transition-colors group">
+                                        <div className="text-center">
+                                            <h3 className="text-xl font-bold mb-2">Socials Linktree</h3>
+                                            <p className="text-white/40 text-xs">Points to <span className="text-vc-mint text-vc-teal">/socials</span></p>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-3xl shadow-2xl border-[8px] border-vc-teal/20 group-hover:scale-105 transition-transform duration-500">
+                                            <QRCodeSVG
+                                                id="qr-socials-linktree"
+                                                value="https://kfupm-venturecraft.org/socials"
+                                                size={300}
+                                                level="H"
+                                                includeMargin={false}
+                                                imageSettings={{
+                                                    src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                                    height: 80,
+                                                    width: 80,
+                                                    excavate: true,
+                                                }}
+                                            />
+                                        </div>
+
+                                        <button
+                                            onClick={() => downloadQR('qr-socials-linktree', 'VentureCraft-Socials-QR')}
+                                            className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-teal text-white font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-teal/20"
+                                        >
+                                            <Download className="w-5 h-5" />
+                                            Download PNG
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
