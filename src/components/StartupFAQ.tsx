@@ -220,7 +220,7 @@ export default function StartupFAQ() {
                         className="text-center mt-12"
                     >
                         <p className="text-white/40 text-base">
-                            Didn't find your answer? <a href="mailto:venture-craft@kfupm.edu.sa" className="text-vc-mint font-semibold hover:underline transition-all">Contact us</a>
+                            Didn't find your answer? <a href="mailto:info.venturecraft@kfupm.edu.sa" className="text-vc-mint font-semibold hover:underline transition-all">Contact us</a>
                         </p>
                     </motion.div>
                 </div>

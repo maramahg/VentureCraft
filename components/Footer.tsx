@@ -122,15 +122,28 @@ export default function Footer() {
                                 </svg>
                                 <span>KFUPM, Dhahran, Saudi Arabia</span>
                             </li>
-                            <li className="flex items-center gap-2 text-[#9CA3AF]">
-                                <svg className="w-5 h-5 text-[#39cc89] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <a href="mailto:venture-craft@kfupm.edu.sa" className="hover:text-[#39cc89] transition-colors duration-300">
-                                    venture-craft@kfupm.edu.sa
-                                </a>
+                            <li className="flex flex-col items-center gap-1">
+                                <span className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Inquiries & Questions</span>
+                                <div className="flex items-center gap-2 text-[#9CA3AF]">
+                                    <svg className="w-4 h-4 text-[#39cc89]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    <a href="mailto:info.venturecraft@kfupm.edu.sa" className="hover:text-[#39cc89] transition-colors duration-300">
+                                        info.venturecraft@kfupm.edu.sa
+                                    </a>
+                                </div>
                             </li>
-
+                            <li className="flex flex-col items-center gap-1">
+                                <span className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Official & Corporate</span>
+                                <div className="flex items-center gap-2 text-[#9CA3AF]">
+                                    <svg className="w-4 h-4 text-[#39cc89]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    <a href="mailto:venture-craft@kfupm.edu.sa" className="hover:text-[#39cc89] transition-colors duration-300">
+                                        venture-craft@kfupm.edu.sa
+                                    </a>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </div>
