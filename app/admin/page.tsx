@@ -364,7 +364,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
 
     // Ambassador Data
@@ -453,6 +453,114 @@ function AdminDashboardContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    // Announcement State
+    const [broadcastSubject, setBroadcastSubject] = useState('');
+    const [broadcastHeadline, setBroadcastHeadline] = useState('');
+    const [broadcastMessage, setBroadcastMessage] = useState('');
+    const [sendToEmail, setSendToEmail] = useState('');
+    const [sendingBroadcast, setSendingBroadcast] = useState(false);
+    const [broadcastShowButton, setBroadcastShowButton] = useState(true);
+    const [broadcastButtonText, setBroadcastButtonText] = useState('');
+    const [broadcastButtonUrl, setBroadcastButtonUrl] = useState('');
+
+    const broadcastTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const insertTag = (startTag: string, endTag: string) => {
+        const textarea = broadcastTextareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        const before = text.substring(0, start);
+        const selected = text.substring(start, end);
+        const after = text.substring(end);
+
+        const newText = before + startTag + selected + endTag + after;
+        setBroadcastMessage(newText);
+
+        setTimeout(() => {
+            textarea.focus();
+            const newPos = start + startTag.length + selected.length + endTag.length;
+            textarea.setSelectionRange(newPos, newPos);
+        }, 0);
+    };
+
+    const handleSendTestBroadcast = async () => {
+        if (!sendToEmail) {
+            setToast({ message: 'Please enter a test email address.', type: 'error' });
+            return;
+        }
+        setSendingBroadcast(true);
+        try {
+            const res = await fetch('/api/broadcast-announcement', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: sendToEmail,
+                    subject: broadcastSubject,
+                    headline: broadcastHeadline,
+                    message: broadcastMessage,
+                    showButton: broadcastShowButton,
+                    buttonText: broadcastButtonText,
+                    buttonUrl: broadcastButtonUrl
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setToast({ message: 'Test email sent successfully!', type: 'success' });
+            } else {
+                setToast({ message: `Error: ${data.error}`, type: 'error' });
+            }
+        } catch (err) {
+            setToast({ message: 'Failed to send test email.', type: 'error' });
+        } finally {
+            setSendingBroadcast(false);
+        }
+    };
+
+    const handleBroadcastAll = async () => {
+        const confirmSend = window.confirm("⚠️ ATTENTION: This will send this email to ALL registered users. Are you absolutely sure?");
+        if (!confirmSend) return;
+
+        setSendingBroadcast(true);
+        try {
+            // First, fetch all users from Firebase
+            const usersSnap = await getDocs(collection(db, 'users'));
+            const emails = usersSnap.docs.map(doc => doc.data().email).filter(e => e);
+
+            if (emails.length === 0) {
+                setToast({ message: 'No users found to send to.', type: 'error' });
+                return;
+            }
+
+            const res = await fetch('/api/broadcast-announcement', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    emails: emails,
+                    subject: broadcastSubject,
+                    headline: broadcastHeadline,
+                    message: broadcastMessage,
+                    showButton: broadcastShowButton,
+                    buttonText: broadcastButtonText,
+                    buttonUrl: broadcastButtonUrl
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setToast({ message: `Broadcast sent successfully to ${data.count} users!`, type: 'success' });
+            } else {
+                setToast({ message: `Error: ${data.error}`, type: 'error' });
+            }
+        } catch (err) {
+            console.error('Broadcast error:', err);
+            setToast({ message: 'Failed to send broadcast.', type: 'error' });
+        } finally {
+            setSendingBroadcast(false);
+        }
+    };
+
     useEffect(() => {
         const tab = searchParams.get('tab');
         if (isJudge) {
@@ -470,6 +578,8 @@ function AdminDashboardContent() {
             setActiveTab('startups');
         } else if (tab === 'qr' && activeTab !== 'qr') {
             setActiveTab('qr');
+        } else if (tab === 'broadcast' && activeTab !== 'broadcast') {
+            setActiveTab('broadcast');
 
         } else if (!tab && activeTab !== 'startups') {
             setActiveTab('startups');
@@ -1254,7 +1364,9 @@ function AdminDashboardContent() {
                                 ? 'Manage and review Venture Craft startup applications'
                                 : activeTab === 'ambassadors'
                                     ? 'Manage and review Venture Craft ambassador applications'
-                                    : 'Generate and download official persistent QR codes'
+                                    : activeTab === 'qr'
+                                        ? 'Manage official QR access'
+                                        : 'Send and manage broadcast communications'
                             }
                         </p>
 
@@ -1339,188 +1451,200 @@ function AdminDashboardContent() {
                                     >
                                         <QrCode className="w-4 h-4" /> QR Codes
                                     </button>
+                                    <button
+                                        onClick={() => setActiveTab('broadcast')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'broadcast' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                    >
+                                        <Mail className="w-4 h-4" /> Email Center
+                                    </button>
                                 </div>
                             </div>
 
-                            <div className="pt-6 border-t border-white/5">
-                                <div className="flex items-center gap-2 text-vc-mint mb-6">
-                                    <Filter className="w-5 h-5" />
-                                    <h2 className="font-bold uppercase tracking-widest text-sm">Advanced Filters</h2>
-                                </div>
-                            </div>
+                            {activeTab !== 'broadcast' && activeTab !== 'qr' && (
+                                <div className="pt-6 border-t border-white/5 space-y-6">
+                                    <div className="flex items-center gap-2 text-vc-mint mb-6">
+                                        <Filter className="w-5 h-5" />
+                                        <h2 className="font-bold uppercase tracking-widest text-sm">Advanced Filters</h2>
+                                    </div>
 
-                            <div className="space-y-6">
-                                {/* Search */}
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Search Partner / Email</label>
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                        <input
-                                            type="text"
-                                            placeholder="Search..."
-                                            value={activeTab === 'startups' ? searchTerm : ambSearchTerm}
-                                            onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                        />
+                                    <div className="space-y-6">
+                                        {/* Search */}
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Search Partner / Email</label>
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search..."
+                                                    value={activeTab === 'startups' ? searchTerm : ambSearchTerm}
+                                                    onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Status Filter (Only for Ambassadors) */}
+                                        {activeTab !== 'startups' && (
+                                            <div className="space-y-3">
+                                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Status</label>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {['all', 'pending', 'accepted', 'rejected'].map(s => (
+                                                        <button
+                                                            key={s}
+                                                            onClick={() => setAmbStatusFilter(s)}
+                                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${ambStatusFilter === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                        >
+                                                            {s.toUpperCase()}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {activeTab === 'startups' ? (
+                                            <>
+                                                {/* Pillar Filter */}
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Pillar</label>
+                                                    <AdminDropdown
+                                                        options={pillars}
+                                                        value={pillarFilter}
+                                                        onChange={setPillarFilter}
+                                                        placeholder="All Pillars"
+                                                    />
+                                                </div>
+
+                                                {/* Stage Filter */}
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Stage</label>
+                                                    <AdminDropdown
+                                                        options={stages}
+                                                        value={stageFilter}
+                                                        onChange={setStageFilter}
+                                                        placeholder="All Stages"
+                                                    />
+                                                </div>
+
+                                                {/* Nationality Filter */}
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</label>
+                                                    <AdminFlagDropdown
+                                                        value={nationalityFilter}
+                                                        onChange={setNationalityFilter}
+                                                        placeholder="Everywhere"
+                                                    />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* Ambassador Nationality Filter */}
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Partner Nationality</label>
+                                                    <AdminFlagDropdown
+                                                        value={ambNationalityFilter}
+                                                        onChange={setAmbNationalityFilter}
+                                                        placeholder="All Nationalities"
+                                                    />
+                                                </div>
+
+                                                {/* Ambassador Location Filter */}
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</label>
+                                                    <AdminFlagDropdown
+                                                        value={ambLocationFilter}
+                                                        onChange={setAmbLocationFilter}
+                                                        placeholder="All Locations"
+                                                    />
+                                                </div>
+
+                                                {/* Ambassador Degree Filter */}
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Education Level</label>
+                                                    <AdminDropdown
+                                                        options={['Bachelor', 'Master', 'PhD', 'Other']}
+                                                        value={ambDegreeFilter}
+                                                        onChange={setAmbDegreeFilter}
+                                                        placeholder="All Degrees"
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
-
-                                {/* Status Filter (Only for Ambassadors) */}
-                                {activeTab !== 'startups' && (
-                                    <div className="space-y-3">
-                                        <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Status</label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {['all', 'pending', 'accepted', 'rejected'].map(s => (
-                                                <button
-                                                    key={s}
-                                                    onClick={() => setAmbStatusFilter(s)}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${ambStatusFilter === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    {s.toUpperCase()}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'startups' ? (
-                                    <>
-                                        {/* Pillar Filter */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Pillar</label>
-                                            <AdminDropdown
-                                                options={pillars}
-                                                value={pillarFilter}
-                                                onChange={setPillarFilter}
-                                                placeholder="All Pillars"
-                                            />
-                                        </div>
-
-                                        {/* Stage Filter */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Stage</label>
-                                            <AdminDropdown
-                                                options={stages}
-                                                value={stageFilter}
-                                                onChange={setStageFilter}
-                                                placeholder="All Stages"
-                                            />
-                                        </div>
-
-                                        {/* Nationality Filter */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</label>
-                                            <AdminFlagDropdown
-                                                value={nationalityFilter}
-                                                onChange={setNationalityFilter}
-                                                placeholder="Everywhere"
-                                            />
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* Ambassador Nationality Filter */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Partner Nationality</label>
-                                            <AdminFlagDropdown
-                                                value={ambNationalityFilter}
-                                                onChange={setAmbNationalityFilter}
-                                                placeholder="All Nationalities"
-                                            />
-                                        </div>
-
-                                        {/* Ambassador Location Filter */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</label>
-                                            <AdminFlagDropdown
-                                                value={ambLocationFilter}
-                                                onChange={setAmbLocationFilter}
-                                                placeholder="All Locations"
-                                            />
-                                        </div>
-
-                                        {/* Ambassador Degree Filter */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Education Level</label>
-                                            <AdminDropdown
-                                                options={['Bachelor', 'Master', 'PhD', 'Other']}
-                                                value={ambDegreeFilter}
-                                                onChange={setAmbDegreeFilter}
-                                                placeholder="All Degrees"
-                                            />
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+                            )}
                         </div>
 
-                        <button
-                            onClick={() => {
-                                if (activeTab === 'startups') {
-                                    setSearchTerm('');
-                                    setStatusFilter('all');
-                                    setPillarFilter('all');
-                                    setStageFilter('all');
-                                    setNationalityFilter('all');
-                                    setSortBy('date');
-                                } else {
-                                    setAmbSearchTerm('');
-                                    setAmbStatusFilter('all');
-                                    setAmbNationalityFilter('all');
-                                    setAmbLocationFilter('all');
-                                    setAmbDegreeFilter('all');
-                                    setAmbAppTypeFilter('all');
-                                    setAmbDirTypeFilter('all');
-                                    setScreeningFilter('all');
-                                }
-                            }}
-                            className="w-full py-3 text-xs font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-xl uppercase tracking-widest mt-4"
-                        >
-                            Reset Filters
-                        </button>
+                        {activeTab !== 'broadcast' && activeTab !== 'qr' && (
+                            <div className="space-y-6">
+                                <button
+                                    onClick={() => {
+                                        if (activeTab === 'startups') {
+                                            setSearchTerm('');
+                                            setStatusFilter('all');
+                                            setPillarFilter('all');
+                                            setStageFilter('all');
+                                            setNationalityFilter('all');
+                                            setSortBy('date');
+                                        } else {
+                                            setAmbSearchTerm('');
+                                            setAmbStatusFilter('all');
+                                            setAmbNationalityFilter('all');
+                                            setAmbLocationFilter('all');
+                                            setAmbDegreeFilter('all');
+                                            setAmbAppTypeFilter('all');
+                                            setAmbDirTypeFilter('all');
+                                            setScreeningFilter('all');
+                                        }
+                                    }}
+                                    className="w-full py-3 text-xs font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-xl uppercase tracking-widest mt-4"
+                                >
+                                    Reset Filters
+                                </button>
 
-                        {activeTab === 'startups' && (
-                            <div className="pt-4 border-t border-white/5 space-y-4">
-                                <div>
-                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Screening Status</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button
-                                            onClick={() => setScreeningFilter(screeningFilter === 'pending' ? 'all' : 'pending')}
-                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'pending' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                        >
-                                            <Clock className="w-3 h-3" /> PENDING
-                                        </button>
-                                        <button
-                                            onClick={() => setScreeningFilter(screeningFilter === 'scored' ? 'all' : 'scored')}
-                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'scored' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                        >
-                                            <CheckCircle className="w-3 h-3" /> SCORED
-                                        </button>
+                                {activeTab === 'startups' && (
+                                    <div className="pt-4 border-t border-white/5 space-y-4">
+                                        <div>
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Screening Status</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => setScreeningFilter(screeningFilter === 'pending' ? 'all' : 'pending')}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'pending' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                >
+                                                    <Clock className="w-3 h-3" /> PENDING
+                                                </button>
+                                                <button
+                                                    onClick={() => setScreeningFilter(screeningFilter === 'scored' ? 'all' : 'scored')}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'scored' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                >
+                                                    <CheckCircle className="w-3 h-3" /> SCORED
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Sort By</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => setSortBy('date')}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'date' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                >
+                                                    DATE
+                                                </button>
+                                                <button
+                                                    onClick={() => setSortBy('score')}
+                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'score' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                >
+                                                    SCORE
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Sort By</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button
-                                            onClick={() => setSortBy('date')}
-                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'date' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                        >
-                                            DATE
-                                        </button>
-                                        <button
-                                            onClick={() => setSortBy('score')}
-                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'score' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                        >
-                                            SCORE
-                                        </button>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         )}
                     </div>
 
                     {/* Main Content Area */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 flex-1">
                         {activeTab === 'ambassadors' && (
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-8 bg-white/5 border border-white/10 p-2 rounded-2xl sm:rounded-[2.5rem] w-full sm:w-fit">
                                 <button
@@ -1550,9 +1674,9 @@ function AdminDashboardContent() {
                                 <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
 
                                 <div className="relative z-10 text-center mb-12">
-                                    <h2 className="text-3xl font-bold mb-2 font-poppins">Admin QR Code Panel</h2>
+                                    <h2 className="text-3xl font-bold mb-2 font-poppins">QR Access Management</h2>
                                     <p className="text-white/40 text-sm">
-                                        Generate and download official persistent QR codes for the website and socials.
+                                        Monitor and coordinate official QR access points.
                                     </p>
                                 </div>
 
@@ -1988,6 +2112,232 @@ function AdminDashboardContent() {
                                         </div>
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {activeTab === 'broadcast' && (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {/* Header Section */}
+                                <div className="glass-panel p-2 px-5 relative overflow-hidden w-fit">
+                                    <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
+                                    <div className="relative z-10 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                            <Mail className="text-vc-mint w-4 h-4" />
+                                        </div>
+                                        <h2 className="text-lg font-bold font-poppins leading-none">Email Center</h2>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    {/* Left Panel: Content Editor */}
+                                    <div className="glass-panel p-8 space-y-6">
+                                        <div className="flex items-center gap-2 text-vc-mint mb-2">
+                                            <FileText className="w-5 h-5" />
+                                            <h3 className="font-bold uppercase tracking-widest text-sm">Email Content</h3>
+                                        </div>
+
+                                        <div className="space-y-5">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Subject Line</label>
+                                                <input
+                                                    type="text"
+                                                    value={broadcastSubject}
+                                                    onChange={(e) => setBroadcastSubject(e.target.value)}
+                                                    placeholder="Enter email subject..."
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Email Headline</label>
+                                                <input
+                                                    type="text"
+                                                    value={broadcastHeadline}
+                                                    onChange={(e) => setBroadcastHeadline(e.target.value)}
+                                                    placeholder="Enter main headline..."
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Message Body</label>
+                                                    <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
+                                                        <button
+                                                            onClick={() => insertTag('**', '**')}
+                                                            title="Bold text"
+                                                            className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            <span className="font-serif">B</span>
+                                                        </button>
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+                                                        <button
+                                                            onClick={() => insertTag('_', '_')}
+                                                            title="Italic text"
+                                                            className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            <span className="font-serif italic">I</span>
+                                                        </button>
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+                                                        <button
+                                                            onClick={() => insertTag('[mint]', '[/mint]')}
+                                                            title="Highlight in mint"
+                                                            className="px-2 py-1 text-xs font-bold text-vc-mint hover:bg-vc-mint/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            <div className="w-2 h-2 rounded-full bg-vc-mint" />
+                                                            <span>Mint</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <textarea
+                                                    ref={broadcastTextareaRef}
+                                                    value={broadcastMessage}
+                                                    onChange={(e) => setBroadcastMessage(e.target.value)}
+                                                    placeholder="Enter your announcement message here..."
+                                                    rows={8}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors resize-none"
+                                                />
+                                            </div>
+
+                                            {/* Button Options */}
+                                            <div className="pt-4 border-t border-white/5 space-y-6">
+                                                <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10 outline-none">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-2 rounded-lg ${broadcastShowButton ? 'bg-vc-mint/20 text-vc-mint' : 'bg-white/5 text-white/20'}`}>
+                                                            <ExternalLink className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold">Include Action Button</p>
+                                                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call to Action Option</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setBroadcastShowButton(!broadcastShowButton)}
+                                                        className={`w-12 h-6 rounded-full transition-all relative ${broadcastShowButton ? 'bg-vc-mint shadow-[0_0_15px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
+                                                    >
+                                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${broadcastShowButton ? 'right-1' : 'left-1'}`} />
+                                                    </button>
+                                                </div>
+
+                                                <AnimatePresence>
+                                                    {broadcastShowButton && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: 'auto' }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            className="space-y-4 overflow-hidden"
+                                                        >
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div className="space-y-2">
+                                                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button Text</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={broadcastButtonText}
+                                                                        onChange={(e) => setBroadcastButtonText(e.target.value)}
+                                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                                    />
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button URL</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={broadcastButtonUrl}
+                                                                        onChange={(e) => setBroadcastButtonUrl(e.target.value)}
+                                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Panel: Recipients & Controls */}
+                                    <div className="space-y-8">
+                                        <div className="glass-panel p-8 bg-vc-mint/5 border-vc-mint/20 space-y-8">
+                                            <div className="flex items-center gap-2 text-vc-mint mb-2">
+                                                <Users className="w-5 h-5" />
+                                                <h3 className="font-bold uppercase tracking-widest text-sm">Send Options</h3>
+                                            </div>
+
+                                            {/* Option 1: Test Mode */}
+                                            <div className="space-y-4">
+                                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                                    <h4 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Phase 1: Send Test</h4>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="email"
+                                                            value={sendToEmail}
+                                                            onChange={(e) => setSendToEmail(e.target.value)}
+                                                            placeholder="Your test email..."
+                                                            className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-vc-mint transition-all"
+                                                        />
+                                                        <button
+                                                            onClick={handleSendTestBroadcast}
+                                                            disabled={sendingBroadcast}
+                                                            className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                                        >
+                                                            {sendingBroadcast ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                                                            Send Test
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Option 2: Live Mode */}
+                                            <div className="space-y-4">
+                                                <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
+                                                    <div className="flex items-center justify-between mb-6">
+                                                        <div>
+                                                            <h4 className="text-xs font-bold text-red-500 uppercase tracking-widest">Phase 2: Global Broadcast</h4>
+                                                            <p className="text-[10px] text-white/30 mt-1 uppercase">Sends to all users in database</p>
+                                                        </div>
+                                                        <div className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
+                                                            <span className="text-[10px] font-black text-red-500 tracking-tighter uppercase">Danger Zone</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={handleBroadcastAll}
+                                                        disabled={sendingBroadcast}
+                                                        className="w-full py-4 bg-vc-mint text-vc-green-dark rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-3 disabled:opacity-50"
+                                                    >
+                                                        {sendingBroadcast ? (
+                                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                                        ) : (
+                                                            <Rocket className="w-5 h-5" />
+                                                        )}
+                                                        {sendingBroadcast ? 'Broadcasting...' : 'Broadcast to All Users'}
+                                                    </button>
+                                                    <p className="text-[10px] text-white/20 text-center mt-4 italic">
+                                                        * This action is irreversible. Please verify with a test email first.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Status / Instructions */}
+                                        <div className="glass-panel p-6 border-dashed opacity-60">
+                                            <h4 className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-4">Broadcasting Instructions</h4>
+                                            <ul className="space-y-3">
+                                                <li className="flex items-start gap-3 text-xs text-white/50">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-1.5 shrink-0" />
+                                                    <span>The email uses your established dark-emerald premium template.</span>
+                                                </li>
+                                                <li className="flex items-start gap-3 text-xs text-white/50">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-1.5 shrink-0" />
+                                                    <span>The "Complete Application" button is automatically included.</span>
+                                                </li>
+                                                <li className="flex items-start gap-3 text-xs text-white/50">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-1.5 shrink-0" />
+                                                    <span>Broadcasts are chunked in sets of 50 to ensure reliable delivery.</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

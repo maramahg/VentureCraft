@@ -11,7 +11,7 @@ const applicationMaterials = [
         number: 1,
         title: "PITCH DECK",
         format: "PDF or PowerPoint",
-        length: "15 slides minimum",
+        length: "10 - 15 slides",
         purpose: "Provides a concise overview of the startup. Used to assess clarity, logic, and communication quality.",
         content: {
             title: "Expected content includes (but is not limited to):",

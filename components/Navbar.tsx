@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -316,16 +316,28 @@ export default function Navbar() {
                                 )}
 
                                 {isAdmin && (
-                                  <Link
-                                    href="/qr"
-                                    onClick={() => setIsProfileOpen(false)}
-                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                  >
-                                    <div className="w-[18px] flex justify-center">
-                                      <QrCode size={14} className="text-vc-mint" />
-                                    </div>
-                                    QR Generator
-                                  </Link>
+                                  <>
+                                    <Link
+                                      href="/qr"
+                                      onClick={() => setIsProfileOpen(false)}
+                                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                    >
+                                      <div className="w-[18px] flex justify-center">
+                                        <QrCode size={14} className="text-vc-mint" />
+                                      </div>
+                                      QR Generator
+                                    </Link>
+                                    <Link
+                                      href="/admin?tab=broadcast"
+                                      onClick={() => setIsProfileOpen(false)}
+                                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                    >
+                                      <div className="w-[18px] flex justify-center">
+                                        <Mail size={14} className="text-vc-mint" />
+                                      </div>
+                                      Email Center
+                                    </Link>
+                                  </>
                                 )}
                               </div>
                             )}
@@ -468,14 +480,24 @@ export default function Navbar() {
                               </Link>
                             )}
                             {isAdmin && (
-                              <Link
-                                href="/qr"
-                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                                onClick={() => setIsOpen(false)}
-                              >
-                                <QrCode size={20} />
-                                QR Generator
-                              </Link>
+                              <>
+                                <Link
+                                  href="/qr"
+                                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <QrCode size={20} />
+                                  QR Generator
+                                </Link>
+                                <Link
+                                  href="/admin?tab=broadcast"
+                                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <Mail size={20} />
+                                  Email Center
+                                </Link>
+                              </>
                             )}
                           </>
                         )}

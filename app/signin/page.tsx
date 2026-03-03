@@ -61,7 +61,14 @@ function SignInContent() {
                     <span className="font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>Go Back</span>
                 </Link>
 
-                <div className="container mx-auto px-4 pt-32 pb-16 relative z-10 flex flex-col items-center">
+                <div className="container mx-auto px-4 pt-32 pb-8 relative z-10 flex flex-col items-center">
+                    <div className="w-full max-w-2xl bg-vc-mint/10 border border-vc-mint/20 p-6 rounded-2xl mb-8 animate-fade-in text-center">
+                        <p className="text-white text-sm md:text-base leading-relaxed">
+                            <span className="font-bold text-vc-mint mr-2">Already applied?</span>
+                            If you have already submitted your application, you are welcome to revisit and edit your materials at any time before the new deadline (<span className="text-vc-mint font-bold">March 20</span>). Simply log in to the website and navigate to your profile to update your submission.
+                        </p>
+                    </div>
+
                     <div className="w-full max-w-lg bg-white/5 backdrop-blur-2xl border border-white/10 p-10 rounded-3xl md:p-12 animate-fade-in-up shadow-2xl">
                         <div className="max-w-md mx-auto">
                             <div className="text-center mb-10 mt-10">
