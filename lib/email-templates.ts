@@ -1,19 +1,19 @@
 export interface EmailTemplateOptions {
-    title: string;
-    previewText?: string;
-    content: string;
-    footerMessage?: string;
-    button?: {
-        text: string;
-        url: string;
-    };
+  title: string;
+  previewText?: string;
+  content: string;
+  footerMessage?: string;
+  button?: {
+    text: string;
+    url: string;
+  };
 }
 
 export const getEmailHtml = (options: EmailTemplateOptions) => {
-    const { title, previewText, content, footerMessage, button } = options;
-    const currentYear = new Date().getFullYear();
+  const { title, previewText, content, footerMessage, button } = options;
+  const currentYear = new Date().getFullYear();
 
-    const buttonHtml = button ? `
+  const buttonHtml = button ? `
     <center>
       <table border="0" cellpadding="0" cellspacing="0" style="margin-top: 32px; margin-bottom: 32px;">
         <tr>
@@ -25,11 +25,11 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
     </center>
   ` : '';
 
-    // Every email needs a unique content block to prevent Gmail from "trimming" (the three dots)
-    const uniqueId = Math.random().toString(36).substring(2, 10);
-    const timestamp = new Date().toLocaleTimeString();
+  // Every email needs a unique content block to prevent Gmail from "trimming" (the three dots)
+  const uniqueId = Math.random().toString(36).substring(2, 10);
+  const timestamp = new Date().toLocaleTimeString();
 
-    return `
+  return `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -92,19 +92,20 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
           <!-- Socials -->
           <tr>
             <td align="center" style="padding: 30px 40px 10px; border-top: 1px solid #1a3a36;">
+              <p style="color: #39cc89; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px;">Follow Our Journey</p>
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="padding: 0 10px;">
-                    <a href="https://x.com/venturecraft_sa?s=21" target="_blank"><img src="https://kfupm-venturecraft.org/social-x.png" alt="X" width="24" height="24"></a>
+                    <a href="https://x.com/venturecraft_sa?s=21" target="_blank"><img src="https://cdn.simpleicons.org/x/39cc89" alt="X" width="24" height="24"></a>
                   </td>
                   <td style="padding: 0 10px;">
-                    <a href="https://www.linkedin.com/company/venturecraftsa/" target="_blank"><img src="https://kfupm-venturecraft.org/social-linkedin.png" alt="LinkedIn" width="24" height="24"></a>
+                    <a href="https://www.linkedin.com/company/venturecraftsa/" target="_blank"><img src="https://cdn.simpleicons.org/linkedin/39cc89" alt="LinkedIn" width="24" height="24"></a>
                   </td>
                   <td style="padding: 0 10px;">
-                    <a href="https://www.instagram.com/venturecraft.sa?igsh=bHJmMjF6dGM2MXU1" target="_blank"><img src="https://kfupm-venturecraft.org/social-instagram.png" alt="Instagram" width="24" height="24"></a>
+                    <a href="https://www.instagram.com/venturecraft.sa?igsh=bHJmMjF6dGM2MXU1" target="_blank"><img src="https://cdn.simpleicons.org/instagram/39cc89" alt="Instagram" width="24" height="24"></a>
                   </td>
                   <td style="padding: 0 10px;">
-                    <a href="https://www.tiktok.com/@venturecraft_sa?_r=1&_t=ZS-93h9rM2RRDu" target="_blank"><img src="https://kfupm-venturecraft.org/social-tiktok.png" alt="TikTok" width="24" height="24"></a>
+                    <a href="https://www.tiktok.com/@venturecraft_sa?_r=1&_t=ZS-93h9rM2RRDu" target="_blank"><img src="https://cdn.simpleicons.org/tiktok/39cc89" alt="TikTok" width="24" height="24"></a>
                   </td>
                 </tr>
               </table>
