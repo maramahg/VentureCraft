@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
+import { getEmailHtml } from '@/lib/email-templates';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,67 +13,40 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
         }
 
-        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const html = getEmailHtml({
+            title: 'Application Successfully Received',
+            previewText: `Confirmed! We've received the application for ${startupName || 'your startup'}.`,
+            content: `
+                <p style="font-size: 16px; line-height: 1.6; color: #ffffff; margin-bottom: 24px;">Dear ${leaderName},</p>
+                
+                <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0; margin-bottom: 32px;">
+                    Thank you for submitting your proposal for the <strong>Venture Craft Challenge</strong>. We are pleased to confirm that we have received the application for <strong>${startupName || 'your startup project'}</strong>.
+                </p>
+                
+                <div style="background-color: #1a2e2b; border: 1px solid #39cc89; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+                    <h3 style="color: #39cc89; font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 16px;">Next Steps</h3>
+                    <ul style="margin: 0; padding-left: 20px; color: #94a3b8; font-size: 15px; line-height: 1.8;">
+                        <li>Our technical committee will perform an initial screening of your submission materials.</li>
+                        <li>Evaluation will be based on scientific rigor, technical feasibility, and market potential.</li>
+                        <li>You will receive an update regarding your screening status via email.</li>
+                        <li>Follow our official channels for real-time announcements.</li>
+                    </ul>
+                </div>
+
+                <p style="margin-top: 40px; border-top: 1px solid #1a3a36; padding-top: 24px;">
+                    <span style="font-size: 15px; color: #ffffff; display: block; margin-bottom: 4px;">Best regards,</span>
+                    <span style="font-size: 16px; font-weight: bold; color: #39cc89;">The Venture Craft Team</span>
+                </p>
+            `,
+            footerMessage: 'Please note that this is an automated message and replies to this email address are not monitored.'
+        });
 
         const { data, error } = await resend.emails.send({
             from: 'Venture Craft <no-reply@kfupm-venturecraft.org>',
             to: [email],
             subject: `Application Received: ${startupName || 'Venture Craft Challenge'}`,
             replyTo: 'no-reply@kfupm-venturecraft.org',
-            html: `
-                <div style="background-color: #001311; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff;">
-                    <div style="max-width: 600px; margin: 0 auto; background-color: #0c1e1c; border: 1px solid rgba(57, 204, 137, 0.2); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-                        <!-- Header -->
-                        <div style="padding: 40px 40px 20px; text-align: center;">
-                            <img src="https://kfupm-venturecraft.org/logo.png" alt="Venture Craft" style="width: 180px; height: auto;" />
-                        </div>
-                        
-                        <!-- Content -->
-                        <div style="padding: 0 40px 40px;">
-                            <h2 style="color: #39cc89; font-size: 24px; font-weight: bold; margin-bottom: 24px; text-align: center;">Application Successfully Received</h2>
-                            
-                            <p style="font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.9);">Dear ${leaderName},</p>
-                            
-                            <p style="font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.8); margin-bottom: 32px;">
-                                Thank you for submitting your proposal for the <strong>Venture Craft Challenge</strong>. We are pleased to confirm that we have received the application for <strong>${startupName || 'your startup project'}</strong>.
-                            </p>
-                            
-                            <!-- Next Steps Box -->
-                            <div style="background-color: rgba(57, 204, 137, 0.05); border: 1px solid rgba(57, 204, 137, 0.1); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
-                                <h3 style="color: #39cc89; font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 16px;">Next Steps</h3>
-                                <ul style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.8;">
-                                    <li>Our technical committee will perform an initial screening of your submission materials.</li>
-                                    <li>Evaluation will be based on scientific rigor, technical feasibility, and market potential.</li>
-                                    <li>You will receive an update regarding your screening status via email.</li>
-                                    <li>Follow our official channels for real-time announcements.</li>
-                                </ul>
-                            </div>
-
-                            <p style="font-size: 15px; line-height: 1.6; color: rgba(255,255,255,0.6);">
-                                Please note that this is an automated message and replies to this email address are not monitored.
-                            </p>
-                            
-                            <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); pt-24; padding-top: 24px;">
-                                <p style="font-size: 15px; color: rgba(255,255,255,0.9); margin-bottom: 4px;">Best regards,</p>
-                                <p style="font-size: 16px; font-weight: bold; color: #39cc89; margin: 0;">The Venture Craft Team</p>
-                            </div>
-                        </div>
-
-                        <!-- Footer -->
-                        <div style="background-color: rgba(0,0,0,0.2); padding: 32px 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-                            <p style="font-size: 10px; color: rgba(255,255,255,0.3); margin-bottom: 12px; letter-spacing: 0.5px;">
-                                This is an automated email. Please do not reply directly to this message.
-                            </p>
-                            <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; letter-spacing: 1px; text-transform: uppercase;">
-                                Venture Craft - Shaping the Future of Tech
-                            </p>
-                            <div style="display: none !important; color: transparent; opacity: 0; font-size: 0; line-height: 0; height: 0; overflow: hidden;">
-                                ${Math.random().toString(36).substring(7)} - ${Date.now()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `,
+            html: html,
         });
 
         if (error) {
