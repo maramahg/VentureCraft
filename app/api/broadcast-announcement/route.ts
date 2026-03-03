@@ -27,10 +27,10 @@ export async function POST(request: Request) {
                     title: headline || 'Announcement',
                     previewText: subject || 'New Update from Venture Craft',
                     content: `
-                        <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0; margin-bottom: 32px; white-space: pre-wrap;">${(message || 'No message content provided.')
+                        <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0 !important; margin-bottom: 32px; white-space: pre-wrap;">${(message || 'No message content provided.')
                             .replace(/\*\*([\s\S]*?)\*\*/g, '<b>$1</b>')
                             .replace(/_([\s\S]*?)_/g, '<i>$1</i>')
-                            .replace(/\[mint\]([\s\S]*?)\[\/mint\]/g, '<span style="color: #39cc89; font-weight: bold;">$1</span>')
+                            .replace(/\[mint\]([\s\S]*?)\[\/mint\]/g, '<span style="color: #39cc89 !important; font-weight: bold;">$1</span>')
                             .replace(/\n/g, '<br/>')}</p>
                     `,
                     button: showButton !== false ? {
