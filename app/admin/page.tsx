@@ -2320,24 +2320,7 @@ function AdminDashboardContent() {
                                             </div>
                                         </div>
 
-                                        {/* Status / Instructions */}
-                                        <div className="glass-panel p-6 border-dashed opacity-60">
-                                            <h4 className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-4">Broadcasting Instructions</h4>
-                                            <ul className="space-y-3">
-                                                <li className="flex items-start gap-3 text-xs text-white/50">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-1.5 shrink-0" />
-                                                    <span>The email uses your established dark-emerald premium template.</span>
-                                                </li>
-                                                <li className="flex items-start gap-3 text-xs text-white/50">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-1.5 shrink-0" />
-                                                    <span>The "Complete Application" button is automatically included.</span>
-                                                </li>
-                                                <li className="flex items-start gap-3 text-xs text-white/50">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-1.5 shrink-0" />
-                                                    <span>Broadcasts are chunked in sets of 50 to ensure reliable delivery.</span>
-                                                </li>
-                                            </ul>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
