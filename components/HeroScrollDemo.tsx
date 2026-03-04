@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 
 import { ExternalLink } from "lucide-react";
+import CountdownTimer from "./CountdownTimer";
 
 const Globe = dynamic(() => import("./ui/globe").then(m => m.Globe), {
   ssr: false,
@@ -15,7 +16,7 @@ const Globe = dynamic(() => import("./ui/globe").then(m => m.Globe), {
 export function HeroScrollDemo() {
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center pt-20 pb-24 md:pb-40 xl:pt-32 z-20 bg-transparent overflow-hidden">
-      <div className="container px-6 sm:px-8 xl:px-16 mx-auto z-10 grid xl:grid-cols-2 gap-4 md:gap-8 xl:gap-16 items-center">
+      <div className="container px-6 sm:px-8 xl:px-16 mx-auto z-10 grid xl:grid-cols-2 gap-4 md:gap-8 xl:gap-16 items-center xl:-translate-y-8 md:-translate-y-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -69,6 +70,11 @@ export function HeroScrollDemo() {
             {" "}, supporting student-led ventures building science and technology-based solutions with global impact.
           </motion.p>
 
+          {/* Countdown Timer */}
+          <div className="mb-10 xl:mb-12 flex justify-center xl:justify-start">
+            <CountdownTimer />
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -102,10 +108,10 @@ export function HeroScrollDemo() {
             className="flex items-center justify-center xl:justify-start gap-12 sm:gap-14 xl:ml-6"
           >
             <div className="relative group/stat">
-              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-white rounded-full opacity-20 group-hover/stat:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-vc-mint rounded-full opacity-60 group-hover/stat:opacity-100 transition-opacity duration-500" />
               <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
-                <span className="block text-xl sm:text-2xl font-black text-vc-mint mb-0.5">March 1st</span>
-                Deadline
+                <span className="block text-xl sm:text-2xl font-black text-vc-mint mb-0.5">April 1st</span>
+                Extended Deadline
               </div>
             </div>
             <div className="relative group/stat">
@@ -158,7 +164,7 @@ export function HeroScrollDemo() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[250px] sm:h-[400px] md:h-[500px] xl:h-[580px] w-full flex items-center justify-center"
+          className="relative h-[250px] sm:h-[400px] md:h-[500px] xl:h-[580px] w-full flex items-center justify-center xl:-mt-24"
         >
           {/* Light hue emanating from the globe */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] bg-vc-mint/10 blur-[80px] sm:blur-[100px] rounded-full pointer-events-none" />
