@@ -1376,7 +1376,7 @@ function AdminDashboardContent() {
 
 
                     <div className="flex flex-wrap items-center gap-4">
-                        {isAdmin && (
+                        {isAdmin && activeTab !== 'broadcast' && (
                             <button
                                 onClick={toggleRegistration}
                                 disabled={updatingReg}
@@ -1390,7 +1390,7 @@ function AdminDashboardContent() {
                             </button>
                         )}
 
-                        {activeTab === 'startups' ? (
+                        {activeTab === 'startups' && (
                             <>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
                                     <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total</span>
@@ -1405,7 +1405,9 @@ function AdminDashboardContent() {
                                     <span className="text-2xl font-bold text-white">{applications.filter(a => !a.screening?.round1?.isCompleted).length}</span>
                                 </div>
                             </>
-                        ) : (
+                        )}
+
+                        {activeTab === 'ambassadors' && (
                             <>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
                                     <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total</span>

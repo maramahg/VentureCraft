@@ -29,10 +29,10 @@ export default function Timeline() {
   const nodes: TimelineNode[] = useMemo(
     () => [
       { id: 1, top: { title: 'Idea Submission', dates: '1 Feb - 1 Apr', description: 'Launch your journey. Submit your initial concept for review by our technical committee.' } },
-      { id: 2, bottom: { title: 'Screening \n (Round 1 & 2)', dates: '12 Mar - 10 Apr', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
+      { id: 2, bottom: { title: 'Screening\n(round 1&2)', dates: '12 Mar - 10 Apr', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
       { id: 3, top: { title: 'Online Bootcamp', dates: '15 Apr - 20 Apr', description: 'A virtual deep-dive into startup fundamentals, IP strategy, and go-to-market planning.' } },
-      { id: 4, bottom: { title: 'Finalists Pitching', dates: '20 Apr - 25 Apr', description: 'The big announcement. Selected teams receive full travel support for the in-person acceleration program.' } },
-      { id: 5, top: { title: 'Bootcamp Accelerator', dates: '26 Apr - 2 May', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
+      { id: 4, bottom: { title: 'Finalist Notification\n& Travel Arrangements', dates: '20 Apr - 25 Apr', description: 'The big announcement. Selected teams receive full travel support for the in-person acceleration program.' } },
+      { id: 5, top: { title: 'Bootcamp &\nAcceleration Program', dates: '26 Apr - 2 May', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
       { id: 6, bottom: { title: 'Final Competition', dates: '3 May', description: 'Pitch your venture to global investors and energy leaders for the grand prize and partnership deals.' } },
     ],
     []
