@@ -352,6 +352,7 @@ function AdminDashboardContent() {
     const [updatingReg, setUpdatingReg] = useState(false);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
     const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
+    const [totalUsers, setTotalUsers] = useState(0);
 
     // Screening State
     const [currentScores, setCurrentScores] = useState({
@@ -698,6 +699,17 @@ function AdminDashboardContent() {
 
         return () => unsubscribe();
     }, [isAdmin, isJudge]);
+
+    useEffect(() => {
+        if (!isAdmin) return;
+        const q = query(collection(db, 'users'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setTotalUsers(snapshot.size);
+        }, (error) => {
+            console.error('Error fetching total users:', error);
+        });
+        return () => unsubscribe();
+    }, [isAdmin]);
 
     // Fetch Ambassador Applications
     useEffect(() => {
@@ -1393,7 +1405,11 @@ function AdminDashboardContent() {
                         {activeTab === 'startups' && (
                             <>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total</span>
+                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total Users</span>
+                                    <span className="text-2xl font-bold text-white">{totalUsers}</span>
+                                </div>
+                                <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
+                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Applications</span>
                                     <span className="text-2xl font-bold text-white">{applications.length}</span>
                                 </div>
                                 <div className="bg-vc-mint/10 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[100px]">
