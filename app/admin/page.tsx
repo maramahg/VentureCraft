@@ -1433,6 +1433,10 @@ function AdminDashboardContent() {
                                     <span className="text-vc-mint/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Accepted</span>
                                     <span className="text-2xl font-bold text-vc-mint">{ambassadorApps.filter(a => a.status === 'accepted').length}</span>
                                 </div>
+                                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-3 min-w-[100px]">
+                                    <span className="text-red-500/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Rejected</span>
+                                    <span className="text-2xl font-bold text-red-500">{ambassadorApps.filter(a => a.status === 'rejected').length}</span>
+                                </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
                                     <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
                                     <span className="text-2xl font-bold text-white">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
