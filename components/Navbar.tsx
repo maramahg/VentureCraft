@@ -32,6 +32,7 @@ const navItems = [
     ]
   },
   { name: 'Ambassadors', href: '/ambassadors' },
+  { name: 'Contact Us', href: '/contact', type: 'link' },
 ];
 
 export default function Navbar() {
