@@ -68,21 +68,21 @@ export default function ContactPage() {
             />
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay" />
 
-            <div className="container mx-auto px-6 pt-44 pb-20 relative z-10">
-                <div className="max-w-4xl mx-auto space-y-12">
+            <div className="container mx-auto px-4 md:px-6 pt-32 md:pt-44 pb-20 relative z-10">
+                <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
                     {/* Header Section */}
-                    <div className="text-center space-y-6 mb-16">
+                    <div className="text-center space-y-4 md:space-y-6 mb-12 md:mb-16">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="inline-flex p-3 rounded-2xl bg-vc-mint/10 border border-vc-mint/20 text-vc-mint mb-2"
                         >
-                            <Mail className="w-8 h-8" />
+                            <Mail className="w-6 h-6 md:w-8 md:h-8" />
                         </motion.div>
                         <motion.h1
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-5xl md:text-7xl font-black uppercase tracking-tighter"
+                            className="text-4xl md:text-7xl font-black uppercase tracking-tighter"
                         >
                             Let's <span className="text-vc-mint">Connect</span>
                         </motion.h1>
@@ -90,7 +90,7 @@ export default function ContactPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-white/40 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed"
+                            className="text-white/40 text-base md:text-xl font-medium max-w-2xl mx-auto leading-relaxed px-4"
                         >
                             Reach out to our team for competition support, partnerships, or community inquiries.
                         </motion.p>
@@ -101,14 +101,14 @@ export default function ContactPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="glass-panel p-10 bg-[#0a1a1a]/40 border-white/5 space-y-10"
+                        className="glass-panel p-6 md:p-10 bg-[#0a1a1a]/40 border-white/5 space-y-6 md:space-y-10"
                     >
                         <div className="text-center space-y-2">
                             <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-vc-mint">Follow Our Journey</h2>
-                            <p className="text-sm text-white/40 font-medium leading-relaxed">Stay updated with our latest deep-tech insights and announcements.</p>
+                            <p className="text-xs md:text-sm text-white/40 font-medium leading-relaxed">Stay updated with our latest deep-tech insights and announcements.</p>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
                             {socials.map((social) => {
                                 const Icon = social.icon;
                                 return (
@@ -117,9 +117,9 @@ export default function ContactPage() {
                                         href={social.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className={`flex items-center justify-center p-10 rounded-3xl bg-white/[0.03] border border-white/5 transition-all duration-500 group ${social.color} hover:border-vc-mint/30 hover:shadow-2xl hover:shadow-vc-mint/5`}
+                                        className={`flex items-center justify-center p-6 md:p-10 rounded-2xl md:rounded-3xl bg-white/[0.03] border border-white/5 transition-all duration-500 group ${social.color} hover:border-vc-mint/30 hover:shadow-2xl hover:shadow-vc-mint/5`}
                                     >
-                                        <Icon className="w-10 h-10 transition-transform duration-500 group-hover:scale-110" />
+                                        <Icon className="w-8 h-8 md:w-10 md:h-10 transition-transform duration-500 group-hover:scale-110" />
                                     </a>
                                 );
                             })}
@@ -127,7 +127,7 @@ export default function ContactPage() {
                     </motion.div>
 
                     {/* Contact Channels Grid - Now Below Socials */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         {emails.map((item, idx) => (
                             <motion.a
                                 key={idx}
@@ -135,15 +135,15 @@ export default function ContactPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 + idx * 0.1 }}
-                                className="group relative p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/10 hover:border-vc-mint/40 transition-all duration-500 hover:bg-white/[0.04] overflow-hidden"
+                                className="group relative p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/10 hover:border-vc-mint/40 transition-all duration-500 hover:bg-white/[0.04] overflow-hidden"
                             >
-                                <div className="absolute top-0 right-0 p-10 text-vc-mint transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1">
-                                    <ArrowRight className="w-6 h-6 opacity-40 group-hover:opacity-100" />
+                                <div className="absolute top-0 right-0 p-6 md:p-10 text-vc-mint transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1">
+                                    <ArrowRight className="w-5 h-5 md:w-6 md:h-6 opacity-40 group-hover:opacity-100" />
                                 </div>
-                                <div className="space-y-4 relative z-10">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-vc-mint/60">{item.label}</span>
-                                    <h3 className="text-2xl font-bold text-white group-hover:text-vc-mint transition-colors">{item.email}</h3>
-                                    <p className="text-sm text-white/30 leading-relaxed font-medium">{item.description}</p>
+                                <div className="space-y-3 md:space-y-4 relative z-10">
+                                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-vc-mint/60">{item.label}</span>
+                                    <h3 className="text-lg md:text-2xl font-bold text-white group-hover:text-vc-mint transition-colors break-words lg:break-normal">{item.email}</h3>
+                                    <p className="text-xs md:text-sm text-white/30 leading-relaxed font-medium">{item.description}</p>
                                 </div>
                             </motion.a>
                         ))}
