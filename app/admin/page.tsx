@@ -25,6 +25,7 @@ interface Application {
     startupName?: string;
     location?: string;
     status: 'pending' | 'accepted' | 'rejected' | 'submitted';
+    isEdited?: boolean;
     submittedAt: any;
     teamSize: number;
     teamMembers: Array<{ name: string; nationality: string }>;
@@ -1849,12 +1850,19 @@ function AdminDashboardContent() {
                                                     </div>
                                                 )}
 
-                                                <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark border-vc-mint' :
-                                                    app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
-                                                        app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                            'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
-                                                    }`}>
-                                                    {app.screening?.round1?.isCompleted ? 'SCORED' : (app.status === 'submitted' ? 'pending' : app.status) || 'pending'}
+                                                <div className="flex flex-col items-center md:items-end gap-2">
+                                                    {app.isEdited && (
+                                                        <div className="px-2 py-0.5 rounded-md bg-vc-mint/20 border border-vc-mint/30 text-[9px] font-black text-vc-mint uppercase tracking-widest animate-pulse">
+                                                            Edited
+                                                        </div>
+                                                    )}
+                                                    <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark border-vc-mint' :
+                                                        app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                                                            app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                                'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
+                                                        }`}>
+                                                        {app.screening?.round1?.isCompleted ? 'SCORED' : (app.status === 'submitted' ? 'pending' : app.status) || 'pending'}
+                                                    </div>
                                                 </div>
 
                                                 {isAdmin && (

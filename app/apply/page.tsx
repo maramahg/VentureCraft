@@ -641,6 +641,7 @@ const ApplyPageContent = () => {
                 status: 'pending',
                 submittedAt: serverTimestamp(),
                 updatedAt: isEditMode ? serverTimestamp() : null,
+                isEdited: isEditMode,
 
                 // Form Data
                 startupName: formData.startupName,
