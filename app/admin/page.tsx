@@ -27,6 +27,7 @@ interface Application {
     status: 'pending' | 'accepted' | 'rejected' | 'submitted';
     isEdited?: boolean;
     submittedAt: any;
+    updatedAt?: any;
     teamSize: number;
     teamMembers: Array<{ name: string; nationality: string }>;
     leaderEmail: string;
@@ -1851,7 +1852,7 @@ function AdminDashboardContent() {
                                                 )}
 
                                                 <div className="flex flex-col items-center md:items-end gap-2">
-                                                    {app.isEdited && (
+                                                    {(app.isEdited || app.updatedAt) && (
                                                         <div className="px-2 py-0.5 rounded-md bg-vc-mint/20 border border-vc-mint/30 text-[9px] font-black text-vc-mint uppercase tracking-widest animate-pulse">
                                                             Edited
                                                         </div>
