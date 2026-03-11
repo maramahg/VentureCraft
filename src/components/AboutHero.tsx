@@ -16,7 +16,7 @@ const AboutHero = () => (
             About <span className="gradient-text inline">Venture Craft</span>
           </h1>
           <p className="text-[#9CA3AF] fluid-body-lg leading-relaxed font-poppins mb-12">
-            Pioneering the future of sustainable innovation
+            Build Your Venture
           </p>
 
           {/* Prize Card */}

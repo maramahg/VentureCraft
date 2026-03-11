@@ -114,7 +114,7 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
               </p>
               <p style="color: #39cc89; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; margin: 0 0 15px; letter-spacing: 1px;">VENTURE CRAFT</p>
               <p style="color: #2c4a45; font-family: Arial, sans-serif; font-size: 11px; margin: 0; font-weight: bold;">
-                Shape the Future of Tech
+                Build Your Venture
               </p>
               <!-- Dynamic unique hidden text to prevent Gmail grouping/trimming -->
               <p style="color: #081514; font-size: 5px; margin: 0;">Ref: ${uniqueId} | Sent at ${timestamp}</p>

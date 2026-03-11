@@ -271,7 +271,7 @@ export default function AmbassadorsPage() {
                                         Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
                                     </motion.p>
                                     <motion.p variants={fadeInUp} className="text-vc-mint/80 font-bold italic text-lg">
-                                        Together, we are shaping the future of industrial technology and sustainable development.
+                                        Together, we Build Your Venture.
                                     </motion.p>
                                 </div>
 

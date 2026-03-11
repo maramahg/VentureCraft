@@ -96,8 +96,7 @@ export default function VentureCraftAboutPage() {
                                 <motion.p variants={fadeInUp} className="text-white/60 text-lg sm:text-lg md:text-xl leading-relaxed font-poppins">
                                     Through a comprehensive program of mentorship, resources, and global exposure,
                                     Venture Craft provides participants with the tools they need to succeed in the
-                                    competitive landscape of deep-tech entrepreneurship. Join us in shaping the
-                                    future of energy, industry, and sustainable innovation.
+                                    competitive landscape of deep-tech entrepreneurship. Join us and Build Your Venture.
                                 </motion.p>
                             </motion.div>
                         </div>
