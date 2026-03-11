@@ -97,7 +97,7 @@ const faqData: FAQItem[] = [
         question: 'What do we need to submit?',
         answer: (
             <span>
-                A complete application requires a pitch deck (max 10 slides), an executive summary (1–2 pages), and a 3-minute video pitch. Please review the <Link href="/apply/materials" className="text-vc-mint hover:underline">Application Materials</Link> for detailed requirements.
+                A complete application requires a pitch deck (max 15 slides), an executive summary (1–2 pages), and a 3–5 minute video pitch. You may also include optional supporting data (up to 5 pages). Please review the <Link href="/apply/materials" className="text-vc-mint hover:underline">Application Materials</Link> for detailed requirements.
             </span>
         ),
     },
@@ -107,7 +107,7 @@ const faqData: FAQItem[] = [
         answer: (
             <div className="space-y-2">
                 <p><span className="font-bold text-white">Pitch deck:</span> PDF or PowerPoint.</p>
-                <p><span className="font-bold text-white">Executive summary & supporting data:</span> PDF or Word.</p>
+                <p><span className="font-bold text-white">Executive summary & supporting data:</span> PDF or Microsoft Word.</p>
                 <p><span className="font-bold text-white">Video pitch:</span> Unlisted YouTube link.</p>
                 <p className="text-sm mt-2">See the <Link href="/apply/materials" className="text-vc-mint hover:underline">full specifications</Link> for more info.</p>
             </div>
