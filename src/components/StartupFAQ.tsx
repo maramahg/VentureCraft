@@ -13,6 +13,26 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
     {
+        id: 'deadline',
+        question: 'When is the application deadline?',
+        answer: (
+            <div className="space-y-2">
+                <p>The application deadline has been officially extended to <strong className="text-vc-mint">April 1st, 2026</strong>.</p>
+                <p className="text-sm text-white/50 italic">We encourage all teams to complete their submissions as early as possible to ensure all materials meet the requirements.</p>
+            </div>
+        ),
+    },
+    {
+        id: 'editing',
+        question: 'Can I edit my application after submission?',
+        answer: (
+            <div className="space-y-2">
+                <p>Yes, you can edit your submitted application through your <strong className="text-vc-mint">Profile</strong> page.</p>
+                <p className="text-white/70">Because applications will be sent to the judging panel for review shortly after the editing period, <strong className="text-vc-mint">all final adjustments must be completed by March 12th, 2026</strong>.</p>
+            </div>
+        ),
+    },
+    {
         id: 'eligibility',
         question: 'Who can apply?',
         answer: (
