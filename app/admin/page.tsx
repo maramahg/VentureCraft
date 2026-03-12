@@ -7,7 +7,7 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, Paperclip
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
@@ -465,6 +465,46 @@ function AdminDashboardContent() {
     const [broadcastShowButton, setBroadcastShowButton] = useState(true);
     const [broadcastButtonText, setBroadcastButtonText] = useState('');
     const [broadcastButtonUrl, setBroadcastButtonUrl] = useState('');
+    const [broadcastAttachments, setBroadcastAttachments] = useState<Array<{ name: string; content: string; type: string }>>([]);
+
+    const handleBroadcastFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        const maxTotalSize = 10 * 1024 * 1024; // 10MB limit for Resend
+        let currentTotalSize = broadcastAttachments.reduce((acc, att) => acc + (att.content.length * 0.75), 0);
+
+        Array.from(files).forEach(file => {
+            if (file.size > maxTotalSize) {
+                setToast({ message: `File ${file.name} is too large (max 10MB)`, type: 'error' });
+                return;
+            }
+
+            if (currentTotalSize + file.size > maxTotalSize) {
+                setToast({ message: `Total attachments size exceeds 10MB limit.`, type: 'error' });
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const result = event.target?.result as string;
+                const base64 = result.split(',')[1];
+                setBroadcastAttachments(prev => [
+                    ...prev,
+                    { name: file.name, content: base64, type: file.type }
+                ]);
+            };
+            reader.readAsDataURL(file);
+            currentTotalSize += file.size;
+        });
+
+        // Reset input
+        e.target.value = '';
+    };
+
+    const removeBroadcastAttachment = (index: number) => {
+        setBroadcastAttachments(prev => prev.filter((_, i) => i !== index));
+    };
 
     const broadcastTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -506,7 +546,8 @@ function AdminDashboardContent() {
                     message: broadcastMessage,
                     showButton: broadcastShowButton,
                     buttonText: broadcastButtonText,
-                    buttonUrl: broadcastButtonUrl
+                    buttonUrl: broadcastButtonUrl,
+                    attachments: broadcastAttachments
                 })
             });
             const data = await res.json();
@@ -547,7 +588,8 @@ function AdminDashboardContent() {
                     message: broadcastMessage,
                     showButton: broadcastShowButton,
                     buttonText: broadcastButtonText,
-                    buttonUrl: broadcastButtonUrl
+                    buttonUrl: broadcastButtonUrl,
+                    attachments: broadcastAttachments
                 })
             });
             const data = await res.json();
@@ -2281,6 +2323,43 @@ function AdminDashboardContent() {
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
+                                            </div>
+
+                                            {/* Attachments Section */}
+                                            <div className="pt-6 border-t border-white/5 space-y-4">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Attachments</label>
+                                                    <span className="text-[10px] text-white/20 uppercase font-medium">Total: {(broadcastAttachments.reduce((acc, att) => acc + (att.content.length * 0.75), 0) / (1024 * 1024)).toFixed(2)} MB / 10 MB</span>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {broadcastAttachments.map((file, idx) => (
+                                                        <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2 group hover:border-vc-mint/30 transition-all">
+                                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                                <Paperclip className="w-3 h-3 text-vc-mint/50 shrink-0" />
+                                                                <span className="text-xs text-white/60 truncate">{file.name}</span>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeBroadcastAttachment(idx)}
+                                                                className="p-1.5 text-white/20 hover:text-red-500 transition-colors"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+
+                                                    <label className="flex items-center justify-center gap-2 px-4 py-4 bg-white/5 border border-dashed border-white/20 rounded-2xl cursor-pointer hover:bg-white/10 hover:border-vc-mint/40 transition-all group">
+                                                        <Paperclip className="w-4 h-4 text-white/40 group-hover:text-vc-mint transition-colors" />
+                                                        <span className="text-xs font-bold text-white/40 group-hover:text-white transition-colors">Attach Files</span>
+                                                        <input
+                                                            type="file"
+                                                            multiple
+                                                            className="hidden"
+                                                            onChange={handleBroadcastFileChange}
+                                                        />
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

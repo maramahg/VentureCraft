@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { email, emails, subject, headline, message, showButton, buttonText, buttonUrl } = body;
+        const { email, emails, subject, headline, message, showButton, buttonText, buttonUrl, attachments } = body;
 
         const recipients = emails || (email ? [email] : []);
 
@@ -45,7 +45,11 @@ export async function POST(request: Request) {
                     to: [toEmail],
                     subject: subject || '🚀 Deadline Extended: Join the Venture Craft Challenge',
                     replyTo: 'no-reply@kfupm-venturecraft.org',
-                    html: htmlRow
+                    html: htmlRow,
+                    attachments: attachments?.map((att: any) => ({
+                        filename: att.name,
+                        content: Buffer.from(att.content, 'base64')
+                    }))
                 };
             });
 
