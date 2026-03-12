@@ -69,15 +69,25 @@ export async function POST(request: Request) {
                 };
             });
 
-            // Attempt to send batch
+            // Attempt to send
             try {
-                // If only 1 recipient, use regular send for better reliability in tests
-                if (batchRequests.length === 1) {
-                    const response = await resend.emails.send(batchRequests[0]);
-                    results.push(response);
+                if (processedAttachments && processedAttachments.length > 0) {
+                    // IMPORTANT: Resend Batch API does NOT support attachments yet.
+                    // If attachments exist, we must send emails individually.
+                    console.log(`[EmailCenter] Attachments detected, sending individually for chunk of ${chunk.length}...`);
+                    const individualResults = await Promise.all(
+                        batchRequests.map((req: any) => resend.emails.send(req))
+                    );
+                    results.push(...individualResults);
                 } else {
-                    const batchResponse = await resend.batch.send(batchRequests);
-                    results.push(batchResponse);
+                    // No attachments, safe to use Batch API for better performance
+                    if (batchRequests.length === 1) {
+                        const response = await resend.emails.send(batchRequests[0]);
+                        results.push(response);
+                    } else {
+                        const batchResponse = await resend.batch.send(batchRequests);
+                        results.push(batchResponse);
+                    }
                 }
                 console.log(`[EmailCenter] Successfully sent chunk`);
             } catch (err: any) {
