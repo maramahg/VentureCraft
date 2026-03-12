@@ -13,7 +13,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Venture Craft | 100K Competition",
+  title: "Venture Craft | Build Your Venture",
   description: "Venture Craft is KFUPM's premier international deep-tech startup competition, supporting innovation and global impact.",
   metadataBase: new URL("https://kfupm-venturecraft.org/"),
 };

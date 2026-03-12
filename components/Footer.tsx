@@ -21,9 +21,12 @@ export default function Footer() {
                                 className="h-10 md:h-12 w-auto object-contain"
                             />
                         </div>
-                        <p className="text-[#9CA3AF] text-sm leading-relaxed max-w-xs mx-auto" style={{ marginTop: '0.75rem' }}>
-                            KFUPM's international deep-tech startup competition supporting innovation and global impact.
-                        </p>
+                        <div className="flex flex-col items-center">
+                            <p className="text-vc-mint font-black text-[10px] uppercase tracking-[0.3em] mb-2">Build Your Venture</p>
+                            <p className="text-[#9CA3AF] text-sm leading-relaxed max-w-xs mx-auto">
+                                KFUPM's international deep-tech startup competition supporting innovation and global impact.
+                            </p>
+                        </div>
 
                         {/* Social Media Links */}
                         <div className="flex gap-4 pt-8 justify-center" style={{ marginTop: '2rem' }}>
