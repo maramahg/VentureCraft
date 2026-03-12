@@ -7,7 +7,8 @@ import {
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, Paperclip
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, Paperclip,
+    AlignLeft, AlignCenter, AlignRight, Type
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
@@ -2260,6 +2261,53 @@ function AdminDashboardContent() {
                                                             <div className="w-2 h-2 rounded-full bg-vc-mint" />
                                                             <span>Mint</span>
                                                         </button>
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+
+                                                        {/* Font Size Dropdown */}
+                                                        <div className="relative group/size">
+                                                            <button className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1">
+                                                                <Type className="w-3.5 h-3.5" />
+                                                                <ChevronDown className="w-3 h-3 text-white/20" />
+                                                            </button>
+                                                            <div className="absolute bottom-full left-0 mb-2 w-32 bg-[#0c1e1c] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/size:opacity-100 group-hover/size:visible transition-all z-50 p-1">
+                                                                {[12, 14, 16, 18, 20, 24, 32].map(size => (
+                                                                    <button
+                                                                        key={size}
+                                                                        onClick={() => insertTag(`[size=${size}]`, '[/size]')}
+                                                                        className="w-full text-left px-3 py-2 text-[10px] font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 rounded-lg transition-all"
+                                                                    >
+                                                                        {size}px {size === 16 && '(Default)'}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+
+                                                        {/* Alignment Group */}
+                                                        <div className="flex items-center gap-0.5">
+                                                            <button
+                                                                onClick={() => insertTag('[align=left]', '[/align]')}
+                                                                title="Align Left"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignLeft className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => insertTag('[align=center]', '[/align]')}
+                                                                title="Align Center"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignCenter className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => insertTag('[align=right]', '[/align]')}
+                                                                title="Align Right"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignRight className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <textarea
