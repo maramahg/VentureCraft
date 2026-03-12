@@ -15,6 +15,21 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'At least one recipient email is required' }, { status: 400 });
         }
 
+        // Process attachments once outside the loops
+        console.log(`[EmailCenter] API Start. Recipients: ${recipients.length}, Attachments: ${attachments?.length || 0}`);
+
+        const processedAttachments = attachments && attachments.length > 0
+            ? attachments.map((att: any) => {
+                const buffer = Buffer.from(att.content, 'base64');
+                console.log(`[EmailCenter] Processed attachment: ${att.name}, type: ${att.type}, size: ${buffer.length} bytes`);
+                return {
+                    filename: att.name,
+                    content: buffer,
+                    contentType: att.type
+                };
+            })
+            : undefined;
+
         // Resend batch sending (handles up to 100 emails per batch)
         // We'll process them in chunks of 50 to be safe and avoid rate limits
         const chunkSize = 50;
@@ -22,6 +37,8 @@ export async function POST(request: Request) {
 
         for (let i = 0; i < recipients.length; i += chunkSize) {
             const chunk = recipients.slice(i, i + chunkSize);
+            console.log(`[EmailCenter] Sending chunk of ${chunk.length} emails...`);
+
             const batchRequests = chunk.map((toEmail: string) => {
                 const htmlRow = getEmailHtml({
                     title: headline || 'Announcement',
@@ -42,24 +59,27 @@ export async function POST(request: Request) {
 
                 return {
                     from: 'Venture Craft <no-reply@kfupm-venturecraft.org>',
-                    to: [toEmail],
-                    subject: subject || '🚀 Deadline Extended: Join the Venture Craft Challenge',
+                    to: toEmail, // Using string instead of array for compatibility
+                    subject: subject || 'New Update from Venture Craft',
                     replyTo: 'no-reply@kfupm-venturecraft.org',
                     html: htmlRow,
-                    attachments: attachments?.map((att: any) => ({
-                        filename: att.name,
-                        content: Buffer.from(att.content, 'base64')
-                    }))
+                    attachments: processedAttachments
                 };
             });
 
             // Attempt to send batch
             try {
-                // Check if batch is supported, if not fall back to Promise.all
-                const batchResponse = await (resend.batch ? resend.batch.send(batchRequests) : Promise.all(batchRequests.map((req: any) => resend.emails.send(req))));
-                results.push(batchResponse);
+                // If only 1 recipient, use regular send for better reliability in tests
+                if (batchRequests.length === 1) {
+                    const response = await resend.emails.send(batchRequests[0]);
+                    results.push(response);
+                } else {
+                    const batchResponse = await resend.batch.send(batchRequests);
+                    results.push(batchResponse);
+                }
+                console.log(`[EmailCenter] Successfully sent chunk`);
             } catch (err: any) {
-                console.error('Batch send error:', err.message);
+                console.error('[EmailCenter] Send error:', err.message);
                 throw err;
             }
         }

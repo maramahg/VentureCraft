@@ -409,36 +409,10 @@ export default function MaterialsPage() {
 
                                         <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-2xl glass-panel group ring-1 ring-white/5">
                                             <iframe
-                                                src={`${material.content.templateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                                                className="absolute inset-0 w-full h-full border-none opacity-90 group-hover:opacity-100 transition-opacity"
+                                                src={`${material.content.templateUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                                                className="absolute inset-0 w-full h-full border-none transition-opacity"
                                                 title="Pitch Deck Template Preview"
                                             />
-                                            {/* Mobile Overlay */}
-                                            <div className="absolute inset-0 flex md:hidden items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-center">
-                                                <div className="space-y-4">
-                                                    <p className="text-sm text-white/60">Template preview is best viewed on larger screens.</p>
-                                                    <div className="flex flex-col gap-3">
-                                                        <a
-                                                            href={material.content.templateUrl}
-                                                            download
-                                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg shadow-vc-mint/10 w-full"
-                                                        >
-                                                            <Download className="w-4 h-4" />
-                                                            Download PDF
-                                                        </a>
-                                                        {material.content.templatePptxUrl && (
-                                                            <a
-                                                                href={material.content.templatePptxUrl}
-                                                                download
-                                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all w-full"
-                                                            >
-                                                                <FileCode className="w-4 h-4 text-vc-mint" />
-                                                                Download PPTX
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <p className="text-sm text-white/40 italic text-center px-4">

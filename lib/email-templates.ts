@@ -79,6 +79,9 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
               <div style="text-align: left; color: #e2e8f0;">
                 ${content}
               </div>
+              <div style="display: none; max-height: 0px; overflow: hidden; font-size: 1px; color: #0c1e1c; line-height: 1px; mso-hide: all;">
+                Ref: ${uniqueId}
+              </div>
               ${buttonHtml}
             </td>
           </tr>
@@ -116,8 +119,6 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
               <p style="color: #2c4a45; font-family: Arial, sans-serif; font-size: 11px; margin: 0; font-weight: bold;">
                 Build Your Venture
               </p>
-              <!-- Dynamic unique hidden text to prevent Gmail grouping/trimming -->
-              <p style="color: #081514; font-size: 5px; margin: 0;">Ref: ${uniqueId} | Sent at ${timestamp}</p>
             </td>
           </tr>
 
