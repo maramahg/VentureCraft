@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Footer from '@/components/Footer';
 
-import { motion } from 'framer-motion';
-import { AlertCircle, Rocket, ArrowLeft, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, Rocket, ArrowLeft, ArrowRight, FileText, ExternalLink, Download, FileCode, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
 const applicationMaterials = [
@@ -23,7 +24,9 @@ const applicationMaterials = [
                 "Business model",
                 "Financial overview",
                 "Traction and growth strategy"
-            ]
+            ],
+            templateUrl: "/VentureCraft-Pitch-Deck-Sample.pdf?v=3",
+            templatePptxUrl: "/VentureCraft-Pitch-Deck-Sample.pptx"
         }
     },
     {
@@ -159,6 +162,8 @@ const applicationMaterials = [
 ];
 
 export default function MaterialsPage() {
+    const [downloadOpen, setDownloadOpen] = useState(false);
+
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-24 md:pt-40 relative overflow-x-hidden">
             {/* Background Orbs */}
@@ -322,6 +327,123 @@ export default function MaterialsPage() {
                                             <p className="text-sm font-bold text-white uppercase tracking-wider">Evaluation Note</p>
                                             <p className="text-sm text-white/40 leading-relaxed italic">{material.note}</p>
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* PDF Preview Section - Now at the end of the card and full width */}
+                                {material.content.templateUrl && (
+                                    <div className="mt-12 space-y-6 pt-8 border-t border-white/5">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center">
+                                                    <FileText className="w-5 h-5 text-vc-mint" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-lg font-bold text-white uppercase tracking-wider leading-none">Sample Template</h4>
+                                                    <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mt-1">Optional Resource</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="relative">
+                                                    <button
+                                                        onClick={() => setDownloadOpen(!downloadOpen)}
+                                                        className="flex items-center gap-2 text-xs font-bold text-vc-mint hover:text-white transition-colors group bg-vc-mint/5 px-4 py-2 rounded-lg border border-vc-mint/10"
+                                                    >
+                                                        <Download className="w-3.5 h-3.5" />
+                                                        DOWNLOAD
+                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${downloadOpen ? 'rotate-180' : ''}`} />
+                                                    </button>
+
+                                                    <AnimatePresence>
+                                                        {downloadOpen && (
+                                                            <>
+                                                                <div
+                                                                    className="fixed inset-0 z-40"
+                                                                    onClick={() => setDownloadOpen(false)}
+                                                                />
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                                    className="absolute right-0 mt-2 w-48 bg-[#001f1c] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl"
+                                                                >
+                                                                    <div className="p-1">
+                                                                        <a
+                                                                            href={material.content.templateUrl}
+                                                                            download
+                                                                            onClick={() => setDownloadOpen(false)}
+                                                                            className="flex items-center gap-3 px-4 py-3 text-xs font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 transition-all rounded-lg group"
+                                                                        >
+                                                                            <FileText className="w-4 h-4 text-vc-mint/40 group-hover:text-vc-mint" />
+                                                                            PITCH DECK (PDF)
+                                                                        </a>
+                                                                        {material.content.templatePptxUrl && (
+                                                                            <a
+                                                                                href={material.content.templatePptxUrl}
+                                                                                download
+                                                                                onClick={() => setDownloadOpen(false)}
+                                                                                className="flex items-center gap-3 px-4 py-3 text-xs font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 transition-all rounded-lg group"
+                                                                            >
+                                                                                <FileCode className="w-4 h-4 text-vc-mint/40 group-hover:text-vc-mint" />
+                                                                                POWERPOINT (PPTX)
+                                                                            </a>
+                                                                        )}
+                                                                    </div>
+                                                                </motion.div>
+                                                            </>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+
+                                                <a
+                                                    href={material.content.templateUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-2 text-xs font-bold text-white/40 hover:text-white transition-colors group bg-white/5 px-4 py-2 rounded-lg border border-white/10"
+                                                >
+                                                    <ExternalLink className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                                                    FULLSCREEN
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-2xl glass-panel group ring-1 ring-white/5">
+                                            <iframe
+                                                src={`${material.content.templateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                                                className="absolute inset-0 w-full h-full border-none opacity-90 group-hover:opacity-100 transition-opacity"
+                                                title="Pitch Deck Template Preview"
+                                            />
+                                            {/* Mobile Overlay */}
+                                            <div className="absolute inset-0 flex md:hidden items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-center">
+                                                <div className="space-y-4">
+                                                    <p className="text-sm text-white/60">Template preview is best viewed on larger screens.</p>
+                                                    <div className="flex flex-col gap-3">
+                                                        <a
+                                                            href={material.content.templateUrl}
+                                                            download
+                                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg shadow-vc-mint/10 w-full"
+                                                        >
+                                                            <Download className="w-4 h-4" />
+                                                            Download PDF
+                                                        </a>
+                                                        {material.content.templatePptxUrl && (
+                                                            <a
+                                                                href={material.content.templatePptxUrl}
+                                                                download
+                                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all w-full"
+                                                            >
+                                                                <FileCode className="w-4 h-4 text-vc-mint" />
+                                                                Download PPTX
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <p className="text-sm text-white/40 italic text-center px-4">
+                                            You are welcome to use this template as a guide, or create your own from scratch.
+                                        </p>
                                     </div>
                                 )}
                             </div>
