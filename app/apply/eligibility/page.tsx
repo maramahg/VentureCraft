@@ -30,7 +30,7 @@ const eligibilityCriteria = [
         category: 'Education',
         requirement: (
             <div className="space-y-2">
-                <p>The team leader and main co-founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> a STEM Diploma or an undergraduate (Bachelor's) degree.</p>
+                <p>The team leader and main co-founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> an undergraduate (Bachelor's) degree or a STEM Diploma.</p>
                 <p className="text-sm text-white/50 italic">While not mandatory, this is highly recommended for all other team members.</p>
             </div>
         ),
