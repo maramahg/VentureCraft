@@ -30,7 +30,7 @@ const eligibilityCriteria = [
         category: 'Education',
         requirement: (
             <div className="space-y-2">
-                <p>The team leader and main co-founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> an undergraduate (bachelor’s) degree.</p>
+                <p>The team leader and main co-founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> a STEM Diploma or an undergraduate (Bachelor's) degree.</p>
                 <p className="text-sm text-white/50 italic">While not mandatory, this is highly recommended for all other team members.</p>
             </div>
         ),
@@ -124,10 +124,10 @@ const additionalPoints = [
 
 const targetAudience = [
     {
-        category: "Bachelor's Students & Recent STEM Graduates",
-        description: "Individuals currently enrolled in a Bachelor's degree program or those who have graduated with a Bachelor's in a STEM field within the last 5 years.",
-        profile: "Bachelor's level innovators developing deep-tech solutions during their academic journey or early professional career.",
-        evidence: "Official Enrollment Certificate, Student ID, Graduation Certificate, or Official Transcript (Bachelor's Level)."
+        category: "STEM Students & Recent Graduates (0-5 years) - Bachelor's / Diploma",
+        description: "Individuals currently enrolled in a Bachelor's or STEM Diploma program, or those who have graduated in a STEM field within the last 5 years.",
+        profile: "Bachelor's and Diploma level innovators developing deep-tech solutions during their academic journey or early professional career.",
+        evidence: "Official Enrollment Certificate, Student ID, Graduation Certificate, or Official Transcript (Bachelor's or Diploma Level)."
     },
     {
         category: 'Postdocs & Researchers',
