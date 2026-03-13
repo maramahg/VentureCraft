@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -16,19 +16,22 @@ interface MobilePDFViewerProps {
 export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
     const [numPages, setNumPages] = useState<number>();
     const [containerWidth, setContainerWidth] = useState<number>(0);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    // Dynamic width calculation to fit the modal/container perfectly
+    // Dynamic width calculation using a ResizeObserver to perfectly match the card's exact width
     useEffect(() => {
-        const updateWidth = () => {
-            // In page.tsx, the container has a max width. On mobile, we can take the full viewport minus padding.
-            // Subtracting 96px to ensure the PDF fits inside the dark green card boundaries with generous padding on both sides.
-            const width = window.innerWidth - 96;
-            setContainerWidth(width > 900 ? 900 : width);
-        };
+        if (!containerRef.current) return;
 
-        updateWidth();
-        window.addEventListener('resize', updateWidth);
-        return () => window.removeEventListener('resize', updateWidth);
+        const observer = new ResizeObserver((entries) => {
+            if (entries[0]) {
+                const { width } = entries[0].contentRect;
+                // Subtract 32px (16px of padding on each side) to match the visual padding of the UI F12 screenshot
+                setContainerWidth(width > 900 ? 900 : width - 32);
+            }
+        });
+
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
     }, []);
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
@@ -36,7 +39,7 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
     }
 
     return (
-        <div className="w-full h-full overflow-y-auto bg-white flex flex-col items-center nice-scrollbar">
+        <div ref={containerRef} className="w-full h-full overflow-y-auto overflow-x-hidden bg-white flex flex-col items-center nice-scrollbar py-4">
             <Document
                 file={pdfUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
@@ -46,16 +49,16 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
                         <p className="font-mono text-sm uppercase tracking-widest text-[#001412]">Loading PDF...</p>
                     </div>
                 }
-                className="w-full flex-col items-center shadow-lg"
+                className="flex flex-col items-center w-full"
             >
                 {Array.from(new Array(numPages || 0), (el, index) => (
-                    <div key={`page_${index + 1}`} className="mb-4 shadow-sm border-b border-gray-100 last:mb-0 w-full flex justify-center bg-white">
+                    <div key={`page_${index + 1}`} className="mb-4 shadow-sm border border-gray-100 last:mb-0 w-full flex justify-center bg-white">
                         <Page
                             pageNumber={index + 1}
                             width={containerWidth}
                             renderTextLayer={false}
                             renderAnnotationLayer={false}
-                            className="w-full"
+                            className="bg-white flex justify-center"
                         />
                     </div>
                 ))}
