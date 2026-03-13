@@ -21,8 +21,8 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
     useEffect(() => {
         const updateWidth = () => {
             // In page.tsx, the container has a max width. On mobile, we can take the full viewport minus padding.
-            // The padding is roughly 2rem (32px) on mobile for the main container layout.
-            const width = window.innerWidth - 32;
+            // Subtracting 64px instead of 32px to give it a slightly "zoomed out" feel with more breathing room.
+            const width = window.innerWidth - 64;
             setContainerWidth(width > 900 ? 900 : width);
         };
 
