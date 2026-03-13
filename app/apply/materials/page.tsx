@@ -585,31 +585,12 @@ export default function MaterialsPage() {
                                                 }`}>
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
 
-                                                {/* Mobile PDF Zoom Fix: Using a scale trick to force the PDF to fit the width on small screens */}
-                                                <div className="absolute inset-0 w-full h-full md:block hidden">
-                                                    <iframe
-                                                        key={`desktop-${currentDoc.previewUrl || currentDoc.pdfUrl}`}
-                                                        src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitW`}
-                                                        className="w-full h-full border-none bg-white"
-                                                        title={`${material.title} Desktop Preview`}
-                                                    />
-                                                </div>
-
-                                                <div className="absolute inset-0 w-full h-full md:hidden flex flex-col items-center justify-center bg-[#001412] p-6 text-center">
-                                                    <FileText className="w-16 h-16 text-vc-mint/50 mb-4" />
-                                                    <h3 className="text-white font-bold text-lg mb-2">{currentDoc.sublabel}</h3>
-                                                    <p className="text-white/60 text-sm mb-6 max-w-[250px]">
-                                                        For the best reading experience on mobile, please open this document in full screen.
-                                                    </p>
-                                                    <a
-                                                        href={currentDoc.pdfUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="bg-vc-mint text-vc-green-dark px-6 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all text-sm"
-                                                    >
-                                                        <ExternalLink className="w-4 h-4" /> Open PDF
-                                                    </a>
-                                                </div>
+                                                <iframe
+                                                    key={currentDoc.previewUrl || currentDoc.pdfUrl}
+                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
+                                                    className="absolute inset-0 w-full h-full border-none transition-opacity bg-white"
+                                                    title={`${material.title} Preview`}
+                                                />
                                             </div>
 
                                             <p className="text-sm text-white/40 italic text-center px-4">
