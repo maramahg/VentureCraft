@@ -89,15 +89,17 @@
             opacity: 0.8;
         }
 
-        .doc-type {
+        .doc-badge {
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.2em;
             color: var(--vc-teal);
             background: rgba(0, 163, 131, 0.05);
-            padding: 6px 16px;
+            padding: 8px 16px;
             border-radius: 50px;
+            line-height: 1.4;
+            max-width: 200px;
         }
 
         h1 {
@@ -109,7 +111,7 @@
             margin-bottom: 20px;
         }
 
-        .intro-p {
+        .intro-text {
             font-size: 15px;
             color: #666;
             max-width: 650px;
@@ -451,6 +453,90 @@
             }
         }
 
+        /* Responsive Design (Screen Only) */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            header {
+                padding: 40px 30px 30px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                margin-bottom: 30px;
+                width: 100%;
+            }
+
+            .logo-area,
+            .doc-badge {
+                width: 100%;
+            }
+
+            .doc-badge {
+                align-self: flex-start;
+                font-size: 10px;
+                padding: 6px 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+                word-wrap: break-word;
+            }
+
+            .scenario-box {
+                margin: 20px 30px;
+                padding: 20px;
+            }
+
+            .main-content {
+                padding: 30px;
+            }
+
+            .q-item {
+                margin-bottom: 25px;
+            }
+
+            .q-value {
+                width: 100%;
+                display: block;
+            }
+
+            .info-card {
+                padding: 20px;
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            .footer-banner {
+                padding: 30px 20px;
+            }
+
+            .print-fab {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 11px;
+                width: calc(100% - 40px);
+                justify-content: center;
+            }
+
+            .document-wrapper {
+                border-radius: 12px;
+            }
+
+            .req-list {
+                columns: 1 !important;
+            }
+
+            .pillar-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         .tag {
             font-size: 9px;
             font-weight: 900;
@@ -534,7 +620,8 @@
                         <li>Team Member: Liam O’Connor</li>
                         <li>Team Member: Priya Nair</li>
                     </ul>
-                    <span style="font-size: 11px; color: #aaa; italic; display: block; margin-top: 10px;">(Fictional
+                    <span
+                        style="font-size: 11px; color: #aaa; font-style: italic; display: block; margin-top: 10px;">(Fictional
                         names & people)</span>
                 </div>
 
