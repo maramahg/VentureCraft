@@ -92,11 +92,13 @@ const applicationMaterials: ApplicationMaterial[] = [
                     label: "Sample",
                     sublabel: "Venture Craftee Sample",
                     pdfUrl: "/samples/venture-craftee-pitch-deck.pdf",
-                    pptxUrl: "/samples/venture-craftee-pitch-deck.pptx"
+                    pptxUrl: "/samples/venture-craftee-pitch-deck.pptx",
+                    previewUrl: "/venture-craftee-pitch-deck.html"
                 }
             ],
             templateUrl: "/samples/venture-craft-pitch-deck-template.pdf",
-            templatePptxUrl: "/samples/venture-craft-pitch-deck-sample.pptx"
+            templatePptxUrl: "/samples/venture-craft-pitch-deck-sample.pptx",
+            brandedUrl: "/venture-craftee-pitch-deck.html"
         }
     },
     {
