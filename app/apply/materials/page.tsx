@@ -581,11 +581,12 @@ export default function MaterialsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5">
+                                            <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5 ${material.title.toLowerCase().includes('pitch deck') ? 'aspect-[16/9]' : 'aspect-[1/1.3] md:aspect-[1/1.4]'
+                                                }`}>
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
                                                 <iframe
                                                     key={currentDoc.previewUrl || currentDoc.pdfUrl}
-                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
                                                     className="absolute inset-0 w-full h-full border-none transition-opacity bg-white"
                                                     title={`${material.title} Preview`}
                                                 />

@@ -16,7 +16,7 @@ export const simulatedApplication = {
 
     startupName: 'Venture Craftee',
     location: 'Silicon Valley, USA', // Derived from phone code +1 415
-    pillar: 'Decarbonization Technologies & Energy Efficiency',
+    pillar: 'Decarbonization Technologies',
     isOlderThan5Years: 'No',
     stage: 'Seed',
     conflictOfInterest: 'None.',

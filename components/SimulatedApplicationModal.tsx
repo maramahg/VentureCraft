@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, Rocket, FileText, CheckCircle, ArrowRight, ArrowLeft, Globe, Mail, Phone, ShieldCheck, ExternalLink, Video, Link as LinkIcon, Upload, AlertCircle } from 'lucide-react';
 import { simulatedApplication } from '@/lib/simulated-application-sample';
@@ -12,6 +12,14 @@ interface SimulatedApplicationModalProps {
 
 export default function SimulatedApplicationModal({ isOpen, onClose }: SimulatedApplicationModalProps) {
     const [step, setStep] = useState(1);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const handleStepChange = (newStep: number) => {
+        setStep(newStep);
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -70,7 +78,10 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto no-scrollbar pt-10 pb-20 px-6 md:px-12">
+                    <div
+                        ref={scrollContainerRef}
+                        className="flex-1 overflow-y-auto no-scrollbar pt-10 pb-20 px-6 md:px-12"
+                    >
                         <div className="max-w-3xl mx-auto">
 
                             <div className="text-center mb-10">
@@ -177,7 +188,7 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             </div>
 
                                             <div className="flex justify-end pt-8">
-                                                <button onClick={() => setStep(2)} className="bg-vc-mint text-vc-green-dark px-8 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all">
+                                                <button onClick={() => handleStepChange(2)} className="bg-vc-mint text-vc-green-dark px-8 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all">
                                                     Next Step <ArrowRight className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -223,7 +234,7 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                                         'Energy Efficiency',
                                                         'Process Optimization & Advanced Engineering'
                                                     ].map((p) => {
-                                                        const isSelected = simulatedApplication.pillar.includes(p) || p === 'Energy Efficiency'; // Logic to highlight the sample pillar
+                                                        const isSelected = simulatedApplication.pillar === p;
                                                         return (
                                                             <div
                                                                 key={p}
@@ -283,10 +294,10 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             </div>
 
                                             <div className="flex justify-between pt-8">
-                                                <button onClick={() => setStep(1)} className="text-white/40 font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors">
+                                                <button onClick={() => handleStepChange(1)} className="text-white/40 font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors">
                                                     <ArrowLeft className="w-4 h-4" /> Back
                                                 </button>
-                                                <button onClick={() => setStep(3)} className="bg-vc-mint text-vc-green-dark px-8 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all">
+                                                <button onClick={() => handleStepChange(3)} className="bg-vc-mint text-vc-green-dark px-8 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all">
                                                     Next Step <ArrowRight className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -362,7 +373,7 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             </div>
 
                                             <div className="flex justify-between pt-8">
-                                                <button onClick={() => setStep(2)} className="text-white/40 font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors">
+                                                <button onClick={() => handleStepChange(2)} className="text-white/40 font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors">
                                                     <ArrowLeft className="w-4 h-4" /> Back
                                                 </button>
                                                 <button onClick={onClose} className="bg-white/10 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all border border-white/10">
