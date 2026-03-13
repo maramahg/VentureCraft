@@ -91,7 +91,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Sample",
                     sublabel: "Venture Craftee Sample",
-                    pdfUrl: "/samples/venture-craftee-pitch-deck.pdf"
+                    pdfUrl: "/samples/venture-craftee-pitch-deck.pdf",
+                    previewUrl: "/venture-craftee-pitch-deck.html"
                 }
             ],
             templateUrl: "/samples/venture-craft-pitch-deck-template.pdf",
@@ -120,7 +121,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf"
+                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf",
+                    previewUrl: "/venture-craftee-executive-summary.html"
                 }
             ],
             templateUrl: "/samples/venture-craftee-executive-summary.pdf",
@@ -240,7 +242,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf"
+                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf",
+                    previewUrl: "/venture-craftee-supporting-data.html"
                 }
             ],
             templateUrl: "/samples/venture-craftee-supporting-data.pdf",
