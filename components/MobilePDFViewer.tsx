@@ -40,29 +40,36 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
 
     return (
         <div ref={containerRef} className="w-full h-full overflow-y-auto overflow-x-hidden bg-white flex flex-col items-center nice-scrollbar py-4">
-            <Document
-                file={pdfUrl}
-                onLoadSuccess={onDocumentLoadSuccess}
-                loading={
-                    <div className="flex flex-col items-center justify-center p-10 text-vc-mint">
-                        <Loader2 className="w-8 h-8 animate-spin mb-4" />
-                        <p className="font-mono text-sm uppercase tracking-widest text-[#001412]">Loading PDF...</p>
-                    </div>
-                }
-                className="flex flex-col items-center w-full"
-            >
-                {Array.from(new Array(numPages || 0), (el, index) => (
-                    <div key={`page_${index + 1}`} className="mb-4 shadow-sm border border-gray-100 last:mb-0 w-full flex justify-center bg-white">
-                        <Page
-                            pageNumber={index + 1}
-                            width={containerWidth}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                            className="bg-white flex justify-center"
-                        />
-                    </div>
-                ))}
-            </Document>
+            {containerWidth > 0 ? (
+                <Document
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    loading={
+                        <div className="flex flex-col items-center justify-center p-10 text-vc-mint">
+                            <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                            <p className="font-mono text-sm uppercase tracking-widest text-[#001412]">Loading PDF...</p>
+                        </div>
+                    }
+                    className="flex flex-col items-center w-full max-w-full"
+                >
+                    {Array.from(new Array(numPages || 0), (el, index) => (
+                        <div key={`page_${index + 1}`} className="mb-4 shadow-sm border border-gray-100 last:mb-0 w-full max-w-full flex justify-center bg-white overflow-hidden">
+                            <Page
+                                pageNumber={index + 1}
+                                width={containerWidth}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                className="bg-white flex justify-center max-w-full"
+                            />
+                        </div>
+                    ))}
+                </Document>
+            ) : (
+                <div className="flex flex-col items-center justify-center p-10 text-vc-mint w-full h-full min-h-[200px]">
+                    <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                    <p className="font-mono text-sm uppercase tracking-widest text-[#001412]">Measuring screen...</p>
+                </div>
+            )}
         </div>
     );
 }
