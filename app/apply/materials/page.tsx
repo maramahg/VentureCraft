@@ -91,8 +91,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Sample",
                     sublabel: "Venture Craftee Sample",
-                    pdfUrl: "/samples/venture-craftee-pitch-deck.pdf",
-                    previewUrl: "/venture-craftee-pitch-deck.html"
+                    pdfUrl: "/samples/venture-craftee-pitch-deck.pdf"
                 }
             ],
             templateUrl: "/samples/venture-craft-pitch-deck-template.pdf",
@@ -121,8 +120,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf",
-                    previewUrl: "/venture-craftee-executive-summary.html"
+                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf"
                 }
             ],
             templateUrl: "/samples/venture-craftee-executive-summary.pdf",
@@ -242,8 +240,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf",
-                    previewUrl: "/venture-craftee-supporting-data.html"
+                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf"
                 }
             ],
             templateUrl: "/samples/venture-craftee-supporting-data.pdf",
@@ -589,7 +586,7 @@ export default function MaterialsPage() {
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
                                                 <iframe
                                                     key={currentDoc.previewUrl || currentDoc.pdfUrl}
-                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
+                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitW`}
                                                     className="absolute inset-0 w-full h-full border-none transition-opacity bg-white"
                                                     title={`${material.title} Preview`}
                                                 />
