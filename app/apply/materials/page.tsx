@@ -91,9 +91,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Sample",
                     sublabel: "Venture Craftee Sample",
-                    pdfUrl: "/samples/venture-craftee-pitch-deck.pdf",
-                    pptxUrl: "/samples/venture-craftee-pitch-deck.pptx",
-                    previewUrl: "/venture-craftee-pitch-deck.html"
+                    pdfUrl: "/samples/venture-craftee-pitch-deck.pdf"
                 }
             ],
             templateUrl: "/samples/venture-craft-pitch-deck-template.pdf",
@@ -122,8 +120,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf",
-                    previewUrl: "/venture-craftee-executive-summary.html"
+                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf"
                 }
             ],
             templateUrl: "/samples/venture-craftee-executive-summary.pdf",
@@ -243,8 +240,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf",
-                    previewUrl: "/venture-craftee-supporting-data.html"
+                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf"
                 }
             ],
             templateUrl: "/samples/venture-craftee-supporting-data.pdf",
@@ -598,6 +594,11 @@ export default function MaterialsPage() {
                                             <p className="text-sm text-white/40 italic text-center px-4">
                                                 {currentDoc.sublabel}. You are welcome to use this as a reference to ensure your submission meets the technical standards.
                                             </p>
+
+                                            <div className="flex justify-center items-center gap-6 mt-6 opacity-60 hover:opacity-100 transition-opacity">
+                                                <img src="/dtv-logo.png" alt="Dhahran Techno Valley" className="h-8 object-contain" />
+                                                <img src="/kfupm-logo.png" alt="KFUPM" className="h-8 object-contain" />
+                                            </div>
                                         </div>
                                     )}
                                 </div>
