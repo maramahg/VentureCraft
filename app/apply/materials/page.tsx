@@ -256,6 +256,100 @@ const applicationMaterials: ApplicationMaterial[] = [
     }
 ];
 
+interface ThemePillar {
+    number: number;
+    title: string;
+    mission: string;
+    description: string;
+    innovationAreas: {
+        category: string;
+        items: string[];
+    }[];
+}
+
+const themePillars: ThemePillar[] = [
+    {
+        number: 1,
+        title: "Decarbonization Technologies",
+        mission: "Reduce and eliminate greenhouse gas emissions through clean energy and low-carbon technologies.",
+        description: "This pillar focuses on technologies that directly address carbon emissions through clean energy generation, carbon removal, or emission elimination. It encompasses the fundamental shift from fossil fuels to clean energy sources and the technologies needed to capture or prevent emissions from entering the atmosphere.",
+        innovationAreas: [
+            {
+                category: "Energy Generation & Fuels",
+                items: ["Renewable Energy (Solar, Wind, Hydro, Geothermal)", "Green Hydrogen & Ammonia Production", "Biofuels & Carbon-Neutral Alternatives", "Synthetic Fuels"]
+            },
+            {
+                category: "Carbon Management",
+                items: ["Direct Air Capture (DAC)", "Industrial CO₂ Capture & Storage (CCUS)", "Carbon Conversion Technologies", "Negative Emission Technologies"]
+            },
+            {
+                category: "Industrial & Transport",
+                items: ["Clean Transportation (EVs, Hydrogen Fuel Systems)", "Industrial Emission Reduction (Green Steel/Cement)", "Electrification of Heavy Machinery", "Methane Leak Detection"]
+            }
+        ]
+    },
+    {
+        number: 2,
+        title: "Circular Economy & Resource Efficiency",
+        mission: "Minimize waste and maximize resource utilization through circular material systems.",
+        description: "This pillar concentrates on transforming linear consumption models into circular systems where resources are continuously reused, recycled, or regenerated. It addresses the resource intensity of energy systems by creating closed-loop material flows and eliminating waste streams.",
+        innovationAreas: [
+            {
+                category: "Waste-to-Value",
+                items: ["Plastic/Agri-waste to Fuels/Biomaterials", "Advanced Chemical Recycling", "AI-powered Waste Sorting Systems"]
+            },
+            {
+                category: "Material Recovery",
+                items: ["Rare Metal Recovery (E-waste)", "Lithium-ion Battery Recycling", "Industrial Chemical/Mineral Recovery"]
+            },
+            {
+                category: "Design & Lifecycle",
+                items: ["Biodegradable & Bio-based Materials", "Modular Product Design", "Industrial Symbiosis Platforms"]
+            }
+        ]
+    },
+    {
+        number: 3,
+        title: "Energy Efficiency",
+        mission: "Optimize energy performance and minimize consumption across all applications.",
+        description: "This pillar is dedicated to maximizing energy output while minimizing input across buildings, transportation, industry, and infrastructure. It focuses on technologies and systems that reduce overall energy demand through improved performance and intelligent management.",
+        innovationAreas: [
+            {
+                category: "Digital Optimization",
+                items: ["Smart Building/HVAC Systems", "AI-based Energy Analytics & Digital Twins", "Predictive Predictive Control Systems"]
+            },
+            {
+                category: "Materials & Hardware",
+                items: ["High-Performance Thermal Barriers", "Advanced Semiconductor/Power Electronics", "Energy Harvesting Technologies"]
+            },
+            {
+                category: "Industrial & Grid",
+                items: ["Industrial Waste Heat Recovery", "Thermal Storage & Load Shifting", "Grid Stabilization & Inverter Efficiency"]
+            }
+        ]
+    },
+    {
+        number: 4,
+        title: "Process Optimization & Advanced Engineering",
+        mission: "Transform manufacturing and production through innovative engineering and automation.",
+        description: "This pillar revolutionizes how products and systems are designed, manufactured, and produced to support the sustainable energy transition. It focuses on making manufacturing processes cleaner, more efficient, and capable of producing the technologies needed.",
+        innovationAreas: [
+            {
+                category: "Industry 4.0",
+                items: ["Autonomous Manufacturing Robotics", "Industrial IoT (IIoT) Platforms", "Predictive Maintenance Algorithms"]
+            },
+            {
+                category: "Advanced Manufacturing",
+                items: ["Metal Additive Manufacturing (3D Printing)", "Precision Engineering Technologies", "Nano-manufacturing Innovations"]
+            },
+            {
+                category: "Quality & Inspection",
+                items: ["AI-powered Computer Vision QC", "Autonomous Infrastructure Inspection (Drones)", "Virtual Factory Simulations"]
+            }
+        ]
+    }
+];
+
 export default function MaterialsPage() {
     const [downloadOpen, setDownloadOpen] = useState<Record<string, boolean>>({});
     const [activeDoc, setActiveDoc] = useState<Record<string, number>>({
@@ -333,6 +427,178 @@ export default function MaterialsPage() {
                                 </button>
                             </div>
 
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Theme Pillars Section */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    className="mb-24 space-y-16"
+                >
+                    {/* Overview Header */}
+                    <div className="text-center space-y-4 max-w-3xl mx-auto">
+                        <div className="flex items-center justify-center gap-2 text-vc-mint font-bold tracking-[0.3em] uppercase text-xs">
+                            <div className="w-12 h-px bg-vc-mint/30" />
+                            Competition Framework
+                            <div className="w-12 h-px bg-vc-mint/30" />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">Sustainable Energy Theme Pillars</h2>
+                        <p className="text-white/40 text-sm md:text-base leading-relaxed">
+                            The KFUPM Venture Craft competition embraces innovation through four interconnected pillars, welcoming startups from diverse disciplines to drive the global energy transition.
+                        </p>
+                    </div>
+
+                    {/* Pillars Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {themePillars.map((pillar, idx) => (
+                            <div key={idx} className="glass-panel p-8 relative group overflow-hidden border-white/5 hover:border-vc-mint/30 transition-all duration-500">
+                                {/* Diagonal Accents */}
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-vc-mint/5 -mr-12 -mt-12 rounded-full blur-3xl group-hover:bg-vc-mint/10 transition-colors" />
+
+                                <div className="relative z-10 space-y-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-black text-xl border border-vc-mint/20 shadow-lg shadow-black/20">
+                                            {pillar.number}
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white tracking-tight uppercase group-hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-8 decoration-2">{pillar.title}</h3>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
+                                            <span className="text-[10px] font-black text-vc-mint uppercase tracking-widest block mb-1">Mission</span>
+                                            <p className="text-sm font-bold text-white leading-relaxed">{pillar.mission}</p>
+                                        </div>
+                                        <p className="text-sm text-white/50 leading-relaxed font-medium">{pillar.description}</p>
+                                    </div>
+
+                                    {/* Innovation Areas */}
+                                    <div className="space-y-4 pt-4 border-t border-white/5">
+                                        <h4 className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Key Innovation Areas</h4>
+                                        <div className="space-y-3">
+                                            {pillar.innovationAreas.map((area, aidx) => (
+                                                <div key={aidx} className="space-y-2">
+                                                    <span className="text-[10px] font-bold text-vc-teal/60 uppercase">{area.category}</span>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {area.items.map((item, iidx) => (
+                                                            <span key={iidx} className="px-2 py-1 bg-white/[0.03] border border-white/10 rounded text-[10px] text-white/40 font-bold whitespace-nowrap">
+                                                                {item}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Pillar Integration & Impact Tables */}
+                    <div className="space-y-12 pt-8">
+                        {/* Summary Table 1 */}
+                        <div className="glass-panel overflow-hidden border-white/10">
+                            <div className="p-6 bg-white/[0.03] border-bottom border-white/5">
+                                <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
+                                    Pillar Integration Strategy
+                                </h3>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-black/20">
+                                            <th className="px-6 py-4 text-[10px] font-black text-vc-mint uppercase tracking-widest">Pillar</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-vc-mint uppercase tracking-widest">Focus for Energy Transition</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5 font-medium">
+                                        <tr className="hover:bg-white/[0.01] transition-colors">
+                                            <td className="px-6 py-4 text-sm font-bold text-white">1. Decarbonization</td>
+                                            <td className="px-6 py-4 text-sm text-white/50">Provides clean energy sources and direct emission elimination.</td>
+                                        </tr>
+                                        <tr className="hover:bg-white/[0.01] transition-colors">
+                                            <td className="px-6 py-4 text-sm font-bold text-white">2. Circular Economy</td>
+                                            <td className="px-6 py-4 text-sm text-white/50">Ensures resource security and circularity for energy systems.</td>
+                                        </tr>
+                                        <tr className="hover:bg-white/[0.01] transition-colors">
+                                            <td className="px-6 py-4 text-sm font-bold text-white">3. Energy Efficiency</td>
+                                            <td className="px-6 py-4 text-sm text-white/50">Maximizes performance while minimizing overall energy demand.</td>
+                                        </tr>
+                                        <tr className="hover:bg-white/[0.01] transition-colors">
+                                            <td className="px-6 py-4 text-sm font-bold text-white">4. Process Optimization</td>
+                                            <td className="px-6 py-4 text-sm text-white/50">Enables scalable production of sustainable energy technologies.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Impact Metrics Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                                <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-vc-teal shadow-[0_0_10px_rgba(0,163,131,0.5)]" />
+                                    Measurable Impact
+                                </h3>
+                                <div className="space-y-4">
+                                    {[
+                                        { p: "Pillar 1", metric: "CO₂ Reduction Potential", unit: "tons/year", desc: "Emissions avoided or captured" },
+                                        { p: "Pillar 2", metric: "Material Recovery Rate", unit: "% Percentage", desc: "Waste converted into usable resources" },
+                                        { p: "Pillar 3", metric: "Energy Savings", unit: "% Percentage", desc: "Reduction in energy use per unit output" },
+                                        { p: "Pillar 4", metric: "Throughput Improvement", unit: "% Percentage", desc: "Production output increase under same resources" }
+                                    ].map((impact, i) => (
+                                        <div key={i} className="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-colors">
+                                            <div className="w-10 h-10 rounded-xl bg-vc-teal/10 flex items-center justify-center text-[10px] font-black text-vc-teal shrink-0">
+                                                {impact.p.toUpperCase()}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-baseline justify-between mb-0.5">
+                                                    <h4 className="text-sm font-bold text-white">{impact.metric}</h4>
+                                                    <span className="text-[10px] font-black text-vc-mint/40 uppercase tracking-tighter">{impact.unit}</span>
+                                                </div>
+                                                <p className="text-xs text-white/40 leading-relaxed italic">{impact.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Choosing Pillar */}
+                            <div className="space-y-6">
+                                <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
+                                    Pillar Selection Rule
+                                </h3>
+                                <div className="glass-panel p-6 border-vc-mint/20 relative group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                        <AlertCircle className="w-12 h-12 text-vc-mint" />
+                                    </div>
+                                    <p className="text-sm font-bold text-white/80 leading-relaxed mb-6">
+                                        Startups must select the pillar that represents the <strong className="text-vc-mint underline decoration-vc-mint/30 underline-offset-4">primary measurable impact</strong> of their innovation. While solutions may influence multiple areas, evaluation will focus on the pillar with the strongest quantifiable impact.
+                                    </p>
+                                    <div className="space-y-3">
+                                        {[
+                                            { p: 1, c: "Reduces or eliminates GHG emissions" },
+                                            { p: 2, c: "Reduces material waste or recovers resources" },
+                                            { p: 3, c: "Reduces energy required for a task" },
+                                            { p: 4, c: "Improves industrial design/building/operation" }
+                                        ].map((rule, ri) => (
+                                            <div key={ri} className="flex items-start gap-4">
+                                                <div className="w-5 h-5 rounded bg-vc-mint/10 border border-vc-mint/20 flex items-center justify-center text-[10px] font-black text-vc-mint shrink-0 mt-0.5">
+                                                    P{rule.p}
+                                                </div>
+                                                <p className="text-xs text-white/50 font-bold leading-normal">
+                                                    Choose <span className="text-white">Pillar {rule.p}</span> if your innovation <span className="italic">{rule.c}.</span>
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
