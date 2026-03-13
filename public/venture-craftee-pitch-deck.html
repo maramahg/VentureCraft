@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venture Craft - Pitch Deck Sample</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --vc-green-dark: #00201D;
+            --vc-green-medium: #003833;
+            --vc-teal: #00A383;
+            --vc-mint: #4FD1C5;
+            --vc-white: #ffffff;
+            --vc-light-gray: #f4f7f7;
+            --vc-text: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #051111;
+            color: var(--vc-text);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .presentation-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .slide {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: var(--vc-white);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Slide Top Accent */
+        .slide-accent {
+            height: 12px;
+            width: 100%;
+            background: linear-gradient(to right, var(--vc-green-dark), var(--vc-teal), var(--vc-mint));
+        }
+
+        /* Slide Header */
+        .slide-header {
+            padding: 30px 60px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            height: 28px;
+            filter: brightness(0);
+        }
+
+        .slide-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ccc;
+        }
+
+        /* Slide Content Area */
+        .slide-content {
+            flex: 1;
+            padding: 20px 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .content-inner {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1.slide-title {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--vc-green-dark);
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        h1.slide-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 80px;
+            height: 5px;
+            background: var(--vc-mint);
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--vc-teal);
+            margin-bottom: 20px;
+        }
+
+        p,
+        li {
+            font-size: 22px;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        ol {
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li::marker {
+            color: var(--vc-teal);
+            font-weight: 900;
+        }
+
+        /* Specific Slide Layouts */
+        .cover-slide {
+            background: var(--vc-green-dark);
+            color: var(--vc-white);
+            justify-content: center;
+            align-items: flex-start;
+            padding: 80px;
+            position: relative;
+        }
+
+        .cover-slide::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 50%;
+            height: 60%;
+            background: var(--vc-teal);
+            opacity: 0.1;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+        }
+
+        .cover-slide .slide-accent {
+            display: none;
+        }
+
+        .cover-slide .slide-header {
+            display: none;
+        }
+
+        .cover-slide>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover-slide h1 {
+            font-size: 72px;
+            color: var(--vc-white);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+        .cover-slide h1 span {
+            color: var(--vc-mint);
+        }
+
+        .cover-slide h2 {
+            color: var(--vc-mint);
+            font-weight: 600;
+            font-size: 36px;
+            margin-bottom: 60px;
+            letter-spacing: -0.5px;
+        }
+
+        .cover-slide p {
+            color: #ccc;
+            font-size: 24px;
+            max-width: 800px;
+            border-left: 4px solid var(--vc-teal);
+            padding-left: 20px;
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .highlight-box {
+            background: var(--vc-light-gray);
+            padding: 40px;
+            border-radius: 16px;
+            border-left: 6px solid var(--vc-teal);
+        }
+
+        .highlight-box h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box p {
+            font-size: 20px;
+            margin-bottom: 0;
+        }
+
+        /* Financial Chart Slide styles */
+        .chart-layout {
+            display: flex;
+            height: 380px;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .y-axis-numbers {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 40px;
+            /* Space for x-axis labels */
+            color: #000;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .chart-grid-area {
+            flex: 1;
+            position: relative;
+            border-bottom: 1px solid #777;
+            margin-bottom: 40px;
+            /* Space for x-axis labels */
+        }
+
+        .grid-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #999;
+            z-index: 0;
+        }
+
+        .chart-bars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 60px;
+            z-index: 1;
+        }
+
+        .chart-bar-new {
+            width: 120px;
+            background: linear-gradient(to top, var(--vc-teal), var(--vc-mint));
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 163, 131, 0.2);
+        }
+
+        .chart-bar-new::after {
+            content: attr(data-year);
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #000;
+            font-size: 20px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Print Button */
+        .print-fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--vc-teal);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 100px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            box-shadow: 0 15px 35px rgba(0, 163, 131, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .print-fab:hover {
+            transform: scale(1.05) translateY(-5px);
+            background: var(--vc-green-dark);
+        }
+
+        @media print {
+            @page {
+                size: 16in 9in;
+                /* Landscape 16:9 ratio */
+                margin: 0;
+            }
+
+            body {
+                background: white !important;
+                padding: 0;
+                margin: 0;
+                display: block;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .presentation-wrapper {
+                max-width: none;
+                gap: 0;
+            }
+
+            .slide {
+                width: 100vw;
+                height: 100vh;
+                aspect-ratio: auto;
+                border-radius: 0;
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+                break-after: page;
+            }
+
+            .print-fab {
+                display: none !important;
+            }
+        }
+
+        .footer-logo {
+            filter: brightness(0) invert(1);
+            height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .team-member {
+            background: var(--vc-light-gray);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-member strong {
+            color: var(--vc-green-dark);
+            font-size: 22px;
+        }
+
+        .team-member span {
+            color: var(--vc-teal);
+            font-size: 18px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-wrapper">
+
+        <!-- Slide 1: Cover -->
+        <div class="slide cover-slide">
+            <!-- Partner Logos Overlay for Cover Slide -->
+            <div style="position: absolute; top: 60px; right: 80px; display: flex; align-items: center; gap: 20px; z-index: 10;">
+                <img src="/dtv-logo.png" alt="DTV" style="height: 35px; filter: brightness(0) invert(1);">
+                <img src="/kfupm-logo.png" alt="KFUPM" style="height: 35px; filter: brightness(0) invert(1);">
+            </div>
+            <img src="/logo.png" alt="Venture Craft Logo" class="footer-logo">
+            <h1>Venture <span>Craftee</span></h1>
+            <h2>Clean Energy & Sustainability Solutions</h2>
+            <p><strong>Mission:</strong> Help businesses reduce carbon emissions using intelligent energy optimization.
+            </p>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">02</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Company Identity</h1>
+                <div class="two-column">
+                    <div>
+                        <ul>
+                            <li><strong>Startup Name:</strong> Venture Craftee</li>
+                            <li><strong>Industry:</strong> Clean Energy & Sustainability</li>
+                            <li><strong>Founded:</strong> 2024</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h2>Focus</h2>
+                        <p>Smart energy optimization for commercial and urban infrastructure.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">03</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Mission & Vision</h1>
+                <div class="two-column">
+                    <div class="highlight-box">
+                        <h2>Mission</h2>
+                        <p>Enable businesses to reduce carbon emissions through intelligent energy management.</p>
+                    </div>
+                    <div class="highlight-box" style="border-left-color: var(--vc-mint);">
+                        <h2 style="color: var(--vc-mint);">Vision</h2>
+                        <p>Become a global platform powering sustainable and efficient energy systems.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">04</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Team Structure</h1>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <strong>Daniel Carter</strong>
+                        <span>CEO (Energy Systems Engineer)</span>
+                    </div>
+                    <div class="team-member">
+                        <strong>Sofia Martinez</strong>
+                        <span>CTO (AI & Data Analytics)</span>
+                    </div>
+                    <div class="team-member">
+                        <strong>Ahmed Al-Harbi</strong>
+                        <span>Sustainability Director</span>
+                    </div>
+                    <div class="team-member">
+                        <strong>Liam O’Connor</strong>
+                        <span>Operations Manager</span>
+                    </div>
+                    <div class="team-member">
+                        <strong>Priya Nair</strong>
+                        <span>Marketing Lead</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">05</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">The Problem</h1>
+                <ul>
+                    <li>Businesses waste significant energy due to inefficient systems.</li>
+                    <li>Carbon emissions continue to rise globally.</li>
+                    <li>Renewable energy adoption is difficult to manage.</li>
+                    <li>Organizations lack tools to monitor and optimize energy consumption.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">06</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Market Opportunity</h1>
+                <p>Global clean energy and energy management markets are rapidly growing.</p>
+                <div class="highlight-box" style="margin-top: 20px;">
+                    <h2>Key Drivers:</h2>
+                    <ul style="margin-bottom: 0;">
+                        <li>Government decarbonization policies</li>
+                        <li>Corporate sustainability goals</li>
+                        <li>Increased energy costs</li>
+                        <li>Demand for smart infrastructure</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">07</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Our Solution</h1>
+                <p>Venture Craftee provides a <strong>smart energy optimization platform</strong> that:</p>
+                <ul>
+                    <li>Monitors energy consumption in real time</li>
+                    <li>Uses AI to optimize energy efficiency</li>
+                    <li>Integrates renewable energy systems</li>
+                    <li>Provides sustainability analytics dashboards</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">08</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Product Overview</h1>
+                <h2>Core Components:</h2>
+                <div class="team-grid" style="gap: 20px;">
+                    <div class="highlight-box" style="padding: 20px;">Smart energy monitoring dashboard</div>
+                    <div class="highlight-box" style="padding: 20px;">AI-based energy optimization engine</div>
+                    <div class="highlight-box" style="padding: 20px;">Renewable integration tools</div>
+                    <div class="highlight-box" style="padding: 20px;">Sustainability reporting system</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">09</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">How the Product Works</h1>
+                <ol>
+                    <li><strong>Data Collection:</strong> Sensors collect energy data from buildings.</li>
+                    <li><strong>Analysis:</strong> Data is analyzed by the AI optimization engine.</li>
+                    <li><strong>Optimization:</strong> System recommends efficiency improvements.</li>
+                    <li><strong>Monitoring:</strong> Users monitor results through a digital dashboard.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">10</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Target Customers</h1>
+                <h2>Primary Customers:</h2>
+                <ul>
+                    <li>Commercial buildings</li>
+                    <li>Manufacturing companies</li>
+                    <li>Universities and campuses</li>
+                    <li>Smart cities and municipalities</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">11</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Market Size</h1>
+                <div class="team-grid" style="grid-template-columns: 1fr; gap: 20px;">
+                    <div class="highlight-box" style="padding: 20px;">
+                        <h2 style="margin-bottom: 5px;">TAM (Total Addressable Market)</h2>
+                        <p>Global energy management market.</p>
+                    </div>
+                    <div class="highlight-box" style="padding: 20px;">
+                        <h2 style="margin-bottom: 5px;">SAM (Serviceable Available Market)</h2>
+                        <p>Smart energy optimization for commercial buildings.</p>
+                    </div>
+                    <div class="highlight-box" style="padding: 20px; border-left-color: var(--vc-mint);">
+                        <h2 style="margin-bottom: 5px; color: var(--vc-mint);">SOM (Serviceable Obtainable Market)</h2>
+                        <p>Early adopters in sustainability-focused industries.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">12</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Competition</h1>
+                <h2>Key competitors include:</h2>
+                <ul>
+                    <li>Schneider Electric</li>
+                    <li>Siemens Energy</li>
+                    <li>Legacy energy optimization software providers</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">13</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Competitive Advantage</h1>
+                <ul>
+                    <li><strong>AI-driven optimization technology</strong> (cutting edge precision)</li>
+                    <li><strong>Lower implementation cost</strong> (scalable SaaS model)</li>
+                    <li><strong>Real-time carbon footprint tracking</strong> (instant reporting)</li>
+                    <li><strong>Easy integration</strong> with existing infrastructure</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">14</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Business Model</h1>
+                <h2>Revenue Streams:</h2>
+                <div class="team-grid">
+                    <div class="highlight-box">
+                        <p style="text-align: center; font-weight: 700;">SaaS Subscription Platform</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p style="text-align: center; font-weight: 700;">Installation & Setup Services</p>
+                    </div>
+                    <div class="highlight-box" style="grid-column: span 2;">
+                        <p style="text-align: center; font-weight: 700;">Sustainability Consulting Services</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">15</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Traction & Validation</h1>
+                <h2>Early indicators of success:</h2>
+                <ul>
+                    <li>Prototype platform successfully completed</li>
+                    <li>Pilot partnerships currently under discussion</li>
+                    <li>Positive interest from major enterprise clients</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">16</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Growth Strategy</h1>
+                <ul>
+                    <li>Expand platform through <strong>renewable energy partnerships</strong></li>
+                    <li>Aggressively target <strong>enterprise clients</strong> and <strong>smart cities</strong></li>
+                    <li>Scale efficiently worldwide via the <strong>SaaS model</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">17</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title">Financial Overview</h1>
+                <div class="team-grid" style="grid-template-columns: 1fr; gap: 20px;">
+                    <div class="highlight-box" style="padding: 20px; display: flex; gap: 20px; align-items: center;">
+                        <span style="font-size: 32px; font-weight: 900; color: var(--vc-teal);">Y1</span>
+                        <p style="margin: 0;">Product launch & pilot customers</p>
+                    </div>
+                    <div class="highlight-box" style="padding: 20px; display: flex; gap: 20px; align-items: center;">
+                        <span style="font-size: 32px; font-weight: 900; color: var(--vc-teal);">Y2</span>
+                        <p style="margin: 0;">Enterprise expansion</p>
+                    </div>
+                    <div class="highlight-box"
+                        style="padding: 20px; display: flex; gap: 20px; align-items: center; border-left-color: var(--vc-mint);">
+                        <span style="font-size: 32px; font-weight: 900; color: var(--vc-mint);">Y3</span>
+                        <p style="margin: 0;">International scaling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">18</span>
+                </div>
+            </div>
+            <div class="slide-content" style="align-items: center; padding-top: 10px;">
+                <h1
+                    style="font-size: 32px; font-weight: 800; color: #000; margin-bottom: 10px; text-transform: none; text-align: center;">
+                    Revenue ($)</h1>
+
+                <div class="chart-layout">
+                    <div class="y-axis-numbers">
+                        <span>3500000</span>
+                        <span>3000000</span>
+                        <span>2500000</span>
+                        <span>2000000</span>
+                        <span>1500000</span>
+                        <span>1000000</span>
+                        <span>500000</span>
+                        <span>0</span>
+                    </div>
+                    <div class="chart-grid-area">
+                        <!-- 8 grid lines (0 to 7 items = 7 intervals. 100/7 = 14.285%) -->
+                        <div class="grid-line" style="top: 0%"></div>
+                        <div class="grid-line" style="top: 14.285%"></div>
+                        <div class="grid-line" style="top: 28.571%"></div>
+                        <div class="grid-line" style="top: 42.857%"></div>
+                        <div class="grid-line" style="top: 57.142%"></div>
+                        <div class="grid-line" style="top: 71.428%"></div>
+                        <div class="grid-line" style="top: 85.714%"></div>
+
+                        <div class="chart-bars-container">
+                            <!-- Heights match visual distribution of screenshot -->
+                            <div class="chart-bar-new" data-year="Year 1" style="height: 11.428%;"></div>
+                            <div class="chart-bar-new" data-year="Year 2" style="height: 34.285%;"></div>
+                            <div class="chart-bar-new" data-year="Year 3" style="height: 85.714%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19 -->
+        <div class="slide">
+            <div class="slide-accent"></div>
+            <div class="slide-header">
+                <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="/dtv-logo.png" alt="DTV" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <img src="/kfupm-logo.png" alt="KFUPM" style="height: 25px; filter: brightness(0) invert(1); opacity: 0.8;">
+                    <span class="slide-number" style="margin-left: 5px;">19</span>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h1 class="slide-title" style="margin-bottom: 30px;">Funding & Use of Funds</h1>
+
+                <div class="highlight-box"
+                    style="margin-bottom: 40px; padding: 30px 40px; border-left-color: var(--vc-mint); background-color: var(--vc-light-gray);">
+                    <h2 style="color: var(--vc-teal); font-size: 24px; margin-bottom: 10px;">Seeking:</h2>
+                    <div
+                        style="font-size: 56px; color: var(--vc-green-dark); font-weight: 900; line-height: 1.1; margin-bottom: 5px;">
+                        $750,000</div>
+                    <h2 style="color: var(--vc-teal); font-size: 24px; margin-bottom: 0;">Seed Investment</h2>
+                </div>
+
+                <h2 style="color: var(--vc-teal); font-size: 26px; margin-bottom: 20px;">Use of funds:</h2>
+                <ul
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-left: 20px; list-style-position: inside; margin: 0;">
+                    <li style="font-size: 20px; color: #555;">Product development</li>
+                    <li style="font-size: 20px; color: #555;">Infrastructure & hardware</li>
+                    <li style="font-size: 20px; color: #555;">Marketing and partnerships</li>
+                    <li style="font-size: 20px; color: #555;">Operational costs</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 20: Closing -->
+        <div class="slide cover-slide" style="align-items: center; text-align: center;">
+            <img src="/logo.png" alt="Venture Craft Logo" class="footer-logo">
+            <h1>Venture <span>Craftee</span></h1>
+            <h2 style="color: var(--vc-white); font-weight: 300; font-size: 28px;">Building a smarter and cleaner energy
+                future.</h2>
+            <div
+                style="margin-top: 40px; padding: 20px 40px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--vc-mint); font-size: 18px; margin: 0; border: none; padding: 0;">Contact:
+                    daniel.carter@venturecraftee.com</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
