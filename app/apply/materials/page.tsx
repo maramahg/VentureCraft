@@ -589,11 +589,6 @@ export default function MaterialsPage() {
                                                     className="absolute inset-0 w-full h-full border-none transition-opacity bg-white"
                                                     title={`${material.title} Preview`}
                                                 />
-                                                {/* Partner Logos Overlay */}
-                                                <div className="absolute top-4 right-8 z-10 pointer-events-none flex items-center gap-4 opacity-80 mix-blend-difference invert drop-shadow-md">
-                                                    <img src="/dtv-logo.png" alt="Dhahran Techno Valley" className="h-6 md:h-8 object-contain" />
-                                                    <img src="/kfupm-logo.png" alt="KFUPM" className="h-5 md:h-7 object-contain" />
-                                                </div>
                                             </div>
 
                                             <p className="text-sm text-white/40 italic text-center px-4">
