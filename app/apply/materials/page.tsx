@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Download, ChevronDown, FileText, AlertCircle, FileCode, ExternalLink, Rocket } from 'lucide-react';
 import SimulatedApplicationModal from '@/components/SimulatedApplicationModal';
+import MobilePDFViewer from '@/components/MobilePDFViewer';
 
 const ALERT_ICON = (
     <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
@@ -585,12 +586,20 @@ export default function MaterialsPage() {
                                                 }`}>
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
 
-                                                <iframe
-                                                    key={currentDoc.previewUrl || currentDoc.pdfUrl}
-                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
-                                                    className="absolute inset-0 w-full h-full border-none transition-opacity bg-white"
-                                                    title={`${material.title} Preview`}
-                                                />
+                                                {/* Desktop Native Viewer */}
+                                                <div className="absolute inset-0 w-full h-full md:block hidden">
+                                                    <iframe
+                                                        key={`desktop-${currentDoc.previewUrl || currentDoc.pdfUrl}`}
+                                                        src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
+                                                        className="w-full h-full border-none transition-opacity bg-white"
+                                                        title={`${material.title} Desktop Preview`}
+                                                    />
+                                                </div>
+
+                                                {/* Mobile React-PDF Canvas Viewer */}
+                                                <div className="absolute inset-0 w-full h-full md:hidden block bg-white">
+                                                    <MobilePDFViewer pdfUrl={currentDoc.pdfUrl} />
+                                                </div>
                                             </div>
 
                                             <p className="text-sm text-white/40 italic text-center px-4">
