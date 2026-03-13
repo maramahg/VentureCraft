@@ -7,7 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Download, ChevronDown, FileText, AlertCircle, FileCode, ExternalLink, Rocket } from 'lucide-react';
 import SimulatedApplicationModal from '@/components/SimulatedApplicationModal';
-import MobilePDFViewer from '@/components/MobilePDFViewer';
+import dynamic from 'next/dynamic';
+
+const MobilePDFViewer = dynamic(() => import('@/components/MobilePDFViewer'), {
+    ssr: false,
+    loading: () => <div className="w-full relative py-20 flex justify-center text-white/50">Loading PDF engine...</div>
+});
 
 const ALERT_ICON = (
     <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
