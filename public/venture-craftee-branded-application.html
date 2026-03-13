@@ -556,15 +556,56 @@
 
 <body>
 
-    <button class="print-fab" onclick="window.print()">
+    <style>
+        .print-fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--vc-teal);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 100px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            box-shadow: 0 15px 35px rgba(0, 163, 131, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .print-fab:hover {
+            transform: scale(1.05) translateY(-5px);
+            background: var(--vc-green-dark);
+        }
+
+        @media print {
+            .print-fab {
+                display: none !important;
+            }
+        }
+    </style>
+    <script>
+        // Hide download button if viewed inside an iframe
+        if (window.self !== window.top) {
+            document.write('<style>.print-fab { display: none !important; }</style>');
+        }
+    </script>
+    <a href="/samples/venture-craftee-branded-application.pdf" download class="print-fab">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
         </svg>
-        Download as PDF
-    </button>
+        Download PDF
+    </a>
 
     <div class="document-wrapper">
         <div class="brand-accent"></div>

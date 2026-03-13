@@ -17,6 +17,7 @@ interface DocumentResource {
     sublabel: string;
     pdfUrl: string;
     pptxUrl?: string;
+    previewUrl?: string;
 }
 
 interface ApplicationMaterial {
@@ -119,7 +120,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf"
+                    pdfUrl: "/samples/venture-craftee-executive-summary.pdf",
+                    previewUrl: "/venture-craftee-executive-summary.html"
                 }
             ],
             templateUrl: "/samples/venture-craftee-executive-summary.pdf",
@@ -239,7 +241,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Reference Sample",
                     sublabel: "Venture Craftee Example",
-                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf"
+                    pdfUrl: "/samples/venture-craftee-supporting-data.pdf",
+                    previewUrl: "/venture-craftee-supporting-data.html"
                 }
             ],
             templateUrl: "/samples/venture-craftee-supporting-data.pdf",
@@ -568,19 +571,8 @@ export default function MaterialsPage() {
                                                         </AnimatePresence>
                                                     </div>
 
-                                                    {material.content.brandedUrl && (
-                                                        <a
-                                                            href={material.content.brandedUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="flex items-center gap-2 text-xs font-bold text-vc-mint hover:text-white transition-colors group bg-vc-mint/10 px-4 py-2 rounded-lg border border-vc-mint/20 shrink-0"
-                                                        >
-                                                            <FileText className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                                                            VIEW BRANDED VERSION
-                                                        </a>
-                                                    )}
                                                     <a
-                                                        href={currentDoc.pdfUrl}
+                                                        href={currentDoc.previewUrl || currentDoc.pdfUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="flex items-center gap-2 text-xs font-bold text-white/40 hover:text-white transition-colors group bg-white/5 px-4 py-2 rounded-lg border border-white/10 shrink-0"
@@ -591,12 +583,12 @@ export default function MaterialsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-2xl glass-panel group ring-1 ring-white/5">
+                                            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5">
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
                                                 <iframe
-                                                    key={currentDoc.pdfUrl}
-                                                    src={`${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                                                    className="absolute inset-0 w-full h-full border-none transition-opacity bg-black"
+                                                    key={currentDoc.previewUrl || currentDoc.pdfUrl}
+                                                    src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                                                    className="absolute inset-0 w-full h-full border-none transition-opacity bg-white"
                                                     title={`${material.title} Preview`}
                                                 />
                                             </div>
