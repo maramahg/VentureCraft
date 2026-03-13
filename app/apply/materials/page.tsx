@@ -587,7 +587,7 @@ export default function MaterialsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5 ${material.title.toLowerCase().includes('pitch deck') ? 'aspect-[16/9]' : 'aspect-[1/1.3] md:aspect-[1/1.4]'
+                                            <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5 aspect-[16/9] ${!material.title.toLowerCase().includes('pitch deck') ? 'md:aspect-[1/1.4]' : ''
                                                 }`}>
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
 
