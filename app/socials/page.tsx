@@ -78,7 +78,7 @@ export default function SocialsPage() {
                         />
                     </div>
                     <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
-                        Connect with <span className="text-vc-mint">VentureCraft</span>
+                        Connect with <span className="text-vc-mint">Venture Craft</span>
                     </h1>
                     <p className="text-white/60 text-sm font-medium">
                         Follow us to stay updated on deep-tech innovation and startup opportunities.

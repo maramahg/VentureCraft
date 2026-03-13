@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venture Craft - Executive Summary Sample</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --vc-green-dark: #00201D;
+            --vc-green-medium: #003833;
+            --vc-teal: #00A383;
+            --vc-mint: #4FD1C5;
+            --vc-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #051111;
+            color: #333;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .document-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        /* Brand Accent Bar */
+        .brand-accent {
+            height: 12px;
+            background: linear-gradient(to right, var(--vc-green-dark), var(--vc-teal), var(--vc-mint));
+        }
+
+        header {
+            padding: 60px 80px 40px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-logo {
+            height: 32px;
+            width: auto;
+            filter: brightness(0);
+            display: block;
+        }
+
+        .slogan {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--vc-teal);
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .doc-badge {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--vc-teal);
+            background: rgba(0, 163, 131, 0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--vc-green-dark);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            padding: 40px 80px 80px;
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--vc-green-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: var(--vc-mint);
+            opacity: 0.2;
+        }
+
+        p {
+            font-size: 16px;
+            color: #444;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .footer-banner {
+            background: #f4f7f7;
+            padding: 40px 80px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-banner p {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        /* Print Button */
+        .print-fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--vc-teal);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 100px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 15px 35px rgba(0, 163, 131, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .print-fab:hover {
+            transform: scale(1.05) translateY(-5px);
+            background: var(--vc-green-dark);
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+                size: auto;
+            }
+
+            body {
+                background: #f0f4f4 !important;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .document-wrapper {
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .print-fab {
+                display: none;
+            }
+
+            .brand-logo {
+                filter: brightness(0) !important;
+            }
+
+            header,
+            .footer-banner {
+                background: white !important;
+            }
+
+            .brand-accent {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .content-section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            header {
+                padding: 40px 30px 30px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                width: 100%;
+            }
+
+            .doc-badge {
+                align-self: flex-start;
+                font-size: 10px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .main-content {
+                padding: 30px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .print-fab {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 11px;
+                width: calc(100% - 40px);
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="print-fab" onclick="window.print()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download as PDF
+    </button>
+
+    <div class="document-wrapper">
+        <div class="brand-accent"></div>
+
+        <header>
+            <div class="header-top">
+                <div class="logo-area">
+                    <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                    <div class="slogan">Build Your Venture</div>
+                </div>
+                <div class="doc-badge">Official Reference Document</div>
+            </div>
+            <h1>EXECUTIVE <span>SUMMARY</span> Sample</h1>
+        </header>
+
+        <div class="main-content">
+            <div class="content-section">
+                <h2>Overview</h2>
+                <p>
+                    Venture Craftee is a clean energy and sustainability startup focused on helping organizations reduce
+                    carbon emissions and improve energy efficiency through intelligent energy optimization technologies.
+                    The company develops a smart platform that integrates renewable energy systems, real-time
+                    monitoring, and data-driven optimization to enable businesses to manage their energy consumption
+                    more effectively. As global industries transition toward sustainable operations, Venture Craftee
+                    provides a scalable and cost-effective solution that helps companies reduce operational costs while
+                    meeting environmental goals.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Problem Statement</h2>
+                <p>
+                    Energy inefficiency remains a major challenge across commercial buildings, industrial facilities,
+                    and urban infrastructure. Many organizations rely on outdated energy systems that lack real-time
+                    monitoring and optimization capabilities. As a result, businesses waste large amounts of energy,
+                    leading to unnecessary operational costs and increased carbon emissions. At the same time, the
+                    transition to renewable energy sources has introduced new complexities in energy management, as
+                    companies often lack the tools to effectively integrate and balance renewable power with existing
+                    infrastructure.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Innovation & Technical Basis</h2>
+                <p>
+                    Venture Craftee addresses this challenge through an integrated smart energy optimization platform.
+                    The solution combines energy monitoring sensors, cloud-based analytics, and artificial intelligence
+                    algorithms to analyze energy usage patterns and identify optimization opportunities. The system
+                    collects real-time energy consumption data from facilities and processes it through an AI-driven
+                    optimization engine that provides actionable insights to improve efficiency. The platform also
+                    integrates
+                    renewable energy systems such as solar installations, allowing organizations to optimize the use of
+                    clean energy sources while maintaining reliability and performance.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Market Opportunity</h2>
+                <p>
+                    The global market for energy management and clean technology is experiencing rapid growth as
+                    governments and industries prioritize decarbonization and sustainable infrastructure. Increasing
+                    regulatory pressure, rising energy costs, and corporate sustainability commitments are driving
+                    demand
+                    for intelligent energy management solutions. Venture Craftee targets commercial buildings,
+                    manufacturing facilities, universities, and smart city infrastructure as its primary customer
+                    segments.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Business Model</h2>
+                <p>
+                    Venture Craftee operates on a scalable Software-as-a-Service (SaaS) business model. Organizations
+                    subscribe to the Venture Craftee platform to access energy monitoring tools, optimization analytics,
+                    and
+                    sustainability reporting features. In addition to recurring subscription revenue, the company
+                    generates
+                    income through installation and system integration services that enable clients to connect their
+                    infrastructure to the platform.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Team & Capabilities</h2>
+                <p>
+                    Venture Craftee is led by a multidisciplinary team with expertise in engineering, data analytics,
+                    sustainability, and business development. The founding team includes professionals with experience
+                    in
+                    energy systems engineering, artificial intelligence, operations management, and technology
+                    marketing.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Impact & Sustainability</h2>
+                <p>
+                    Venture Craftee aims to generate measurable environmental and economic impact by helping
+                    organizations reduce their carbon footprint and improve energy efficiency. By optimizing energy
+                    usage
+                    and enabling greater integration of renewable power sources, the platform contributes to the global
+                    transition toward low-carbon infrastructure.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-banner">
+            <p>Venture Craft © 2026 • Build Your Venture</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

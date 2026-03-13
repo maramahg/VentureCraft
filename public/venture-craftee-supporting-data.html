@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venture Craft - Supporting Data Sample</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --vc-green-dark: #00201D;
+            --vc-green-medium: #003833;
+            --vc-teal: #00A383;
+            --vc-mint: #4FD1C5;
+            --vc-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #051111;
+            color: #333;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .document-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        /* Brand Accent Bar */
+        .brand-accent {
+            height: 12px;
+            background: linear-gradient(to right, var(--vc-green-dark), var(--vc-teal), var(--vc-mint));
+        }
+
+        header {
+            padding: 60px 80px 40px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-logo {
+            height: 32px;
+            width: auto;
+            filter: brightness(0);
+            display: block;
+        }
+
+        .slogan {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--vc-teal);
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .doc-badge {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--vc-teal);
+            background: rgba(0, 163, 131, 0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--vc-green-dark);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            padding: 40px 80px 80px;
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--vc-green-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: var(--vc-mint);
+            opacity: 0.2;
+        }
+
+        p {
+            font-size: 16px;
+            color: #444;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+            background: #f8fbfb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--vc-green-dark);
+            color: white;
+            text-align: left;
+            padding: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 11px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eef2f2;
+            color: #444;
+            font-weight: 500;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .architecture-card {
+            background: #f8fbfb;
+            border: 1px solid #eef2f2;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 15px;
+        }
+
+        .arch-layer {
+            margin-bottom: 20px;
+        }
+
+        .arch-layer:last-child {
+            margin-bottom: 0;
+        }
+
+        .layer-title {
+            font-weight: 800;
+            color: var(--vc-teal);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .layer-desc {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .footer-banner {
+            background: #f4f7f7;
+            padding: 40px 80px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-banner p {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        /* Print Button */
+        .print-fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--vc-teal);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 100px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 15px 35px rgba(0, 163, 131, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .print-fab:hover {
+            transform: scale(1.05) translateY(-5px);
+            background: var(--vc-green-dark);
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+                size: auto;
+            }
+
+            body {
+                background: #f0f4f4 !important;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .document-wrapper {
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .print-fab {
+                display: none;
+            }
+
+            .brand-logo {
+                filter: brightness(0) !important;
+            }
+
+            header,
+            .footer-banner {
+                background: white !important;
+            }
+
+            .architecture-card {
+                background: #f8fbfb !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                break-inside: avoid;
+            }
+
+            .brand-accent {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .content-section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            header {
+                padding: 40px 30px 30px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                width: 100%;
+            }
+
+            .doc-badge {
+                align-self: flex-start;
+                font-size: 10px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .main-content {
+                padding: 30px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .print-fab {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 11px;
+                width: calc(100% - 40px);
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="print-fab" onclick="window.print()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download as PDF
+    </button>
+
+    <div class="document-wrapper">
+        <div class="brand-accent"></div>
+
+        <header>
+            <div class="header-top">
+                <div class="logo-area">
+                    <img src="/logo.png" alt="Venture Craft Logo" class="brand-logo">
+                    <div class="slogan">Build Your Venture</div>
+                </div>
+                <div class="doc-badge">Official Reference Document</div>
+            </div>
+            <h1>SUPPORTING <span>DATA</span> Sample</h1>
+        </header>
+
+        <div class="main-content">
+            <div class="content-section">
+                <h2>1. Conceptual System Description</h2>
+                <p>
+                    Venture Craftee proposes a smart energy optimization platform designed to reduce energy waste in
+                    commercial and institutional buildings. The system combines energy monitoring sensors, cloud-based
+                    analytics, and optimization algorithms to help organizations better manage energy consumption.
+                    Sensors and smart meters collect real-time data from building systems such as HVAC units, lighting
+                    systems, and industrial equipment. This information is transmitted to a centralized platform where
+                    analytics tools evaluate usage patterns and identify inefficiencies. The platform then provides
+                    recommendations that allow organizations to reduce energy consumption and improve the use of
+                    renewable energy sources. The system is designed to integrate with existing building infrastructure,
+                    meaning that companies can adopt the technology without replacing their entire energy system.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>2. High-Level System Architecture</h2>
+                <p>
+                    The Venture Craftee solution follows a three-layer architecture that enables scalable deployment
+                    across multiple facilities:
+                </p>
+
+                <div class="architecture-card">
+                    <div class="arch-layer">
+                        <span class="layer-title">1. Data Acquisition Layer</span>
+                        <span class="layer-desc">Sensors and smart meters collect energy usage data from electrical
+                            systems and renewable energy sources.</span>
+                    </div>
+                    <div class="arch-layer">
+                        <span class="layer-title">2. Analytics & Optimization Layer</span>
+                        <span class="layer-desc">A cloud-based platform processes incoming data streams and analyzes
+                            consumption patterns. Optimization models identify opportunities to reduce energy waste and
+                            improve system efficiency.</span>
+                    </div>
+                    <div class="arch-layer">
+                        <span class="layer-title">3. Application and Visualization Layer</span>
+                        <span class="layer-desc">Facility managers access insights through a user dashboard that
+                            displays energy performance indicators, sustainability metrics, and recommended efficiency
+                            actions.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>3. Engineering Principles and Feasibility</h2>
+                <p>
+                    Energy efficiency improvements can be estimated by comparing baseline energy consumption with
+                    optimized energy consumption. Research on commercial building optimization platforms indicates that
+                    software-driven energy management systems can reduce electricity consumption by approximately
+                    10–30 percent depending on building characteristics.
+                </p>
+                <p>
+                    <strong>Example estimation:</strong> If a building consumes approximately 1,000,000 kilowatt-hours
+                    of electricity
+                    annually, a conservative improvement of 15 percent would reduce consumption by roughly 150,000
+                    kilowatt-hours per year. At an electricity cost of 0.12 USD per kilowatt-hour, this corresponds to
+                    an
+                    estimated annual cost saving of about 18,000 USD.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>4. Order-of-Magnitude Impact Estimate</h2>
+                <div class="architecture-card" style="background: rgba(0, 163, 131, 0.03);">
+                    <p style="font-size: 14px; margin-bottom: 10px;"><strong>Assumptions:</strong></p>
+                    <ul style="list-style: none; padding-left: 0; font-size: 14px; color: #666;">
+                        <li style="margin-bottom: 8px; display: flex; gap: 10px;"><span
+                                style="color: var(--vc-teal);">●</span> Average large commercial building consumption:
+                            approximately 1.5 gigawatt-hours per year</li>
+                        <li style="margin-bottom: 8px; display: flex; gap: 10px;"><span
+                                style="color: var(--vc-teal);">●</span> Expected efficiency improvement: approximately
+                            15 percent</li>
+                        <li style="margin-bottom: 8px; display: flex; gap: 10px;"><span
+                                style="color: var(--vc-teal);">●</span> Deployment scenario: 100 buildings</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 20px;">
+                    Under these assumptions, total annual energy consumption would be approximately 150 gigawatt-hours.
+                    A 15 percent improvement would therefore reduce consumption by roughly 22.5 gigawatt-hours annually.
+                    This demonstrates the potential large-scale impact of the Venture Craftee platform.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>5. Simulated System Behavior</h2>
+                <p>
+                    Conceptual modeling of building energy demand profiles suggests that optimization algorithms can
+                    improve energy performance. Expected improvements include:
+                </p>
+                <ul style="list-style: none; padding-left: 0; margin-bottom: 20px;">
+                    <li
+                        style="margin-bottom: 10px; display: flex; gap: 12px; font-weight: 500; font-size: 15px; color: #444;">
+                        <span style="color: var(--vc-mint); font-weight: 900;">✓</span> Reduced peak electricity demand
+                    </li>
+                    <li
+                        style="margin-bottom: 10px; display: flex; gap: 12px; font-weight: 500; font-size: 15px; color: #444;">
+                        <span style="color: var(--vc-mint); font-weight: 900;">✓</span> Improved alignment between
+                        renewable energy generation and demand
+                    </li>
+                    <li
+                        style="margin-bottom: 10px; display: flex; gap: 12px; font-weight: 500; font-size: 15px; color: #444;">
+                        <span style="color: var(--vc-mint); font-weight: 900;">✓</span> More stable energy consumption
+                        patterns
+                    </li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>6. Prototype or Proof-of-Concept</h2>
+                <p>
+                    A conceptual prototype of the Venture Craftee platform demonstrates the basic functionality of the
+                    system. The prototype includes:
+                </p>
+                <div class="architecture-card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div>
+                            <span class="layer-title" style="font-size: 12px;">Monitoring</span>
+                            <span class="layer-desc">A simplified energy monitoring dashboard</span>
+                        </div>
+                        <div>
+                            <span class="layer-title" style="font-size: 12px;">Analytics</span>
+                            <span class="layer-desc">Simulated real-time energy consumption data</span>
+                        </div>
+                        <div>
+                            <span class="layer-title" style="font-size: 12px;">Alerts</span>
+                            <span class="layer-desc">Automated alerts identifying abnormal energy usage</span>
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; font-style: italic; font-size: 14px; color: #888;">
+                    Future development will integrate physical IoT sensors and advanced predictive optimization
+                    algorithms.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>7. Literature and Industry Benchmark Support</h2>
+                <p>
+                    Research on smart building energy systems shows that digital monitoring and optimization tools can
+                    reduce energy consumption by 10–30 percent. Organizations such as the International Energy Agency
+                    (IEA) and the U.S. Department of Energy highlight digital energy management as a critical component
+                    of future sustainable infrastructure.
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h2>Example Energy Savings Estimates</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Energy Consumption</th>
+                            <th>Efficiency Gain</th>
+                            <th>Energy Saved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Single Building</td>
+                            <td>1,000,000 kWh/year</td>
+                            <td style="color: var(--vc-teal); font-weight: 800;">15%</td>
+                            <td>150,000 kWh/year</td>
+                        </tr>
+                        <tr>
+                            <td>Portfolio (100 Buildings)</td>
+                            <td>150 GWh/year</td>
+                            <td style="color: var(--vc-teal); font-weight: 800;">15%</td>
+                            <td>22.5 GWh/year</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer-banner">
+            <p>Venture Craft © 2026 • Build Your Venture</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

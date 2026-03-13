@@ -36,7 +36,7 @@ export default function ApplyFAQPage() {
                             animate={{ y: 0, opacity: 1 }}
                             className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight mb-4"
                         >
-                            VentureCraft <span className="text-vc-mint">FAQ</span>
+                            Venture Craft <span className="text-vc-mint">FAQ</span>
                         </motion.h1>
                     </div>
 

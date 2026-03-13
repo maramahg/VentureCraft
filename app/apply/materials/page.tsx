@@ -41,6 +41,7 @@ interface ApplicationMaterial {
         documents?: DocumentResource[];
         templateUrl?: string;
         templatePptxUrl?: string;
+        brandedUrl?: string;
     };
     extra?: {
         title: string;
@@ -121,7 +122,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                     pdfUrl: "/samples/venture-craftee-executive-summary.pdf"
                 }
             ],
-            templateUrl: "/samples/venture-craftee-executive-summary.pdf" // For viewer
+            templateUrl: "/samples/venture-craftee-executive-summary.pdf",
+            brandedUrl: "/venture-craftee-executive-summary.html"
         }
     },
     {
@@ -240,7 +242,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                     pdfUrl: "/samples/venture-craftee-supporting-data.pdf"
                 }
             ],
-            templateUrl: "/samples/venture-craftee-supporting-data.pdf" // For viewer
+            templateUrl: "/samples/venture-craftee-supporting-data.pdf",
+            brandedUrl: "/venture-craftee-supporting-data.html"
         },
         note: "Supporting data is used to enhance technical evaluation, but the absence of supporting data will not negatively affect eligibility. Emphasis is placed on clarity, relevance, and technical reasoning rather than volume or complexity."
     }
@@ -565,6 +568,17 @@ export default function MaterialsPage() {
                                                         </AnimatePresence>
                                                     </div>
 
+                                                    {material.content.brandedUrl && (
+                                                        <a
+                                                            href={material.content.brandedUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2 text-xs font-bold text-vc-mint hover:text-white transition-colors group bg-vc-mint/10 px-4 py-2 rounded-lg border border-vc-mint/20 shrink-0"
+                                                        >
+                                                            <FileText className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                                                            VIEW BRANDED VERSION
+                                                        </a>
+                                                    )}
                                                     <a
                                                         href={currentDoc.pdfUrl}
                                                         target="_blank"
