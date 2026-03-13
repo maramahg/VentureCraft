@@ -595,20 +595,20 @@ export default function MaterialsPage() {
                                                     />
                                                 </div>
 
-                                                <div className="absolute inset-0 w-full h-full md:hidden block overflow-hidden">
-                                                    <iframe
-                                                        key={`mobile-${currentDoc.previewUrl || currentDoc.pdfUrl}`}
-                                                        src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitW`}
+                                                <div className="absolute inset-0 w-full h-full md:hidden block overflow-hidden bg-white">
+                                                    <div
+                                                        className="w-[1024px] h-[1428px] origin-top-left"
                                                         style={{
-                                                            width: '200%',
-                                                            height: '200%',
-                                                            transform: 'scale(0.5)',
-                                                            transformOrigin: '0 0',
-                                                            border: 'none',
-                                                            background: 'white'
+                                                            transform: 'scale(calc((100vw - 32px) / 1024))',
                                                         }}
-                                                        title={`${material.title} Mobile Preview`}
-                                                    />
+                                                    >
+                                                        <iframe
+                                                            key={`mobile-${currentDoc.previewUrl || currentDoc.pdfUrl}`}
+                                                            src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitW`}
+                                                            className="w-full h-full border-none"
+                                                            title={`${material.title} Mobile Preview`}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
 
