@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VentureCraft - Application Form Guide</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --vc-green-dark: #00201D;
+            --vc-green-medium: #003833;
+            --vc-teal: #00A383;
+            --vc-mint: #4FD1C5;
+            --vc-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #051111;
+            color: #333;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .document-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        /* Brand Accent Bar */
+        .brand-accent {
+            height: 12px;
+            background: linear-gradient(to right, var(--vc-green-dark), var(--vc-teal), var(--vc-mint));
+        }
+
+        header {
+            padding: 60px 80px 40px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-name {
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            color: var(--vc-green-dark);
+        }
+
+        .brand-name span {
+            color: var(--vc-teal);
+        }
+
+        .brand-logo {
+            height: 32px;
+            width: auto;
+            filter: brightness(0);
+            /* Make logo black on white background */
+            display: block;
+        }
+
+        .slogan {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--vc-teal);
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .doc-type {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--vc-teal);
+            background: rgba(0, 163, 131, 0.05);
+            padding: 6px 16px;
+            border-radius: 50px;
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--vc-green-dark);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .intro-p {
+            font-size: 15px;
+            color: #666;
+            max-width: 650px;
+        }
+
+        .scenario-box {
+            margin: 40px 80px;
+            padding: 30px;
+            background: var(--vc-green-dark);
+            color: white;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scenario-box::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: var(--vc-mint);
+            opacity: 0.05;
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+
+        .scenario-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--vc-mint);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .scenario-text {
+            font-size: 16px;
+            line-height: 1.8;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            padding: 40px 80px 80px;
+        }
+
+        h2.part-header {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: #bbb;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h2.part-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+
+        .content-section {
+            margin-bottom: 60px;
+        }
+
+        .q-item {
+            margin-bottom: 35px;
+        }
+
+        .q-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--vc-green-dark);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .q-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: -8px;
+            margin-bottom: 12px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .q-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--vc-teal);
+            background: #f8fbfb;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .q-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .q-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--vc-green-medium);
+        }
+
+        .q-list li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: var(--vc-mint);
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .check-box {
+            color: var(--vc-teal);
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* Pillar Styling */
+        .pillar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .check-square {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checked {
+            border-color: var(--vc-mint);
+            background: var(--vc-mint);
+            color: white;
+            font-size: 12px;
+        }
+
+        .info-card {
+            background: #f8fbfb;
+            border: 1px solid #eef2f2;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 15px;
+        }
+
+        .info-card p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .req-list {
+            padding-left: 20px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .req-list li {
+            margin-bottom: 5px;
+            color: #444;
+            font-weight: 600;
+        }
+
+        .footer-banner {
+            background: #f4f7f7;
+            padding: 40px 80px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-banner p {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: #aaa;
+        }
+
+        /* Print Button */
+        .print-fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--vc-teal);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 100px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 15px 35px rgba(0, 163, 131, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .print-fab:hover {
+            transform: scale(1.05) translateY(-5px);
+            background: var(--vc-green-dark);
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+                size: auto;
+            }
+
+            body {
+                background: var(--vc-green-dark) !important;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .document-wrapper {
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .print-fab {
+                display: none;
+            }
+
+            .scenario-box {
+                background: var(--vc-green-dark) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                break-inside: avoid;
+            }
+
+            .q-item,
+            .info-card,
+            .content-section,
+            .pillar-row,
+            .req-list li,
+            .q-list li {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .q-value {
+                background: #f8fbfb !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .check-square.checked {
+                background: var(--vc-mint) !important;
+                border-color: var(--vc-mint) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            h2.part-header {
+                page-break-before: auto;
+                page-break-after: avoid;
+            }
+
+            .main-content {
+                padding: 40px 80px;
+            }
+
+            .brand-logo {
+                filter: brightness(0) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            header,
+            .footer-banner {
+                break-inside: avoid;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: #f0f4f4 !important;
+                /* Lighter background for PDF to save ink but keep the "layered" feel */
+                padding: 0;
+            }
+
+            .document-wrapper {
+                background: white !important;
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .brand-accent {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        .tag {
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .brand-text {
+            color: var(--vc-teal);
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="print-fab" onclick="window.print()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download as PDF
+    </button>
+
+    <div class="document-wrapper">
+        <div class="brand-accent"></div>
+
+        <header>
+            <div class="header-top">
+                <div class="logo-area">
+                    <img src="/logo.png" alt="VentureCraft Logo" class="brand-logo">
+                    <div class="slogan">Build Your Venture</div>
+                </div>
+                <div class="doc-badge">Official Reference Document</div>
+            </div>
+            <h1>APPLICATION FORM <span>GUIDE</span></h1>
+            <p class="intro-text">
+                This form is designed to show applicants exactly what an ideal submission should look like, providing a
+                benchmark for technical excellence and strategic clarity.
+            </p>
+        </header>
+
+        <div class="scenario-box">
+            <span class="scenario-label">The Scenario</span>
+            <p class="scenario-text">
+                Let’s imagine a startup called <span class="brand-text">“Venture Craftee”</span>. It’s a startup focused
+                on clean energy and sustainable technology. It develops smart solutions that help businesses reduce
+                carbon emissions and improve energy efficiency.
+            </p>
+            <p
+                style="margin-top: 15px; font-size: 13px; opacity: 0.7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">
+                How should their submission look like?
+            </p>
+        </div>
+
+        <div class="main-content">
+
+            <!-- PART 1 -->
+            <div class="content-section">
+                <h2 class="part-header">Part 1: Personal & Demographic Information</h2>
+
+                <div class="q-item">
+                    <span class="q-label">1. Team Size</span>
+                    <span class="q-hint">number of members including leader</span>
+                    <div class="q-value">5 members (including the team leader)</div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">2. Names</span>
+                    <ul class="q-list">
+                        <li>Team Leader: Daniel Carter</li>
+                        <li>Team Member: Sofia Martinez</li>
+                        <li>Team Member: Ahmed Al-Harbi</li>
+                        <li>Team Member: Liam O’Connor</li>
+                        <li>Team Member: Priya Nair</li>
+                    </ul>
+                    <span style="font-size: 11px; color: #aaa; italic; display: block; margin-top: 10px;">(Fictional
+                        names & people)</span>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">3. Age Confirmation</span>
+                    <div class="check-item">
+                        <span class="check-box">☑</span>
+                        <p>I confirm that all team members are 18 years of age or older at the time of application.</p>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">4. Education Confirmation</span>
+                    <div class="check-item">
+                        <span class="check-box">☑</span>
+                        <p>I confirm that the team leader and/or co-founders are either actively pursuing or have
+                            completed an undergraduate degree.</p>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">5. Nationalities</span>
+                    <ul class="q-list">
+                        <li>Daniel Carter — United States</li>
+                        <li>Sofia Martinez — Spain</li>
+                        <li>Ahmed Al-Harbi — Saudi Arabia</li>
+                        <li>Liam O’Connor — Ireland</li>
+                        <li>Priya Nair — India</li>
+                    </ul>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">6. Team Leader’s Contact Information</span>
+                    <div class="info-card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <span class="q-hint">Email Address</span>
+                            <span style="font-weight: 700; color: var(--vc-green-dark);">daniel.carter@email.com</span>
+                        </div>
+                        <div>
+                            <span class="q-hint">Phone Number</span>
+                            <span style="font-weight: 700; color: var(--vc-green-dark);">+1 415 728 xxxx</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PART 2 -->
+            <div class="content-section">
+                <h2 class="part-header">Part 2: Start-up Details</h2>
+
+                <div class="q-item">
+                    <span class="q-label">1. Startup Relevance</span>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        The startup must be science- or technology-based. The proposed solution must align with
+                        <strong>one</strong> of the competition’s four pillars:
+                    </p>
+                    <span class="q-hint">Which pillar does your startup most closely align with?</span>
+
+                    <div style="margin-top: 20px; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+                        <p
+                            style="font-size: 11px; font-weight: 800; color: #bbb; text-transform: uppercase; margin-bottom: 15px;">
+                            In case of Venture Craftee startup:</p>
+                        <div class="pillar-row">
+                            <div class="check-square"></div>
+                            <span>Circular Economy & Resource Efficiency</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square"></div>
+                            <span>Process Optimization & Advanced Engineering</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square checked">✓</div>
+                            <span style="color: var(--vc-green-dark);">Decarbonization Technologies</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square"></div>
+                            <span>Energy Efficiency</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">2. Startup Age</span>
+                    <span class="q-hint">Is your startup older than 5 years?</span>
+                    <div style="display: flex; gap: 30px; margin-top: 10px;">
+                        <div class="pillar-row">
+                            <div class="check-square"></div>
+                            <span>Yes</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square checked">✓</div>
+                            <span style="color: var(--vc-green-dark);">No</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">3. Startup Stage</span>
+                    <span class="q-hint">How would you classify your startup’s current stage?</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 10px;">
+                        <div class="pillar-row">
+                            <div class="check-square"></div><span>Ideation</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square"></div><span>Pre-Seed</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square checked">✓</div><span
+                                style="color: var(--vc-green-dark);">Seed</span>
+                        </div>
+                        <div class="pillar-row">
+                            <div class="check-square"></div><span>Post-Seed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">4. Conflict of Interest Declaration <span class="tag">Required</span></span>
+                    <span class="q-hint" style="max-width: 500px;">Disclose any existing or prior mentor, investor,
+                        advisory, employment, or organizational relationships with Investors, Judges, Organizers, or
+                        Partner corporations.</span>
+
+                    <div class="info-card">
+                        <p style="font-size: 12px; color: #999; margin-bottom: 15px;">(If none, please state “None.”
+                            Disclosure does not automatically disqualify a team but is required to ensure fairness and
+                            transparency)</p>
+                        <p><strong style="color: var(--vc-green-dark);">If none:</strong> None.</p>
+                        <p style="margin-top: 15px;"><strong style="color: var(--vc-green-dark);">If Yes:</strong> Yes.
+                            One of our advisors, Dr. Michael Chen, previously worked as a consultant for GreenTech
+                            Ventures, which is one of the organizations sponsoring this competition. This relationship
+                            ended in 2022, and there is currently no active financial or advisory involvement between
+                            our startup and the organization.</p>
+                    </div>
+                </div>
+
+                <div class="q-item" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <span class="q-label">5. Startup Website <span class="tag">Optional</span></span>
+                        <div class="q-value">venturecraftee.com</div>
+                    </div>
+                    <div>
+                        <span class="q-label">6. Startup LinkedIn Page <span class="tag">Optional</span></span>
+                        <div class="q-value">linkedin.com/company/vcraftee</div>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">7. Additional Links <span class="tag">Optional</span></span>
+                    <span class="q-hint">Any other relevant links to your startup.</span>
+                    <div class="info-card">
+                        <p>Links may include (For example, but not limited to):</p>
+                        <ul class="q-list">
+                            <li>Product Demo Page</li>
+                            <li>Press Coverage</li>
+                            <li>Research Publications</li>
+                            <li>Prototype Demonstration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PART 3 -->
+            <div class="content-section">
+                <h2 class="part-header">Part 3: Application Material</h2>
+
+                <div class="q-item">
+                    <span class="q-label">1. Pitch Deck</span>
+                    <div class="info-card">
+                        <p><span class="doc-type" style="padding: 2px 10px; font-size: 9px; margin-right: 10px;">PDF /
+                                Word</span> Provides a concise overview of the startup. Used to assess clarity, logic,
+                            and communication quality.</p>
+                        <p
+                            style="font-weight: 700; color: var(--vc-green-dark); margin-top: 15px; font-size: 11px; text-transform: uppercase;">
+                            Expected content includes:</p>
+                        <ul class="req-list">
+                            <li>Team structure</li>
+                            <li>Identity, mission, and vision</li>
+                            <li>Problem statement and proposed solution</li>
+                            <li>Market size, competition, and validation</li>
+                            <li>Business model</li>
+                            <li>Financial overview</li>
+                            <li>Traction and growth strategy</li>
+                        </ul>
+                        <p style="font-size: 12px; color: var(--vc-teal); font-weight: 600; font-style: italic;">Here is
+                            the pitch deck template that should be followed (with an example of Venture Craftee)</p>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">2. Executive Summary</span>
+                    <div class="info-card">
+                        <p><span class="doc-type" style="padding: 2px 10px; font-size: 9px; margin-right: 10px;">PDF /
+                                Word</span> The executive summary should provide a concise overview of the startup,
+                            typically 1–2 pages.</p>
+                        <p
+                            style="font-weight: 700; color: var(--vc-green-dark); margin-top: 15px; font-size: 11px; text-transform: uppercase;">
+                            Must include:</p>
+                        <ul class="req-list" style="display: grid; grid-template-columns: 1fr 1fr;">
+                            <li>a. Problem statement</li>
+                            <li>b. Innovation & technical basis</li>
+                            <li>c. Market opportunity</li>
+                            <li>d. Business model</li>
+                            <li>e. Team & capabilities</li>
+                            <li>f. Impact & sustainability</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">3. Video Pitch</span>
+                    <div class="info-card">
+                        <p style="font-size: 14px; color: #444; margin-bottom: 20px;">
+                            The video pitch is an opportunity to clearly communicate your startup’s value proposition
+                            and why it is worth investing in. It allows teams to present their idea in a more engaging
+                            and memorable way than written materials alone.
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                            <div>
+                                <h4
+                                    style="font-size: 11px; text-transform: uppercase; color: var(--vc-teal); margin-bottom: 10px;">
+                                    Expected Content</h4>
+                                <ul style="font-size: 12px; color: #666; padding-left: 15px;">
+                                    <li style="margin-bottom: 10px;">Explain the startup idea and its value proposition.
+                                    </li>
+                                    <li style="margin-bottom: 10px;">Teams may reference or present parts of their pitch
+                                        deck, but they are not required to present every slide.</li>
+                                    <li style="margin-bottom: 10px;">Focus on key elements within the <strong>3–5
+                                            minute</strong> timeframe.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4
+                                    style="font-size: 11px; text-transform: uppercase; color: var(--vc-teal); margin-bottom: 10px;">
+                                    Team Representation</h4>
+                                <ul style="font-size: 12px; color: #666; padding-left: 15px;">
+                                    <li style="margin-bottom: 10px;">Not all team members are required to appear.</li>
+                                    <li style="margin-bottom: 10px;">One representative (e.g., Team Leader) may present.
+                                    </li>
+                                    <li style="margin-bottom: 10px;">Presenter should introduce the team and member
+                                        roles.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <h4
+                                style="font-size: 11px; text-transform: uppercase; color: var(--vc-teal); margin-bottom: 10px;">
+                                Presentation & Recording Format</h4>
+                            <p style="font-size: 12px; color: #777;">Teams are free to choose the format that best
+                                communicates their idea. Acceptable formats include:</p>
+                            <ul class="q-list" style="margin-top: 15px; font-size: 12px;">
+                                <li>Presenting a pitch deck or slides while explaining the idea.</li>
+                                <li>Screen-sharing slides (using Zoom, Microsoft Teams, Google Meet, etc).</li>
+                                <li>Recording in front of a physical screen or display with slides.</li>
+                                <li>Creative video pitch (storytelling, product demo, or concept explanation).</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 8px;">
+                            <h4
+                                style="font-size: 11px; text-transform: uppercase; color: var(--vc-green-dark); margin-bottom: 10px;">
+                                Technical and Quality requirements:</h4>
+                            <ul style="font-size: 12px; color: #666; list-style: none;">
+                                <li style="margin-bottom: 5px;">✓ Clear audio and visible slides.</li>
+                                <li style="margin-bottom: 5px;">✓ Professional but simple production is acceptable.</li>
+                                <li style="margin-bottom: 5px;">✓ Language: English (professional and consistent
+                                    throughout).</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-top: 20px; border-left: 2px solid var(--vc-mint); padding-left: 20px;">
+                            <h4
+                                style="font-size: 11px; text-transform: uppercase; color: var(--vc-teal); margin-bottom: 10px;">
+                                Video submission instructions:</h4>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 5px;"><strong>1. Upload:</strong>
+                                Click the "Create" icon in YouTube and select "Upload video".</p>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 5px;"><strong>2. Set
+                                    Visibility:</strong> Choose <strong>Unlisted</strong>. (Not Public or Private).</p>
+                            <p style="font-size: 12px; color: #666;"><strong>3. Share:</strong> Copy the video link and
+                                submit on the form.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="q-item">
+                    <span class="q-label">4. Supporting Data <span class="tag">Optional</span></span>
+                    <div class="info-card">
+                        <p><span class="doc-type" style="padding: 2px 10px; font-size: 9px; margin-right: 10px;">PDF /
+                                Word</span> Maximum of 5 pages.</p>
+                        <p style="font-size: 12px; color: #777; margin-top: 10px;">Supporting documents may include (not
+                            limited to):</p>
+                        <ul class="req-list" style="columns: 2;">
+                            <li>Market research</li>
+                            <li>Technical validation</li>
+                            <li>Customer feedback</li>
+                            <li>Prototype results</li>
+                        </ul>
+
+                        <div
+                            style="margin-top: 20px; padding: 15px; border: 1px dashed var(--vc-mint); border-radius: 8px; background: white;">
+                            <h4
+                                style="font-size: 10px; text-transform: uppercase; color: var(--vc-teal); margin-bottom: 5px;">
+                                Evaluation Note</h4>
+                            <p style="font-size: 11px; line-height: 1.5; font-style: italic; color: #666;">
+                                Supporting data is used to enhance technical evaluation, but the absence of it will not
+                                negatively affect eligibility. Emphasis is placed on clarity, relevance, and technical
+                                reasoning rather than volume or complexity.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="margin-top: 100px; padding: 40px; background: var(--vc-green-dark); border-radius: 20px; text-align: center; color: white; position: relative; overflow: hidden;">
+                <p style="font-size: 14px; font-weight: 600; opacity: 0.8;">Important Reminders</p>
+                <p style="font-size: 18px; font-weight: 800; margin: 20px 0; line-height: 1.4;">
+                    Teams must submit all required application materials via the online application form before the
+                    stated deadline.
+                </p>
+                <div
+                    style="display: inline-block; padding: 8px 24px; background: rgba(255,59,48,0.2); border: 1px solid rgba(255,59,48,0.4); border-radius: 50px; color: #ff3b30; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em;">
+                    Incomplete or late submissions will not be considered.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-banner">
+            <p>BUILD YOUR VENTURE</p>
+            <p style="margin-top: 5px; opacity: 0.5;">BENCHMARK CASE STUDY © VENTURECRAFT 2026</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -848,7 +848,7 @@ const ApplyPageContent = () => {
             requirement: (
                 <div className="space-y-2">
                     <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology-based</strong>.</p>
-                    <p>The proposed solution must align with <strong className="text-white">at least one</strong> of the competition’s four pillars:</p>
+                    <p>The proposed solution must align with <strong className="text-white">one</strong> of the competition’s four pillars:</p>
                     <ul className="list-disc pl-5 space-y-1 text-white/70">
                         <li><span className="text-vc-mint/80 font-semibold italic">Decarbonization Technologies</span></li>
                         <li><span className="text-vc-mint/80 font-semibold italic">Circular Economy & Resource Efficiency</span></li>
