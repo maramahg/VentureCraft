@@ -773,22 +773,21 @@ const ApplyPageContent = () => {
                 }
             }
 
-            // 6. Send Confirmation Email (Only if NEW)
-            if (isActuallyNew) {
-                try {
-                    await fetch('/api/send-submission-confirmation', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: formData.leaderEmail,
-                            leaderName: formData.teamMembers[0]?.name || 'Team Leader',
-                            startupName: formData.startupName || formData.pillar
-                        }),
-                    });
-                } catch (emailErr) {
-                    console.error('Failed to send confirmation email:', emailErr);
-                    // We don't block the UI if the email fails, as the application is already saved
-                }
+            // 6. Send Confirmation Email (Always send for NEW or EDIT)
+            try {
+                await fetch('/api/send-submission-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.leaderEmail,
+                        leaderName: formData.teamMembers[0]?.name || 'Team Leader',
+                        startupName: formData.startupName || formData.pillar,
+                        isEdit: isEditMode
+                    }),
+                });
+            } catch (emailErr) {
+                console.error('Failed to send confirmation email:', emailErr);
+                // We don't block the UI if the email fails, as the application is already saved
             }
 
             setIsSuccessOpen(true);
@@ -1490,11 +1489,19 @@ const ApplyPageContent = () => {
                                                 }}
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             />
-                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : errors.eligibilityProof ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                <ShieldCheck className={`w-6 h-6 ${files.eligibilityProof ? 'text-vc-mint' : errors.eligibilityProof ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
+                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.eligibilityProof ? 'border-vc-mint bg-vc-mint/5' : existingMaterials?.eligibilityProofUrl ? 'border-vc-mint/50 bg-vc-mint/5' : errors.eligibilityProof ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                <ShieldCheck className={`w-6 h-6 ${files.eligibilityProof || existingMaterials?.eligibilityProofUrl ? 'text-vc-mint' : errors.eligibilityProof ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
                                                 <div>
-                                                    <p className="text-sm font-medium">{files.eligibilityProof ? files.eligibilityProof.name : 'Upload Eligibility Evidence'}</p>
-                                                    <p className="text-sm text-white/40">Certificate, lab letter, or work contract (PDF/JPG)</p>
+                                                    <p className="text-sm font-medium">
+                                                        {files.eligibilityProof
+                                                            ? files.eligibilityProof.name
+                                                            : existingMaterials?.eligibilityProofName
+                                                                ? `On File: ${existingMaterials.eligibilityProofName}`
+                                                                : 'Upload Eligibility Evidence'}
+                                                    </p>
+                                                    <p className="text-sm text-white/40">
+                                                        {files.eligibilityProof || existingMaterials?.eligibilityProofUrl ? 'Click to replace file' : 'Certificate, lab letter, or work contract (PDF/JPG)'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1830,10 +1837,18 @@ const ApplyPageContent = () => {
                                                     }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : errors.pitchDeck ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                    <Upload className={`w-8 h-8 ${files.pitchDeck ? 'text-vc-mint' : errors.pitchDeck ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
-                                                    <p className="text-base font-medium">{files.pitchDeck ? files.pitchDeck.name : 'Upload Pitch Deck'}</p>
-                                                    <p className="text-sm text-white/40">Drop file here or click to browse</p>
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.pitchDeck ? 'border-vc-mint bg-vc-mint/5' : existingMaterials?.pitchDeckUrl ? 'border-vc-mint/50 bg-vc-mint/5' : errors.pitchDeck ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <Upload className={`w-8 h-8 ${files.pitchDeck || existingMaterials?.pitchDeckUrl ? 'text-vc-mint' : errors.pitchDeck ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
+                                                    <p className="text-base font-medium">
+                                                        {files.pitchDeck
+                                                            ? files.pitchDeck.name
+                                                            : existingMaterials?.pitchDeckName
+                                                                ? `On File: ${existingMaterials.pitchDeckName}`
+                                                                : 'Upload Pitch Deck'}
+                                                    </p>
+                                                    <p className="text-sm text-white/40">
+                                                        {files.pitchDeck || existingMaterials?.pitchDeckUrl ? 'Click to replace file' : 'Drop file here or click to browse'}
+                                                    </p>
                                                 </div>
                                             </div>
                                             {errors.pitchDeck && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.pitchDeck}</p>}
@@ -1857,10 +1872,18 @@ const ApplyPageContent = () => {
                                                     }}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : errors.execSummary ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                    <FileText className={`w-8 h-8 ${files.execSummary ? 'text-vc-mint' : errors.execSummary ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
-                                                    <p className="text-base font-medium">{files.execSummary ? files.execSummary.name : 'Upload Executive Summary'}</p>
-                                                    <p className="text-sm text-white/40">Drop file here or click to browse</p>
+                                                <div className={`p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${files.execSummary ? 'border-vc-mint bg-vc-mint/5' : existingMaterials?.execSummaryUrl ? 'border-vc-mint/50 bg-vc-mint/5' : errors.execSummary ? 'border-red-500 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                    <FileText className={`w-8 h-8 ${files.execSummary || existingMaterials?.execSummaryUrl ? 'text-vc-mint' : errors.execSummary ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
+                                                    <p className="text-base font-medium">
+                                                        {files.execSummary
+                                                            ? files.execSummary.name
+                                                            : existingMaterials?.execSummaryName
+                                                                ? `On File: ${existingMaterials.execSummaryName}`
+                                                                : 'Upload Executive Summary'}
+                                                    </p>
+                                                    <p className="text-sm text-white/40">
+                                                        {files.execSummary || existingMaterials?.execSummaryUrl ? 'Click to replace file' : 'Drop file here or click to browse'}
+                                                    </p>
                                                 </div>
                                             </div>
                                             {errors.execSummary && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.execSummary}</p>}
@@ -1902,11 +1925,19 @@ const ApplyPageContent = () => {
                                                 onChange={(e) => setFiles({ ...files, supportingData: e.target.files?.[0] || null })}
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             />
-                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.supportingData ? 'border-vc-mint bg-vc-mint/5' : errors.supportingData ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                                                <LinkIcon className={`w-6 h-6 ${files.supportingData ? 'text-vc-mint' : errors.supportingData ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
+                                            <div className={`p-6 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${files.supportingData ? 'border-vc-mint bg-vc-mint/5' : existingMaterials?.supportingDataUrl ? 'border-vc-mint/50 bg-vc-mint/5' : errors.supportingData ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                                                <LinkIcon className={`w-6 h-6 ${files.supportingData || existingMaterials?.supportingDataUrl ? 'text-vc-mint' : errors.supportingData ? 'text-red-500 animate-pulse' : 'text-white/20'}`} />
                                                 <div>
-                                                    <p className="text-sm font-medium">{files.supportingData ? files.supportingData.name : 'Upload Supporting Data'}</p>
-                                                    <p className="text-sm text-white/40">Optional technical documents</p>
+                                                    <p className="text-sm font-medium">
+                                                        {files.supportingData
+                                                            ? files.supportingData.name
+                                                            : existingMaterials?.supportingDataName
+                                                                ? `On File: ${existingMaterials.supportingDataName}`
+                                                                : 'Upload Supporting Data'}
+                                                    </p>
+                                                    <p className="text-sm text-white/40">
+                                                        {files.supportingData || existingMaterials?.supportingDataUrl ? 'Click to replace file' : 'Optional technical documents'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -2146,17 +2177,21 @@ const ApplyPageContent = () => {
                                 <p className="text-white/70 leading-relaxed">
                                     Your team's proposal for the Venture Craft Competition has been successfully {isEditMode ? 'updated' : 'received'}.
                                 </p>
-                                <div className="mt-6 flex flex-col gap-2">
-                                    <div className="flex items-center gap-3 text-white/90">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint" />
+                                <div className="mt-8 flex flex-col gap-3 text-left max-w-[360px] mx-auto">
+                                    <div className="flex items-start gap-3 text-white/90">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-2 shrink-0" />
                                         <p className="text-sm font-medium">Your application can now be viewed in your <Link href="/profile" className="text-vc-mint hover:underline">Profile</Link>.</p>
                                     </div>
-                                    <div className="flex items-center gap-3 text-white/50">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                                    <div className="flex items-start gap-3 text-white/90">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-2 shrink-0" />
+                                        <p className="text-sm font-medium">A confirmation email has been sent to the team leader's address.</p>
+                                    </div>
+                                    <div className="flex items-start gap-3 text-white/50">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white/20 mt-2 shrink-0" />
                                         <p className="text-sm italic">Note: Editing will be disabled once the screening round begins.</p>
                                     </div>
                                 </div>
-                                <div className="bg-vc-mint/5 border border-vc-mint/10 rounded-2xl p-4 inline-block">
+                                <div className="mt-10 bg-vc-mint/5 border border-vc-mint/10 rounded-2xl p-4 inline-block">
                                     <p className="text-vc-mint text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2">
                                         {isEditMode ? (
                                             <>
@@ -2166,7 +2201,7 @@ const ApplyPageContent = () => {
                                         ) : (
                                             <>
                                                 <FileText className="w-4 h-4" />
-                                                Confirmation sent to leader's email
+                                                Submission Received
                                             </>
                                         )}
                                     </p>
