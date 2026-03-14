@@ -479,13 +479,9 @@ export default function MaterialsPage() {
                     </div>
                 </motion.div>
 
-                {/* Section Divider with Dot */}
                 <div className="py-20 relative">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
                         <div className="w-full border-t border-white/5"></div>
-                    </div>
-                    <div className="relative flex justify-center">
-                        <div className="w-2 h-2 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
                     </div>
                 </div>
 
