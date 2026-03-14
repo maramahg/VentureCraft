@@ -5,6 +5,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Cursor from "../components/Cursor";
 import Navbar from "../components/Navbar";
+import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -33,6 +34,7 @@ export default function RootLayout({
         </Suspense>
         <Cursor />
         {children}
+        <Analytics />
 
         <Script src="https://t.contentsquare.net/uxa/6dbc7bf2a02fd.js" strategy="afterInteractive" />
       </body>
