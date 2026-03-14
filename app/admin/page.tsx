@@ -6,7 +6,7 @@ import {
     Users, Rocket, CheckCircle, XCircle, Clock,
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
-    Check, X, AlertCircle, Shield, FileText, FileCode,
+    Check, X, AlertCircle, Shield, FileText, FileCode, Edit2,
     User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, Paperclip,
     AlignLeft, AlignCenter, AlignRight, Type
 } from 'lucide-react';
@@ -352,7 +352,9 @@ function AdminDashboardContent() {
     const [ageFilter, setAgeFilter] = useState<string>('all');
     const [nationalityFilter, setNationalityFilter] = useState<string>('all');
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
+    const [isEditingAllowed, setIsEditingAllowed] = useState<boolean>(true);
     const [updatingReg, setUpdatingReg] = useState(false);
+    const [updatingEditing, setUpdatingEditing] = useState(false);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
     const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
     const [totalUsers, setTotalUsers] = useState(0);
@@ -692,6 +694,10 @@ function AdminDashboardContent() {
             if (regDoc.exists()) {
                 setIsRegistrationOpen(regDoc.data().isOpen ?? true);
             }
+            const editDoc = await getDoc(doc(db, 'settings', 'editing'));
+            if (editDoc.exists()) {
+                setIsEditingAllowed(editDoc.data().isOpen ?? true);
+            }
         };
         fetchRegStatus();
     }, [isAdmin]);
@@ -704,11 +710,29 @@ function AdminDashboardContent() {
                 isOpen: newStatus
             }, { merge: true });
             setIsRegistrationOpen(newStatus);
+            setToast({ message: `Registration ${newStatus ? 'Opened' : 'Closed'} successfully.`, type: 'success' });
         } catch (error) {
             console.error("Error toggling registration:", error);
             setToast({ message: "Failed to update registration status.", type: 'error' });
         } finally {
             setUpdatingReg(false);
+        }
+    };
+
+    const toggleEditing = async () => {
+        setUpdatingEditing(true);
+        try {
+            const newStatus = !isEditingAllowed;
+            await setDoc(doc(db, 'settings', 'editing'), {
+                isOpen: newStatus
+            }, { merge: true });
+            setIsEditingAllowed(newStatus);
+            setToast({ message: `Editing ${newStatus ? 'Allowed' : 'Locked'} successfully.`, type: 'success' });
+        } catch (error) {
+            console.error("Error toggling editing:", error);
+            setToast({ message: "Failed to update editing status.", type: 'error' });
+        } finally {
+            setUpdatingEditing(false);
         }
     };
 
@@ -1429,24 +1453,37 @@ function AdminDashboardContent() {
 
                     </div>
 
-                    {/* Tab Navigation Removed */}
-
-
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch sm:items-center gap-3">
                         {isAdmin && activeTab !== 'broadcast' && (
-                            <button
-                                onClick={toggleRegistration}
-                                disabled={updatingReg}
-                                className={`px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-3 border shadow-xl ${isRegistrationOpen
-                                    ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
-                                    : 'bg-red-500/10 text-red-500 border-red-500/20'
-                                    }`}
-                            >
-                                {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                                <span>Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
-                            </button>
-                        )}
+                            <>
+                                <button
+                                    onClick={toggleRegistration}
+                                    disabled={updatingReg}
+                                    className={`px-5 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 border shadow-xl ${isRegistrationOpen
+                                        ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
+                                        : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                        }`}
+                                >
+                                    {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                                    <span className="text-sm">Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
+                                </button>
 
+                                <button
+                                    onClick={toggleEditing}
+                                    disabled={updatingEditing}
+                                    className={`px-5 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 border shadow-xl ${isEditingAllowed
+                                        ? 'bg-vc-teal text-white border-vc-teal shadow-vc-teal/20'
+                                        : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                                        }`}
+                                >
+                                    {isEditingAllowed ? <Edit2 className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+                                    <span className="text-sm">Editing: {isEditingAllowed ? 'ALLOWED' : 'LOCKED'}</span>
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 lg:gap-4">
                         {activeTab === 'startups' && (
                             <>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
@@ -3524,7 +3561,7 @@ function AdminDashboardContent() {
                     )}
                 </AnimatePresence>
             </div>
-        </main>
+        </main >
     );
 }
 

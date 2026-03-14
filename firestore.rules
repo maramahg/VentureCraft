@@ -25,6 +25,11 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/settings/registration).data.isOpen == true;
     }
 
+    // Helper: Check if editing is allowed
+    function isEditingAllowed() {
+      return get(/databases/$(database)/documents/settings/editing).data.isOpen == true;
+    }
+
     // Admins Collection
     match /admins/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
@@ -47,7 +52,7 @@ service cloud.firestore {
     match /applications/{docId} {
       allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
       allow create: if request.auth != null && (isRegistrationOpen() || isAdmin());
-      allow update: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge()) && (isRegistrationOpen() || isAdmin());
+      allow update: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge()) && (isEditingAllowed() || isAdmin());
       allow delete: if isAdmin();
     }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Hash, HelpCircle, ExternalLink, Edit2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Shield, Hash, HelpCircle, ExternalLink, Edit2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
@@ -247,6 +247,7 @@ const ApplyPageContent = () => {
     const [user, setUser] = useState<any>(null);
     const [authLoading, setAuthLoading] = useState(true);
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
+    const [isEditingAllowed, setIsEditingAllowed] = useState<boolean>(true);
     const [regLoading, setRegLoading] = useState(true);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -261,17 +262,29 @@ const ApplyPageContent = () => {
 
     useEffect(() => {
         // Fetch or listen to global settings for registration status
-        const unsubscribe = onSnapshot(doc(db, 'settings', 'registration'), (snapshot) => {
+        const unsubReg = onSnapshot(doc(db, 'settings', 'registration'), (snapshot) => {
             if (snapshot.exists()) {
                 setIsRegistrationOpen(snapshot.data().isOpen ?? true);
             }
-            setRegLoading(false);
         }, (error) => {
             console.error("Error fetching registration status:", error);
+        });
+
+        // Fetch or listen to global settings for editing status
+        const unsubEdit = onSnapshot(doc(db, 'settings', 'editing'), (snapshot) => {
+            if (snapshot.exists()) {
+                setIsEditingAllowed(snapshot.data().isAllowed ?? snapshot.data().isOpen ?? true);
+            }
+            setRegLoading(false);
+        }, (error) => {
+            console.error("Error fetching editing status:", error);
             setRegLoading(false);
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubReg();
+            unsubEdit();
+        };
     }, []);
 
     // Form State
@@ -598,12 +611,21 @@ const ApplyPageContent = () => {
             return;
         }
 
-        // 2. Registration Status Check (Strict)
-        if (!isRegistrationOpen) {
-            setErrorMessage("Registration is now closed. Your application cannot be submitted or edited at this time.");
-            setIsErrorOpen(true);
-            setLoading(false);
-            return;
+        // 2. Registration & Editing Status Check (Strict)
+        if (isEditMode) {
+            if (!isEditingAllowed) {
+                setErrorMessage("The ability to edit applications is currently locked. Your changes cannot be saved at this time.");
+                setIsErrorOpen(true);
+                setLoading(false);
+                return;
+            }
+        } else {
+            if (!isRegistrationOpen) {
+                setErrorMessage("Registration is now closed. Your application cannot be submitted at this time.");
+                setIsErrorOpen(true);
+                setLoading(false);
+                return;
+            }
         }
 
         setLoading(true);
@@ -1313,15 +1335,37 @@ const ApplyPageContent = () => {
                                     ))}
                                 </div>
 
-                                <div className="flex justify-center pt-8">
+                                <div className="flex flex-col items-center gap-6 pt-8">
+                                    {isEditMode && !isEditingAllowed && (
+                                        <div className="w-full max-w-xl p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center gap-4 animate-pulse">
+                                            <div className="p-2 bg-orange-500/20 rounded-lg">
+                                                <Shield className="w-5 h-5 text-orange-500" />
+                                            </div>
+                                            <div className="text-left">
+                                                <h4 className="text-orange-500 font-bold text-sm">Editing Locked</h4>
+                                                <p className="text-white/60 text-xs">The ability to modify submitted applications is currently closed by administration.</p>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <button
                                         onClick={() => {
+                                            if (isEditMode && !isEditingAllowed) return;
                                             setStep(1);
                                             window.scrollTo({ top: 0, behavior: 'smooth' });
                                         }}
-                                        className="px-8 py-4 bg-gradient-to-r from-vc-teal to-vc-mint text-white font-bold rounded-xl shadow-lg shadow-vc-mint/20 hover:shadow-vc-mint/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group text-lg uppercase tracking-wider"
+                                        disabled={isEditMode && !isEditingAllowed}
+                                        className={`px-8 py-4 bg-gradient-to-r from-vc-teal to-vc-mint text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 group text-lg uppercase tracking-wider ${isEditMode && !isEditingAllowed
+                                            ? 'opacity-50 grayscale cursor-not-allowed'
+                                            : 'shadow-vc-mint/20 hover:shadow-vc-mint/40 hover:scale-[1.02] active:scale-[0.98]'
+                                            }`}
                                     >
-                                        <span>Start Application</span>
+                                        <span>
+                                            {isEditMode
+                                                ? (isEditingAllowed ? 'Edit Application' : 'Editing Locked')
+                                                : (isRegistrationOpen ? 'Start Application' : 'Registration Closed')
+                                            }
+                                        </span>
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </div>
