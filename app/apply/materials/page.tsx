@@ -883,22 +883,12 @@ export default function MaterialsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5 aspect-[16/9] ${!material.title.toLowerCase().includes('pitch deck') ? 'sm:aspect-[1/1.3] lg:aspect-[1/1.4]' : ''
+                                            <div className={`relative w-full rounded-2xl overflow-hidden border border-white/10 bg-[#001f1c] shadow-2xl glass-panel group ring-1 ring-white/5 aspect-[16/9] ${!material.title.toLowerCase().includes('pitch deck') ? 'sm:aspect-[1/1.3] md:aspect-[1/1.4]' : ''
                                                 }`}>
                                                 <div className="absolute inset-0 bg-vc-mint/5 animate-pulse group-hover:opacity-0 transition-opacity" />
 
-                                                {/* Desktop Native Viewer (Large screens only) */}
-                                                <div className="absolute inset-0 w-full h-full lg:block hidden">
-                                                    <iframe
-                                                        key={`desktop-${currentDoc.previewUrl || currentDoc.pdfUrl}`}
-                                                        src={currentDoc.previewUrl || `${currentDoc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
-                                                        className="w-full h-full border-none transition-opacity bg-white"
-                                                        title={`${material.title} Desktop Preview`}
-                                                    />
-                                                </div>
-
-                                                {/* Tablet & Mobile React-PDF Canvas Viewer (Below 1024px) */}
-                                                <div className="absolute inset-0 w-full h-full lg:hidden block bg-white">
+                                                {/* Standardized Canvas Viewer for All Devices */}
+                                                <div className="absolute inset-0 w-full h-full bg-white">
                                                     <MobilePDFViewer pdfUrl={currentDoc.pdfUrl} />
                                                 </div>
                                             </div>

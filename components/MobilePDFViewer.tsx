@@ -25,8 +25,8 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
         const observer = new ResizeObserver((entries) => {
             if (entries[0]) {
                 const { width } = entries[0].contentRect;
-                // On iPads/Tablets, we want a tighter fit. Subtract 32px for padding.
-                // Remove the 900px cap to allow fuller usage on iPad Pro landscape.
+                // Subtract 32px for padding. 
+                // We allow it to expand up to a comfortable max-width for desktop reading.
                 setContainerWidth(width > 1200 ? 1100 : width - 32);
             }
         });
@@ -41,9 +41,9 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
 
     return (
         <div ref={containerRef} className="w-full h-full overflow-y-auto overflow-x-hidden bg-white flex flex-col items-center nice-scrollbar py-4 relative">
-            {/* Tablet/Mobile Hint */}
+            {/* Interaction Hint */}
             <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-20 hidden sm:block">
-                <p className="text-[9px] font-bold text-[#001412] tracking-widest uppercase">Pinch to Zoom</p>
+                <p className="text-[9px] font-bold text-[#001412] tracking-widest uppercase italic">Scrollable Preview</p>
             </div>
 
             {containerWidth > 0 ? (
