@@ -276,75 +276,124 @@ const themePillars: ThemePillar[] = [
         innovationAreas: [
             {
                 category: "Energy Generation & Fuels",
-                items: ["Renewable Energy (Solar, Wind, Hydro, Geothermal)", "Green Hydrogen & Ammonia Production", "Biofuels & Carbon-Neutral Alternatives", "Synthetic Fuels"]
+                items: [
+                    "Renewable Energy Generation (Solar, wind, hydro, geothermal)",
+                    "Clean Fuel Production (Green hydrogen, ammonia, biofuels)",
+                    "Grid Integration & Management Technologies"
+                ]
             },
             {
                 category: "Carbon Management",
-                items: ["Direct Air Capture (DAC)", "Industrial CO₂ Capture & Storage (CCUS)", "Carbon Conversion Technologies", "Negative Emission Technologies"]
+                items: [
+                    "CCUS (Carbon Capture, Utilization & Storage)",
+                    "Direct Air Capture (DAC) & Negative Emissions",
+                    "Emission Monitoring, Tracking & Verification (AI/Satellite)"
+                ]
             },
             {
                 category: "Industrial & Transport",
-                items: ["Clean Transportation (EVs, Hydrogen Fuel Systems)", "Industrial Emission Reduction (Green Steel/Cement)", "Electrification of Heavy Machinery", "Methane Leak Detection"]
+                items: [
+                    "Clean Transportation (EVs, Hydrogen Fuel Systems)",
+                    "Industrial Emission Reduction (Green Steel/Cement)",
+                    "Electrification of Heavy Transport & Industrial Machinery",
+                    "Methane & Non-CO₂ Emission Leak Detection"
+                ]
             }
         ]
     },
     {
         number: 2,
         title: "Circular Economy & Resource Efficiency",
-        mission: "Minimize waste and maximize resource utilization through circular material systems.",
+        mission: "Minimize waste and maximize resource utilization through circular material systems and closed-loop industrial processes.",
         description: "This pillar concentrates on transforming linear consumption models into circular systems where resources are continuously reused, recycled, or regenerated. It addresses the resource intensity of energy systems by creating closed-loop material flows and eliminating waste streams.",
         innovationAreas: [
             {
                 category: "Waste-to-Value",
-                items: ["Plastic/Agri-waste to Fuels/Biomaterials", "Advanced Chemical Recycling", "AI-powered Waste Sorting Systems"]
+                items: [
+                    "Converting Plastic/Agri/Industrial Waste to Fuels & Materials",
+                    "Advanced Chemical & AI-powered Recycling Systems",
+                    "Industrial Symbiosis & Waste Reuse Platforms"
+                ]
             },
             {
                 category: "Material Recovery",
-                items: ["Rare Metal Recovery (E-waste)", "Lithium-ion Battery Recycling", "Industrial Chemical/Mineral Recovery"]
+                items: [
+                    "Rare Metal Recovery (E-waste) & Battery Recycling",
+                    "Industrial Chemical & Mineral Recovery Technologies",
+                    "Water Recycling & Desalination Resource Recovery"
+                ]
             },
             {
                 category: "Design & Lifecycle",
-                items: ["Biodegradable & Bio-based Materials", "Modular Product Design", "Industrial Symbiosis Platforms"]
+                items: [
+                    "Biodegradable & Bio-based Industrial Materials",
+                    "Material Efficiency Optimization (AI-driven Design)",
+                    "Product Lifecycle Extension & Modular Systems"
+                ]
             }
         ]
     },
     {
         number: 3,
         title: "Energy Efficiency",
-        mission: "Optimize energy performance and minimize consumption across all applications.",
-        description: "This pillar is dedicated to maximizing energy output while minimizing input across buildings, transportation, industry, and infrastructure. It focuses on technologies and systems that reduce overall energy demand through improved performance and intelligent management.",
+        mission: "Optimize energy performance and minimize consumption across applications",
+        description: "This pillar is dedicated to maximizing energy output while minimizing input across buildings, transportation, industry, and infrastructure. It focuses on technologies and systems that reduce overall energy demand through improved performance, intelligent management, and advanced materials.",
         innovationAreas: [
             {
-                category: "Digital Optimization",
-                items: ["Smart Building/HVAC Systems", "AI-based Energy Analytics & Digital Twins", "Predictive Predictive Control Systems"]
+                category: "Digital & Smart Systems",
+                items: [
+                    "Building Energy Optimization (Smart HVAC/Lighting)",
+                    "Digital Twins & AI-based Energy Analytics",
+                    "Smart Energy Management & Demand Response Platforms"
+                ]
             },
             {
-                category: "Materials & Hardware",
-                items: ["High-Performance Thermal Barriers", "Advanced Semiconductor/Power Electronics", "Energy Harvesting Technologies"]
+                category: "Efficiency Materials",
+                items: [
+                    "High-Performance Thermal Barriers & Advanced Materials",
+                    "High-Efficiency Power Electronics & Converters",
+                    "Advanced Semiconductor & Energy Harvesting"
+                ]
             },
             {
-                category: "Industrial & Grid",
-                items: ["Industrial Waste Heat Recovery", "Thermal Storage & Load Shifting", "Grid Stabilization & Inverter Efficiency"]
+                category: "Industrial & Movement",
+                items: [
+                    "Industrial Heat Recovery & Thermal Recycling",
+                    "Transportation Energy Efficiency & Route Optimization",
+                    "Thermal Storage & Behind-the-meter Battery Solutions"
+                ]
             }
         ]
     },
     {
         number: 4,
         title: "Process Optimization & Advanced Engineering",
-        mission: "Transform manufacturing and production through innovative engineering and automation.",
-        description: "This pillar revolutionizes how products and systems are designed, manufactured, and produced to support the sustainable energy transition. It focuses on making manufacturing processes cleaner, more efficient, and capable of producing the technologies needed.",
+        mission: "Transform manufacturing and production through innovative engineering and automation",
+        description: "This pillar revolutionizes how products and systems are designed, manufactured, and produced to support the sustainable energy transition. It focuses on making manufacturing processes cleaner, more efficient, and capable of producing the technologies needed for sustainable energy systems.",
         innovationAreas: [
             {
-                category: "Industry 4.0",
-                items: ["Autonomous Manufacturing Robotics", "Industrial IoT (IIoT) Platforms", "Predictive Maintenance Algorithms"]
+                category: "Automation & Robotics",
+                items: [
+                    "Autonomous Manufacturing & Industrial Robotics",
+                    "Autonomous Infrastructure Inspection (Drones/Robots)",
+                    "Industrial IoT (IIoT) Platforms & Sensor Networks"
+                ]
             },
             {
                 category: "Advanced Manufacturing",
-                items: ["Metal Additive Manufacturing (3D Printing)", "Precision Engineering Technologies", "Nano-manufacturing Innovations"]
+                items: [
+                    "Metal Additive Manufacturing (3D Printing)",
+                    "Precision & Nano-manufacturing Innovations",
+                    "Advanced Material Fabrication Processes"
+                ]
             },
             {
-                category: "Quality & Inspection",
-                items: ["AI-powered Computer Vision QC", "Autonomous Infrastructure Inspection (Drones)", "Virtual Factory Simulations"]
+                category: "Intelligence & QC",
+                items: [
+                    "AI Quality Control & Computer Vision Inspection",
+                    "Predictive Maintenance & Fault Prediction AI",
+                    "Virtual Factory & Industrial Process Simulations"
+                ]
             }
         ]
     }
@@ -430,10 +479,13 @@ export default function MaterialsPage() {
                     </div>
                 </motion.div>
 
-                {/* Section Divider */}
+                {/* Section Divider with Dot */}
                 <div className="py-20 relative">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
                         <div className="w-full border-t border-white/5"></div>
+                    </div>
+                    <div className="relative flex justify-center">
+                        <div className="w-2 h-2 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
                     </div>
                 </div>
 
@@ -444,11 +496,11 @@ export default function MaterialsPage() {
                     animate={{ opacity: 1 }}
                     className="mb-24 space-y-12 scroll-mt-24"
                 >
-                    {/* Overview Header */}
+                    {/* Synchronized Header */}
                     <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
                         <div className="flex items-center justify-center gap-2 text-vc-mint font-bold tracking-[0.3em] uppercase text-[10px]">
                             <div className="w-8 h-px bg-vc-mint/30" />
-                            Core Framework
+                            CORE FRAMEWORK
                             <div className="w-8 h-px bg-vc-mint/30" />
                         </div>
                         <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight uppercase">Theme Pillars</h2>
@@ -485,25 +537,25 @@ export default function MaterialsPage() {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                                             <div className="md:col-span-4 lg:col-span-3">
-                                                <span className="text-[10px] font-black text-vc-mint uppercase tracking-[0.2em] block mb-2 opacity-60">Pillar Mission</span>
-                                                <p className="text-sm font-bold text-white leading-relaxed">{pillar.mission}</p>
+                                                <span className="text-[11px] font-black text-vc-mint uppercase tracking-[0.2em] block mb-2 opacity-60">Pillar Mission</span>
+                                                <p className="text-sm md:text-base font-bold text-white leading-relaxed">{pillar.mission}</p>
                                             </div>
                                             <div className="md:col-span-8 lg:col-span-9 border-l border-white/5 pl-6">
-                                                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2">Technical Basis</span>
-                                                <p className="text-sm text-white/50 leading-relaxed italic">{pillar.description}</p>
+                                                <span className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2">Technical Basis</span>
+                                                <p className="text-sm md:text-base text-white/50 leading-relaxed italic">{pillar.description}</p>
                                             </div>
                                         </div>
 
-                                        <div className="bg-black/20 rounded-2xl p-6 border border-white/5">
-                                            <h5 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Key Innovation & Focus Areas:</h5>
+                                        <div className="bg-black/20 rounded-2xl p-8 border border-white/5">
+                                            <h5 className="text-[12px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Key Innovation & Focus Areas:</h5>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                                 {pillar.innovationAreas.map((area, aidx) => (
                                                     <div key={aidx} className="space-y-3">
-                                                        <h6 className="text-[10px] font-black text-vc-teal uppercase tracking-widest">{area.category}</h6>
+                                                        <h6 className="text-[11px] font-black text-vc-teal uppercase tracking-widest">{area.category}</h6>
                                                         <ul className="space-y-2">
                                                             {area.items.map((item, iidx) => (
-                                                                <li key={iidx} className="flex items-start gap-2 text-[11px] text-white/40 font-medium">
-                                                                    <div className="w-1 h-1 rounded-full bg-vc-mint/30 mt-1.5 shrink-0" />
+                                                                <li key={iidx} className="flex items-start gap-2 text-[13px] text-white/40 font-medium">
+                                                                    <div className="w-1 h-1 rounded-full bg-vc-mint/30 mt-2 shrink-0" />
                                                                     {item}
                                                                 </li>
                                                             ))}
@@ -517,59 +569,48 @@ export default function MaterialsPage() {
                             ))}
                         </div>
 
-                        {/* Decision Logic & Impact Summary - NOW TRULY INSIDE MASTER PANEL */}
-                        <div className="p-8 md:p-10 bg-vc-mint/[0.02] border-t border-white/5">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                {/* Summary Table Style */}
+                        {/* Unified Framework Document - Standardized Style */}
+                        <div className="border-t border-white/5 bg-white/[0.01]">
+                            <div className="p-8 md:p-12 space-y-12">
+                                {/* Section Header: Selection Strategy */}
                                 <div className="space-y-6">
-                                    <h4 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-3 italic">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
-                                        Measurable Impact Metrics
-                                    </h4>
-                                    <div className="space-y-4">
-                                        {[
-                                            { p: "P1", metric: "CO₂ Reduction", unit: "tons/year", desc: "Emissions avoided or captured" },
-                                            { p: "P2", metric: "Material Recovery", unit: "% Percentage", desc: "Waste converted to resources" },
-                                            { p: "P3", metric: "Energy Savings", unit: "% Percentage", desc: "Reduction in consumption" },
-                                            { p: "P4", metric: "Process Yield", unit: "% Percentage", desc: "Output efficiency improvements" }
-                                        ].map((impact, i) => (
-                                            <div key={i} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.01] transition-colors rounded-lg px-2 -mx-2">
-                                                <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
-                                                    {impact.p}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between items-baseline mb-0.5">
-                                                        <h5 className="text-sm font-bold text-white/90">{impact.metric}</h5>
-                                                        <span className="text-[10px] text-vc-mint/40 font-bold uppercase">{impact.unit}</span>
-                                                    </div>
-                                                    <p className="text-[11px] text-white/30 italic">{impact.desc}</p>
-                                                </div>
+                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <h3 className="text-xl md:text-2xl font-bold text-vc-mint tracking-tight uppercase">Selection Strategy</h3>
+                                        </div>
+                                        <div className="flex flex-col items-start sm:items-end gap-2 text-left sm:text-right">
+                                            <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-xs sm:text-sm font-bold text-vc-mint uppercase tracking-widest whitespace-nowrap">
+                                                Unified Decision Framework
                                             </div>
-                                        ))}
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Selection Logic Card */}
-                                <div className="space-y-8">
                                     <div className="space-y-4">
-                                        <h4 className="text-xs font-black text-vc-mint uppercase tracking-widest italic">Pillar Selection Rule</h4>
-                                        <p className="text-sm font-bold text-white/80 leading-relaxed border-l-2 border-vc-mint/30 pl-4 py-1">
-                                            Submissions must select the pillar that represents the primary measurable impact of their innovation.
+                                        <p className="text-white/80 text-base md:text-lg leading-relaxed">
+                                            <strong className="text-vc-mint">Purpose:</strong> To ensure every startup aligns with the pathway where they deliver their strongest <span className="text-vc-mint font-bold italic">quantifiable</span> impact. Startups must select the pillar that represents their primary measurable innovation contribution.
                                         </p>
-                                    </div>
 
-                                    <div className="flex gap-4 items-start bg-black/20 p-5 rounded-2xl border border-white/5">
-                                        <div className="p-2.5 rounded-xl bg-vc-mint/10 border border-vc-mint/20">
-                                            <AlertCircle className="w-4 h-4 text-vc-mint" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <p className="text-xs text-white/50 leading-relaxed font-medium">
-                                                While solutions may influence multiple areas, the evaluation will focus on the strongest <strong className="text-white">quantifiable</strong> metric.
-                                            </p>
-                                            <p className="text-[10px] text-vc-mint/40 uppercase font-black tracking-widest pt-2">Strategy Note</p>
+                                        {/* Metrics Table / List */}
+                                        <div className="space-y-4 bg-white/[0.02] rounded-xl p-6 border border-white/5">
+                                            <h4 className="text-base font-bold text-white/40 uppercase tracking-wider">Primary Impact Metrics</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                                {[
+                                                    { p: "P1", t: "Decarbonization", m: "CO₂ Reduction Potential (Tons/Year)" },
+                                                    { p: "P2", t: "Circular Economy", m: "Material Recovery Rate (% Percentage)" },
+                                                    { p: "P3", t: "Energy Efficiency", m: "Net Energy Savings (% Percentage)" },
+                                                    { p: "P4", t: "Process Optimization", m: "Throughput Improvement (% Percentage)" }
+                                                ].map((item, i) => (
+                                                    <div key={i} className="flex items-start gap-3 group">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint mt-2 shrink-0 shadow-[0_0_10px_rgba(79,209,197,0.4)]" />
+                                                        <div className="space-y-1">
+                                                            <span className="text-sm font-bold text-white/80 uppercase tracking-tight group-hover:text-vc-mint transition-colors">{item.t}</span>
+                                                            <p className="text-xs text-white/40 italic">Required Metric: {item.m}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
