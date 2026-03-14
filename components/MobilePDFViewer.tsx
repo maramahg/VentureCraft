@@ -25,8 +25,9 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
         const observer = new ResizeObserver((entries) => {
             if (entries[0]) {
                 const { width } = entries[0].contentRect;
-                // Subtract 32px (16px of padding on each side) to match the visual padding of the UI F12 screenshot
-                setContainerWidth(width > 900 ? 900 : width - 32);
+                // On iPads/Tablets, we want a tighter fit. Subtract 32px for padding.
+                // Remove the 900px cap to allow fuller usage on iPad Pro landscape.
+                setContainerWidth(width > 1200 ? 1100 : width - 32);
             }
         });
 
@@ -39,7 +40,12 @@ export default function MobilePDFViewer({ pdfUrl }: MobilePDFViewerProps) {
     }
 
     return (
-        <div ref={containerRef} className="w-full h-full overflow-y-auto overflow-x-hidden bg-white flex flex-col items-center nice-scrollbar py-4">
+        <div ref={containerRef} className="w-full h-full overflow-y-auto overflow-x-hidden bg-white flex flex-col items-center nice-scrollbar py-4 relative">
+            {/* Tablet/Mobile Hint */}
+            <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-20 hidden sm:block">
+                <p className="text-[9px] font-bold text-[#001412] tracking-widest uppercase">Pinch to Zoom</p>
+            </div>
+
             {containerWidth > 0 ? (
                 <Document
                     file={pdfUrl}
