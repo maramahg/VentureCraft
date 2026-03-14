@@ -426,188 +426,180 @@ export default function MaterialsPage() {
                                     <span>Simulate Application</span>
                                 </button>
                             </div>
-
                         </div>
                     </div>
                 </motion.div>
 
+                {/* Section Divider */}
+                <div className="py-20 relative">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div className="w-full border-t border-white/5"></div>
+                    </div>
+                </div>
+
                 {/* Theme Pillars Section */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    className="mb-24 space-y-16"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mb-24 space-y-12"
                 >
                     {/* Overview Header */}
-                    <div className="text-center space-y-4 max-w-3xl mx-auto">
-                        <div className="flex items-center justify-center gap-2 text-vc-mint font-bold tracking-[0.3em] uppercase text-xs">
-                            <div className="w-12 h-px bg-vc-mint/30" />
-                            Competition Framework
-                            <div className="w-12 h-px bg-vc-mint/30" />
+                    <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
+                        <div className="flex items-center justify-center gap-2 text-vc-mint font-bold tracking-[0.3em] uppercase text-[10px]">
+                            <div className="w-8 h-px bg-vc-mint/30" />
+                            Core Framework
+                            <div className="w-8 h-px bg-vc-mint/30" />
                         </div>
-                        <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">Sustainable Energy Theme Pillars</h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight uppercase">Theme Pillars</h2>
                         <p className="text-white/40 text-sm md:text-base leading-relaxed">
-                            The KFUPM Venture Craft competition embraces innovation through four interconnected pillars, welcoming startups from diverse disciplines to drive the global energy transition.
+                            Every submission must align with one of these four interconnected pathways driving the sustainable energy transition.
                         </p>
                     </div>
 
-                    {/* Pillars Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {themePillars.map((pillar, idx) => (
-                            <div key={idx} className="glass-panel p-8 relative group overflow-hidden border-white/5 hover:border-vc-mint/30 transition-all duration-500">
-                                {/* Diagonal Accents */}
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-vc-mint/5 -mr-12 -mt-12 rounded-full blur-3xl group-hover:bg-vc-mint/10 transition-colors" />
-
-                                <div className="relative z-10 space-y-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-black text-xl border border-vc-mint/20 shadow-lg shadow-black/20">
-                                            {pillar.number}
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white tracking-tight uppercase group-hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-8 decoration-2">{pillar.title}</h3>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="p-4 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
-                                            <span className="text-[10px] font-black text-vc-mint uppercase tracking-widest block mb-1">Mission</span>
-                                            <p className="text-sm font-bold text-white leading-relaxed">{pillar.mission}</p>
-                                        </div>
-                                        <p className="text-sm text-white/50 leading-relaxed font-medium">{pillar.description}</p>
-                                    </div>
-
-                                    {/* Innovation Areas */}
-                                    <div className="space-y-4 pt-4 border-t border-white/5">
-                                        <h4 className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Key Innovation Areas</h4>
-                                        <div className="space-y-3">
-                                            {pillar.innovationAreas.map((area, aidx) => (
-                                                <div key={aidx} className="space-y-2">
-                                                    <span className="text-[10px] font-bold text-vc-teal/60 uppercase">{area.category}</span>
-                                                    <div className="flex flex-wrap gap-1.5">
-                                                        {area.items.map((item, iidx) => (
-                                                            <span key={iidx} className="px-2 py-1 bg-white/[0.03] border border-white/10 rounded text-[10px] text-white/40 font-bold whitespace-nowrap">
-                                                                {item}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
+                    <div className="glass-panel overflow-hidden border-vc-mint/10 bg-vc-mint/[0.01]">
+                        {/* Master Header for the Pillars Section */}
+                        <div className="p-8 md:p-10 border-b border-white/5 bg-white/[0.02]">
+                            <div className="flex items-center gap-3 text-vc-mint font-bold tracking-[0.2em] uppercase text-[10px] mb-2">
+                                <div className="w-6 h-px bg-vc-mint/30" />
+                                Strategy Framework
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Pillar Integration & Impact Tables */}
-                    <div className="space-y-12 pt-8">
-                        {/* Summary Table 1 */}
-                        <div className="glass-panel overflow-hidden border-white/10">
-                            <div className="p-6 bg-white/[0.03] border-bottom border-white/5">
-                                <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
-                                    Pillar Integration Strategy
-                                </h3>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-black/20">
-                                            <th className="px-6 py-4 text-[10px] font-black text-vc-mint uppercase tracking-widest">Pillar</th>
-                                            <th className="px-6 py-4 text-[10px] font-black text-vc-mint uppercase tracking-widest">Focus for Energy Transition</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5 font-medium">
-                                        <tr className="hover:bg-white/[0.01] transition-colors">
-                                            <td className="px-6 py-4 text-sm font-bold text-white">1. Decarbonization</td>
-                                            <td className="px-6 py-4 text-sm text-white/50">Provides clean energy sources and direct emission elimination.</td>
-                                        </tr>
-                                        <tr className="hover:bg-white/[0.01] transition-colors">
-                                            <td className="px-6 py-4 text-sm font-bold text-white">2. Circular Economy</td>
-                                            <td className="px-6 py-4 text-sm text-white/50">Ensures resource security and circularity for energy systems.</td>
-                                        </tr>
-                                        <tr className="hover:bg-white/[0.01] transition-colors">
-                                            <td className="px-6 py-4 text-sm font-bold text-white">3. Energy Efficiency</td>
-                                            <td className="px-6 py-4 text-sm text-white/50">Maximizes performance while minimizing overall energy demand.</td>
-                                        </tr>
-                                        <tr className="hover:bg-white/[0.01] transition-colors">
-                                            <td className="px-6 py-4 text-sm font-bold text-white">4. Process Optimization</td>
-                                            <td className="px-6 py-4 text-sm text-white/50">Enables scalable production of sustainable energy technologies.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight">Technical Pathways</h3>
+                            <p className="text-white/40 text-sm mt-3 max-w-2xl leading-relaxed">
+                                Our competition framework focuses on four distinct dimensions of the sustainable energy transition. Every submission must demonstrate primary impact in one of these pathways.
+                            </p>
                         </div>
 
-                        {/* Impact Metrics Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-vc-teal shadow-[0_0_10px_rgba(0,163,131,0.5)]" />
-                                    Measurable Impact
-                                </h3>
-                                <div className="space-y-4">
-                                    {[
-                                        { p: "Pillar 1", metric: "CO₂ Reduction Potential", unit: "tons/year", desc: "Emissions avoided or captured" },
-                                        { p: "Pillar 2", metric: "Material Recovery Rate", unit: "% Percentage", desc: "Waste converted into usable resources" },
-                                        { p: "Pillar 3", metric: "Energy Savings", unit: "% Percentage", desc: "Reduction in energy use per unit output" },
-                                        { p: "Pillar 4", metric: "Throughput Improvement", unit: "% Percentage", desc: "Production output increase under same resources" }
-                                    ].map((impact, i) => (
-                                        <div key={i} className="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/[0.04] transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-vc-teal/10 flex items-center justify-center text-[10px] font-black text-vc-teal shrink-0">
-                                                {impact.p.toUpperCase()}
+                        <div className="divide-y divide-white/5">
+                            {themePillars.map((pillar, idx) => (
+                                <div key={idx} className="p-6 md:p-10 space-y-8 group hover:bg-white/[0.01] transition-colors">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint font-bold text-lg shrink-0 border border-vc-mint/20">
+                                                {pillar.number}
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-baseline justify-between mb-0.5">
-                                                    <h4 className="text-sm font-bold text-white">{impact.metric}</h4>
-                                                    <span className="text-[10px] font-black text-vc-mint/40 uppercase tracking-tighter">{impact.unit}</span>
-                                                </div>
-                                                <p className="text-xs text-white/40 leading-relaxed italic">{impact.desc}</p>
+                                            <h4 className="text-xl md:text-2xl font-bold text-white tracking-tight uppercase group-hover:text-vc-mint transition-colors">{pillar.title}</h4>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                            <div className="md:col-span-4 lg:col-span-3">
+                                                <span className="text-[10px] font-black text-vc-mint uppercase tracking-[0.2em] block mb-2 opacity-60">Pillar Mission</span>
+                                                <p className="text-sm font-bold text-white leading-relaxed">{pillar.mission}</p>
+                                            </div>
+                                            <div className="md:col-span-8 lg:col-span-9 border-l border-white/5 pl-6">
+                                                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2">Technical Basis</span>
+                                                <p className="text-sm text-white/50 leading-relaxed italic">{pillar.description}</p>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
 
-                            {/* Choosing Pillar */}
-                            <div className="space-y-6">
-                                <h3 className="text-base font-black text-white uppercase tracking-widest flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
-                                    Pillar Selection Rule
-                                </h3>
-                                <div className="glass-panel p-6 border-vc-mint/20 relative group">
-                                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                        <AlertCircle className="w-12 h-12 text-vc-mint" />
+                                        <div className="bg-black/20 rounded-2xl p-6 border border-white/5">
+                                            <h5 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Key Innovation & Focus Areas:</h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                                {pillar.innovationAreas.map((area, aidx) => (
+                                                    <div key={aidx} className="space-y-3">
+                                                        <h6 className="text-[10px] font-black text-vc-teal uppercase tracking-widest">{area.category}</h6>
+                                                        <ul className="space-y-2">
+                                                            {area.items.map((item, iidx) => (
+                                                                <li key={iidx} className="flex items-start gap-2 text-[11px] text-white/40 font-medium">
+                                                                    <div className="w-1 h-1 rounded-full bg-vc-mint/30 mt-1.5 shrink-0" />
+                                                                    {item}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <p className="text-sm font-bold text-white/80 leading-relaxed mb-6">
-                                        Startups must select the pillar that represents the <strong className="text-vc-mint underline decoration-vc-mint/30 underline-offset-4">primary measurable impact</strong> of their innovation. While solutions may influence multiple areas, evaluation will focus on the pillar with the strongest quantifiable impact.
-                                    </p>
-                                    <div className="space-y-3">
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Decision Logic & Impact Summary - NOW TRULY INSIDE MASTER PANEL */}
+                        <div className="p-8 md:p-10 bg-vc-mint/[0.02] border-t border-white/5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                {/* Summary Table Style */}
+                                <div className="space-y-6">
+                                    <h4 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-3 italic">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-vc-mint shadow-[0_0_10px_rgba(79,209,197,0.5)]" />
+                                        Measurable Impact Metrics
+                                    </h4>
+                                    <div className="space-y-4">
                                         {[
-                                            { p: 1, c: "Reduces or eliminates GHG emissions" },
-                                            { p: 2, c: "Reduces material waste or recovers resources" },
-                                            { p: 3, c: "Reduces energy required for a task" },
-                                            { p: 4, c: "Improves industrial design/building/operation" }
-                                        ].map((rule, ri) => (
-                                            <div key={ri} className="flex items-start gap-4">
-                                                <div className="w-5 h-5 rounded bg-vc-mint/10 border border-vc-mint/20 flex items-center justify-center text-[10px] font-black text-vc-mint shrink-0 mt-0.5">
-                                                    P{rule.p}
+                                            { p: "P1", metric: "CO₂ Reduction", unit: "tons/year", desc: "Emissions avoided or captured" },
+                                            { p: "P2", metric: "Material Recovery", unit: "% Percentage", desc: "Waste converted to resources" },
+                                            { p: "P3", metric: "Energy Savings", unit: "% Percentage", desc: "Reduction in consumption" },
+                                            { p: "P4", metric: "Process Yield", unit: "% Percentage", desc: "Output efficiency improvements" }
+                                        ].map((impact, i) => (
+                                            <div key={i} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.01] transition-colors rounded-lg px-2 -mx-2">
+                                                <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
+                                                    {impact.p}
                                                 </div>
-                                                <p className="text-xs text-white/50 font-bold leading-normal">
-                                                    Choose <span className="text-white">Pillar {rule.p}</span> if your innovation <span className="italic">{rule.c}.</span>
-                                                </p>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-baseline mb-0.5">
+                                                        <h5 className="text-sm font-bold text-white/90">{impact.metric}</h5>
+                                                        <span className="text-[10px] text-vc-mint/40 font-bold uppercase">{impact.unit}</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-white/30 italic">{impact.desc}</p>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Selection Logic Card */}
+                                <div className="space-y-8">
+                                    <div className="space-y-4">
+                                        <h4 className="text-xs font-black text-vc-mint uppercase tracking-widest italic">Pillar Selection Rule</h4>
+                                        <p className="text-sm font-bold text-white/80 leading-relaxed border-l-2 border-vc-mint/30 pl-4 py-1">
+                                            Submissions must select the pillar that represents the primary measurable impact of their innovation.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex gap-4 items-start bg-black/20 p-5 rounded-2xl border border-white/5">
+                                        <div className="p-2.5 rounded-xl bg-vc-mint/10 border border-vc-mint/20">
+                                            <AlertCircle className="w-4 h-4 text-vc-mint" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-white/50 leading-relaxed font-medium">
+                                                While solutions may influence multiple areas, the evaluation will focus on the strongest <strong className="text-white">quantifiable</strong> metric.
+                                            </p>
+                                            <p className="text-[10px] text-vc-mint/40 uppercase font-black tracking-widest pt-2">Strategy Note</p>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Section Divider */}
+                <div className="py-20 relative">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div className="w-full border-t border-white/5"></div>
+                    </div>
+                </div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-12"
                 >
+                    {/* Overview Header */}
+                    <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
+                        <div className="flex items-center justify-center gap-2 text-vc-mint font-bold tracking-[0.3em] uppercase text-[10px]">
+                            <div className="w-8 h-px bg-vc-mint/30" />
+                            Component Guidelines
+                            <div className="w-8 h-px bg-vc-mint/30" />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight uppercase">Submission Materials</h2>
+                        <p className="text-white/40 text-sm md:text-base leading-relaxed">
+                            Detailed requirements and evaluation criteria for each component of your submission, supplemented with technical samples for reference.
+                        </p>
+                    </div>
+
                     <div className="space-y-8">
                         {applicationMaterials.map((material, idx) => {
                             const hasDocs = !!(material.content.documents && material.content.documents.length > 0);
@@ -882,14 +874,13 @@ export default function MaterialsPage() {
                             );
                         })}
                     </div>
-
                 </motion.div>
-            </div>
+            </div >
             <SimulatedApplicationModal
                 isOpen={isSimModalOpen}
                 onClose={() => setIsSimModalOpen(false)}
             />
             <Footer />
-        </main>
+        </main >
     );
 }
