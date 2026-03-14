@@ -1,9 +1,10 @@
 'use client';
 
 import { motion, useScroll, useTransform, useSpring, MotionValue, useTime, AnimatePresence } from 'framer-motion';
-import { Leaf, Recycle, Battery, Cpu } from 'lucide-react';
+import { Leaf, Recycle, Battery, Cpu, ArrowRight } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const pillars = [
     {
@@ -268,10 +269,22 @@ export default function ThemePillars() {
 
             <div className="relative xl:sticky xl:top-0 xl:h-screen flex flex-col items-center justify-start md:justify-center perspective-1000" style={{ perspective: '1500px' }}>
 
-                <div className="relative xl:absolute xl:top-24 text-center z-20 px-4 mt-8 xl:mt-0 max-w-4xl mx-auto pointer-events-none">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-4 md:mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20">
-                        Theme Pillars
-                    </h2>
+                <div className="relative xl:absolute xl:top-16 text-center z-30 px-4 mt-8 xl:mt-0 max-w-4xl mx-auto pointer-events-none">
+                    <div className="flex flex-col items-center mb-12">
+                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold font-poppins uppercase tracking-tighter leading-tight text-white mb-4">
+                            Theme Pillars
+                        </h2>
+
+                        <div className="pointer-events-auto mt-6">
+                            <Link
+                                href="/apply/materials#theme-pillars"
+                                className="group inline-flex items-center gap-2 px-6 py-2 rounded-full bg-vc-mint/5 border border-vc-mint/20 text-vc-mint text-[10px] font-black uppercase tracking-[0.3em] hover:bg-vc-mint/20 hover:border-vc-mint/40 transition-all duration-300"
+                            >
+                                <span>Detailed Guidelines</span>
+                                <ArrowRight className="w-3.2 h-3.2 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+                    </div>
 
                     {/* XL+: Scroll Deck */}
                     <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden xl:block">
@@ -381,7 +394,6 @@ export default function ThemePillars() {
                 <div className="md:hidden relative w-full h-[450px] flex items-center justify-center mt-12">
                     <MobileStack pillars={pillars} />
                 </div>
-
             </div>
         </section>
     );

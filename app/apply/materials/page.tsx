@@ -439,9 +439,10 @@ export default function MaterialsPage() {
 
                 {/* Theme Pillars Section */}
                 <motion.div
+                    id="theme-pillars"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="mb-24 space-y-12"
+                    className="mb-24 space-y-12 scroll-mt-24"
                 >
                     {/* Overview Header */}
                     <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
