@@ -25,14 +25,14 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
 
     const renderStepIndicator = () => {
         return (
-            <div className="flex items-center justify-center mb-12">
+            <div className="flex items-center justify-center mb-6 sm:mb-12">
                 {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-500 ${step >= i ? 'bg-vc-mint text-vc-green-dark shadow-[0_0_20px_rgba(79,209,197,0.4)]' : 'bg-white/5 border border-white/10 text-white/20'}`}>
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-xs sm:text-base font-bold transition-all duration-500 ${step >= i ? 'bg-vc-mint text-vc-green-dark shadow-[0_0_20px_rgba(79,209,197,0.4)]' : 'bg-white/5 border border-white/10 text-white/20'}`}>
                             {i}
                         </div>
                         {i < 3 && (
-                            <div className={`w-16 h-1 mx-2 rounded-full transition-all duration-500 ${step > i ? 'bg-vc-mint' : 'bg-white/10'}`} />
+                            <div className={`w-8 sm:w-16 h-1 mx-1 sm:mx-2 rounded-full transition-all duration-500 ${step > i ? 'bg-vc-mint' : 'bg-white/10'}`} />
                         )}
                     </div>
                 ))}
@@ -42,7 +42,7 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-8">
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -57,15 +57,15 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-4xl max-h-[90vh] bg-[#001311] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col pt-20"
+                    className="relative w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] bg-[#001311] border border-white/10 rounded-3xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col pt-16 sm:pt-20"
                 >
                     {/* Header Fixed Area */}
-                    <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center bg-white/5 backdrop-blur-md border-b border-white/5 z-20">
+                    <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center bg-white/5 backdrop-blur-md border-b border-white/5 z-20">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-vc-mint/20 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-lg bg-vc-mint/20 flex items-center justify-center shrink-0">
                                 <Rocket className="w-4 h-4 text-vc-mint" />
                             </div>
-                            <span className="text-sm font-bold text-white uppercase tracking-widest">Simulation: Filled Application Form</span>
+                            <span className="text-[10px] sm:text-sm font-bold text-white uppercase tracking-widest truncate">Simulation: Filled Application Form</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="hidden md:flex flex-col items-end">
@@ -80,18 +80,18 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
 
                     <div
                         ref={scrollContainerRef}
-                        className="flex-1 overflow-y-auto no-scrollbar pt-10 pb-20 px-6 md:px-12"
+                        className="flex-1 overflow-y-auto no-scrollbar pt-6 sm:pt-10 pb-16 sm:pb-20 px-4 sm:px-8 md:px-12"
                     >
                         <div className="max-w-3xl mx-auto">
 
-                            <div className="text-center mb-10">
-                                <h2 className="text-3xl font-bold font-poppins text-white mb-2 uppercase tracking-tight">Venture Craftee Application</h2>
-                                <p className="text-sm text-vc-mint font-bold uppercase tracking-[0.2em] opacity-80">Screening Status: Approved</p>
+                            <div className="text-center mb-6 sm:mb-10">
+                                <h2 className="text-xl sm:text-3xl font-bold font-poppins text-white mb-2 uppercase tracking-tight leading-tight">Venture Craftee Application</h2>
+                                <p className="text-[10px] sm:text-sm text-vc-mint font-bold uppercase tracking-[0.2em] opacity-80">Screening Status: Approved</p>
                             </div>
 
                             {renderStepIndicator()}
 
-                            <div className="glass-panel p-8 md:p-10 border-white/10 bg-white/[0.02] shadow-2xl">
+                            <div className="glass-panel p-4 sm:p-8 md:p-10 border-white/10 bg-white/[0.02] shadow-2xl">
                                 <AnimatePresence mode="wait">
                                     {step === 1 && (
                                         <motion.div
@@ -102,10 +102,10 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             className="space-y-8"
                                         >
                                             <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
-                                                    <Users className="text-vc-mint w-5 h-5" />
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-vc-mint/20 flex items-center justify-center shrink-0">
+                                                    <Users className="text-vc-mint w-4 h-4 sm:w-5 sm:h-5" />
                                                 </div>
-                                                <h2 className="text-2xl font-bold">Personal & Demographic Information</h2>
+                                                <h2 className="text-lg sm:text-2xl font-bold tracking-tight">Personal Information</h2>
                                             </div>
 
                                             <div className="space-y-4 max-w-xs">
@@ -188,7 +188,7 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             </div>
 
                                             <div className="flex justify-end pt-8">
-                                                <button onClick={() => handleStepChange(2)} className="bg-vc-mint text-vc-green-dark px-8 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all">
+                                                <button onClick={() => handleStepChange(2)} className="bg-vc-mint text-vc-green-dark px-4 sm:px-8 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all w-full sm:w-auto justify-center">
                                                     Next Step <ArrowRight className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -204,10 +204,10 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             className="space-y-8"
                                         >
                                             <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
-                                                    <Rocket className="text-vc-mint w-5 h-5" />
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-vc-mint/20 flex items-center justify-center shrink-0">
+                                                    <Rocket className="text-vc-mint w-4 h-4 sm:w-5 sm:h-5" />
                                                 </div>
-                                                <h2 className="text-2xl font-bold">Start-up Details</h2>
+                                                <h2 className="text-lg sm:text-2xl font-bold tracking-tight">Start-up Details</h2>
                                             </div>
 
                                             <div className="space-y-4">
@@ -293,11 +293,11 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-between pt-8">
-                                                <button onClick={() => handleStepChange(1)} className="text-white/40 font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors">
+                                            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-8">
+                                                <button onClick={() => handleStepChange(1)} className="text-white/40 text-xs sm:text-sm font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors justify-center sm:justify-start">
                                                     <ArrowLeft className="w-4 h-4" /> Back
                                                 </button>
-                                                <button onClick={() => handleStepChange(3)} className="bg-vc-mint text-vc-green-dark px-8 py-3 rounded-xl font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all">
+                                                <button onClick={() => handleStepChange(3)} className="bg-vc-mint text-vc-green-dark px-4 sm:px-8 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all justify-center">
                                                     Next Step <ArrowRight className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -313,10 +313,10 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                             className="space-y-8"
                                         >
                                             <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/20 flex items-center justify-center">
-                                                    <FileText className="text-vc-mint w-5 h-5" />
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-vc-mint/20 flex items-center justify-center shrink-0">
+                                                    <FileText className="text-vc-mint w-4 h-4 sm:w-5 sm:h-5" />
                                                 </div>
-                                                <h2 className="text-2xl font-bold">Application Material</h2>
+                                                <h2 className="text-lg sm:text-2xl font-bold tracking-tight">Application Material</h2>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -372,11 +372,11 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-between pt-8">
-                                                <button onClick={() => handleStepChange(2)} className="text-white/40 font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors">
+                                            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-8">
+                                                <button onClick={() => handleStepChange(2)} className="text-white/40 text-xs sm:text-sm font-bold uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors justify-center sm:justify-start">
                                                     <ArrowLeft className="w-4 h-4" /> Back
                                                 </button>
-                                                <button onClick={onClose} className="bg-white/10 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all border border-white/10">
+                                                <button onClick={onClose} className="bg-white/10 text-white px-4 sm:px-8 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all border border-white/10 justify-center">
                                                     Close Simulation
                                                 </button>
                                             </div>
