@@ -343,53 +343,6 @@ export default function MaterialsPage() {
                     </div>
                 </div>
 
-                {/* Theme Pillars Banner - Relocated to /about/theme */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mb-24 p-8 md:p-12 glass-panel border-vc-mint/30 bg-gradient-to-br from-vc-mint/10 via-[#002B28]/40 to-transparent relative overflow-hidden group"
-                >
-                    <div className="absolute top-0 right-0 p-8 transform translate-x-12 -translate-y-12 transition-transform group-hover:translate-x-8 group-hover:-translate-y-8 pointer-events-none">
-                        <Rocket className="w-48 h-48 text-vc-mint/[0.03]" />
-                    </div>
-
-                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                        <div className="lg:col-span-8 space-y-6">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[10px] font-bold uppercase tracking-[0.2em]">
-                                Technical Framework
-                            </div>
-                            <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight leading-none">
-                                Sustainable Energy <span className="text-vc-mint">Theme Pillars</span>
-                            </h2 >
-                            <p className="text-white/60 text-base md:text-lg leading-relaxed max-w-2xl">
-                                Every submission must align with one of our four interconnected pathways driving the global transition to sustainable energy. Explore our detailed framework to choose your primary pillar.
-                            </p >
-                            <div className="flex flex-wrap gap-3">
-                                {["Decarbonization", "Circular Economy", "Energy Efficiency", "Advanced Engineering"].map((t, i) => (
-                                    <span key={i} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-widest group-hover:border-vc-mint/20 transition-colors">
-                                        {t}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="lg:col-span-4 flex justify-end">
-                            <Link
-                                href="/about/theme"
-                                className="px-10 py-5 bg-vc-mint text-vc-green-dark font-black rounded-2xl shadow-xl shadow-vc-mint/20 hover:shadow-vc-mint/40 hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center gap-3 group text-sm uppercase tracking-widest"
-                            >
-                                <span>Study Framework</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Section Divider */}
-                <div className="py-20 relative">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div className="w-full border-t border-white/5"></div>
-                    </div>
-                </div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

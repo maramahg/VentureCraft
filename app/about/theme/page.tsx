@@ -167,8 +167,9 @@ export default function ThemePage() {
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-24 md:pt-40 relative overflow-x-hidden">
             {/* Background Orbs */}
-            <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/5 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[40%] bg-vc-teal/10 rounded-full blur-[150px] pointer-events-none" />
+            <div className="absolute top-[5%] left-[5%] w-[35%] h-[40%] bg-vc-mint/8 rounded-full blur-[140px] pointer-events-none" />
+            <div className="absolute top-[40%] right-[0%] w-[30%] h-[35%] bg-teal-500/8 rounded-full blur-[130px] pointer-events-none" />
+            <div className="absolute bottom-[10%] left-[30%] w-[25%] h-[25%] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
 
             {/* Decorative Grid */}
             <div className="absolute inset-0 -z-10 opacity-20 pointer-events-none">
@@ -223,10 +224,6 @@ export default function ThemePage() {
                             transition={{ duration: 0.8 }}
                             className="relative"
                         >
-                            {/* Numbering logic */}
-                            <div className="absolute -top-12 -left-4 md:-left-12 text-[12rem] font-black text-white/[0.02] select-none pointer-events-none">
-                                0{pillar.number}
-                            </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
                                 <div className="lg:col-span-5 space-y-8">
@@ -234,14 +231,14 @@ export default function ThemePage() {
                                         <div className={`w-14 h-14 rounded-2xl bg-vc-mint/10 border border-vc-mint/20 flex items-center justify-center ${pillar.color === 'vc-mint' ? 'text-vc-mint' : pillar.color}`}>
                                             <pillar.icon className="w-7 h-7" />
                                         </div>
-                                        <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-none group-hover:text-vc-mint transition-colors">
-                                            Pillar {pillar.number}:<br />
+                                        <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-none">
+                                            <span className="text-vc-mint">Pillar {pillar.number}:</span><br />
                                             <span className="text-white/90">{pillar.title}</span>
                                         </h3>
                                     </div>
 
                                     <div className="space-y-6">
-                                        <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
+                                        <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 border-l-2 border-l-vc-mint/50">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <Target className="w-4 h-4 text-vc-mint" />
                                                 <span className="text-[10px] font-bold uppercase tracking-widest text-vc-mint">Mission</span>
@@ -250,7 +247,7 @@ export default function ThemePage() {
                                                 "{pillar.mission}"
                                             </p>
                                         </div>
-                                        <p className="text-white/50 leading-relaxed">
+                                        <p className="text-white/60 leading-relaxed">
                                             {pillar.description}
                                         </p>
                                     </div>
@@ -309,24 +306,24 @@ export default function ThemePage() {
                             ))}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 divide-x divide-white/10">
-                            <div className="p-8 text-center space-y-4">
+                            <div className="p-8 text-center space-y-4 border-t-2 border-t-vc-mint">
                                 <p className="text-sm text-white/60 leading-relaxed">
-                                    Provides the <strong className="text-white font-bold">clean energy sources</strong> and <strong className="text-white font-bold">emission elimination</strong> necessary for the energy transition.
+                                    Provides the <strong className="text-vc-mint">clean energy sources</strong> and <strong className="text-vc-mint">emission elimination</strong> necessary for the energy transition.
                                 </p>
                             </div>
-                            <div className="p-8 text-center space-y-4">
+                            <div className="p-8 text-center space-y-4 border-t-2 border-t-blue-400">
                                 <p className="text-sm text-white/60 leading-relaxed">
-                                    Ensures the <strong className="text-white font-bold">resource sustainability</strong> and <strong className="text-white font-bold">material security</strong> required to build and maintain sustainable energy systems.
+                                    Ensures the <strong className="text-blue-400">resource sustainability</strong> and <strong className="text-blue-400">material security</strong> required to build and maintain sustainable energy systems.
                                 </p>
                             </div>
-                            <div className="p-8 text-center space-y-4">
+                            <div className="p-8 text-center space-y-4 border-t-2 border-t-purple-400">
                                 <p className="text-sm text-white/60 leading-relaxed">
-                                    Maximizes the <strong className="text-white font-bold">performance and utilization</strong> of sustainable energy systems while minimizing overall energy demand.
+                                    Maximizes the <strong className="text-purple-400">performance and utilization</strong> of sustainable energy systems while minimizing overall energy demand.
                                 </p>
                             </div>
-                            <div className="p-8 text-center space-y-4">
+                            <div className="p-8 text-center space-y-4 border-t-2 border-t-orange-400">
                                 <p className="text-sm text-white/60 leading-relaxed">
-                                    Enables the <strong className="text-white font-bold">scalable production</strong> and <strong className="text-white font-bold">manufacturing</strong> of sustainable energy technologies and components.
+                                    Enables the <strong className="text-orange-400">scalable production</strong> and <strong className="text-orange-400">manufacturing</strong> of sustainable energy technologies and components.
                                 </p>
                             </div>
                         </div>
@@ -403,7 +400,12 @@ export default function ThemePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {pillars.map(p => (
                                 <div key={p.number} className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all flex items-start gap-4">
-                                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold text-white/20 shrink-0">
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0
+                                        ${p.number === 1 ? 'bg-vc-mint/15 text-vc-mint' : ''}
+                                        ${p.number === 2 ? 'bg-blue-400/15 text-blue-400' : ''}
+                                        ${p.number === 3 ? 'bg-purple-400/15 text-purple-400' : ''}
+                                        ${p.number === 4 ? 'bg-orange-400/15 text-orange-400' : ''}
+                                    `}>
                                         P{p.number}
                                     </div>
                                     <div>
@@ -422,28 +424,28 @@ export default function ThemePage() {
                 </div>
 
                 {/* Competition Framework */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-24 border-t border-white/5">
-                    <div className="lg:col-span-4 lg:sticky lg:top-40 h-fit space-y-6">
-                        <div className="w-12 h-12 rounded-2xl bg-vc-mint flex items-center justify-center text-vc-green-dark">
+                <div className="pt-24 border-t border-white/5 space-y-20">
+                    <div className="max-w-3xl mx-auto text-center space-y-6">
+                        <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint mx-auto border border-vc-mint/20">
                             <Activity className="w-6 h-6" />
                         </div>
-                        <h2 className="text-3xl font-black uppercase leading-tight">Competition <br />Framework</h2>
-                        <p className="text-white/40 leading-relaxed">
-                            A comprehensive innovation ecosystem where diverse technological approaches converge around a shared mission.
+                        <h2 className="text-4xl font-black uppercase tracking-tight">Competition Framework</h2>
+                        <p className="text-white/40 leading-relaxed text-lg">
+                            A comprehensive innovation ecosystem where diverse technological approaches converge around a shared mission of accelerating the global transition to sustainable energy systems.
                         </p>
                     </div>
 
-                    <div className="lg:col-span-8 space-y-12">
+                    <div className="max-w-4xl mx-auto space-y-24">
                         {/* Broad Innovation Welcome */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-4 group">
+                        <div className="space-y-8 group">
+                            <div className="flex items-center gap-4 justify-center md:justify-start">
                                 <div className="w-2 h-10 rounded-full bg-vc-mint opacity-20 group-hover:opacity-100 transition-opacity" />
                                 <h3 className="text-2xl font-bold uppercase tracking-tight">Broad Innovation Welcome</h3>
                             </div>
-                            <p className="text-white/60 leading-relaxed italic">
+                            <p className="text-white/40 leading-relaxed italic text-sm text-center md:text-left">
                                 The framework accommodates innovations from any discipline that contributes to sustainable energy through one or more pillars:
                             </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 bg-white/[0.01] p-8 rounded-[2rem] border border-white/5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/[0.01] p-8 rounded-[2rem] border border-white/5">
                                 {[
                                     { t: "Technology Startups", d: "Hardware, software, materials, and system innovations" },
                                     { t: "Digital Solutions", d: "Platforms, analytics, AI/ML, and data-driven approaches" },
@@ -460,11 +462,14 @@ export default function ThemePage() {
                         </div>
 
                         {/* Evaluation Criteria */}
-                        <div className="space-y-8">
-                            <div className="flex items-center gap-4 group">
+                        <div className="space-y-10 group">
+                            <div className="flex items-center gap-4 justify-center md:justify-start">
                                 <div className="w-2 h-10 rounded-full bg-vc-teal opacity-20 group-hover:opacity-100 transition-opacity" />
                                 <h3 className="text-2xl font-bold uppercase tracking-tight">Evaluation Criteria</h3>
                             </div>
+                            <p className="text-white/40 leading-relaxed italic text-sm text-center md:text-left">
+                                Our evaluation process focuses on five core dimensions of innovation excellence:
+                            </p>
                             <div className="grid grid-cols-1 gap-4">
                                 {[
                                     { t: "Sustainable Energy Impact", d: "Clear contribution to the sustainable energy transition", icon: Zap },
@@ -488,23 +493,19 @@ export default function ThemePage() {
                         </div>
 
                         {/* Summary Quote */}
-                        <div className="p-10 rounded-[2.5rem] bg-gradient-to-br from-vc-mint/10 to-transparent border border-vc-mint/20 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-8 transform translate-x-12 -translate-y-12 transition-transform group-hover:translate-x-8 group-hover:-translate-y-8">
-                                <Activity className="w-32 h-32 text-vc-mint/[0.03]" />
-                            </div>
-                            <p className="text-xl md:text-2xl font-black italic text-white/90 relative z-10 leading-tight">
-                                "The KFUPM Venture Craft competition creates a comprehensive innovation ecosystem where diverse technological approaches converge around the shared mission of accelerating the global transition to sustainable energy systems."
+                        <div className="relative p-8 md:p-12 bg-[#0a1a18] border border-white/8 overflow-hidden">
+                            <p className="text-xl md:text-2xl font-normal text-white/85 leading-relaxed text-center tracking-wide">
+                                The KFUPM Venture Craft competition creates a comprehensive innovation ecosystem where diverse technological approaches converge around the shared mission of accelerating the global transition to sustainable energy systems.
                             </p>
                         </div>
 
-                        <div className="flex justify-center pt-8">
+                        <div className="flex justify-center pt-6">
                             <Link
                                 href="/apply/materials"
-                                className="px-10 py-5 bg-gradient-to-r from-vc-teal to-vc-mint text-white font-bold rounded-2xl shadow-xl shadow-vc-mint/10 hover:shadow-vc-mint/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 group text-sm uppercase tracking-widest"
+                                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-vc-mint text-vc-green-dark hover:bg-vc-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-bold text-sm uppercase tracking-widest shadow-lg shadow-vc-mint/20"
                             >
-                                <FileText className="w-5 h-5" />
                                 <span>Study Application Materials</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
                     </div>
