@@ -22,12 +22,13 @@ service cloud.firestore {
 
     // Helper: Check if startup registration is open
     function isRegistrationOpen() {
-      return get(/databases/$(database)/documents/settings/registration).data.isOpen == true;
+      return get(/databases/$(database)/documents/settings/registration).data.get('isOpen', true) == true;
     }
 
     // Helper: Check if editing is allowed
     function isEditingAllowed() {
-      return get(/databases/$(database)/documents/settings/editing).data.isOpen == true;
+      let data = get(/databases/$(database)/documents/settings/editing).data;
+      return data.get('isAllowed', data.get('isOpen', true)) == true;
     }
 
     // Admins Collection
