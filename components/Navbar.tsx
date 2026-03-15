@@ -17,6 +17,7 @@ const navItems = [
     href: '#',
     subItems: [
       { name: 'WHAT IS VENTURE CRAFT?', href: '/about/venture-craft' },
+      { name: '2026 THEME', href: '/about/theme' },
       { name: 'KFUPM & DTV', href: '/about/kfupm-dtv' },
     ]
   },
