@@ -7,7 +7,7 @@ const pillars = [
     {
         id: 1,
         title: "Mission",
-        content: "VentureCraft exists to inspire, equip, and accelerate emerging founders to reimagine how technology and industry operate. We provide a competitive, mentor-driven journey that bridges academia with industry—supporting teams from idea submission to validation, prototyping, and pitching—while holding every venture to clear, credible, and measurable impact standards."
+        content: "VentureCraft exists to inspire, equip, and accelerate emerging founders to reimagine how technology and industry operate. We provide a competitive, mentor-driven journey that bridges academia with industry, supporting teams from idea submission to validation, prototyping, and pitching, while holding every venture to clear, credible, and measurable impact standards."
     },
     {
         id: 2,
@@ -17,7 +17,7 @@ const pillars = [
     {
         id: 3,
         title: "Vision",
-        content: "To become a globally recognized deep-tech hub where student-led innovation transforms science and engineering into scalable ventures—delivering measurable and sustainable real-world impact."
+        content: "To become a globally recognized deep-tech hub where student-led innovation transforms science and engineering into scalable ventures, delivering measurable and sustainable real-world impact."
     },
 ];
 
