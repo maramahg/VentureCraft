@@ -277,7 +277,7 @@ export default function ThemePillars() {
 
                         <div className="pointer-events-auto mt-6">
                             <Link
-                                href="/apply/materials#theme-pillars"
+                                href="/about/theme"
                                 className="group inline-flex items-center gap-2 px-6 py-2 rounded-full bg-vc-mint/5 border border-vc-mint/20 text-vc-mint text-[10px] font-black uppercase tracking-[0.3em] hover:bg-vc-mint/20 hover:border-vc-mint/40 transition-all duration-300"
                             >
                                 <span>Detailed Guidelines</span>
