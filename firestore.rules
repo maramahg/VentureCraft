@@ -51,8 +51,13 @@ service cloud.firestore {
     // Startup Applications
     match /applications/{docId} {
       allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
-      allow create: if request.auth != null && (isRegistrationOpen() || isAdmin());
-      allow update: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge()) && (isEditingAllowed() || isAdmin());
+      allow create: if request.auth != null 
+        && docId == request.auth.uid 
+        && !exists(/databases/$(database)/documents/applications/$(request.auth.uid))
+        && (isRegistrationOpen() || isAdmin());
+      allow update: if request.auth != null 
+        && (request.auth.uid == docId || isAdmin()) 
+        && (isEditingAllowed() || isAdmin());
       allow delete: if isAdmin();
     }
 

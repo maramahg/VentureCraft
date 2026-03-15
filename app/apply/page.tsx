@@ -795,7 +795,9 @@ const ApplyPageContent = () => {
             console.error('Error submitting application:', error);
             const rawMessage = error.message || '';
 
-            if (rawMessage.startsWith('TYPE_ERROR:')) {
+            if (rawMessage.includes('permission-denied') && !isEditMode) {
+                setErrorMessage("You have already submitted an application. Duplicates are not permitted. If you need to make changes, please use the 'Update Submission' button on the intro page.");
+            } else if (rawMessage.startsWith('TYPE_ERROR:')) {
                 setErrorMessage(rawMessage.replace('TYPE_ERROR:', '').trim() + " Please check your file selection and try again.");
             } else if (rawMessage.includes('Blob') || rawMessage.includes('upload')) {
                 setErrorMessage("We encountered an issue while uploading your files. Please ensure your files are under 500MB and are in a supported format (PDF, Word, PowerPoint, or Image), then try again.");
@@ -1259,22 +1261,32 @@ const ApplyPageContent = () => {
                                 className="space-y-8"
                             >
                                 <div className="text-center space-y-4 mb-8">
-                                    <h2 className="text-3xl font-bold font-poppins text-white mb-2">Before You Begin</h2>
+                                    <h2 className="text-3xl font-bold font-poppins text-white mb-2">
+                                        {isEditMode ? 'Submission Already Exists' : 'Before You Begin'}
+                                    </h2>
                                     <p className="text-white/60 max-w-2xl mx-auto leading-relaxed">
-                                        To ensure a successful application, please review the following resources carefully.
-                                        Understanding the eligibility criteria and required materials will help you prepare a strong submission.
+                                        {isEditMode
+                                            ? "You have already submitted an application for the Venture Craft Competition. You can view your status in your profile or update your existing submission below."
+                                            : "To ensure a successful application, please review the following resources carefully. Understanding the eligibility criteria and required materials will help you prepare a strong submission."
+                                        }
                                     </p>
 
-                                    <div className="mt-4 mb-2 p-3 rounded-xl bg-white/5 border border-vc-mint/20 text-center max-w-xl mx-auto backdrop-blur-sm">
-                                        <p className="text-base text-white/90">
-                                            This Year's Theme: <span className="text-vc-mint font-bold uppercase tracking-wide ml-1">Sustainable Energy</span>
-                                        </p>
-                                    </div>
+                                    {!isEditMode && (
+                                        <div className="mt-4 mb-2 p-3 rounded-xl bg-white/5 border border-vc-mint/20 text-center max-w-xl mx-auto backdrop-blur-sm">
+                                            <p className="text-base text-white/90">
+                                                This Year's Theme: <span className="text-vc-mint font-bold uppercase tracking-wide ml-1">Sustainable Energy</span>
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="mt-6 p-4 bg-vc-mint/10 border border-vc-mint/20 rounded-xl flex items-start gap-3 max-w-2xl mx-auto text-left">
                                         <AlertCircle className="w-5 h-5 text-vc-mint shrink-0 mt-0.5" />
                                         <p className="text-sm text-white/80 leading-relaxed">
-                                            <strong className="text-vc-mint font-bold block mb-1 uppercase tracking-wider text-xs">Important Disclaimer</strong>
-                                            Please review these resources carefully. Failure to adhere to strict eligibility and application material requirements may disqualify an applicant.
+                                            <strong className="text-vc-mint font-bold block mb-1 uppercase tracking-wider text-xs">Important Reminder</strong>
+                                            {isEditMode
+                                                ? "Duplicates are not allowed. Each account is restricted to a single startup application. Any updates made here will overwrite your previous submission."
+                                                : "Please review these resources carefully. Failure to adhere to strict eligibility and application material requirements may disqualify an applicant."
+                                            }
                                         </p>
                                     </div>
                                 </div>
@@ -1347,26 +1359,37 @@ const ApplyPageContent = () => {
                                         </div>
                                     )}
 
-                                    <button
-                                        onClick={() => {
-                                            if (isEditMode && !isEditingAllowed) return;
-                                            setStep(1);
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }}
-                                        disabled={isEditMode && !isEditingAllowed}
-                                        className={`px-8 py-4 bg-gradient-to-r from-vc-teal to-vc-mint text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 group text-lg uppercase tracking-wider ${isEditMode && !isEditingAllowed
-                                            ? 'opacity-50 grayscale cursor-not-allowed'
-                                            : 'shadow-vc-mint/20 hover:shadow-vc-mint/40 hover:scale-[1.02] active:scale-[0.98]'
-                                            }`}
-                                    >
-                                        <span>
-                                            {isEditMode
-                                                ? (isEditingAllowed ? 'Edit Application' : 'Editing Locked')
-                                                : (isRegistrationOpen ? 'Start Application' : 'Registration Closed')
-                                            }
-                                        </span>
-                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </button>
+                                    <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                                        {isEditMode && (
+                                            <Link
+                                                href="/profile"
+                                                className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group text-base uppercase tracking-wider hover:bg-white/10"
+                                            >
+                                                <Users className="w-5 h-5" />
+                                                View My Application
+                                            </Link>
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                if (isEditMode && !isEditingAllowed) return;
+                                                setStep(1);
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            }}
+                                            disabled={isEditMode && !isEditingAllowed}
+                                            className={`px-8 py-4 bg-gradient-to-r from-vc-teal to-vc-mint text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group text-base uppercase tracking-wider ${isEditMode && !isEditingAllowed
+                                                ? 'opacity-50 grayscale cursor-not-allowed'
+                                                : 'shadow-vc-mint/20 hover:shadow-vc-mint/40 hover:scale-[1.02] active:scale-[0.98]'
+                                                }`}
+                                        >
+                                            <span>
+                                                {isEditMode
+                                                    ? (isEditingAllowed ? 'Update Submission' : 'Submission Locked')
+                                                    : (isRegistrationOpen ? 'Start Application' : 'Registration Closed')
+                                                }
+                                            </span>
+                                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                        </button>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
