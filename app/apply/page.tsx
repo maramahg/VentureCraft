@@ -658,10 +658,9 @@ const ApplyPageContent = () => {
             const isActuallyNew = !isEditMode;
 
             // 4. Clean up data for Firestore
-            const submissionData = {
+            const submissionData: any = {
                 userId: user.uid,
                 status: 'pending',
-                submittedAt: serverTimestamp(),
                 updatedAt: isEditMode ? serverTimestamp() : null,
                 isEdited: isEditMode,
 
@@ -713,6 +712,10 @@ const ApplyPageContent = () => {
                     ambassadorName: formData.referralAmbassadorName || null
                 }
             };
+
+            if (!isEditMode) {
+                submissionData.submittedAt = serverTimestamp();
+            }
 
             await setDoc(applicationRef, submissionData);
 
