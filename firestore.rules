@@ -22,13 +22,14 @@ service cloud.firestore {
 
     // Helper: Check if startup registration is open
     function isRegistrationOpen() {
-      return get(/databases/$(database)/documents/settings/registration).data.get('isOpen', true) == true;
+      let path = /databases/$(database)/documents/settings/registration;
+      return !exists(path) || (get(path).data.get('isOpen', get(path).data.get('isAllowed', true)) == true);
     }
 
     // Helper: Check if editing is allowed
     function isEditingAllowed() {
-      let data = get(/databases/$(database)/documents/settings/editing).data;
-      return data.get('isAllowed', data.get('isOpen', true)) == true;
+      let path = /databases/$(database)/documents/settings/editing;
+      return !exists(path) || (get(path).data.get('isAllowed', get(path).data.get('isOpen', true)) == true);
     }
 
     // Admins Collection
@@ -57,8 +58,8 @@ service cloud.firestore {
         && !exists(/databases/$(database)/documents/applications/$(request.auth.uid))
         && (isRegistrationOpen() || isAdmin());
       allow update: if request.auth != null 
-        && (request.auth.uid == docId || isAdmin()) 
-        && (isEditingAllowed() || isAdmin());
+        && (request.auth.uid == docId || isAdmin() || isJudge()) 
+        && (isEditingAllowed() || isAdmin() || isJudge());
       allow delete: if isAdmin();
     }
 

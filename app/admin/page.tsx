@@ -60,19 +60,32 @@ interface Application {
     screening?: {
         round1?: {
             scores: {
-                problemClarity: number; // 30%
-                solutionInnovation: number; // 30%
-                earlyBusinessLogic: number; // 20%
-                communicationConviction: number; // 20%
+                problemClarity: number;
+                solutionInnovation: number;
+                earlyBusinessLogic: number;
+                communicationConviction: number;
             };
-            totalScore: number; // Weighted 0-100
+            totalScore: number;
             evaluatorId: string;
-            evaluatedAt: any; // Timestamp
+            evaluatedAt: any;
             feedback?: string;
             isCompleted: boolean;
         };
         round2?: {
             status: 'locked' | 'pending' | 'completed';
+            scores?: {
+                technicalFeasibility: number;
+                scientificRigor: number;
+                commercialLogic: number;
+                scalability: number;
+                impactAlignment: number;
+                communicationQuality: number;
+            };
+            totalScore?: number;
+            evaluatorId?: string;
+            evaluatedAt?: any;
+            feedback?: string;
+            isCompleted: boolean;
         };
     };
     referral?: {
@@ -111,6 +124,51 @@ const RUBRICS = [
         weight: 0.2,
         maxPoints: 10,
         description: 'Evaluates clarity, coherence, and persuasiveness of the pitch deck and the video pitch, including the team’s ability to explain the problem and solution clearly and confidently.'
+    },
+];
+
+const RUBRICS_ROUND2 = [
+    {
+        id: 'technicalFeasibility',
+        label: 'Technical Feasibility & Validation',
+        weight: 0.25,
+        maxPoints: 10,
+        description: 'Assesses whether the solution is technically feasible based on evidence provided (experimental, simulated, calculated, or well-reasoned theoretical).'
+    },
+    {
+        id: 'scientificRigor',
+        label: 'Scientific Rigor & Reasoning',
+        weight: 0.2,
+        maxPoints: 10,
+        description: 'Evaluates the soundness of scientific or engineering logic, clarity of assumptions, grounding in first principles, and acknowledgment of limitations.'
+    },
+    {
+        id: 'commercialLogic',
+        label: 'Commercial Logic & Credibility',
+        weight: 0.2,
+        maxPoints: 10,
+        description: 'Assesses whether the team demonstrates a realistic understanding of the target market, customer value, and adoption pathway.'
+    },
+    {
+        id: 'scalability',
+        label: 'Scalability & Roadmap',
+        weight: 0.2,
+        maxPoints: 10,
+        description: 'Evaluates whether the team presents a logical roadmap from current concept to scalable implementation, including technical and commercial milestones.'
+    },
+    {
+        id: 'impactAlignment',
+        label: 'Impact & Sustainability',
+        weight: 0.1,
+        maxPoints: 10,
+        description: 'Considers environmental, social, or economic impact and alignment with sustainability or strategic priorities.'
+    },
+    {
+        id: 'communicationQuality',
+        label: 'Communication Quality',
+        weight: 0.05,
+        maxPoints: 10,
+        description: 'Evaluates how clearly technical concepts, assumptions, business logic, and next steps are communicated.'
     },
 ];
 
@@ -353,8 +411,10 @@ function AdminDashboardContent() {
     const [nationalityFilter, setNationalityFilter] = useState<string>('all');
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [isEditingAllowed, setIsEditingAllowed] = useState<boolean>(true);
+    const [isScreeningRound2Open, setIsScreeningRound2Open] = useState<boolean>(false);
     const [updatingReg, setUpdatingReg] = useState(false);
     const [updatingEditing, setUpdatingEditing] = useState(false);
+    const [updatingScreening2, setUpdatingScreening2] = useState(false);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
     const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
     const [totalUsers, setTotalUsers] = useState(0);
@@ -365,6 +425,15 @@ function AdminDashboardContent() {
         solutionInnovation: 0,
         earlyBusinessLogic: 0,
         communicationConviction: 0
+    });
+
+    const [currentScoresRound2, setCurrentScoresRound2] = useState({
+        technicalFeasibility: 0,
+        scientificRigor: 0,
+        commercialLogic: 0,
+        scalability: 0,
+        impactAlignment: 0,
+        communicationQuality: 0
     });
     const [savingScore, setSavingScore] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
@@ -692,11 +761,15 @@ function AdminDashboardContent() {
         const fetchRegStatus = async () => {
             const regDoc = await getDoc(doc(db, 'settings', 'registration'));
             if (regDoc.exists()) {
-                setIsRegistrationOpen(regDoc.data().isOpen ?? true);
+                setIsRegistrationOpen(regDoc.data().isOpen ?? regDoc.data().isAllowed ?? true);
             }
-            const editDoc = await getDoc(doc(db, 'settings', 'editing'));
-            if (editDoc.exists()) {
-                setIsEditingAllowed(editDoc.data().isOpen ?? true);
+            const editingDoc = await getDoc(doc(db, 'settings', 'editing'));
+            if (editingDoc.exists()) {
+                setIsEditingAllowed(editingDoc.data().isAllowed ?? editingDoc.data().isOpen ?? true);
+            }
+            const screening2Doc = await getDoc(doc(db, 'settings', 'screeningRound2'));
+            if (screening2Doc.exists()) {
+                setIsScreeningRound2Open(screening2Doc.data().isOpen ?? false);
             }
         };
         fetchRegStatus();
@@ -736,6 +809,23 @@ function AdminDashboardContent() {
         }
     };
 
+    const toggleScreening2 = async () => {
+        setUpdatingScreening2(true);
+        try {
+            const newStatus = !isScreeningRound2Open;
+            await setDoc(doc(db, 'settings', 'screeningRound2'), {
+                isOpen: newStatus
+            }, { merge: true });
+            setIsScreeningRound2Open(newStatus);
+            setToast({ message: `Screening Round 2 ${newStatus ? 'Opened' : 'Closed'} successfully.`, type: 'success' });
+        } catch (error) {
+            console.error("Error toggling screening round 2:", error);
+            setToast({ message: "Failed to update screening round 2 status.", type: 'error' });
+        } finally {
+            setUpdatingScreening2(false);
+        }
+    };
+
     useEffect(() => {
         if (selectedApp?.screening?.round1?.scores) {
             setCurrentScores(selectedApp.screening.round1.scores);
@@ -745,6 +835,19 @@ function AdminDashboardContent() {
                 solutionInnovation: 0,
                 earlyBusinessLogic: 0,
                 communicationConviction: 0
+            });
+        }
+
+        if (selectedApp?.screening?.round2?.scores) {
+            setCurrentScoresRound2(selectedApp.screening.round2.scores);
+        } else {
+            setCurrentScoresRound2({
+                technicalFeasibility: 0,
+                scientificRigor: 0,
+                commercialLogic: 0,
+                scalability: 0,
+                impactAlignment: 0,
+                communicationQuality: 0
             });
         }
     }, [selectedApp]);
@@ -918,6 +1021,51 @@ function AdminDashboardContent() {
         } catch (error) {
             console.error('Error saving screening:', error);
             setToast({ message: 'Failed to save screening evaluation.', type: 'error' });
+        } finally {
+            setSavingScore(false);
+        }
+    };
+
+    const handleSaveScreeningRound2 = async () => {
+        if (!selectedApp) return;
+        setSavingScore(true);
+
+        const totalScore = RUBRICS_ROUND2.reduce((acc, rubric) => {
+            return acc + (currentScoresRound2[rubric.id as keyof typeof currentScoresRound2] * (rubric.weight * 10)); // Scale to 100
+        }, 0);
+
+        const screeningData = {
+            round2: {
+                status: 'completed' as const,
+                scores: currentScoresRound2,
+                totalScore: Math.round(totalScore),
+                evaluatorId: auth.currentUser?.uid || 'admin',
+                evaluatedAt: new Date(),
+                isCompleted: true
+            }
+        };
+
+        try {
+            await updateDoc(doc(db, 'applications', selectedApp.id), {
+                screening: {
+                    ...selectedApp.screening,
+                    ...screeningData
+                }
+            });
+
+            // Update local state
+            setSelectedApp({
+                ...selectedApp,
+                screening: {
+                    ...selectedApp.screening,
+                    ...screeningData
+                }
+            });
+
+            setToast({ message: 'Round 2 evaluation saved successfully!', type: 'success' });
+        } catch (error) {
+            console.error('Error saving round 2 screening:', error);
+            setToast({ message: 'Failed to save round 2 screening evaluation.', type: 'error' });
         } finally {
             setSavingScore(false);
         }
@@ -1434,96 +1582,112 @@ function AdminDashboardContent() {
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-32 pb-12">
             <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <div>
-                        <h1 className="text-4xl font-bold font-poppins mb-2 text-white">
-                            Admin Dashboard
-                        </h1>
-                        <p className="text-white/40 uppercase tracking-[0.3em] font-bold text-[10px]">
-                            {activeTab === 'startups'
-                                ? 'Manage and review Venture Craft startup applications'
-                                : activeTab === 'ambassadors'
-                                    ? 'Manage and review Venture Craft ambassador applications'
-                                    : activeTab === 'qr'
-                                        ? 'Manage official QR access'
-                                        : 'Send and manage broadcast communications'
-                            }
-                        </p>
+                {/* Header Section */}
+                <div className="flex flex-col gap-8 mb-12">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3 text-white tracking-tight">
+                                Admin Dashboard
+                            </h1>
+                            <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
+                                <Shield className="w-3 h-3" />
+                                {activeTab === 'startups'
+                                    ? 'Startup Ecosystem Oversight'
+                                    : activeTab === 'ambassadors'
+                                        ? 'Ambassador Network Management'
+                                        : activeTab === 'qr'
+                                            ? 'Secure Access Protocol Control'
+                                            : 'Strategic Communication Command'
+                                }
+                            </p>
+                        </div>
 
+                        {/* Quick Stats Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {activeTab === 'startups' && (
+                                <>
+                                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Total Users</span>
+                                        <span className="text-xl font-bold text-white leading-none">{totalUsers}</span>
+                                    </div>
+                                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Applications</span>
+                                        <span className="text-xl font-bold text-white leading-none">{applications.length}</span>
+                                    </div>
+                                    <div className="bg-vc-mint/5 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-vc-mint/60 text-[9px] uppercase font-bold tracking-widest block mb-1">Scored</span>
+                                        <span className="text-xl font-bold text-vc-mint leading-none">{applications.filter(a => a.screening?.round1?.isCompleted).length}</span>
+                                    </div>
+                                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Pending</span>
+                                        <span className="text-xl font-bold text-white leading-none">{applications.filter(a => !a.screening?.round1?.isCompleted).length}</span>
+                                    </div>
+                                </>
+                            )}
+
+                            {activeTab === 'ambassadors' && (
+                                <>
+                                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Total Apps</span>
+                                        <span className="text-xl font-bold text-white leading-none">{ambassadorApps.length}</span>
+                                    </div>
+                                    <div className="bg-vc-mint/5 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-vc-mint/60 text-[9px] uppercase font-bold tracking-widest block mb-1">Accepted</span>
+                                        <span className="text-xl font-bold text-vc-mint leading-none">{ambassadorApps.filter(a => a.status === 'accepted').length}</span>
+                                    </div>
+                                    <div className="bg-red-500/5 border border-red-500/20 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-red-500/60 text-[9px] uppercase font-bold tracking-widest block mb-1">Rejected</span>
+                                        <span className="text-xl font-bold text-red-500 leading-none">{ambassadorApps.filter(a => a.status === 'rejected').length}</span>
+                                    </div>
+                                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                        <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Pending</span>
+                                        <span className="text-xl font-bold text-white leading-none">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch sm:items-center gap-3">
+                    {/* Global Controls Row */}
+                    <div className="flex flex-wrap items-center gap-4">
                         {isAdmin && activeTab !== 'broadcast' && (
-                            <>
+                            <div className="flex flex-wrap items-center gap-3 p-2 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md">
                                 <button
                                     onClick={toggleRegistration}
                                     disabled={updatingReg}
-                                    className={`px-5 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 border shadow-xl ${isRegistrationOpen
-                                        ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-vc-mint/20'
-                                        : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                    className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isRegistrationOpen
+                                        ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-lg shadow-vc-mint/10'
+                                        : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
                                         }`}
                                 >
-                                    {isRegistrationOpen ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                                    <span className="text-sm">Registration: {isRegistrationOpen ? 'OPEN' : 'CLOSED'}</span>
+                                    {isRegistrationOpen ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4 text-red-500" />}
+                                    <span className="text-xs uppercase tracking-wider">Registration: {isRegistrationOpen ? 'Open' : 'Closed'}</span>
                                 </button>
 
                                 <button
                                     onClick={toggleEditing}
                                     disabled={updatingEditing}
-                                    className={`px-5 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 border shadow-xl ${isEditingAllowed
-                                        ? 'bg-vc-teal text-white border-vc-teal shadow-vc-teal/20'
-                                        : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                                    className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isEditingAllowed
+                                        ? 'bg-vc-teal text-white border-vc-teal shadow-lg shadow-vc-teal/10'
+                                        : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
                                         }`}
                                 >
-                                    {isEditingAllowed ? <Edit2 className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
-                                    <span className="text-sm">Editing: {isEditingAllowed ? 'ALLOWED' : 'LOCKED'}</span>
+                                    {isEditingAllowed ? <Edit2 className="w-4 h-4" /> : <Shield className="w-4 h-4 text-orange-500" />}
+                                    <span className="text-xs uppercase tracking-wider">Editing: {isEditingAllowed ? 'Allowed' : 'Locked'}</span>
                                 </button>
-                            </>
-                        )}
-                    </div>
 
-                    <div className="flex flex-wrap items-center gap-2 lg:gap-4">
-                        {activeTab === 'startups' && (
-                            <>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total Users</span>
-                                    <span className="text-2xl font-bold text-white">{totalUsers}</span>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Applications</span>
-                                    <span className="text-2xl font-bold text-white">{applications.length}</span>
-                                </div>
-                                <div className="bg-vc-mint/10 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-vc-mint/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Scored</span>
-                                    <span className="text-2xl font-bold text-vc-mint">{applications.filter(a => a.screening?.round1?.isCompleted).length}</span>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
-                                    <span className="text-2xl font-bold text-white">{applications.filter(a => !a.screening?.round1?.isCompleted).length}</span>
-                                </div>
-                            </>
-                        )}
-
-                        {activeTab === 'ambassadors' && (
-                            <>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Total</span>
-                                    <span className="text-2xl font-bold text-white">{ambassadorApps.length}</span>
-                                </div>
-                                <div className="bg-vc-mint/10 border border-vc-mint/20 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-vc-mint/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Accepted</span>
-                                    <span className="text-2xl font-bold text-vc-mint">{ambassadorApps.filter(a => a.status === 'accepted').length}</span>
-                                </div>
-                                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-red-500/60 text-[10px] uppercase font-bold tracking-widest block mb-1">Rejected</span>
-                                    <span className="text-2xl font-bold text-red-500">{ambassadorApps.filter(a => a.status === 'rejected').length}</span>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 min-w-[100px]">
-                                    <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest block mb-1">Pending</span>
-                                    <span className="text-2xl font-bold text-white">{ambassadorApps.filter(a => a.status === 'pending').length}</span>
-                                </div>
-                            </>
+                                <button
+                                    onClick={toggleScreening2}
+                                    disabled={updatingScreening2}
+                                    className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isScreeningRound2Open
+                                        ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-lg shadow-vc-mint/10'
+                                        : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+                                        }`}
+                                >
+                                    <Shield className="w-4 h-4" />
+                                    <span className="text-xs uppercase tracking-wider">Round 2: {isScreeningRound2Open ? 'Open' : 'Closed'}</span>
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -2869,18 +3033,88 @@ function AdminDashboardContent() {
                                                         </div>
                                                     </section>
 
-                                                    {/* Round 2 Placeholder */}
-                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8 opacity-50 grayscale select-none cursor-not-allowed relative">
-                                                        <div className="absolute inset-0 flex items-center justify-center">
-                                                            <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3">
-                                                                <Shield className="w-4 h-4 text-white/40" />
-                                                                <span className="text-xs font-bold uppercase tracking-widest text-white/60">Round 2 Locked</span>
+                                                    {/* Screening Round 2 Section */}
+                                                    <section className={`bg-[#0f2a27]/50 border rounded-3xl md:rounded-[2rem] p-4 md:p-8 relative overflow-hidden transition-all duration-500 ${isScreeningRound2Open ? 'border-vc-mint/30 opacity-100' : 'border-white/5 opacity-50 grayscale'}`}>
+                                                        {!isScreeningRound2Open && (
+                                                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                                                <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3">
+                                                                    <Shield className="w-4 h-4 text-white/40" />
+                                                                    <span className="text-xs font-bold uppercase tracking-widest text-white/60">Round 2 Closed</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="flex items-center justify-between mb-8">
+                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                                                <Shield className="w-4 h-4" /> Screening Round 2
+                                                            </h3>
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
+                                                                <span className="text-2xl md:text-4xl font-black text-vc-mint">
+                                                                    {Math.round(RUBRICS_ROUND2.reduce((acc, r) => acc + (currentScoresRound2[r.id as keyof typeof currentScoresRound2] * (r.weight * 10)), 0))}
+                                                                    <span className="text-xs md:text-base font-bold text-white/30 ml-2">/ 100</span>
+                                                                </span>
                                                             </div>
                                                         </div>
-                                                        <h3 className="text-white/40 font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
-                                                            <Shield className="w-4 h-4" /> Screening Round 2
-                                                        </h3>
-                                                        <div className="h-40"></div>
+
+                                                        <div className="space-y-8">
+                                                            {RUBRICS_ROUND2.map((rubric) => (
+                                                                <div key={rubric.id} className="space-y-3">
+                                                                    <div className="flex items-center justify-between gap-4">
+                                                                        <div className="space-y-1 min-w-0">
+                                                                            <label className="text-base font-bold text-white flex items-center gap-2">
+                                                                                {rubric.label}
+                                                                                <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
+                                                                                    {Math.round(rubric.weight * 100)}% Weight
+                                                                                </span>
+                                                                            </label>
+                                                                            <p className="text-xs md:text-sm text-white/60 leading-relaxed">{rubric.description}</p>
+                                                                        </div>
+                                                                        <span className="text-2xl font-bold text-vc-mint w-12 text-right">
+                                                                            {currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
+                                                                        </span>
+                                                                    </div>
+                                                                    <input
+                                                                        type="range"
+                                                                        min="0"
+                                                                        max="10"
+                                                                        step="1"
+                                                                        disabled={!isScreeningRound2Open}
+                                                                        value={currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
+                                                                        onChange={(e) => setCurrentScoresRound2({
+                                                                            ...currentScoresRound2,
+                                                                            [rubric.id]: parseInt(e.target.value)
+                                                                        })}
+                                                                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint disabled:cursor-not-allowed"
+                                                                    />
+                                                                    <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
+                                                                        <span>Poor (0)</span>
+                                                                        <span>Excellent (10)</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+
+                                                        {isScreeningRound2Open && (
+                                                            <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                                                                <button
+                                                                    onClick={handleSaveScreeningRound2}
+                                                                    disabled={savingScore}
+                                                                    className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
+                                                                >
+                                                                    {savingScore ? (
+                                                                        <>
+                                                                            <div className="w-4 h-4 border-2 border-vc-green-dark border-t-transparent rounded-full animate-spin" />
+                                                                            Saving...
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <CheckCircle className="w-5 h-5" /> Save Evaluation
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </section>
 
 

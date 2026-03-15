@@ -264,7 +264,7 @@ const ApplyPageContent = () => {
         // Fetch or listen to global settings for registration status
         const unsubReg = onSnapshot(doc(db, 'settings', 'registration'), (snapshot) => {
             if (snapshot.exists()) {
-                setIsRegistrationOpen(snapshot.data().isOpen ?? true);
+                setIsRegistrationOpen(snapshot.data().isOpen ?? snapshot.data().isAllowed ?? true);
             }
         }, (error) => {
             console.error("Error fetching registration status:", error);
