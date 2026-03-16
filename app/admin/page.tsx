@@ -1606,7 +1606,7 @@ function AdminDashboardContent() {
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {activeTab === 'startups' && (
                                 <>
-                                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm">
+                                    <div className={`bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm ${!isAdmin ? 'opacity-0 pointer-events-none invisible' : ''}`}>
                                         <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Total Users</span>
                                         <span className="text-xl font-bold text-white leading-none">{totalUsers}</span>
                                     </div>
@@ -1912,7 +1912,7 @@ function AdminDashboardContent() {
                     </div>
 
                     {/* Main Content Area */}
-                    <div className="space-y-4 flex-1">
+                    <div className="space-y-4 flex-1 min-w-0">
                         {activeTab === 'ambassadors' && (
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-8 bg-white/5 border border-white/10 p-2 rounded-2xl sm:rounded-[2.5rem] w-full sm:w-fit">
                                 <button
@@ -2060,42 +2060,39 @@ function AdminDashboardContent() {
                                             className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer items-center md:items-start text-center md:text-left"
                                             onClick={() => setSelectedApp(app)}
                                         >
-                                            <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
+                                            <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 min-w-0 flex-1">
                                                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
                                                     <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">
-                                                        {isAdmin ? (app.teamMembers?.[0]?.name || 'Leader') : (app.startupName || 'Startup Application')}
+                                                    <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint max-w-[200px] sm:max-w-[400px]">
+                                                        {app.teamMembers?.[0]?.name || app.startupName || 'Startup Application'}
                                                     </h3>
-                                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest">
-                                                        {app.startupName && isAdmin && (
-                                                            <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold"><Rocket className="w-3 h-3" /> {app.startupName}</span>
+                                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest overflow-hidden">
+                                                        {app.startupName && (
+                                                            <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold shrink-0"><Rocket className="w-3 h-3" /> {app.startupName}</span>
                                                         )}
-                                                        <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {isAdmin ? app.leaderEmail : 'Applicant Email'}</span>
-                                                        <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
-                                                        <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
-                                                        {!isAdmin && (
-                                                            <span className="flex items-center gap-1.5 opacity-50"><User className="w-3 h-3" /> Anonymous Applicant</span>
-                                                        )}
+                                                        <span className="flex items-center gap-1.5 truncate max-w-[150px] sm:max-w-[250px]"><Mail className="w-3 h-3 shrink-0" /> {app.leaderEmail || 'Applicant Email'}</span>
+                                                        <span className="flex items-center gap-1.5 shrink-0"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
+                                                        <span className="flex items-center gap-1.5 shrink-0"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-center md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5 w-full md:w-auto">
-                                                <div className="hidden xl:block text-right">
+                                            <div className="flex items-center justify-center md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5 w-full md:w-auto shrink-0">
+                                                <div className="hidden xl:block text-right min-w-[120px]">
                                                     <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Pillar</span>
                                                     <span className="text-sm text-white/60">{app.pillar}</span>
                                                 </div>
 
                                                 {app.screening?.round1?.totalScore !== undefined && (
-                                                    <div className="hidden lg:flex flex-col items-end">
+                                                    <div className="hidden lg:flex flex-col items-end min-w-[60px]">
                                                         <span className="text-[10px] font-bold uppercase tracking-widest text-vc-mint/60">Score</span>
                                                         <span className="text-xl font-black text-vc-mint">{app.screening.round1.totalScore}</span>
                                                     </div>
                                                 )}
 
-                                                <div className="flex flex-col items-center md:items-end gap-2">
+                                                <div className="flex flex-col items-center md:items-end gap-2 min-w-[100px]">
                                                     {(app.isEdited || app.updatedAt) && (
                                                         <div className="px-2 py-0.5 rounded-md bg-vc-mint/20 border border-vc-mint/30 text-[9px] font-black text-vc-mint uppercase tracking-widest animate-pulse">
                                                             Edited
@@ -2110,18 +2107,22 @@ function AdminDashboardContent() {
                                                     </div>
                                                 </div>
 
-                                                {isAdmin && (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteStartup(app.id, app.teamMembers?.[0]?.name || app.startupName || 'this application');
-                                                        }}
-                                                        className="p-2 rounded-xl bg-white/0 text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20"
-                                                        title="Delete Startup Application"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                )}
+                                                <div className="w-10 flex justify-center">
+                                                    {isAdmin ? (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteStartup(app.id, app.teamMembers?.[0]?.name || app.startupName || 'this application');
+                                                            }}
+                                                            className="p-2 rounded-xl bg-white/0 text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20"
+                                                            title="Delete Startup Application"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-4 h-4" /> // Spacing to match admin card layout
+                                                    )}
+                                                </div>
                                             </div>
                                         </motion.div>
                                     ))}
@@ -3797,7 +3798,7 @@ function AdminDashboardContent() {
                     </div>
                 </div>
             </div>
-        </main>
+        </main >
     );
 }
 

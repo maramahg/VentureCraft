@@ -1,19 +1,4 @@
 ISSUES:
-Mismatch: Opened <motion.div> at 2689, closed with </div> at 3125
-Mismatch: Opened <div> at 2688, closed with </animatepresence> at 3127
-Mismatch: Opened <motion.div> at 3131, closed with </div> at 3330
-Mismatch: Opened <div> at 3130, closed with </animatepresence> at 3332
-Mismatch: Opened <motion.div> at 3346, closed with </div> at 3435
-Mismatch: Opened <div> at 3345, closed with </animatepresence> at 3437
-Mismatch: Opened <motion.div> at 3441, closed with </div> at 3491
-Mismatch: Opened <div> at 3440, closed with </animatepresence> at 3493
-Mismatch: Opened <animatepresence> at 3438, closed with </div> at 3795
-Mismatch: Opened <animatepresence> at 3343, closed with </main> at 3796
+
 
 UNCLOSED:
-<main> at 1583
-<div> at 1584
-<div> at 1697
-<div> at 1915
-<animatepresence> at 2686
-<animatepresence> at 3128
