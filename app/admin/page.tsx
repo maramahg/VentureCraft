@@ -3323,6 +3323,7 @@ function AdminDashboardContent() {
                                                                 </div>
                                                             )}
                                                         </div>
+                                                    </section>
                                                 </div>
                                             </div>
                                         </div>
@@ -3429,12 +3430,12 @@ function AdminDashboardContent() {
                                                         'Confirm'
                                                     )}
                                                 </button>
-                                                </div>
                                             </div>
-                                        </motion.div>
-                                    </div>
-                                )}
-                            </AnimatePresence>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            )}
+                        </AnimatePresence>
                         <AnimatePresence>
                             {showRemoveModal && userToRemove && (
                                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
@@ -3485,12 +3486,12 @@ function AdminDashboardContent() {
                                                         'Confirm Removal'
                                                     )}
                                                 </button>
-                                                </div>
                                             </div>
-                                        </motion.div>
-                                    </div>
-                                )}
-                            </AnimatePresence>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            )}
+                        </AnimatePresence>
 
                         {/* Application Deletion Modal */}
                         <AnimatePresence>
@@ -3786,6 +3787,7 @@ function AdminDashboardContent() {
                                                         className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all text-sm"
                                                     >
                                                         Close History
+                                                    </button>
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -3793,18 +3795,20 @@ function AdminDashboardContent() {
                                 )}
                         </AnimatePresence>
                     </div>
-                </main>
-                );
+                </div>
+            </div>
+        </main>
+    );
 }
 
-                export default function AdminDashboard() {
+export default function AdminDashboard() {
     return (
-                <Suspense fallback={
-                    <div className="min-h-screen bg-[#001311] flex items-center justify-center">
-                        <div className="w-12 h-12 border-4 border-vc-mint border-t-transparent rounded-full animate-spin" />
-                    </div>
-                }>
-                    <AdminDashboardContent />
-                </Suspense>
-                );
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#001311] flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-vc-mint border-t-transparent rounded-full animate-spin" />
+            </div>
+        }>
+            <AdminDashboardContent />
+        </Suspense>
+    );
 }

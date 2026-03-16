@@ -717,7 +717,7 @@ const ApplyPageContent = () => {
                 submissionData.submittedAt = serverTimestamp();
             }
 
-            await setDoc(applicationRef, submissionData);
+            await setDoc(applicationRef, submissionData, { merge: true });
 
             // 5. Reward Points (Only if NEW)
             if (isActuallyNew && formData.referralSource === 'Ambassadors' && (formData.referralAmbassadorId || formData.referralAmbassadorName)) {
