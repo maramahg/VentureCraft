@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Leaf, Recycle, Battery, Cpu, ChevronRight, X } from 'lucide-react';
+import { Leaf, Recycle, Battery, Cpu, ChevronRight, X, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import Link from 'next/link';
 
 const pillars = [
     {
@@ -159,6 +160,23 @@ export default function AnnualTheme() {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
+
+                                    {/* Learn More Button */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: 0.4 }}
+                                        className="pt-8"
+                                    >
+                                        <Link
+                                            href="/about/theme"
+                                            className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-vc-mint text-vc-green-dark hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(79,209,197,0.3)] shadow-vc-mint/20"
+                                        >
+                                            Explore 2026 Theme
+                                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                        </Link>
+                                    </motion.div>
                                 </div>
                             </div>
                         </motion.div>
