@@ -419,91 +419,15 @@ export default function ThemePage() {
                     </div>
                 </div>
 
-                {/* Competition Framework */}
-                <div className="pt-24 border-t border-white/5 space-y-20">
-                    <div className="max-w-3xl mx-auto text-center space-y-6">
-                        <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint mx-auto border border-vc-mint/20">
-                            <Activity className="w-6 h-6" />
-                        </div>
-                        <h2 className="text-4xl font-black uppercase tracking-tight">Competition Framework</h2>
-                        <p className="text-white/40 leading-relaxed text-lg">
-                            A comprehensive innovation ecosystem where diverse technological approaches converge around a shared mission of accelerating the global transition to sustainable energy systems.
-                        </p>
-                    </div>
-
-                    <div className="max-w-4xl mx-auto space-y-24">
-                        {/* Broad Innovation Welcome */}
-                        <div className="space-y-8 group">
-                            <div className="flex items-center gap-4 justify-center md:justify-start">
-                                <div className="w-2 h-10 rounded-full bg-vc-mint opacity-20 group-hover:opacity-100 transition-opacity" />
-                                <h3 className="text-2xl font-bold uppercase tracking-tight">Broad Innovation Welcome</h3>
-                            </div>
-                            <p className="text-white/40 leading-relaxed italic text-sm text-center md:text-left">
-                                The framework accommodates innovations from any discipline that contributes to sustainable energy through one or more pillars:
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/[0.01] p-8 rounded-[2rem] border border-white/5">
-                                {[
-                                    { t: "Technology Startups", d: "Hardware, software, materials, and system innovations" },
-                                    { t: "Digital Solutions", d: "Platforms, analytics, AI/ML, and data-driven approaches" },
-                                    { t: "Business Model Innovation", d: "New approaches to sustainability challenges" },
-                                    { t: "Service Innovation", d: "Novel service delivery models for sustainable energy" },
-                                    { t: "Social Innovation", d: "Community-based and behavioral solutions" }
-                                ].map((item, i) => (
-                                    <div key={i} className="space-y-1">
-                                        <h4 className="text-sm font-bold text-vc-mint uppercase tracking-wider">{item.t}</h4>
-                                        <p className="text-xs text-white/40 font-medium">{item.d}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Evaluation Criteria */}
-                        <div className="space-y-10 group">
-                            <div className="flex items-center gap-4 justify-center md:justify-start">
-                                <div className="w-2 h-10 rounded-full bg-vc-teal opacity-20 group-hover:opacity-100 transition-opacity" />
-                                <h3 className="text-2xl font-bold uppercase tracking-tight">Evaluation Criteria</h3>
-                            </div>
-                            <p className="text-white/40 leading-relaxed italic text-sm text-center md:text-left">
-                                Our evaluation process focuses on five core dimensions of innovation excellence:
-                            </p>
-                            <div className="grid grid-cols-1 gap-4">
-                                {[
-                                    { t: "Sustainable Energy Impact", d: "Clear contribution to the sustainable energy transition", icon: Zap },
-                                    { t: "Innovation Potential", d: "Technical or business model breakthrough capability", icon: Lightbulb },
-                                    { t: "Scalability", d: "Ability to achieve meaningful scale and widespread adoption", icon: Rocket },
-                                    { t: "Team Excellence", d: "Capability to execute on the proposed innovation", icon: Users },
-                                    { t: "Market Opportunity", d: "Addressing real market needs with commercial potential", icon: BarChart3 }
-                                ].map((item, i) => (
-                                    <div key={i} className="group p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-vc-mint/30 hover:bg-white/[0.04] transition-all flex items-center gap-6">
-                                        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 group-hover:text-vc-mint group-hover:border-vc-mint/20 transition-all">
-                                            <item.icon className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-lg font-bold text-white/90 mb-1">{item.t}</h4>
-                                            <p className="text-sm text-white/40 font-medium">{item.d}</p>
-                                        </div>
-                                        <CheckCircle2 className="w-5 h-5 text-vc-mint/20 group-hover:text-vc-mint transition-colors" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Summary Quote */}
-                        <div className="relative p-8 md:p-12 bg-[#0a1a18] border border-white/8 overflow-hidden">
-                            <p className="text-xl md:text-2xl font-normal text-white/85 leading-relaxed text-center tracking-wide">
-                                The KFUPM Venture Craft competition creates a comprehensive innovation ecosystem where diverse technological approaches converge around the shared mission of accelerating the global transition to sustainable energy systems.
-                            </p>
-                        </div>
-
-                        <div className="flex justify-center pt-6">
-                            <Link
-                                href="/apply/materials"
-                                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-vc-mint text-vc-green-dark hover:bg-vc-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-bold text-sm uppercase tracking-widest shadow-lg shadow-vc-mint/20"
-                            >
-                                <span>Study Application Materials</span>
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </div>
+                <div className="pt-24 border-t border-white/5">
+                    <div className="flex justify-center pt-6">
+                        <Link
+                            href="/apply/materials"
+                            className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-vc-mint text-vc-green-dark hover:bg-vc-teal hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-bold text-sm uppercase tracking-widest shadow-lg shadow-vc-mint/20"
+                        >
+                            <span>Study Application Materials</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
                     </div>
                 </div>
             </div>
