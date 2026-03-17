@@ -2364,6 +2364,60 @@ function AdminDashboardContent() {
                     )}
                     {activeTab === 'startups' && (
                         <div className="space-y-4">
+                            {/* Team Roster for Judges/Supervisors */}
+                            {(isTeamJudgeOnly || isSupervisor) && !!judgeTeam && (
+                                <div className="mb-8 glass-panel p-6 border-vc-teal/20 bg-vc-teal/5 animate-in fade-in slide-in-from-top-4 duration-700">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="w-10 h-10 rounded-xl bg-vc-teal/20 flex items-center justify-center text-vc-teal border border-vc-teal/20">
+                                            <Users className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white leading-none mb-1">My Team</h3>
+                                            <p className="text-[10px] text-vc-teal/60 uppercase tracking-widest font-black">Team {judgeTeam} Participants</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                                        {allJudges
+                                            .filter(j => j.team === judgeTeam)
+                                            .sort((a, b) => {
+                                                if (a.role?.toLowerCase() === 'supervisor') return -1;
+                                                if (b.role?.toLowerCase() === 'supervisor') return 1;
+                                                return (a.displayName || '').localeCompare(b.displayName || '');
+                                            })
+                                            .map(member => (
+                                                <div
+                                                    key={member.id}
+                                                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.02] ${member.role?.toLowerCase() === 'supervisor'
+                                                        ? 'bg-vc-teal/10 border-vc-teal/30 ring-1 ring-vc-teal/10'
+                                                        : 'bg-white/5 border-white/10 hover:border-vc-mint/30'
+                                                        }`}
+                                                >
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-inner ${member.role?.toLowerCase() === 'supervisor'
+                                                        ? 'bg-vc-teal text-white'
+                                                        : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'
+                                                        }`}>
+                                                        {member.displayName?.charAt(0) || <User className="w-4 h-4" />}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                            <p className={`text-xs font-bold truncate ${member.role?.toLowerCase() === 'supervisor' ? 'text-vc-teal' : 'text-white'}`}>
+                                                                {member.displayName || 'Unnamed'}
+                                                            </p>
+                                                            {member.role?.toLowerCase() === 'supervisor' ? (
+                                                                <span className="text-[7px] px-1.5 py-0.5 rounded bg-vc-teal/20 text-vc-teal uppercase font-black tracking-tighter">Supervisor</span>
+                                                            ) : member.id === auth.currentUser?.uid ? (
+                                                                <span className="text-[7px] px-1.5 py-0.5 rounded bg-white/10 text-white/40 uppercase font-black tracking-tighter">You</span>
+                                                            ) : null}
+                                                        </div>
+                                                        <p className="text-[9px] text-white/30 truncate font-medium">{member.email || 'No email provided'}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
+                                </div>
+                            )}
+
                             {isUltimateJudge && (
                                 <div className="mb-12">
                                     <div className="flex items-center justify-between mb-8">
