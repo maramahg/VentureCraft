@@ -43,6 +43,8 @@ export default function Navbar() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isJudge, setIsJudge] = useState(false);
+  const [isUltimateJudge, setIsUltimateJudge] = useState(false);
+  const [isSupervisor, setIsSupervisor] = useState(false);
   const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
   const [isAmbassador, setIsAmbassador] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -110,7 +112,17 @@ export default function Navbar() {
 
         // 2. Check if Judge
         const judgeDoc = await getDoc(doc(db, 'judges', user.uid));
-        setIsJudge(judgeDoc.exists());
+        if (judgeDoc.exists()) {
+          setIsJudge(true);
+          const judgeData = judgeDoc.data();
+          const role = (judgeData.role || '').toLowerCase();
+          setIsUltimateJudge(role === 'ultimate' || !judgeData.team);
+          setIsSupervisor(role === 'supervisor');
+        } else {
+          setIsJudge(false);
+          setIsUltimateJudge(false);
+          setIsSupervisor(false);
+        }
 
         // 3. Check if Ambassador Lead
         const leadDoc = await getDoc(doc(db, 'ambassadors_lead', user.uid));
@@ -316,6 +328,18 @@ export default function Navbar() {
                                     Ambassador Management
                                   </Link>
                                 )}
+                                {(isAdmin || isUltimateJudge) && (
+                                  <Link
+                                    href="/admin?tab=judges"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <Shield size={14} className="text-vc-mint" />
+                                    </div>
+                                    Judges
+                                  </Link>
+                                )}
 
                                 {isAdmin && (
                                   <>
@@ -479,6 +503,16 @@ export default function Navbar() {
                               >
                                 <Users size={20} />
                                 Ambassador Management
+                              </Link>
+                            )}
+                            {(isAdmin || isUltimateJudge) && (
+                              <Link
+                                href="/admin?tab=judges"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Shield size={20} />
+                                Judges
                               </Link>
                             )}
                             {isAdmin && (
