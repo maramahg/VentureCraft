@@ -27,9 +27,16 @@ service cloud.firestore {
       );
     }
 
+    // Helper: Check if judge is Supervisor
+    function isSupervisor() {
+      return isJudge() && getJudgeData().get('role', '') == 'supervisor';
+    }
+
     // Helper: Check if judge belongs to a specific team
     function isTeamJudge(teamId) {
-      return isJudge() && getJudgeData().get('team', '') == teamId;
+      return isJudge() && 
+             getJudgeData().get('team', '') == teamId && 
+             getJudgeData().get('role', '') == 'team_judge';
     }
 
     // Helper: Check if the user is in the 'ambassadors_lead' collection
@@ -66,8 +73,15 @@ service cloud.firestore {
           request.auth.uid == resource.data.userId || 
           isAdmin() || 
           isUltimateJudge() ||
-          (isJudge() && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
+          isSupervisor() ||
+          (isJudge() && resource.data.get('assignedTeam', '') == getJudgeData().get('team', ''))
         ) 
+        && (
+          // If modifying screening data, MUST be Admin or the assigned Team Judge (NOT Supervisor/Ultimate)
+          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['screening'])) ||
+          isAdmin() ||
+          (isTeamJudge(resource.data.get('assignedTeam', '')))
+        )
         && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
       allow delete: if isAdmin();
     }

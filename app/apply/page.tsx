@@ -658,8 +658,8 @@ const ApplyPageContent = () => {
             let assignedTeam = null;
             if (!isEditMode) {
                 try {
-                    const teams = ['A', 'B', 'C', 'D'];
-                    const teamCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
+                    const teams = ['A', 'B', 'C', 'D', 'E'];
+                    const teamCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0, E: 0 };
 
                     // Fetch current assignments
                     const appsSnap = await getDocs(query(collection(db, 'applications'), where('assignedTeam', 'in', teams)));

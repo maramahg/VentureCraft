@@ -209,9 +209,11 @@ interface UserProfile {
 
 interface JudgeMember {
     id: string;
-    team: 'A' | 'B' | 'C' | 'D' | null;
-    role: 'ultimate' | 'team_judge';
+    team: 'A' | 'B' | 'C' | 'D' | 'E' | null;
+    role: 'ultimate' | 'team_judge' | 'supervisor';
     displayName?: string;
+    email?: string;
+    phoneNumber?: string;
 }
 
 const AdminDropdown = ({ options, value, onChange, placeholder }: {
@@ -410,9 +412,12 @@ function AdminDashboardContent() {
     const [isJudge, setIsJudge] = useState(false);
     const [judgeTeam, setJudgeTeam] = useState<string | null>(null);
     const [isUltimateJudge, setIsUltimateJudge] = useState(false);
+    const [isSupervisor, setIsSupervisor] = useState(false);
+    const [isTeamJudgeOnly, setIsTeamJudgeOnly] = useState(false);
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [allJudges, setAllJudges] = useState<JudgeMember[]>([]);
     const [judgeNames, setJudgeNames] = useState<Record<string, string>>({});
+    const [judgeContacts, setJudgeContacts] = useState<Record<string, { name: string; email: string }>>({});
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -428,17 +433,19 @@ function AdminDashboardContent() {
     const [updatingEditing, setUpdatingEditing] = useState(false);
     const [updatingScreening2, setUpdatingScreening2] = useState(false);
 
+    const canScore = isAdmin || (isTeamJudgeOnly && selectedApp?.assignedTeam === judgeTeam);
+
     const handleRedistributeTeams = async (appsToFix: Application[]) => {
         if (!isAdmin || appsToFix.length === 0) return;
 
         console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} unassigned applications...`);
         try {
-            const teams = ['A', 'B', 'C', 'D'];
+            const teams = ['A', 'B', 'C', 'D', 'E'];
             const batchSize = 500;
 
             const updates = appsToFix.map((app, idx) => ({
                 id: app.id,
-                team: teams[idx % 4]
+                team: teams[idx % 5]
             }));
 
             for (let i = 0; i < updates.length; i += batchSize) {
@@ -775,7 +782,12 @@ function AdminDashboardContent() {
                     const judgeData = judgeDoc.data();
                     setIsJudge(true);
                     setJudgeTeam(judgeData.team || null);
-                    setIsUltimateJudge(judgeData.role === 'ultimate' || !judgeData.team);
+
+                    const role = judgeData.role || 'team_judge';
+                    setIsUltimateJudge(role === 'ultimate' || !judgeData.team);
+                    setIsSupervisor(role === 'supervisor');
+                    setIsTeamJudgeOnly(role === 'team_judge' && !!judgeData.team);
+
                     setActiveTab('startups');
                     setLoading(false);
                     return;
@@ -873,22 +885,37 @@ function AdminDashboardContent() {
                     ...doc.data()
                 })) as JudgeMember[];
 
-                // Fetch names from users collection
-                const names: Record<string, string> = {};
+                // Fetch names and emails from users collection
+                const namesMap: Record<string, string> = {};
+                const contactsMap: Record<string, { name: string; email: string; phone: string }> = {};
+
                 await Promise.all(judgesList.map(async (j) => {
                     const userDoc = await getDoc(doc(db, 'users', j.id));
+                    let name = `Judge (${j.id.substring(0, 8)})`;
+                    let email = '';
+                    let phone = '';
+
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
-                        names[j.id] = userData?.displayName || userData?.fullName || userData?.name || `Judge (${j.id.substring(0, 8)})`;
-                    } else {
-                        // Fallback: If not in users collection, use first 8 chars of UID
-                        names[j.id] = `Judge (${j.id.substring(0, 8)})`;
+                        name = userData?.displayName || userData?.fullName || userData?.name || name;
+                        email = userData?.email || '';
+                        phone = userData?.phoneNumber || userData?.phone || '';
                     }
+
+                    namesMap[j.id] = name;
+                    contactsMap[j.id] = { name, email, phone };
                 }));
 
-                console.log(`Resolved names for ${judgesList.length} judges:`, names);
-                setJudgeNames(names);
-                setAllJudges(judgesList.map(j => ({ ...j, displayName: names[j.id] })));
+                console.log(`Resolved info for ${judgesList.length} judges`);
+                setJudgeNames(namesMap);
+                // Note: judgeContacts state might need updating if used elsewhere, 
+                // but let's ensure allJudges has the data.
+                setAllJudges(judgesList.map(j => ({
+                    ...j,
+                    displayName: namesMap[j.id],
+                    email: contactsMap[j.id].email,
+                    phoneNumber: contactsMap[j.id].phone
+                })));
             } catch (err) {
                 console.error('Error fetching judges directory:', err);
             }
@@ -1761,6 +1788,43 @@ function AdminDashboardContent() {
                                 </>
                             )}
                         </div>
+
+                        {/* Team Supervisor Quick Contact (For Team Judges) */}
+                        {isTeamJudgeOnly && judgeTeam && (
+                            <div className="flex items-center gap-4 p-4 bg-vc-teal/5 border border-vc-teal/20 rounded-2xl animate-in fade-in slide-in-from-right-4 duration-700">
+                                <div className="w-10 h-10 rounded-xl bg-vc-teal/10 flex items-center justify-center text-vc-teal border border-vc-teal/20">
+                                    <Shield className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-[9px] font-bold text-vc-teal/60 uppercase tracking-widest mb-0.5">Team {judgeTeam} Supervisor</p>
+                                    <div className="flex items-center gap-3">
+                                        <p className="text-sm font-bold text-white">
+                                            {allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.displayName || 'Not Assigned'}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            {allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.email && (
+                                                <a
+                                                    href={`mailto:${allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.email}`}
+                                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-vc-teal/20 hover:text-vc-teal transition-all text-white/40"
+                                                    title="Email Supervisor"
+                                                >
+                                                    <Mail className="w-3.5 h-3.5" />
+                                                </a>
+                                            )}
+                                            {allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.phoneNumber && (
+                                                <a
+                                                    href={`tel:${allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.phoneNumber}`}
+                                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-vc-teal/20 hover:text-vc-teal transition-all text-white/40"
+                                                    title="Call Supervisor"
+                                                >
+                                                    <Phone className="w-3.5 h-3.5" />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Global Controls Row */}
@@ -2304,8 +2368,8 @@ function AdminDashboardContent() {
                                                 exit={{ opacity: 0, height: 0 }}
                                                 className="overflow-hidden"
                                             >
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                                                    {['A', 'B', 'C', 'D'].map(team => {
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+                                                    {['A', 'B', 'C', 'D', 'E'].map(team => {
                                                         const teamApps = applications.filter(a => a.assignedTeam === team);
                                                         const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
                                                         const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
@@ -2346,12 +2410,15 @@ function AdminDashboardContent() {
                                                                         <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
                                                                         <div className="space-y-2">
                                                                             {teamMembers.length > 0 ? teamMembers.map(member => (
-                                                                                <div key={member.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                                                                    <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
+                                                                                <div key={member.id} className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${member.role === 'supervisor' ? 'bg-vc-teal/10 border-vc-teal/30' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}>
+                                                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${member.role === 'supervisor' ? 'bg-vc-teal text-white' : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'}`}>
                                                                                         {member.displayName?.charAt(0) || <User className="w-3 h-3" />}
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
-                                                                                        <p className="text-xs font-bold text-white truncate">{member.displayName || 'Unknown Judge'}</p>
+                                                                                        <p className={`text-xs font-bold truncate ${member.role === 'supervisor' ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
+                                                                                        {member.role === 'supervisor' && (
+                                                                                            <span className="text-[8px] uppercase tracking-tighter font-black opacity-60 text-vc-teal">Supervisor</span>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                             )) : (
@@ -3178,12 +3245,13 @@ function AdminDashboardContent() {
                                                                     min="0"
                                                                     max="10"
                                                                     step="1"
+                                                                    disabled={!canScore}
                                                                     value={currentScores[rubric.id as keyof typeof currentScores]}
                                                                     onChange={(e) => setCurrentScores({
                                                                         ...currentScores,
                                                                         [rubric.id]: parseInt(e.target.value)
                                                                     })}
-                                                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint"
+                                                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 />
                                                                 <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
                                                                     <span>Poor (0)</span>
@@ -3196,8 +3264,8 @@ function AdminDashboardContent() {
                                                     <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
                                                         <button
                                                             onClick={handleSaveScreening}
-                                                            disabled={savingScore}
-                                                            className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
+                                                            disabled={savingScore || !canScore}
+                                                            className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                                         >
                                                             {savingScore ? (
                                                                 <>
@@ -3259,13 +3327,13 @@ function AdminDashboardContent() {
                                                                     min="0"
                                                                     max="10"
                                                                     step="1"
-                                                                    disabled={!isScreeningRound2Open}
+                                                                    disabled={!isScreeningRound2Open || !canScore}
                                                                     value={currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
                                                                     onChange={(e) => setCurrentScoresRound2({
                                                                         ...currentScoresRound2,
                                                                         [rubric.id]: parseInt(e.target.value)
                                                                     })}
-                                                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint disabled:cursor-not-allowed"
+                                                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 />
                                                                 <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
                                                                     <span>Poor (0)</span>
@@ -3279,8 +3347,8 @@ function AdminDashboardContent() {
                                                         <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
                                                             <button
                                                                 onClick={handleSaveScreeningRound2}
-                                                                disabled={savingScore}
-                                                                className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
+                                                                disabled={savingScore || !canScore}
+                                                                className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                                             >
                                                                 {savingScore ? (
                                                                     <>
