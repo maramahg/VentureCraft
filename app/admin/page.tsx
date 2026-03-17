@@ -6,8 +6,8 @@ import {
     Users, Rocket, CheckCircle, XCircle, Clock,
     Filter, Search, ChevronDown, Eye, Mail,
     Phone, Globe, Linkedin, Video, ArrowLeft,
-    Check, X, AlertCircle, Shield, FileText, FileCode, Edit2,
-    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, Paperclip,
+    Check, X, AlertCircle, Shield, FileText, FileCode, Edit2, History, UserMinus,
+    User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, BarChart3, Paperclip, CheckCircle2,
     AlignLeft, AlignCenter, AlignRight, Type
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -825,7 +825,7 @@ function AdminDashboardContent() {
             }
         };
         fetchRegStatus();
-    }, [isAdmin]);
+    }, [isAdmin, isJudge]);
 
     const toggleRegistration = async () => {
         setUpdatingReg(true);
@@ -946,8 +946,7 @@ function AdminDashboardContent() {
 
             q = query(
                 collection(db, 'applications'),
-                where('assignedTeam', '==', judgeTeam),
-                orderBy('submittedAt', 'desc')
+                where('assignedTeam', '==', judgeTeam)
             );
         } else {
             // Admins and Ultimate Judges see all applications
@@ -1531,18 +1530,23 @@ function AdminDashboardContent() {
             app.leaderNationality === nationalityFilter ||
             app.teamMembers?.some(m => m.nationality === nationalityFilter);
 
+        const matchesOversightTeam = !selectedOversightTeam || app.assignedTeam === selectedOversightTeam;
 
         const matchesScreening = screeningFilter === 'all' ||
             (screeningFilter === 'scored' ? app.screening?.round1?.isCompleted : !app.screening?.round1?.isCompleted);
 
-        return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality && matchesScreening;
+        return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality && matchesScreening && matchesOversightTeam;
     }).sort((a, b) => {
         if (sortBy === 'score') {
             const scoreA = a.screening?.round1?.totalScore || 0;
             const scoreB = b.screening?.round1?.totalScore || 0;
             return scoreB - scoreA;
         }
-        return 0; // Default matches query order (date desc)
+
+        // Default: Sort by date descending (Newest first)
+        const dateA = a.submittedAt?.toMillis?.() || a.submittedAt?.seconds * 1000 || 0;
+        const dateB = b.submittedAt?.toMillis?.() || b.submittedAt?.seconds * 1000 || 0;
+        return dateB - dateA;
     });
 
     const filteredAmbassadorApps = useMemo(() => {
@@ -2301,8 +2305,8 @@ function AdminDashboardContent() {
                                                         return (
                                                             <div
                                                                 key={team}
-                                                                className="glass-panel p-6 border-vc-mint/10 hover:border-vc-mint/30 transition-all group cursor-pointer active:scale-95"
-                                                                onClick={() => setSelectedOversightTeam(team)}
+                                                                className={`glass-panel p-6 transition-all group cursor-pointer active:scale-95 ${selectedOversightTeam === team ? 'border-vc-mint shadow-[0_0_20px_rgba(0,186,166,0.15)] bg-vc-mint/5 scale-[1.02]' : 'border-vc-mint/10 hover:border-vc-mint/30'}`}
+                                                                onClick={() => setSelectedOversightTeam(selectedOversightTeam === team ? null : team)}
                                                             >
                                                                 <div className="flex items-center justify-between mb-6">
                                                                     <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
@@ -2359,8 +2363,64 @@ function AdminDashboardContent() {
                                 </div>
                             )}
 
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm text-white/40">Showing {filteredApps.length} startup applications</span>
+                            {selectedOversightTeam && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mb-8 p-6 glass-panel border-vc-mint/30 bg-vc-mint/5"
+                                >
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-14 h-14 rounded-2xl bg-vc-mint flex items-center justify-center text-vc-green-dark font-black text-2xl shadow-lg shadow-vc-mint/20">
+                                                {selectedOversightTeam}
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white mb-1">Team {selectedOversightTeam} Progress Monitor</h3>
+                                                <div className="flex items-center gap-3">
+                                                    {(() => {
+                                                        const teamApps = applications.filter(a => a.assignedTeam === selectedOversightTeam);
+                                                        const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
+                                                        const pending = teamApps.length - scored;
+                                                        return (
+                                                            <>
+                                                                <span className="flex items-center gap-1.5 text-[10px] font-bold text-white/40 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">
+                                                                    <BarChart className="w-3 h-3 text-vc-mint" /> {teamApps.length} Total
+                                                                </span>
+                                                                <span className="flex items-center gap-1.5 text-[10px] font-bold text-vc-mint uppercase tracking-widest bg-vc-mint/10 px-2 py-1 rounded border border-vc-mint/20">
+                                                                    <CheckCircle className="w-3 h-3" /> {scored} Scored
+                                                                </span>
+                                                                <span className="flex items-center gap-1.5 text-[10px] font-bold text-orange-400 uppercase tracking-widest bg-orange-400/10 px-2 py-1 rounded border border-orange-400/20">
+                                                                    <Clock className="w-3 h-3" /> {pending} Pending
+                                                                </span>
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setSelectedOversightTeam(null)}
+                                            className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white/40 font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-2 group"
+                                        >
+                                            <X className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                                            Clear Team Filter
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-sm text-white/40">
+                                    {selectedOversightTeam ? (
+                                        <span className="flex items-center gap-2">
+                                            Showing Team <b className="text-vc-mint">{selectedOversightTeam}</b> work
+                                            <span className="w-1 h-1 rounded-full bg-white/20" />
+                                            {filteredApps.length} startups
+                                        </span>
+                                    ) : (
+                                        `Showing ${filteredApps.length} startup applications`
+                                    )}
+                                </span>
                                 <button
                                     onClick={() => {
                                         const exportData = filteredApps.map(app => ({
@@ -2412,14 +2472,26 @@ function AdminDashboardContent() {
                                                 </h3>
                                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest overflow-hidden">
                                                     {isUltimateJudge && app.assignedTeam && (
-                                                        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 font-black">
-                                                            TEAM {app.assignedTeam}
-                                                            {isUltimateJudge && app.screening?.round1?.isCompleted && app.screening?.round1?.evaluatorId && (
-                                                                <span className="ml-2 border-l border-vc-mint/20 pl-2 text-white/40 font-normal">
-                                                                    Evaluated by: {judgeNames[app.screening.round1.evaluatorId] || 'Unknown'}
+                                                        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
+                                                            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 font-black text-[9px] min-w-[55px] justify-center">
+                                                                TEAM {app.assignedTeam}
+                                                            </span>
+                                                            {app.screening?.round1?.isCompleted && app.screening?.round1?.evaluatorId && (
+                                                                <div className="flex items-center gap-2 px-2 py-0.5 rounded bg-white/5 border border-white/10 group-hover:border-vc-mint/30 transition-all">
+                                                                    <div className="w-4 h-4 rounded-full bg-vc-mint/20 flex items-center justify-center text-[8px] font-black text-vc-mint border border-vc-mint/20">
+                                                                        {judgeNames[app.screening.round1.evaluatorId]?.charAt(0) || <User className="w-2 h-2" />}
+                                                                    </div>
+                                                                    <span className="text-[9px] font-bold text-white/50 group-hover:text-vc-mint transition-colors tracking-tight">
+                                                                        {judgeNames[app.screening.round1.evaluatorId] || 'Unknown Judge'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {!app.screening?.round1?.isCompleted && (
+                                                                <span className="text-[9px] font-bold text-white/20 italic tracking-tight flex items-center gap-1.5">
+                                                                    <Clock className="w-3 h-3" /> Awaiting Evaluation
                                                                 </span>
                                                             )}
-                                                        </span>
+                                                        </div>
                                                     )}
                                                     {app.startupName && (
                                                         <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold shrink-0"><Rocket className="w-3 h-3" /> {app.startupName}</span>
@@ -3432,123 +3504,7 @@ function AdminDashboardContent() {
                         )}
                     </AnimatePresence>
 
-                    <AnimatePresence>
-                        {selectedOversightTeam && (
-                            <div className="fixed inset-0 z-[150] flex items-center justify-center px-4 py-6 md:p-8">
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="absolute inset-0 bg-[#001311]/95 backdrop-blur-xl"
-                                    onClick={() => setSelectedOversightTeam(null)}
-                                />
 
-                                <motion.div
-                                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                                    className="relative w-full max-w-5xl max-h-[85vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-                                >
-                                    {/* Modal Header */}
-                                    <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
-                                                {selectedOversightTeam}
-                                            </div>
-                                            <div>
-                                                <h2 className="text-xl md:text-2xl font-bold">Team {selectedOversightTeam} Oversight</h2>
-                                                <p className="text-xs text-white/40 uppercase tracking-widest font-black">Detailed Progress Monitor</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => setSelectedOversightTeam(null)}
-                                            className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors"
-                                        >
-                                            <X className="w-5 h-5" />
-                                        </button>
-                                    </div>
-
-                                    {/* Applications List */}
-                                    <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
-                                        <div className="grid gap-4">
-                                            {applications
-                                                .filter(app => app.assignedTeam === selectedOversightTeam)
-                                                .map(app => {
-                                                    const evaluator = allJudges.find(j => j.id === app.screening?.round1?.evaluatorId);
-                                                    const isCompleted = app.screening?.round1?.isCompleted;
-
-                                                    return (
-                                                        <div
-                                                            key={app.id}
-                                                            className="glass-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
-                                                            onClick={() => {
-                                                                setSelectedApp(app);
-                                                                setSelectedOversightTeam(null);
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${isCompleted ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' : 'bg-white/5 border-white/10 text-white/20'}`}>
-                                                                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <div className="flex items-center gap-2 mb-1">
-                                                                        <h3 className="font-bold text-lg text-white truncate">{app.startupName || 'Unnamed Venture'}</h3>
-                                                                        {app.status === 'accepted' && <CheckCircle className="w-4 h-4 text-green-500" />}
-                                                                        {app.status === 'rejected' && <XCircle className="w-4 h-4 text-red-500" />}
-                                                                    </div>
-                                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-white/40 uppercase tracking-widest">
-                                                                        <span className="flex items-center gap-1.5"><Rocket className="w-3 h-3" /> {app.pillar}</span>
-                                                                        <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.location || 'Local'}</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="flex items-center justify-between md:justify-end gap-8 shrink-0 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
-                                                                <div className="flex flex-col items-start md:items-end">
-                                                                    <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Evaluator</span>
-                                                                    {evaluator ? (
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-xs font-bold text-vc-mint">{evaluator.name}</span>
-                                                                            <div className="w-6 h-6 rounded-full bg-vc-mint/10 border border-vc-mint/20 flex items-center justify-center text-[8px] font-black text-vc-mint uppercase">
-                                                                                {evaluator.name?.charAt(0)}
-                                                                            </div>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <span className="text-[10px] text-white/20 font-bold uppercase italic">Pending Evaluation</span>
-                                                                    )}
-                                                                </div>
-
-                                                                <div className="w-20 flex flex-col items-center border-l md:border-l border-white/5 pl-8">
-                                                                    <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1 text-center">Score</span>
-                                                                    {isCompleted ? (
-                                                                        <div className="flex items-baseline gap-1">
-                                                                            <span className="text-xl font-black text-vc-mint">{Math.round(app.screening!.round1!.totalScore)}</span>
-                                                                            <span className="text-[8px] text-white/20">/100</span>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <span className="text-lg font-black text-white/10">--</span>
-                                                                    )}
-                                                                </div>
-
-                                                                <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-white/40 group-hover:bg-vc-mint group-hover:text-vc-green-dark group-hover:border-vc-mint transition-all">
-                                                                    <Eye className="w-4 h-4" />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            {applications.filter(app => app.assignedTeam === selectedOversightTeam).length === 0 && (
-                                                <div className="text-center py-20 glass-panel border-dashed">
-                                                    <Rocket className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                                                    <p className="text-white/40 font-medium">No applications assigned to Team {selectedOversightTeam} yet</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            </div>
-                        )}
-                    </AnimatePresence>
 
                     {toast && (
                         <Toast
