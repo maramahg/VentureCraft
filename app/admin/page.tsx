@@ -1741,7 +1741,7 @@ function AdminDashboardContent() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3 text-white tracking-tight">
-                                {isAdmin ? 'Admin Dashboard' : isUltimateJudge ? 'Ultimate Judge Portal' : `Team ${judgeTeam} Evaluator Portal`}
+                                {isAdmin ? 'Admin Dashboard' : isUltimateJudge ? 'Ultimate Judge Portal' : isSupervisor ? `Team ${judgeTeam} Supervisor Portal` : `Team ${judgeTeam} Evaluator Portal`}
                             </h1>
                             <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
                                 <Shield className="w-3 h-3" />
@@ -1803,8 +1803,8 @@ function AdminDashboardContent() {
                             )}
                         </div>
 
-                        {/* Team Supervisor Quick Contact (For Team Judges) */}
-                        {isTeamJudgeOnly && judgeTeam && (
+                        {/* Team Supervisor Quick Contact (For Team Judges & Supervisors) */}
+                        {(isTeamJudgeOnly || isSupervisor) && judgeTeam && (
                             <div className="flex items-center gap-4 p-4 bg-vc-teal/5 border border-vc-teal/20 rounded-2xl animate-in fade-in slide-in-from-right-4 duration-700">
                                 <div className="w-10 h-10 rounded-xl bg-vc-teal/10 flex items-center justify-center text-vc-teal border border-vc-teal/20">
                                     <Shield className="w-5 h-5" />
