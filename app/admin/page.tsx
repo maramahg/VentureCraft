@@ -1956,6 +1956,15 @@ function AdminDashboardContent() {
                                         placeholder="All Stages"
                                     />
                                 </div>
+                                <div className="w-[160px]">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Sort By</label>
+                                    <AdminDropdown
+                                        options={['Newest First', 'Highest Score']}
+                                        value={sortBy === 'date' ? 'Newest First' : 'Highest Score'}
+                                        onChange={(val) => setSortBy(val === 'Highest Score' ? 'score' : 'date')}
+                                        placeholder="Date"
+                                    />
+                                </div>
                             </>
                         ) : (
                             <div className="w-[180px]">
@@ -1974,13 +1983,20 @@ function AdminDashboardContent() {
                                 if (activeTab === 'startups') {
                                     setSearchTerm('');
                                     setPillarFilter('all');
+                                    setStatusFilter('all');
                                     setStageFilter('all');
+                                    setTeamSizeFilter('all');
+                                    setAgeFilter('all');
                                     setNationalityFilter('all');
+                                    setScreeningFilter('all');
                                     setSortBy('date');
                                 } else {
                                     setAmbSearchTerm('');
                                     setAmbStatusFilter('all');
                                     setAmbNationalityFilter('all');
+                                    setAmbLocationFilter('all');
+                                    setAmbDegreeFilter('all');
+                                    setAmbAppTypeFilter('all');
                                 }
                             }}
                             className="h-[46px] px-6 text-[10px] font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-2xl uppercase tracking-widest"
