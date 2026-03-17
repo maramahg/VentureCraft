@@ -1741,7 +1741,7 @@ function AdminDashboardContent() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3 text-white tracking-tight">
-                                {isAdmin ? 'Admin Dashboard' : isUltimateJudge ? 'Ultimate Judge Portal' : isSupervisor ? `Team ${judgeTeam} Supervisor Portal` : `Team ${judgeTeam} Evaluator Portal`}
+                                {isAdmin ? 'Admin Dashboard' : isUltimateJudge ? 'Ultimate Judge' : isSupervisor ? `Team ${judgeTeam} Supervisor` : `Team ${judgeTeam} Evaluator`}
                             </h1>
                             <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
                                 <Shield className="w-3 h-3" />
@@ -1811,28 +1811,22 @@ function AdminDashboardContent() {
                                 </div>
                                 <div>
                                     <p className="text-[9px] font-bold text-vc-teal/60 uppercase tracking-widest mb-0.5">Team {judgeTeam} Supervisor</p>
-                                    <div className="flex items-center gap-3">
-                                        <p className="text-sm font-bold text-white">
+                                    <div className="flex flex-col">
+                                        <p className="text-sm font-bold text-white mb-1">
                                             {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.displayName || 'Not Assigned'}
                                         </p>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col gap-0.5">
                                             {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email && (
-                                                <a
-                                                    href={`mailto:${allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email}`}
-                                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-vc-teal/20 hover:text-vc-teal transition-all text-white/40"
-                                                    title="Email Supervisor"
-                                                >
-                                                    <Mail className="w-3.5 h-3.5" />
-                                                </a>
+                                                <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-medium">
+                                                    <Mail className="w-3 h-3 text-vc-teal/40" />
+                                                    <span>{allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email}</span>
+                                                </div>
                                             )}
                                             {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber && (
-                                                <a
-                                                    href={`tel:${allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber}`}
-                                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-vc-teal/20 hover:text-vc-teal transition-all text-white/40"
-                                                    title="Call Supervisor"
-                                                >
-                                                    <Phone className="w-3.5 h-3.5" />
-                                                </a>
+                                                <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-medium">
+                                                    <Phone className="w-3 h-3 text-vc-teal/40" />
+                                                    <span>{allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber}</span>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -2011,8 +2005,8 @@ function AdminDashboardContent() {
                                 </div>
                                 <div className="flex bg-white/5 p-1.5 rounded-[1.5rem] border border-white/10 backdrop-blur-sm">
                                     <button
-                                        onClick={() => setAmbAppTypeFilter('all')}
-                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                        onClick={() => setAmbassadorSubTab('applications')}
+                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                     >
                                         Applications
                                     </button>
