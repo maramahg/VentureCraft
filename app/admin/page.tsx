@@ -488,6 +488,8 @@ function AdminDashboardContent() {
     // Tab Management
     const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'teams'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
+    const [showOversight, setShowOversight] = useState(false);
+    const [selectedOversightTeam, setSelectedOversightTeam] = useState<string | null>(null);
 
     // Ambassador Data
     const [ambassadorApps, setAmbassadorApps] = useState<AmbassadorApplication[]>([]);
@@ -1798,1473 +1800,1405 @@ function AdminDashboardContent() {
 
 
 
-                <div className="grid lg:grid-cols-[300px_1fr] gap-12">
-                    {/* Sidebar Filters */}
-                    <div className="space-y-8 max-w-xl mx-auto lg:max-w-none lg:mx-0">
-                        <div className="glass-panel p-6 space-y-6">
-                            <div className="space-y-4">
-                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Dashboard Sections</label>
-                                <div className="space-y-2">
+                {/* Custom Navigation Header */}
+                <div className="flex flex-wrap items-center gap-2 mb-12 p-2 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-md sticky top-24 z-40">
+                    <button
+                        onClick={() => setActiveTab('startups')}
+                        className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Rocket className="w-4 h-4" /> Startups
+                    </button>
+                    {(isAdmin || isAmbassadorLead) && (
+                        <button
+                            onClick={() => setActiveTab('ambassadors')}
+                            className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                        >
+                            <Users className="w-4 h-4" /> Ambassadors
+                        </button>
+                    )}
+                    {isAdmin && (
+                        <>
+                            <button
+                                onClick={() => setActiveTab('qr')}
+                                className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'qr' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                            >
+                                <QrCode className="w-4 h-4" /> QR Access
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('broadcast')}
+                                className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'broadcast' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                            >
+                                <Mail className="w-4 h-4" /> Email
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {/* Filter Controls Row */}
+                {(activeTab === 'startups' || activeTab === 'ambassadors') && (
+                    <div className="glass-panel p-6 mb-8 flex flex-wrap items-end gap-6">
+                        <div className="flex-1 min-w-[300px]">
+                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Search Records</label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by name, email, or ID..."
+                                    value={activeTab === 'startups' ? searchTerm : ambSearchTerm}
+                                    onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        {activeTab === 'startups' ? (
+                            <>
+                                <div className="w-[200px]">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Pillar</label>
+                                    <AdminDropdown
+                                        options={pillars}
+                                        value={pillarFilter}
+                                        onChange={setPillarFilter}
+                                        placeholder="All Pillars"
+                                    />
+                                </div>
+                                <div className="w-[180px]">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Stage</label>
+                                    <AdminDropdown
+                                        options={stages}
+                                        value={stageFilter}
+                                        onChange={setStageFilter}
+                                        placeholder="All Stages"
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <div className="w-[180px]">
+                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Status</label>
+                                <AdminDropdown
+                                    options={['all', 'pending', 'accepted', 'rejected']}
+                                    value={ambStatusFilter}
+                                    onChange={setAmbStatusFilter}
+                                    placeholder="All Status"
+                                />
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => {
+                                if (activeTab === 'startups') {
+                                    setSearchTerm('');
+                                    setPillarFilter('all');
+                                    setStageFilter('all');
+                                    setNationalityFilter('all');
+                                    setSortBy('date');
+                                } else {
+                                    setAmbSearchTerm('');
+                                    setAmbStatusFilter('all');
+                                    setAmbNationalityFilter('all');
+                                }
+                            }}
+                            className="h-[46px] px-6 text-[10px] font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-2xl uppercase tracking-widest"
+                        >
+                            Reset
+                        </button>
+                    </div>
+                )}
+
+                <div className="space-y-4">
+                    {activeTab === 'ambassadors' && (
+                        <div className="space-y-6">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20">
+                                        <Users className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-white leading-none mb-1">Ambassador Hub</h2>
+                                        <p className="text-xs text-white/40 uppercase tracking-widest font-black">Management & Directory</p>
+                                    </div>
+                                </div>
+                                <div className="flex bg-white/5 p-1.5 rounded-[1.5rem] border border-white/10 backdrop-blur-sm">
                                     <button
-                                        onClick={() => setActiveTab('startups')}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                        onClick={() => setAmbassadorSubTab('applications')}
+                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                     >
-                                        <Rocket className="w-4 h-4" /> Startups
+                                        Applications
                                     </button>
                                     <button
-                                        onClick={() => setActiveTab('ambassadors')}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                        onClick={() => setAmbassadorSubTab('directory')}
+                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambassadorSubTab === 'directory' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                     >
-                                        <Users className="w-4 h-4" /> Ambassadors
+                                        Active Directory
                                     </button>
-                                    <button
-                                        onClick={() => setActiveTab('qr')}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'qr' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
-                                    >
-                                        <QrCode className="w-4 h-4" /> QR Codes
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('broadcast')}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'broadcast' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
-                                    >
-                                        <Mail className="w-4 h-4" /> Email Center
-                                    </button>
-                                    {isUltimateJudge && (
-                                        <button
-                                            onClick={() => setActiveTab('teams')}
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'teams' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
-                                        >
-                                            <Shield className="w-4 h-4" /> Judging Teams
-                                        </button>
-                                    )}
                                 </div>
                             </div>
 
-                            {activeTab !== 'broadcast' && activeTab !== 'qr' && (
-                                <div className="pt-6 border-t border-white/5 space-y-6">
-                                    <div className="flex items-center gap-2 text-vc-mint mb-6">
-                                        <Filter className="w-5 h-5" />
-                                        <h2 className="font-bold uppercase tracking-widest text-sm">Advanced Filters</h2>
+                            {ambassadorSubTab === 'applications' ? (
+                                <div className="space-y-4">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
+                                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
+                                            <button
+                                                onClick={() => setAmbAppTypeFilter('all')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                ALL ({ambAppCounts.all})
+                                            </button>
+                                            <button
+                                                onClick={() => setAmbAppTypeFilter('local')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                LOCAL ({ambAppCounts.local})
+                                            </button>
+                                            <button
+                                                onClick={() => setAmbAppTypeFilter('global')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                GLOBAL ({ambAppCounts.global})
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                const exportData = filteredAmbassadorApps.map(app => ({
+                                                    'Applicant Name': app.name || app.fullName || 'N/A',
+                                                    'Email': app.email,
+                                                    'Phone': app.phone || 'N/A',
+                                                    'Nationality': app.nationality || 'N/A',
+                                                    'University': app.university || 'N/A',
+                                                    'Major': app.major || 'N/A',
+                                                    'Degree': app.degree || 'N/A',
+                                                    'Location': app.location || 'N/A',
+                                                    'Status': app.status,
+                                                    'Submitted At': app.submittedAt?.toDate().toLocaleString() || 'N/A',
+                                                    'Social Media': app.socialMedia || 'N/A'
+                                                }));
+                                                exportToExcel(exportData, 'Ambassador_Applications');
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all w-full sm:w-auto justify-center"
+                                        >
+                                            <FileSpreadsheet className="w-4 h-4" />
+                                            Export Excel
+                                        </button>
                                     </div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm text-white/40">Showing {filteredAmbassadorApps.length} ambassador applications</span>
+                                    </div>
+                                    <div className="grid gap-4">
+                                        {filteredAmbassadorApps.map((app) => (
+                                            <motion.div
+                                                layout
+                                                key={app.id}
+                                                className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
+                                                onClick={() => setSelectedAmbassadorApp(app)}
+                                            >
+                                                <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left w-full md:w-auto">
+                                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                                        <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
+                                                    </div>
+                                                    <div className="min-w-0 flex flex-col items-center md:items-start">
+                                                        <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.name || app.fullName || 'Unknown Applicant'}</h3>
+                                                        <div className="flex flex-col gap-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest w-full">
+                                                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1">
+                                                                <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {app.email}</span>
+                                                                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
+                                                            </div>
+                                                            {app.location && (
+                                                                <div className="text-vc-mint/60 font-bold flex justify-center md:justify-start">
+                                                                    <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.location}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                    <div className="space-y-6">
-                                        {/* Search */}
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Search Partner / Email</label>
-                                            <div className="relative">
-                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                                                <input
-                                                    type="text"
-                                                    placeholder="Search..."
-                                                    value={activeTab === 'startups' ? searchTerm : ambSearchTerm}
-                                                    onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                                />
+                                                <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
+                                                    <div className="hidden xl:block text-right">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Education</span>
+                                                        <span className="text-sm text-white/60">{app.degree}</span>
+                                                    </div>
+
+                                                    <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                                                        app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                            'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
+                                                        }`}>
+                                                        {app.status || 'pending'}
+                                                    </div>
+                                                    <div className="flex items-center gap-2 relative z-10">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'accepted'); }}
+                                                            className="p-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
+                                                            title="Accept"
+                                                        >
+                                                            <Check className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'rejected'); }}
+                                                            className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                                                            title="Reject"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteApplication(app.id, app.name || app.fullName || 'Applicant'); }}
+                                                            className="p-2.5 rounded-xl bg-white/5 text-white/40 hover:bg-white/10 hover:text-red-400 transition-all border border-white/10 hover:border-red-500/30"
+                                                            title="Delete Application"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                        {filteredAmbassadorApps.length === 0 && (
+                                            <div className="text-center py-24 glass-panel bg-white/0 border-dashed">
+                                                <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                                                <p className="text-white/40">No ambassador applications found</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
+                                            <button
+                                                onClick={() => setAmbDirTypeFilter('all')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                ALL ({ambDirCounts.all})
+                                            </button>
+                                            <button
+                                                onClick={() => setAmbDirTypeFilter('local')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                LOCAL ({ambDirCounts.local})
+                                            </button>
+                                            <button
+                                                onClick={() => setAmbDirTypeFilter('global')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                GLOBAL ({ambDirCounts.global})
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                                            <button
+                                                onClick={() => {
+                                                    const exportData = ambassadorsList.map(amb => ({
+                                                        'Name': amb.displayName || 'N/A',
+                                                        'Email': amb.email,
+                                                        'ID': amb.ambassadorId || 'N/A',
+                                                        'Location': amb.location || 'N/A',
+                                                        'Points': amb.points || 0
+                                                    }));
+                                                    exportToExcel(exportData, 'Ambassador_Directory');
+                                                }}
+                                                className="flex items-center gap-2 px-3 py-1.5 bg-vc-mint/5 border border-vc-mint/10 rounded-lg hover:bg-vc-mint/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint flex-1 sm:flex-initial justify-center"
+                                            >
+                                                <FileSpreadsheet className="w-3 h-3" />
+                                                Export Excel
+                                            </button>
+                                            <div className="flex items-center gap-2 px-4 py-2 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
+                                                <Trophy className="w-4 h-4 text-vc-mint" />
+                                                <span className="text-xs uppercase tracking-widest text-vc-mint font-black">Leaderboard</span>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div className="flex flex-col mb-4">
+                                        <span className="text-sm text-white/40">Showing {filteredAmbassadorsList.length} active ambassadors</span>
+                                    </div>
 
-                                        {/* Status Filter (Only for Ambassadors) */}
-                                        {activeTab !== 'startups' && (
-                                            <div className="space-y-3">
-                                                <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Status</label>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    {['all', 'pending', 'accepted', 'rejected'].map(s => (
+                                    <div className="grid gap-4">
+                                        {filteredAmbassadorsList
+                                            .sort((a, b) => (b.points || 0) - (a.points || 0))
+                                            .map((user, index) => (
+                                                <div
+                                                    key={user.id}
+                                                    className="glass-panel p-6 flex items-center justify-between group hover:border-vc-mint/30 transition-all"
+                                                >
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="relative">
+                                                            <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                                                                {user.photoURL ? (
+                                                                    <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <User className="w-6 h-6 text-white/20" />
+                                                                )}
+                                                            </div>
+                                                            {index < 3 && (user.points || 0) > 0 && (
+                                                                <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${index === 0 ? 'bg-yellow-500 border-yellow-200 text-yellow-900' :
+                                                                    index === 1 ? 'bg-slate-300 border-slate-100 text-slate-800' :
+                                                                        'bg-amber-600 border-amber-400 text-amber-50'
+                                                                    }`}>
+                                                                    {index + 1}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-3 mb-1">
+                                                                <h3 className="font-bold text-lg leading-tight">{user.displayName}</h3>
+                                                                <div className="px-2.5 py-0.5 rounded-full bg-vc-mint/10 border border-vc-mint/20 flex items-center gap-1.5">
+                                                                    <CircleDollarSign className="w-4 h-4 text-vc-mint" />
+                                                                    <span className="text-xs font-black text-vc-mint">{user.points || 0}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-4 text-xs text-white/30 uppercase tracking-[0.1em]">
+                                                                <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {user.email}</span>
+                                                                <span className="flex items-center gap-1 text-vc-mint/60 font-black whitespace-nowrap"><Hash className="w-3 h-3" /> ID: #{user.ambassadorId || '---'}</span>
+                                                                {user.location && <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {user.location}</span>}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
                                                         <button
-                                                            key={s}
-                                                            onClick={() => setAmbStatusFilter(s)}
-                                                            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${ambStatusFilter === s ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+                                                            onClick={() => fetchHistory(user.id, user.displayName)}
+                                                            className="p-3 rounded-xl bg-white/5 text-white/40 hover:bg-vc-mint/10 hover:text-vc-mint transition-all border border-white/10 hover:border-vc-mint/30"
+                                                            title="Reward History"
                                                         >
-                                                            {s.toUpperCase()}
+                                                            <History className="w-5 h-5" />
                                                         </button>
-                                                    ))}
+                                                        <button
+                                                            onClick={() => {
+                                                                setRewardUser({ id: user.id, name: user.displayName || 'Ambassador', currentPoints: user.points || 0 });
+                                                                setShowRewardModal(true);
+                                                            }}
+                                                            className="px-5 py-3 rounded-xl bg-vc-mint text-vc-green-dark font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-vc-mint/20"
+                                                        >
+                                                            Manage Points
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setUserToRemove({ id: user.id, name: user.displayName || 'Ambassador' });
+                                                                setShowRemoveModal(true);
+                                                            }}
+                                                            className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                                                            title="Remove Ambassador"
+                                                        >
+                                                            <UserMinus className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-
-                                        {activeTab === 'startups' ? (
-                                            <>
-                                                {/* Pillar Filter */}
-                                                <div className="space-y-2">
-                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Pillar</label>
-                                                    <AdminDropdown
-                                                        options={pillars}
-                                                        value={pillarFilter}
-                                                        onChange={setPillarFilter}
-                                                        placeholder="All Pillars"
-                                                    />
-                                                </div>
-
-                                                {/* Stage Filter */}
-                                                <div className="space-y-2">
-                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Stage</label>
-                                                    <AdminDropdown
-                                                        options={stages}
-                                                        value={stageFilter}
-                                                        onChange={setStageFilter}
-                                                        placeholder="All Stages"
-                                                    />
-                                                </div>
-
-                                                {/* Nationality Filter */}
-                                                <div className="space-y-2">
-                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</label>
-                                                    <AdminFlagDropdown
-                                                        value={nationalityFilter}
-                                                        onChange={setNationalityFilter}
-                                                        placeholder="Everywhere"
-                                                    />
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {/* Ambassador Nationality Filter */}
-                                                <div className="space-y-2">
-                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Partner Nationality</label>
-                                                    <AdminFlagDropdown
-                                                        value={ambNationalityFilter}
-                                                        onChange={setAmbNationalityFilter}
-                                                        placeholder="All Nationalities"
-                                                    />
-                                                </div>
-
-                                                {/* Ambassador Location Filter */}
-                                                <div className="space-y-2">
-                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</label>
-                                                    <AdminFlagDropdown
-                                                        value={ambLocationFilter}
-                                                        onChange={setAmbLocationFilter}
-                                                        placeholder="All Locations"
-                                                    />
-                                                </div>
-
-                                                {/* Ambassador Degree Filter */}
-                                                <div className="space-y-2">
-                                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Education Level</label>
-                                                    <AdminDropdown
-                                                        options={['Bachelor', 'Master', 'PhD', 'Other']}
-                                                        value={ambDegreeFilter}
-                                                        onChange={setAmbDegreeFilter}
-                                                        placeholder="All Degrees"
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
+                                            ))}
                                     </div>
                                 </div>
                             )}
                         </div>
+                    )}
+                    {activeTab === 'qr' && (
+                        <div className="glass-panel p-8 sm:p-12 min-h-[600px] relative overflow-hidden">
+                            <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
 
-                        {activeTab !== 'broadcast' && activeTab !== 'qr' && (
-                            <div className="space-y-6">
-                                <button
-                                    onClick={() => {
-                                        if (activeTab === 'startups') {
-                                            setSearchTerm('');
-                                            setStatusFilter('all');
-                                            setPillarFilter('all');
-                                            setStageFilter('all');
-                                            setNationalityFilter('all');
-                                            setSortBy('date');
-                                        } else {
-                                            setAmbSearchTerm('');
-                                            setAmbStatusFilter('all');
-                                            setAmbNationalityFilter('all');
-                                            setAmbLocationFilter('all');
-                                            setAmbDegreeFilter('all');
-                                            setAmbAppTypeFilter('all');
-                                            setAmbDirTypeFilter('all');
-                                            setScreeningFilter('all');
-                                        }
-                                    }}
-                                    className="w-full py-3 text-xs font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-xl uppercase tracking-widest mt-4"
-                                >
-                                    Reset Filters
-                                </button>
-
-                                {activeTab === 'startups' && (
-                                    <div className="pt-4 border-t border-white/5 space-y-4">
-                                        <div>
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Screening Status</label>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <button
-                                                    onClick={() => setScreeningFilter(screeningFilter === 'pending' ? 'all' : 'pending')}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'pending' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    <Clock className="w-3 h-3" /> PENDING
-                                                </button>
-                                                <button
-                                                    onClick={() => setScreeningFilter(screeningFilter === 'scored' ? 'all' : 'scored')}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border flex items-center justify-center gap-2 ${screeningFilter === 'scored' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    <CheckCircle className="w-3 h-3" /> SCORED
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block">Sort By</label>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <button
-                                                    onClick={() => setSortBy('date')}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'date' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    DATE
-                                                </button>
-                                                <button
-                                                    onClick={() => setSortBy('score')}
-                                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${sortBy === 'score' ? 'bg-vc-mint/10 border-vc-mint text-vc-mint' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
-                                                >
-                                                    SCORE
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="relative z-10 text-center mb-12">
+                                <h2 className="text-3xl font-bold mb-2 font-poppins">QR Access Management</h2>
+                                <p className="text-white/40 text-sm">
+                                    Monitor and coordinate official QR access points.
+                                </p>
                             </div>
-                        )}
-                    </div>
 
-                    {/* Main Content Area */}
-                    <div className="space-y-4 flex-1 min-w-0">
-                        {activeTab === 'ambassadors' && (
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-8 bg-white/5 border border-white/10 p-2 rounded-2xl sm:rounded-[2.5rem] w-full sm:w-fit">
-                                <button
-                                    onClick={() => setAmbassadorSubTab('applications')}
-                                    className={`px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-bold text-xs sm:text-sm uppercase tracking-widest transition-all flex items-center justify-center sm:justify-start gap-3 flex-1 sm:flex-initial ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                >
-                                    <FileText className="w-4 h-4 sm:w-5 h-5" />
-                                    <span>Applications</span>
-                                    {ambassadorApps.filter(a => a.status === 'pending').length > 0 && (
-                                        <span className="px-2 py-0.5 bg-vc-green-dark text-vc-mint rounded-lg text-[10px] font-black sm:ml-2">
-                                            {ambassadorApps.filter(a => a.status === 'pending').length}
-                                        </span>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setAmbassadorSubTab('directory')}
-                                    className={`px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-bold text-xs sm:text-sm uppercase tracking-widest transition-all flex items-center justify-center sm:justify-start gap-3 flex-1 sm:flex-initial ${ambassadorSubTab === 'directory' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                >
-                                    <Users className="w-4 h-4 sm:w-5 h-5" />
-                                    <span>Directory</span>
-                                    <span className={`sm:ml-2 text-[10px] sm:text-xs opacity-40`}>({ambassadorsList.length})</span>
-                                </button>
-                            </div>
-                        )}
-                        {activeTab === 'teams' && isUltimateJudge && (
-                            <div className="space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {['A', 'B', 'C', 'D'].map(team => {
-                                        const teamApps = applications.filter(a => a.assignedTeam === team);
-                                        const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
-                                        const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
-                                        const teamMembers = allJudges.filter(j => j.team === team);
-
-                                        return (
-                                            <div key={team} className="glass-panel p-6 border-vc-mint/10 hover:border-vc-mint/30 transition-all group">
-                                                <div className="flex items-center justify-between mb-6">
-                                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
-                                                        {team}
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">Workload</span>
-                                                        <span className="text-lg font-bold text-white tracking-tight">{teamApps.length} Apps</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    <div>
-                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5">
-                                                            <span className="text-white/40">Evaluation Progress</span>
-                                                            <span className="text-vc-mint">{Math.round(progress)}%</span>
-                                                        </div>
-                                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                                                            <motion.div
-                                                                initial={{ width: 0 }}
-                                                                animate={{ width: `${progress}%` }}
-                                                                className="h-full bg-vc-mint shadow-[0_0_10px_rgba(0,186,166,0.5)]"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="pt-4 border-t border-white/5">
-                                                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
-                                                        <div className="space-y-2">
-                                                            {teamMembers.length > 0 ? teamMembers.map(member => (
-                                                                <div key={member.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                                                    <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
-                                                                        {member.name?.charAt(0) || <User className="w-3 h-3" />}
-                                                                    </div>
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <p className="text-xs font-bold text-white truncate">{member.name || 'Unknown Judge'}</p>
-                                                                        <p className="text-[8px] text-white/30 font-mono uppercase truncate">{member.id.substring(0, 8)}...</p>
-                                                                    </div>
-                                                                </div>
-                                                            )) : (
-                                                                <p className="text-[10px] text-white/20 italic">No members assigned</p>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                <div className="glass-panel p-8">
-                                    <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
-                                        <BarChart className="w-5 h-5 text-vc-mint" /> Detailed Oversight Log
-                                    </h3>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className="border-b border-white/10">
-                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest pl-4">Startup</th>
-                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Team</th>
-                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Status</th>
-                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Evaluator</th>
-                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest pr-4 text-right">Score</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-white/5">
-                                                {applications.slice(0, 50).map(app => (
-                                                    <tr key={app.id} className="hover:bg-white/5 transition-colors group">
-                                                        <td className="py-4 pl-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-vc-mint border border-white/10">
-                                                                    <Rocket className="w-4 h-4" />
-                                                                </div>
-                                                                <div>
-                                                                    <p className="text-sm font-bold text-white">{app.startupName || 'Unnamed'}</p>
-                                                                    <p className="text-[10px] text-white/30">{app.id.substring(0, 8)}</p>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-4">
-                                                            <span className="px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 text-[10px] font-black">
-                                                                TEAM {app.assignedTeam || '?'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-4">
-                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark' : 'bg-white/5 text-white/40'}`}>
-                                                                {app.screening?.round1?.isCompleted ? 'EVALUATED' : 'PENDING'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-4">
-                                                            <div className="flex items-center gap-2">
-                                                                {app.screening?.round1?.evaluatorId ? (
-                                                                    <>
-                                                                        <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint">
-                                                                            {judgeNames[app.screening.round1.evaluatorId]?.charAt(0) || 'J'}
-                                                                        </div>
-                                                                        <span className="text-xs text-white/80">{judgeNames[app.screening.round1.evaluatorId] || 'Unknown'}</span>
-                                                                    </>
-                                                                ) : (
-                                                                    <span className="text-xs text-white/20 italic">Unassigned</span>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-4 pr-4 text-right">
-                                                            <span className="text-sm font-mono font-bold text-vc-mint">
-                                                                {app.screening?.round1?.totalScore ? app.screening.round1.totalScore.toFixed(1) : '-'}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'qr' && (
-                            <div className="glass-panel p-8 sm:p-12 min-h-[600px] relative overflow-hidden">
-                                <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
-
-                                <div className="relative z-10 text-center mb-12">
-                                    <h2 className="text-3xl font-bold mb-2 font-poppins">QR Access Management</h2>
-                                    <p className="text-white/40 text-sm">
-                                        Monitor and coordinate official QR access points.
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 max-w-5xl mx-auto">
-                                    {/* Official Website QR */}
-                                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center space-y-6 hover:bg-white/[0.08] transition-colors group">
-                                        <div className="text-center">
-                                            <h3 className="text-xl font-bold mb-2">Main Website</h3>
-                                            <p className="text-white/40 text-xs">Points to <span className="text-vc-mint">kfupm-venturecraft.org</span></p>
-                                        </div>
-
-                                        <div className="bg-white p-6 rounded-3xl shadow-2xl border-[8px] border-vc-mint/20 group-hover:scale-105 transition-transform duration-500">
-                                            <QRCodeSVG
-                                                id="qr-main-website"
-                                                value="https://kfupm-venturecraft.org/"
-                                                size={300}
-                                                level="H"
-                                                includeMargin={false}
-                                                imageSettings={{
-                                                    src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-                                                    height: 80,
-                                                    width: 80,
-                                                    excavate: true,
-                                                }}
-                                            />
-                                        </div>
-
-                                        <button
-                                            onClick={() => downloadQR('qr-main-website', 'VentureCraft-Official-QR')}
-                                            className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-mint/20"
-                                        >
-                                            <Download className="w-5 h-5" />
-                                            Download PNG
-                                        </button>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 max-w-5xl mx-auto">
+                                {/* Official Website QR */}
+                                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center space-y-6 hover:bg-white/[0.08] transition-colors group">
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-bold mb-2">Main Website</h3>
+                                        <p className="text-white/40 text-xs">Points to <span className="text-vc-mint">kfupm-venturecraft.org</span></p>
                                     </div>
 
-                                    {/* Socials Linktree QR */}
-                                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center space-y-6 hover:bg-white/[0.08] transition-colors group">
-                                        <div className="text-center">
-                                            <h3 className="text-xl font-bold mb-2">Socials Linktree</h3>
-                                            <p className="text-white/40 text-xs">Points to <span className="text-vc-mint text-vc-teal">/socials</span></p>
-                                        </div>
-
-                                        <div className="bg-white p-6 rounded-3xl shadow-2xl border-[8px] border-vc-teal/20 group-hover:scale-105 transition-transform duration-500">
-                                            <QRCodeSVG
-                                                id="qr-socials-linktree"
-                                                value="https://kfupm-venturecraft.org/socials"
-                                                size={300}
-                                                level="H"
-                                                includeMargin={false}
-                                                imageSettings={{
-                                                    src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-                                                    height: 80,
-                                                    width: 80,
-                                                    excavate: true,
-                                                }}
-                                            />
-                                        </div>
-
-                                        <button
-                                            onClick={() => downloadQR('qr-socials-linktree', 'VentureCraft-Socials-QR')}
-                                            className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-teal text-white font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-teal/20"
-                                        >
-                                            <Download className="w-5 h-5" />
-                                            Download PNG
-                                        </button>
+                                    <div className="bg-white p-6 rounded-3xl shadow-2xl border-[8px] border-vc-mint/20 group-hover:scale-105 transition-transform duration-500">
+                                        <QRCodeSVG
+                                            id="qr-main-website"
+                                            value="https://kfupm-venturecraft.org/"
+                                            size={300}
+                                            level="H"
+                                            includeMargin={false}
+                                            imageSettings={{
+                                                src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                                height: 80,
+                                                width: 80,
+                                                excavate: true,
+                                            }}
+                                        />
                                     </div>
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'startups' && (
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm text-white/40">Showing {filteredApps.length} startup applications</span>
+
                                     <button
-                                        onClick={() => {
-                                            const exportData = filteredApps.map(app => ({
-                                                'Startup Name': app.startupName || 'N/A',
-                                                'Leader Name': (app.teamMembers && app.teamMembers.length > 0) ? app.teamMembers[0].name : 'N/A',
-                                                'Leader Email': app.leaderEmail || 'N/A',
-                                                'Leader Phone': app.leaderPhone || 'N/A',
-                                                'Leader Nationality': app.leaderNationality || 'N/A',
-                                                'Pillar': app.pillar || 'N/A',
-                                                'Stage': app.stage || 'N/A',
-                                                'Team Size': app.teamSize || 0,
-                                                'Location': app.location || 'N/A',
-                                                'Status': app.status || 'N/A',
-                                                'Score': app.screening?.round1?.totalScore || 'N/A',
-                                                'Submitted At': app.submittedAt?.toDate().toLocaleString() || 'N/A',
-                                                'Website': app.website || 'N/A',
-                                                'LinkedIn': app.linkedin || 'N/A',
-                                                'Video Pitch': app.videoPitchUrl || 'N/A',
-                                                'Pitch Deck': app.materials?.pitchDeckUrl || 'N/A',
-                                                'Executive Summary': app.materials?.execSummaryUrl || 'N/A',
-                                                'Supporting Data': app.materials?.supportingDataUrl || 'N/A',
-                                                'Audience Category': app.audienceCategory || 'N/A',
-                                                'COI Declaration': app.coiDeclaration || 'N/A'
-                                            }));
-                                            exportToExcel(exportData, 'Startup_Applications');
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all"
+                                        onClick={() => downloadQR('qr-main-website', 'VentureCraft-Official-QR')}
+                                        className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-mint/20"
                                     >
-                                        <FileSpreadsheet className="w-4 h-4" />
-                                        Export Excel
+                                        <Download className="w-5 h-5" />
+                                        Download PNG
                                     </button>
                                 </div>
 
-                                <div className="grid gap-4">
-                                    {filteredApps.map((app) => (
-                                        <motion.div
-                                            layout
-                                            key={app.id}
-                                            className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer items-center md:items-start text-center md:text-left"
-                                            onClick={() => setSelectedApp(app)}
-                                        >
-                                            <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 min-w-0 flex-1">
-                                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
-                                                    <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint max-w-[200px] sm:max-w-[400px]">
-                                                        {app.teamMembers?.[0]?.name || app.startupName || 'Startup Application'}
-                                                    </h3>
-                                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest overflow-hidden">
-                                                        {isUltimateJudge && app.assignedTeam && (
-                                                            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 font-black">
-                                                                TEAM {app.assignedTeam}
-                                                                {isUltimateJudge && app.screening?.round1?.isCompleted && app.screening?.round1?.evaluatorId && (
-                                                                    <span className="ml-2 border-l border-vc-mint/20 pl-2 text-white/40 font-normal">
-                                                                        Evaluated by: {judgeNames[app.screening.round1.evaluatorId] || 'Unknown'}
-                                                                    </span>
-                                                                )}
-                                                            </span>
-                                                        )}
-                                                        {app.startupName && (
-                                                            <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold shrink-0"><Rocket className="w-3 h-3" /> {app.startupName}</span>
-                                                        )}
-                                                        <span className="flex items-center gap-1.5 truncate max-w-[150px] sm:max-w-[250px]"><Mail className="w-3 h-3 shrink-0" /> {app.leaderEmail || 'Applicant Email'}</span>
-                                                        <span className="flex items-center gap-1.5 shrink-0"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
-                                                        <span className="flex items-center gap-1.5 shrink-0"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                {/* Socials Linktree QR */}
+                                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center space-y-6 hover:bg-white/[0.08] transition-colors group">
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-bold mb-2">Socials Linktree</h3>
+                                        <p className="text-white/40 text-xs">Points to <span className="text-vc-mint text-vc-teal">/socials</span></p>
+                                    </div>
 
-                                            <div className="flex items-center justify-center md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5 w-full md:w-auto shrink-0">
-                                                <div className="hidden xl:block text-right min-w-[120px]">
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Pillar</span>
-                                                    <span className="text-sm text-white/60">{app.pillar}</span>
-                                                </div>
+                                    <div className="bg-white p-6 rounded-3xl shadow-2xl border-[8px] border-vc-teal/20 group-hover:scale-105 transition-transform duration-500">
+                                        <QRCodeSVG
+                                            id="qr-socials-linktree"
+                                            value="https://kfupm-venturecraft.org/socials"
+                                            size={300}
+                                            level="H"
+                                            includeMargin={false}
+                                            imageSettings={{
+                                                src: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                                height: 80,
+                                                width: 80,
+                                                excavate: true,
+                                            }}
+                                        />
+                                    </div>
 
-                                                {app.screening?.round1?.totalScore !== undefined && (
-                                                    <div className="hidden lg:flex flex-col items-end min-w-[60px]">
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-vc-mint/60">Score</span>
-                                                        <span className="text-xl font-black text-vc-mint">{app.screening.round1.totalScore}</span>
-                                                    </div>
-                                                )}
-
-                                                <div className="flex flex-col items-center md:items-end gap-2 min-w-[100px]">
-                                                    {(app.isEdited || app.updatedAt) && (
-                                                        <div className="px-2 py-0.5 rounded-md bg-vc-mint/20 border border-vc-mint/30 text-[9px] font-black text-vc-mint uppercase tracking-widest animate-pulse">
-                                                            Edited
-                                                        </div>
-                                                    )}
-                                                    <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark border-vc-mint' :
-                                                        app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
-                                                            app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                                'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
-                                                        }`}>
-                                                        {app.screening?.round1?.isCompleted ? 'SCORED' : (app.status === 'submitted' ? 'pending' : app.status) || 'pending'}
-                                                    </div>
-                                                </div>
-
-                                                <div className="w-10 flex justify-center">
-                                                    {isAdmin ? (
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeleteStartup(app.id, app.teamMembers?.[0]?.name || app.startupName || 'this application');
-                                                            }}
-                                                            className="p-2 rounded-xl bg-white/0 text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20"
-                                                            title="Delete Startup Application"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    ) : (
-                                                        <div className="w-4 h-4" /> // Spacing to match admin card layout
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-
-                                    {filteredApps.length === 0 && (
-                                        <div className="text-center py-24 glass-panel bg-white/0 border-dashed">
-                                            <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                                            <p className="text-white/40">No startup applications found</p>
-                                        </div>
-                                    )}
+                                    <button
+                                        onClick={() => downloadQR('qr-socials-linktree', 'VentureCraft-Socials-QR')}
+                                        className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-teal text-white font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-teal/20"
+                                    >
+                                        <Download className="w-5 h-5" />
+                                        Download PNG
+                                    </button>
                                 </div>
                             </div>
-                        )}
-                        {activeTab === 'ambassadors' && (
-                            <div className="space-y-6">
-                                {ambassadorSubTab === 'applications' ? (
-                                    <div className="space-y-4">
-                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
-                                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
-                                                <button
-                                                    onClick={() => setAmbAppTypeFilter('all')}
-                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                                >
-                                                    ALL ({ambAppCounts.all})
-                                                </button>
-                                                <button
-                                                    onClick={() => setAmbAppTypeFilter('local')}
-                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                                >
-                                                    LOCAL ({ambAppCounts.local})
-                                                </button>
-                                                <button
-                                                    onClick={() => setAmbAppTypeFilter('global')}
-                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                                >
-                                                    GLOBAL ({ambAppCounts.global})
-                                                </button>
+                        </div>
+                    )}
+                    {activeTab === 'startups' && (
+                        <div className="space-y-4">
+                            {isUltimateJudge && (
+                                <div className="mb-12">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20">
+                                                <Shield className="w-6 h-6" />
                                             </div>
-                                            <button
-                                                onClick={() => {
-                                                    const exportData = filteredAmbassadorApps.map(app => ({
-                                                        'Applicant Name': app.name || app.fullName || 'N/A',
-                                                        'Email': app.email,
-                                                        'Phone': app.phone || 'N/A',
-                                                        'Nationality': app.nationality || 'N/A',
-                                                        'University': app.university || 'N/A',
-                                                        'Major': app.major || 'N/A',
-                                                        'Degree': app.degree || 'N/A',
-                                                        'Location': app.location || 'N/A',
-                                                        'Status': app.status,
-                                                        'Submitted At': app.submittedAt?.toDate().toLocaleString() || 'N/A',
-                                                        'Social Media': app.socialMedia || 'N/A'
-                                                    }));
-                                                    exportToExcel(exportData, 'Ambassador_Applications');
-                                                }}
-                                                className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all w-full sm:w-auto justify-center"
-                                            >
-                                                <FileSpreadsheet className="w-4 h-4" />
-                                                Export Excel
-                                            </button>
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white">Judging Team Oversight</h3>
+                                                <p className="text-xs text-white/40 uppercase tracking-widest font-bold font-poppins">Global Progress Monitor</p>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm text-white/40">Showing {filteredAmbassadorApps.length} ambassador applications</span>
-                                        </div>
-                                        <div className="grid gap-4">
-                                            {filteredAmbassadorApps.map((app) => (
-                                                <motion.div
-                                                    layout
-                                                    key={app.id}
-                                                    className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
-                                                    onClick={() => setSelectedAmbassadorApp(app)}
-                                                >
-                                                    <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left w-full md:w-auto">
-                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
-                                                            <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
-                                                        </div>
-                                                        <div className="min-w-0 flex flex-col items-center md:items-start">
-                                                            <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.name || app.fullName || 'Unknown Applicant'}</h3>
-                                                            <div className="flex flex-col gap-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest w-full">
-                                                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1">
-                                                                    <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {app.email}</span>
-                                                                    <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
-                                                                </div>
-                                                                {app.location && (
-                                                                    <div className="text-vc-mint/60 font-bold flex justify-center md:justify-start">
-                                                                        <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.location}</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
-                                                        <div className="hidden xl:block text-right">
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Education</span>
-                                                            <span className="text-sm text-white/60">{app.degree}</span>
-                                                        </div>
-
-                                                        <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
-                                                            app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                                'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
-                                                            }`}>
-                                                            {app.status || 'pending'}
-                                                        </div>
-                                                        <div className="flex items-center gap-2 relative z-10">
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'accepted'); }}
-                                                                className="p-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all border border-green-500/20"
-                                                                title="Accept"
-                                                            >
-                                                                <Check className="w-4 h-4" />
-                                                            </button>
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); handleAmbassadorStatusUpdate(app.id, app.userId, 'rejected'); }}
-                                                                className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
-                                                                title="Reject"
-                                                            >
-                                                                <X className="w-4 h-4" />
-                                                            </button>
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); handleDeleteApplication(app.id, app.name || app.fullName || 'Applicant'); }}
-                                                                className="p-2.5 rounded-xl bg-white/5 text-white/40 hover:bg-white/10 hover:text-red-400 transition-all border border-white/10 hover:border-red-500/30"
-                                                                title="Delete Application"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            ))}
-                                            {filteredAmbassadorApps.length === 0 && (
-                                                <div className="text-center py-24 glass-panel bg-white/0 border-dashed">
-                                                    <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                                                    <p className="text-white/40">No ambassador applications found</p>
-                                                </div>
-                                            )}
-                                        </div>
+                                        <button
+                                            onClick={() => setShowOversight(!showOversight)}
+                                            className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border ${showOversight ? 'bg-vc-mint text-vc-green-dark border-vc-mint' : 'bg-white/5 text-white/40 border-white/10 hover:border-vc-mint/30'}`}
+                                        >
+                                            {showOversight ? 'Hide Team Details' : 'View Team Workloads'}
+                                        </button>
                                     </div>
-                                ) : (
-                                    <div className="space-y-6">
-                                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-                                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
-                                                <button
-                                                    onClick={() => setAmbDirTypeFilter('all')}
-                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                                >
-                                                    ALL ({ambDirCounts.all})
-                                                </button>
-                                                <button
-                                                    onClick={() => setAmbDirTypeFilter('local')}
-                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                                >
-                                                    LOCAL ({ambDirCounts.local})
-                                                </button>
-                                                <button
-                                                    onClick={() => setAmbDirTypeFilter('global')}
-                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambDirTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                                >
-                                                    GLOBAL ({ambDirCounts.global})
-                                                </button>
+
+                                    <AnimatePresence>
+                                        {showOversight && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                                    {['A', 'B', 'C', 'D'].map(team => {
+                                                        const teamApps = applications.filter(a => a.assignedTeam === team);
+                                                        const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
+                                                        const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
+                                                        const teamMembers = allJudges.filter(j => j.team === team);
+
+                                                        return (
+                                                            <div
+                                                                key={team}
+                                                                className="glass-panel p-6 border-vc-mint/10 hover:border-vc-mint/30 transition-all group cursor-pointer active:scale-95"
+                                                                onClick={() => setSelectedOversightTeam(team)}
+                                                            >
+                                                                <div className="flex items-center justify-between mb-6">
+                                                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
+                                                                        {team}
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">Workload</span>
+                                                                        <span className="text-lg font-bold text-white tracking-tight">{teamApps.length} Apps</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="space-y-4">
+                                                                    <div>
+                                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5">
+                                                                            <span className="text-white/40">Evaluation Progress</span>
+                                                                            <span className="text-vc-mint">{Math.round(progress)}%</span>
+                                                                        </div>
+                                                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                                                            <motion.div
+                                                                                initial={{ width: 0 }}
+                                                                                animate={{ width: `${progress}%` }}
+                                                                                className="h-full bg-vc-mint shadow-[0_0_10px_rgba(0,186,166,0.5)]"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="pt-4 border-t border-white/5">
+                                                                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
+                                                                        <div className="space-y-2">
+                                                                            {teamMembers.length > 0 ? teamMembers.map(member => (
+                                                                                <div key={member.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                                                                                    <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
+                                                                                        {member.name?.charAt(0) || <User className="w-3 h-3" />}
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <p className="text-xs font-bold text-white truncate">{member.name || 'Unknown Judge'}</p>
+                                                                                        <p className="text-[8px] text-white/30 font-mono uppercase truncate">{member.id.substring(0, 8)}...</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )) : (
+                                                                                <p className="text-[10px] text-white/20 italic">No members assigned</p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <div className="h-px w-full bg-white/5" />
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm text-white/40">Showing {filteredApps.length} startup applications</span>
+                                <button
+                                    onClick={() => {
+                                        const exportData = filteredApps.map(app => ({
+                                            'Startup Name': app.startupName || 'N/A',
+                                            'Leader Name': (app.teamMembers && app.teamMembers.length > 0) ? app.teamMembers[0].name : 'N/A',
+                                            'Leader Email': app.leaderEmail || 'N/A',
+                                            'Leader Phone': app.leaderPhone || 'N/A',
+                                            'Leader Nationality': app.leaderNationality || 'N/A',
+                                            'Pillar': app.pillar || 'N/A',
+                                            'Stage': app.stage || 'N/A',
+                                            'Team Size': app.teamSize || 0,
+                                            'Location': app.location || 'N/A',
+                                            'Status': app.status || 'N/A',
+                                            'Score': app.screening?.round1?.totalScore || 'N/A',
+                                            'Submitted At': app.submittedAt?.toDate().toLocaleString() || 'N/A',
+                                            'Website': app.website || 'N/A',
+                                            'LinkedIn': app.linkedin || 'N/A',
+                                            'Video Pitch': app.videoPitchUrl || 'N/A',
+                                            'Pitch Deck': app.materials?.pitchDeckUrl || 'N/A',
+                                            'Executive Summary': app.materials?.execSummaryUrl || 'N/A',
+                                            'Supporting Data': app.materials?.supportingDataUrl || 'N/A',
+                                            'Audience Category': app.audienceCategory || 'N/A',
+                                            'COI Declaration': app.coiDeclaration || 'N/A'
+                                        }));
+                                        exportToExcel(exportData, 'Startup_Applications');
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 rounded-xl text-xs font-bold text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all"
+                                >
+                                    <FileSpreadsheet className="w-4 h-4" />
+                                    Export Excel
+                                </button>
+                            </div>
+
+                            <div className="grid gap-4">
+                                {filteredApps.map((app) => (
+                                    <motion.div
+                                        layout
+                                        key={app.id}
+                                        className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer items-center md:items-start text-center md:text-left"
+                                        onClick={() => setSelectedApp(app)}
+                                    >
+                                        <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 min-w-0 flex-1">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                                <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                             </div>
-                                            <div className="flex items-center gap-2 w-full sm:w-auto">
-                                                <button
-                                                    onClick={() => {
-                                                        const exportData = ambassadorsList.map(amb => ({
-                                                            'Name': amb.displayName || 'N/A',
-                                                            'Email': amb.email,
-                                                            'ID': amb.ambassadorId || 'N/A',
-                                                            'Location': amb.location || 'N/A',
-                                                            'Points': amb.points || 0
-                                                        }));
-                                                        exportToExcel(exportData, 'Ambassador_Directory');
-                                                    }}
-                                                    className="flex items-center gap-2 px-3 py-1.5 bg-vc-mint/5 border border-vc-mint/10 rounded-lg hover:bg-vc-mint/10 transition-all text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-vc-mint flex-1 sm:flex-initial justify-center"
-                                                >
-                                                    <FileSpreadsheet className="w-3 h-3" />
-                                                    Export Excel
-                                                </button>
-                                                <div className="flex items-center gap-2 px-4 py-2 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
-                                                    <Trophy className="w-4 h-4 text-vc-mint" />
-                                                    <span className="text-xs uppercase tracking-widest text-vc-mint font-black">Leaderboard</span>
+                                            <div className="min-w-0">
+                                                <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint max-w-[200px] sm:max-w-[400px]">
+                                                    {app.teamMembers?.[0]?.name || app.startupName || 'Startup Application'}
+                                                </h3>
+                                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest overflow-hidden">
+                                                    {isUltimateJudge && app.assignedTeam && (
+                                                        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 font-black">
+                                                            TEAM {app.assignedTeam}
+                                                            {isUltimateJudge && app.screening?.round1?.isCompleted && app.screening?.round1?.evaluatorId && (
+                                                                <span className="ml-2 border-l border-vc-mint/20 pl-2 text-white/40 font-normal">
+                                                                    Evaluated by: {judgeNames[app.screening.round1.evaluatorId] || 'Unknown'}
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                    {app.startupName && (
+                                                        <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold shrink-0"><Rocket className="w-3 h-3" /> {app.startupName}</span>
+                                                    )}
+                                                    <span className="flex items-center gap-1.5 truncate max-w-[150px] sm:max-w-[250px]"><Mail className="w-3 h-3 shrink-0" /> {app.leaderEmail || 'Applicant Email'}</span>
+                                                    <span className="flex items-center gap-1.5 shrink-0"><Users className="w-3 h-3" /> {app.teamSize} Members</span>
+                                                    <span className="flex items-center gap-1.5 shrink-0"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="flex flex-col mb-4">
-                                            <span className="text-sm text-white/40">Showing {filteredAmbassadorsList.length} active ambassadors</span>
                                         </div>
 
-                                        <div className="grid gap-4">
-                                            {filteredAmbassadorsList
-                                                .sort((a, b) => (b.points || 0) - (a.points || 0))
-                                                .map((user, index) => (
-                                                    <div
-                                                        key={user.id}
-                                                        className="glass-panel p-6 flex items-center justify-between group hover:border-vc-mint/30 transition-all"
-                                                    >
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="relative">
-                                                                <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                                                                    {user.photoURL ? (
-                                                                        <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
-                                                                    ) : (
-                                                                        <User className="w-6 h-6 text-white/20" />
-                                                                    )}
-                                                                </div>
-                                                                {index < 3 && (user.points || 0) > 0 && (
-                                                                    <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${index === 0 ? 'bg-yellow-500 border-yellow-200 text-yellow-900' :
-                                                                        index === 1 ? 'bg-slate-300 border-slate-100 text-slate-800' :
-                                                                            'bg-amber-600 border-amber-400 text-amber-50'
-                                                                        }`}>
-                                                                        {index + 1}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                <div className="flex items-center gap-3 mb-1">
-                                                                    <h3 className="font-bold text-lg leading-tight">{user.displayName}</h3>
-                                                                    <div className="px-2.5 py-0.5 rounded-full bg-vc-mint/10 border border-vc-mint/20 flex items-center gap-1.5">
-                                                                        <CircleDollarSign className="w-4 h-4 text-vc-mint" />
-                                                                        <span className="text-xs font-black text-vc-mint">{user.points || 0}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex items-center gap-4 text-xs text-white/30 uppercase tracking-[0.1em]">
-                                                                    <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {user.email}</span>
-                                                                    <span className="flex items-center gap-1 text-vc-mint/60 font-black whitespace-nowrap"><Hash className="w-3 h-3" /> ID: #{user.ambassadorId || '---'}</span>
-                                                                    {user.location && <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {user.location}</span>}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                onClick={() => fetchHistory(user.id, user.displayName)}
-                                                                className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-vc-mint hover:bg-vc-mint/10 hover:border-vc-mint/30 transition-all group/history"
-                                                                title="View Reward History"
-                                                            >
-                                                                <Clock className="w-4 h-4 group-hover/history:scale-110 transition-transform" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setRewardUser({ id: user.id, name: user.displayName, currentPoints: user.points || 0 });
-                                                                    setShowRewardModal(true);
-                                                                }}
-                                                                className="px-4 py-2 rounded-xl bg-vc-mint/10 text-vc-mint hover:bg-vc-mint hover:text-vc-green-dark transition-all border border-vc-mint/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group/btn"
-                                                            >
-                                                                Manage Coins
-                                                                <Star className="w-3 h-3 group-hover/btn:rotate-12 transition-transform" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleRemoveAmbassador(user.id, user.displayName)}
-                                                                className="p-3 rounded-xl bg-white/0 text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            {ambassadorsList.length === 0 && (
-                                                <div className="text-center py-24 glass-panel bg-white/0 border-dashed">
-                                                    <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                                                    <p className="text-white/40">No active ambassadors yet</p>
+                                        <div className="flex items-center justify-center md:justify-end gap-4 sm:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/5 w-full md:w-auto shrink-0">
+                                            <div className="hidden xl:block text-right min-w-[120px]">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1">Pillar</span>
+                                                <span className="text-sm text-white/60">{app.pillar}</span>
+                                            </div>
+
+                                            {app.screening?.round1?.totalScore !== undefined && (
+                                                <div className="hidden lg:flex flex-col items-end min-w-[60px]">
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-vc-mint/60">Score</span>
+                                                    <span className="text-xl font-black text-vc-mint">{app.screening.round1.totalScore}</span>
                                                 </div>
                                             )}
+
+                                            <div className="flex flex-col items-center md:items-end gap-2 min-w-[100px]">
+                                                {(app.isEdited || app.updatedAt) && (
+                                                    <div className="px-2 py-0.5 rounded-md bg-vc-mint/20 border border-vc-mint/30 text-[9px] font-black text-vc-mint uppercase tracking-widest animate-pulse">
+                                                        Edited
+                                                    </div>
+                                                )}
+                                                <div className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-colors ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark border-vc-mint' :
+                                                    app.status === 'accepted' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                                                        app.status === 'rejected' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                            'bg-vc-mint/10 border-vc-mint/20 text-vc-mint'
+                                                    }`}>
+                                                    {app.screening?.round1?.isCompleted ? 'SCORED' : (app.status === 'submitted' ? 'pending' : app.status) || 'pending'}
+                                                </div>
+                                            </div>
+
+                                            <div className="w-10 flex justify-center">
+                                                {isAdmin ? (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteStartup(app.id, app.teamMembers?.[0]?.name || app.startupName || 'this application');
+                                                        }}
+                                                        className="p-2 rounded-xl bg-white/0 text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20"
+                                                        title="Delete Startup Application"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                ) : (
+                                                    <div className="w-4 h-4" /> // Spacing to match admin card layout
+                                                )}
+                                            </div>
                                         </div>
+                                    </motion.div>
+                                ))}
+
+                                {filteredApps.length === 0 && (
+                                    <div className="text-center py-24 glass-panel bg-white/0 border-dashed">
+                                        <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                                        <p className="text-white/40">No startup applications found</p>
                                     </div>
                                 )}
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {activeTab === 'broadcast' && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {/* Header Section */}
-                                <div className="glass-panel p-2 px-5 relative overflow-hidden w-fit">
-                                    <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
-                                    <div className="relative z-10 flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center shrink-0">
-                                            <Mail className="text-vc-mint w-4 h-4" />
+
+                    {activeTab === 'broadcast' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* Header Section */}
+                            <div className="glass-panel p-2 px-5 relative overflow-hidden w-fit">
+                                <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
+                                <div className="relative z-10 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                        <Mail className="text-vc-mint w-4 h-4" />
+                                    </div>
+                                    <h2 className="text-lg font-bold font-poppins leading-none">Email Center</h2>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Left Panel: Content Editor */}
+                                <div className="glass-panel p-8 space-y-6">
+                                    <div className="flex items-center gap-2 text-vc-mint mb-2">
+                                        <FileText className="w-5 h-5" />
+                                        <h3 className="font-bold uppercase tracking-widest text-sm">Email Content</h3>
+                                    </div>
+
+                                    <div className="space-y-5">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Subject Line</label>
+                                            <input
+                                                type="text"
+                                                value={broadcastSubject}
+                                                onChange={(e) => setBroadcastSubject(e.target.value)}
+                                                placeholder="Enter email subject..."
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
+                                            />
                                         </div>
-                                        <h2 className="text-lg font-bold font-poppins leading-none">Email Center</h2>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Email Headline</label>
+                                            <input
+                                                type="text"
+                                                value={broadcastHeadline}
+                                                onChange={(e) => setBroadcastHeadline(e.target.value)}
+                                                placeholder="Enter main headline..."
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Message Body</label>
+                                                <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
+                                                    <button
+                                                        onClick={() => insertTag('**', '**')}
+                                                        title="Bold text"
+                                                        className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                    >
+                                                        <span className="font-serif">B</span>
+                                                    </button>
+                                                    <div className="w-[1px] h-3 bg-white/10" />
+                                                    <button
+                                                        onClick={() => insertTag('_', '_')}
+                                                        title="Italic text"
+                                                        className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                    >
+                                                        <span className="font-serif italic">I</span>
+                                                    </button>
+                                                    <div className="w-[1px] h-3 bg-white/10" />
+                                                    <button
+                                                        onClick={() => insertTag('[mint]', '[/mint]')}
+                                                        title="Highlight in mint"
+                                                        className="px-2 py-1 text-xs font-bold text-vc-mint hover:bg-vc-mint/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                    >
+                                                        <div className="w-2 h-2 rounded-full bg-vc-mint" />
+                                                        <span>Mint</span>
+                                                    </button>
+                                                    <div className="w-[1px] h-3 bg-white/10" />
+
+                                                    {/* Font Size Dropdown */}
+                                                    <div className="relative group/size">
+                                                        <button className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1">
+                                                            <Type className="w-3.5 h-3.5" />
+                                                            <ChevronDown className="w-3 h-3 text-white/20" />
+                                                        </button>
+                                                        <div className="absolute bottom-full left-0 mb-2 w-32 bg-[#0c1e1c] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/size:opacity-100 group-hover/size:visible transition-all z-50 p-1">
+                                                            {[12, 14, 16, 18, 20, 24, 32].map(size => (
+                                                                <button
+                                                                    key={size}
+                                                                    onClick={() => insertTag(`[size=${size}]`, '[/size]')}
+                                                                    className="w-full text-left px-3 py-2 text-[10px] font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 rounded-lg transition-all"
+                                                                >
+                                                                    {size}px {size === 16 && '(Default)'}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="w-[1px] h-3 bg-white/10" />
+
+                                                    {/* Alignment Group */}
+                                                    <div className="flex items-center gap-0.5">
+                                                        <button
+                                                            onClick={() => insertTag('[align=left]', '[/align]')}
+                                                            title="Align Left"
+                                                            className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                        >
+                                                            <AlignLeft className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => insertTag('[align=center]', '[/align]')}
+                                                            title="Align Center"
+                                                            className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                        >
+                                                            <AlignCenter className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => insertTag('[align=right]', '[/align]')}
+                                                            title="Align Right"
+                                                            className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                        >
+                                                            <AlignRight className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <textarea
+                                                ref={broadcastTextareaRef}
+                                                value={broadcastMessage}
+                                                onChange={(e) => setBroadcastMessage(e.target.value)}
+                                                placeholder="Enter your announcement message here..."
+                                                rows={8}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors resize-none"
+                                            />
+                                        </div>
+
+                                        {/* Button Options */}
+                                        <div className="pt-4 border-t border-white/5 space-y-6">
+                                            <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10 outline-none">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 rounded-lg ${broadcastShowButton ? 'bg-vc-mint/20 text-vc-mint' : 'bg-white/5 text-white/20'}`}>
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold">Include Action Button</p>
+                                                        <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call to Action Option</p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => setBroadcastShowButton(!broadcastShowButton)}
+                                                    className={`w-12 h-6 rounded-full transition-all relative ${broadcastShowButton ? 'bg-vc-mint shadow-[0_0_15px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
+                                                >
+                                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${broadcastShowButton ? 'right-1' : 'left-1'}`} />
+                                                </button>
+                                            </div>
+
+                                            <AnimatePresence>
+                                                {broadcastShowButton && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        className="space-y-4 overflow-hidden"
+                                                    >
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button Text</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={broadcastButtonText}
+                                                                    onChange={(e) => setBroadcastButtonText(e.target.value)}
+                                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button URL</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={broadcastButtonUrl}
+                                                                    onChange={(e) => setBroadcastButtonUrl(e.target.value)}
+                                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+
+                                        {/* Attachments Section */}
+                                        <div className="pt-6 border-t border-white/5 space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Attachments</label>
+                                                <span className="text-[10px] text-white/20 uppercase font-medium">Total: {(broadcastAttachments.reduce((acc, att) => acc + (att.content.length * 0.75), 0) / (1024 * 1024)).toFixed(2)} MB / 10 MB</span>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-3">
+                                                {broadcastAttachments.map((file, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2 group hover:border-vc-mint/30 transition-all">
+                                                        <div className="flex items-center gap-3 overflow-hidden">
+                                                            <Paperclip className="w-3 h-3 text-vc-mint/50 shrink-0" />
+                                                            <span className="text-xs text-white/60 truncate">{file.name}</span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeBroadcastAttachment(idx)}
+                                                            className="p-1.5 text-white/20 hover:text-red-500 transition-colors"
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+
+                                                <label className="flex items-center justify-center gap-2 px-4 py-4 bg-white/5 border border-dashed border-white/20 rounded-2xl cursor-pointer hover:bg-white/10 hover:border-vc-mint/40 transition-all group">
+                                                    <Paperclip className="w-4 h-4 text-white/40 group-hover:text-vc-mint transition-colors" />
+                                                    <span className="text-xs font-bold text-white/40 group-hover:text-white transition-colors">Attach Files</span>
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        className="hidden"
+                                                        onChange={handleBroadcastFileChange}
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {/* Left Panel: Content Editor */}
-                                    <div className="glass-panel p-8 space-y-6">
+                                {/* Right Panel: Recipients & Controls */}
+                                <div className="space-y-8">
+                                    <div className="glass-panel p-8 bg-vc-mint/5 border-vc-mint/20 space-y-8">
                                         <div className="flex items-center gap-2 text-vc-mint mb-2">
-                                            <FileText className="w-5 h-5" />
-                                            <h3 className="font-bold uppercase tracking-widest text-sm">Email Content</h3>
+                                            <Users className="w-5 h-5" />
+                                            <h3 className="font-bold uppercase tracking-widest text-sm">Send Options</h3>
                                         </div>
 
-                                        <div className="space-y-5">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Subject Line</label>
-                                                <input
-                                                    type="text"
-                                                    value={broadcastSubject}
-                                                    onChange={(e) => setBroadcastSubject(e.target.value)}
-                                                    placeholder="Enter email subject..."
-                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
-                                                />
+                                        {/* Option 1: Test Mode */}
+                                        <div className="space-y-4">
+                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                                <h4 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Phase 1: Send Test</h4>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="email"
+                                                        value={sendToEmail}
+                                                        onChange={(e) => setSendToEmail(e.target.value)}
+                                                        placeholder="Your test email..."
+                                                        className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-vc-mint transition-all"
+                                                    />
+                                                    <button
+                                                        onClick={handleSendTestBroadcast}
+                                                        disabled={sendingBroadcast}
+                                                        className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                                    >
+                                                        {sendingBroadcast ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                                                        Send Test
+                                                    </button>
+                                                </div>
                                             </div>
+                                        </div>
 
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Email Headline</label>
-                                                <input
-                                                    type="text"
-                                                    value={broadcastHeadline}
-                                                    onChange={(e) => setBroadcastHeadline(e.target.value)}
-                                                    placeholder="Enter main headline..."
-                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
-                                                />
+                                        {/* Option 2: Live Mode */}
+                                        <div className="space-y-4">
+                                            <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div>
+                                                        <h4 className="text-xs font-bold text-red-500 uppercase tracking-widest">Phase 2: Global Broadcast</h4>
+                                                        <p className="text-[10px] text-white/30 mt-1 uppercase">Sends to all users in database</p>
+                                                    </div>
+                                                    <div className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
+                                                        <span className="text-[10px] font-black text-red-500 tracking-tighter uppercase">Danger Zone</span>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    onClick={handleBroadcastAll}
+                                                    disabled={sendingBroadcast}
+                                                    className="w-full py-4 bg-vc-mint text-vc-green-dark rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-3 disabled:opacity-50"
+                                                >
+                                                    {sendingBroadcast ? (
+                                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                                    ) : (
+                                                        <Rocket className="w-5 h-5" />
+                                                    )}
+                                                    {sendingBroadcast ? 'Broadcasting...' : 'Broadcast to All Users'}
+                                                </button>
+                                                <p className="text-[10px] text-white/20 text-center mt-4 italic">
+                                                    * This action is irreversible. Please verify with a test email first.
+                                                </p>
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Message Body</label>
-                                                    <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
-                                                        <button
-                                                            onClick={() => insertTag('**', '**')}
-                                                            title="Bold text"
-                                                            className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
-                                                        >
-                                                            <span className="font-serif">B</span>
-                                                        </button>
-                                                        <div className="w-[1px] h-3 bg-white/10" />
-                                                        <button
-                                                            onClick={() => insertTag('_', '_')}
-                                                            title="Italic text"
-                                                            className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
-                                                        >
-                                                            <span className="font-serif italic">I</span>
-                                                        </button>
-                                                        <div className="w-[1px] h-3 bg-white/10" />
-                                                        <button
-                                                            onClick={() => insertTag('[mint]', '[/mint]')}
-                                                            title="Highlight in mint"
-                                                            className="px-2 py-1 text-xs font-bold text-vc-mint hover:bg-vc-mint/10 rounded-lg transition-colors flex items-center gap-1.5"
-                                                        >
-                                                            <div className="w-2 h-2 rounded-full bg-vc-mint" />
-                                                            <span>Mint</span>
-                                                        </button>
-                                                        <div className="w-[1px] h-3 bg-white/10" />
 
-                                                        {/* Font Size Dropdown */}
-                                                        <div className="relative group/size">
-                                                            <button className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1">
-                                                                <Type className="w-3.5 h-3.5" />
-                                                                <ChevronDown className="w-3 h-3 text-white/20" />
-                                                            </button>
-                                                            <div className="absolute bottom-full left-0 mb-2 w-32 bg-[#0c1e1c] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/size:opacity-100 group-hover/size:visible transition-all z-50 p-1">
-                                                                {[12, 14, 16, 18, 20, 24, 32].map(size => (
-                                                                    <button
-                                                                        key={size}
-                                                                        onClick={() => insertTag(`[size=${size}]`, '[/size]')}
-                                                                        className="w-full text-left px-3 py-2 text-[10px] font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 rounded-lg transition-all"
-                                                                    >
-                                                                        {size}px {size === 16 && '(Default)'}
-                                                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <AnimatePresence>
+                        {selectedApp && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 md:p-8">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 bg-[#001311]/95 backdrop-blur-xl"
+                                    onClick={() => setSelectedApp(null)}
+                                />
+
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                                    className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+                                >
+                                    {/* Modal Header */}
+                                    <div className="p-4 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                                <Rocket className="text-vc-mint w-6 h-6 md:w-8 md:h-8" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <h2 className="text-lg md:text-2xl font-bold truncate leading-tight">{selectedApp.startupName || selectedApp.pillar}</h2>
+                                                <div className="flex items-center gap-4 text-white/40 text-sm mt-1">
+                                                    <span>Submitted on {selectedApp.submittedAt?.toDate().toLocaleString()}</span>
+                                                    {selectedApp.location && (
+                                                        <span className="flex items-center gap-1.5 px-2.5 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                                            <Globe className="w-3 h-3" /> {selectedApp.location}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setSelectedApp(null)}
+                                            className="p-2 md:p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors shrink-0"
+                                        >
+                                            <X className="w-5 h-5 md:w-6 md:h-6" />
+                                        </button>
+                                    </div>
+
+                                    {/* Modal Content - New 2-Column Layout */}
+                                    <div className="flex-1 overflow-y-auto p-3 md:p-10 custom-scrollbar overflow-x-hidden">
+                                        <div className="flex flex-col lg:flex-row gap-8 md:gap-12 min-w-0">
+                                            {/* Main Column: In-depth Details */}
+                                            <div className="flex-1 min-w-0 space-y-10">
+                                                {/* Startup Profile Section */}
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                        <Rocket className="w-4 h-4" /> Startup Profile
+                                                    </h3>
+                                                    <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Venture Pillar</p>
+                                                            <p className="text-base md:text-lg font-medium text-white">{selectedApp.pillar}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Development Stage</p>
+                                                            <p className="text-base md:text-lg font-medium text-white">{selectedApp.stage}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Established over 5 Years ago?</p>
+                                                            <p className="text-base md:text-lg font-medium text-white">{selectedApp.isOlderThan5Years}</p>
+                                                        </div>
+                                                        {selectedApp.location && (
+                                                            <div className="space-y-1">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Primary Location</p>
+                                                                <p className="text-base md:text-lg font-medium text-white">{selectedApp.location}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="mt-10 pt-8 border-t border-white/5">
+                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Digital Presence & Pitch</p>
+                                                        <div className="flex flex-wrap gap-3">
+                                                            {selectedApp.website && (
+                                                                <a href={selectedApp.website} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
+                                                                    <Globe className="w-4 h-4 text-vc-mint" /> Website
+                                                                </a>
+                                                            )}
+                                                            {selectedApp.linkedin && (
+                                                                <a href={selectedApp.linkedin} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
+                                                                    <Linkedin className="w-4 h-4 text-vc-mint" /> LinkedIn
+                                                                </a>
+                                                            )}
+                                                            {selectedApp.additionalLinks && (
+                                                                <a href={selectedApp.additionalLinks} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
+                                                                    <LinkIcon className="w-4 h-4 text-vc-mint" /> Additional Links
+                                                                </a>
+                                                            )}
+                                                            {selectedApp.videoPitchUrl && (
+                                                                <a href={selectedApp.videoPitchUrl} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-xl hover:bg-vc-mint hover:text-black transition-all text-sm font-bold">
+                                                                    <Video className="w-4 h-4" /> Watch Video Pitch
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                {/* Team Foundation Section */}
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                        <Users className="w-4 h-4" /> Team Foundation
+                                                    </h3>
+
+                                                    <div className="flex flex-col gap-8">
+                                                        <div className="space-y-6">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Breakdown ({selectedApp.teamSize} Member{selectedApp.teamSize > 1 ? 's' : ''})</p>
+                                                            <div className="space-y-3">
+                                                                {selectedApp.teamMembers.map((m, i) => (
+                                                                    <div key={i} className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
+                                                                        <div className="flex items-center gap-3 w-full md:w-auto">
+                                                                            <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20 shrink-0">
+                                                                                {i + 1}
+                                                                            </div>
+                                                                            {i === 0 && (
+                                                                                <span className="md:hidden px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md ml-auto">
+                                                                                    Team Leader
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+
+                                                                        <div className="flex flex-wrap items-center gap-2 min-w-0 w-full md:w-auto">
+                                                                            <span className="font-bold text-sm text-white/90 truncate max-w-full">{isAdmin ? (m.name || 'Anonymous Member') : 'Anonymous Member'}</span>
+                                                                            <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap opacity-60">
+                                                                                ({isAdmin ? m.nationality : 'Hidden'})
+                                                                            </span>
+                                                                            {i === 0 && (
+                                                                                <span className="hidden md:inline-flex ml-2 px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md">
+                                                                                    Team Leader
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
                                                                 ))}
                                                             </div>
                                                         </div>
 
-                                                        <div className="w-[1px] h-3 bg-white/10" />
-
-                                                        {/* Alignment Group */}
-                                                        <div className="flex items-center gap-0.5">
-                                                            <button
-                                                                onClick={() => insertTag('[align=left]', '[/align]')}
-                                                                title="Align Left"
-                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
-                                                            >
-                                                                <AlignLeft className="w-3.5 h-3.5" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => insertTag('[align=center]', '[/align]')}
-                                                                title="Align Center"
-                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
-                                                            >
-                                                                <AlignCenter className="w-3.5 h-3.5" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => insertTag('[align=right]', '[/align]')}
-                                                                title="Align Right"
-                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
-                                                            >
-                                                                <AlignRight className="w-3.5 h-3.5" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <textarea
-                                                    ref={broadcastTextareaRef}
-                                                    value={broadcastMessage}
-                                                    onChange={(e) => setBroadcastMessage(e.target.value)}
-                                                    placeholder="Enter your announcement message here..."
-                                                    rows={8}
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors resize-none"
-                                                />
-                                            </div>
-
-                                            {/* Button Options */}
-                                            <div className="pt-4 border-t border-white/5 space-y-6">
-                                                <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10 outline-none">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`p-2 rounded-lg ${broadcastShowButton ? 'bg-vc-mint/20 text-vc-mint' : 'bg-white/5 text-white/20'}`}>
-                                                            <ExternalLink className="w-4 h-4" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-bold">Include Action Button</p>
-                                                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call to Action Option</p>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => setBroadcastShowButton(!broadcastShowButton)}
-                                                        className={`w-12 h-6 rounded-full transition-all relative ${broadcastShowButton ? 'bg-vc-mint shadow-[0_0_15px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
-                                                    >
-                                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${broadcastShowButton ? 'right-1' : 'left-1'}`} />
-                                                    </button>
-                                                </div>
-
-                                                <AnimatePresence>
-                                                    {broadcastShowButton && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, height: 0 }}
-                                                            animate={{ opacity: 1, height: 'auto' }}
-                                                            exit={{ opacity: 0, height: 0 }}
-                                                            className="space-y-4 overflow-hidden"
-                                                        >
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                <div className="space-y-2">
-                                                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button Text</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={broadcastButtonText}
-                                                                        onChange={(e) => setBroadcastButtonText(e.target.value)}
-                                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                                                    />
-                                                                </div>
-                                                                <div className="space-y-2">
-                                                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button URL</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={broadcastButtonUrl}
-                                                                        onChange={(e) => setBroadcastButtonUrl(e.target.value)}
-                                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                                                    />
+                                                        <div className="grid lg:grid-cols-2 gap-8">
+                                                            <div className="space-y-4">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Leader Contact</p>
+                                                                <div className="space-y-3 text-sm">
+                                                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
+                                                                        <Mail className="w-4 h-4 text-vc-mint" />
+                                                                        <span className="font-medium underline decoration-vc-mint/30 truncate" title={selectedApp.leaderEmail}>{isAdmin ? selectedApp.leaderEmail : 'Applicant Email'}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                        <Phone className="w-4 h-4 text-white/40" />
+                                                                        <span className="font-medium truncate">{isAdmin ? selectedApp.leaderPhone : 'Hidden'}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                        <Globe className="w-4 h-4 text-white/40" />
+                                                                        <span className="font-medium truncate">{isAdmin ? selectedApp.leaderNationality : 'Hidden'}</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                            </div>
 
-                                            {/* Attachments Section */}
-                                            <div className="pt-6 border-t border-white/5 space-y-4">
-                                                <div className="flex items-center justify-between">
-                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Attachments</label>
-                                                    <span className="text-[10px] text-white/20 uppercase font-medium">Total: {(broadcastAttachments.reduce((acc, att) => acc + (att.content.length * 0.75), 0) / (1024 * 1024)).toFixed(2)} MB / 10 MB</span>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 gap-3">
-                                                    {broadcastAttachments.map((file, idx) => (
-                                                        <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2 group hover:border-vc-mint/30 transition-all">
-                                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                                <Paperclip className="w-3 h-3 text-vc-mint/50 shrink-0" />
-                                                                <span className="text-xs text-white/60 truncate">{file.name}</span>
+                                                            <div className="space-y-3">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Eligibility Status</p>
+                                                                <div className="flex flex-col gap-2">
+                                                                    <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/5 p-3 rounded-xl">
+                                                                        <div className={`w-2 h-2 rounded-full shadow-[0_0_8px] ${selectedApp.confirmations?.ageConfirmed ? 'bg-vc-mint shadow-vc-mint/50' : 'bg-red-500 shadow-red-500/50'}`} />
+                                                                        <span className="text-white/60">Age requirement (18+)</span>
+                                                                        {selectedApp.confirmations?.ageConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/5 p-3 rounded-xl">
+                                                                        <div className={`w-2 h-2 rounded-full shadow-[0_0_8px] ${selectedApp.confirmations?.educationConfirmed ? 'bg-vc-mint shadow-vc-mint/50' : 'bg-red-500 shadow-red-500/50'}`} />
+                                                                        <span className="text-white/60">Education qualification</span>
+                                                                        {selectedApp.confirmations?.educationConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
+                                                                    </div>
+                                                                    {selectedApp.audienceCategory && (
+                                                                        <div className="flex items-center gap-3 text-xs bg-vc-mint/5 border border-vc-mint/10 p-3 rounded-xl mt-1">
+                                                                            <GraduationCap className="w-3 h-3 text-vc-mint" />
+                                                                            <span className="text-vc-mint/80 font-medium">{selectedApp.audienceCategory}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeBroadcastAttachment(idx)}
-                                                                className="p-1.5 text-white/20 hover:text-red-500 transition-colors"
-                                                            >
-                                                                <X className="w-3 h-3" />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-
-                                                    <label className="flex items-center justify-center gap-2 px-4 py-4 bg-white/5 border border-dashed border-white/20 rounded-2xl cursor-pointer hover:bg-white/10 hover:border-vc-mint/40 transition-all group">
-                                                        <Paperclip className="w-4 h-4 text-white/40 group-hover:text-vc-mint transition-colors" />
-                                                        <span className="text-xs font-bold text-white/40 group-hover:text-white transition-colors">Attach Files</span>
-                                                        <input
-                                                            type="file"
-                                                            multiple
-                                                            className="hidden"
-                                                            onChange={handleBroadcastFileChange}
-                                                        />
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Panel: Recipients & Controls */}
-                                    <div className="space-y-8">
-                                        <div className="glass-panel p-8 bg-vc-mint/5 border-vc-mint/20 space-y-8">
-                                            <div className="flex items-center gap-2 text-vc-mint mb-2">
-                                                <Users className="w-5 h-5" />
-                                                <h3 className="font-bold uppercase tracking-widest text-sm">Send Options</h3>
-                                            </div>
-
-                                            {/* Option 1: Test Mode */}
-                                            <div className="space-y-4">
-                                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                                    <h4 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Phase 1: Send Test</h4>
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            type="email"
-                                                            value={sendToEmail}
-                                                            onChange={(e) => setSendToEmail(e.target.value)}
-                                                            placeholder="Your test email..."
-                                                            className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-vc-mint transition-all"
-                                                        />
-                                                        <button
-                                                            onClick={handleSendTestBroadcast}
-                                                            disabled={sendingBroadcast}
-                                                            className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-2"
-                                                        >
-                                                            {sendingBroadcast ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
-                                                            Send Test
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Option 2: Live Mode */}
-                                            <div className="space-y-4">
-                                                <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
-                                                    <div className="flex items-center justify-between mb-6">
-                                                        <div>
-                                                            <h4 className="text-xs font-bold text-red-500 uppercase tracking-widest">Phase 2: Global Broadcast</h4>
-                                                            <p className="text-[10px] text-white/30 mt-1 uppercase">Sends to all users in database</p>
-                                                        </div>
-                                                        <div className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
-                                                            <span className="text-[10px] font-black text-red-500 tracking-tighter uppercase">Danger Zone</span>
                                                         </div>
                                                     </div>
+                                                </section>
 
-                                                    <button
-                                                        onClick={handleBroadcastAll}
-                                                        disabled={sendingBroadcast}
-                                                        className="w-full py-4 bg-vc-mint text-vc-green-dark rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-3 disabled:opacity-50"
-                                                    >
-                                                        {sendingBroadcast ? (
-                                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                                        ) : (
-                                                            <Rocket className="w-5 h-5" />
-                                                        )}
-                                                        {sendingBroadcast ? 'Broadcasting...' : 'Broadcast to All Users'}
-                                                    </button>
-                                                    <p className="text-[10px] text-white/20 text-center mt-4 italic">
-                                                        * This action is irreversible. Please verify with a test email first.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <AnimatePresence>
-                            {selectedApp && (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 md:p-8">
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="absolute inset-0 bg-[#001311]/95 backdrop-blur-xl"
-                                        onClick={() => setSelectedApp(null)}
-                                    />
-
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                                        exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                                        className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
-                                    >
-                                        {/* Modal Header */}
-                                        <div className="p-4 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-4 min-w-0">
-                                                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center shrink-0">
-                                                    <Rocket className="text-vc-mint w-6 h-6 md:w-8 md:h-8" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h2 className="text-lg md:text-2xl font-bold truncate leading-tight">{selectedApp.startupName || selectedApp.pillar}</h2>
-                                                    <div className="flex items-center gap-4 text-white/40 text-sm mt-1">
-                                                        <span>Submitted on {selectedApp.submittedAt?.toDate().toLocaleString()}</span>
-                                                        {selectedApp.location && (
-                                                            <span className="flex items-center gap-1.5 px-2.5 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-full text-[10px] font-bold uppercase tracking-wider">
-                                                                <Globe className="w-3 h-3" /> {selectedApp.location}
-                                                            </span>
-                                                        )}
+                                                {/* Context & Disclosure */}
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                                                        <AlertCircle className="w-4 h-4" /> Context & Disclosure
+                                                    </h3>
+                                                    <div className="p-4 md:p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
+                                                        <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Conflict of Interest Declaration</p>
+                                                        <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap">
+                                                            {selectedApp.coiDeclaration || "No conflict of interest or organizational relationships declared by the team."}
+                                                        </p>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => setSelectedApp(null)}
-                                                className="p-2 md:p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors shrink-0"
-                                            >
-                                                <X className="w-5 h-5 md:w-6 md:h-6" />
-                                            </button>
-                                        </div>
+                                                </section>
 
-                                        {/* Modal Content - New 2-Column Layout */}
-                                        <div className="flex-1 overflow-y-auto p-3 md:p-10 custom-scrollbar overflow-x-hidden">
-                                            <div className="flex flex-col lg:flex-row gap-8 md:gap-12 min-w-0">
-                                                {/* Main Column: In-depth Details */}
-                                                <div className="flex-1 min-w-0 space-y-10">
-                                                    {/* Startup Profile Section */}
+                                                {/* Referral Information Section */}
+                                                {selectedApp.referral && (
                                                     <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
                                                         <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
-                                                            <Rocket className="w-4 h-4" /> Startup Profile
+                                                            <Share2 className="w-4 h-4" /> Referral Information
                                                         </h3>
                                                         <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
                                                             <div className="space-y-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Venture Pillar</p>
-                                                                <p className="text-base md:text-lg font-medium text-white">{selectedApp.pillar}</p>
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Referral Source</p>
+                                                                <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.source}</p>
                                                             </div>
-                                                            <div className="space-y-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Development Stage</p>
-                                                                <p className="text-base md:text-lg font-medium text-white">{selectedApp.stage}</p>
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Established over 5 Years ago?</p>
-                                                                <p className="text-base md:text-lg font-medium text-white">{selectedApp.isOlderThan5Years}</p>
-                                                            </div>
-                                                            {selectedApp.location && (
+                                                            {selectedApp.referral.platform && (
                                                                 <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Primary Location</p>
-                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedApp.location}</p>
+                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Platform</p>
+                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.platform}</p>
+                                                                </div>
+                                                            )}
+                                                            {selectedApp.referral.ambassadorId && (
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador ID</p>
+                                                                    <p className="text-base md:text-lg font-medium text-vc-mint">#{selectedApp.referral.ambassadorId}</p>
+                                                                </div>
+                                                            )}
+                                                            {selectedApp.referral.ambassadorName && (
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador Name</p>
+                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.ambassadorName}</p>
                                                                 </div>
                                                             )}
                                                         </div>
-
-                                                        <div className="mt-10 pt-8 border-t border-white/5">
-                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Digital Presence & Pitch</p>
-                                                            <div className="flex flex-wrap gap-3">
-                                                                {selectedApp.website && (
-                                                                    <a href={selectedApp.website} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
-                                                                        <Globe className="w-4 h-4 text-vc-mint" /> Website
-                                                                    </a>
-                                                                )}
-                                                                {selectedApp.linkedin && (
-                                                                    <a href={selectedApp.linkedin} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
-                                                                        <Linkedin className="w-4 h-4 text-vc-mint" /> LinkedIn
-                                                                    </a>
-                                                                )}
-                                                                {selectedApp.additionalLinks && (
-                                                                    <a href={selectedApp.additionalLinks} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:border-vc-mint/50 transition-all text-sm">
-                                                                        <LinkIcon className="w-4 h-4 text-vc-mint" /> Additional Links
-                                                                    </a>
-                                                                )}
-                                                                {selectedApp.videoPitchUrl && (
-                                                                    <a href={selectedApp.videoPitchUrl} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-xl hover:bg-vc-mint hover:text-black transition-all text-sm font-bold">
-                                                                        <Video className="w-4 h-4" /> Watch Video Pitch
-                                                                    </a>
-                                                                )}
-                                                            </div>
-                                                        </div>
                                                     </section>
+                                                )}
 
-                                                    {/* Team Foundation Section */}
-                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
-                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
-                                                            <Users className="w-4 h-4" /> Team Foundation
+                                                {/* Submission Materials */}
+                                                <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-6 md:p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
+                                                        <FileText className="w-4 h-4" /> Required Materials
+                                                    </h3>
+                                                    <div className="space-y-3">
+                                                        {[
+                                                            { id: 'pitchDeck', label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
+                                                            { id: 'execSummary', label: 'Exec Summary', url: selectedApp.materials.execSummaryUrl, icon: FileText },
+                                                            { id: 'eligibilityProof', label: 'Eligibility Evidence', url: selectedApp.materials.eligibilityProofUrl, icon: Shield },
+                                                            { id: 'supportingData', label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
+                                                        ].map((item, idx) => (
+                                                            item.url ? (
+                                                                <div key={idx} className="flex flex-col gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all">
+                                                                    <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-3">
+                                                                        <div className="flex items-center gap-3 min-w-0">
+                                                                            <item.icon className="text-vc-mint w-5 h-5 shrink-0" />
+                                                                            <div className="flex flex-col min-w-0">
+                                                                                <span className="text-sm font-medium truncate">{item.label}</span>
+                                                                                <a
+                                                                                    href={item.url}
+                                                                                    target="_blank"
+                                                                                    className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate"
+                                                                                >
+                                                                                    Open File
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div key={idx} className="flex items-center gap-3 p-4 rounded-2xl bg-white/2 border border-white/5 opacity-30 grayscale">
+                                                                    <item.icon className="w-5 h-5" />
+                                                                    <span className="text-sm font-medium">{item.label}</span>
+                                                                    <span className="ml-auto text-[8px] font-bold uppercase tracking-wider">Empty</span>
+                                                                </div>
+                                                            )
+                                                        ))}
+                                                    </div>
+                                                </section>
+
+
+                                            </div>
+
+                                            {/* Right Column: Scoring */}
+                                            <div className="w-full lg:w-[400px] shrink-0 space-y-8 min-w-0">
+                                                {/* Screening & Scoring Section */}
+                                                <section className="bg-[#0f2a27]/50 border border-vc-mint/20 rounded-3xl md:rounded-[2rem] p-4 md:p-8 relative overflow-hidden">
+
+
+                                                    <div className="flex items-center justify-between mb-8">
+                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                                            <Shield className="w-4 h-4" /> Screening Round 1
                                                         </h3>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
+                                                            <span className="text-2xl md:text-4xl font-black text-vc-mint">
+                                                                {Math.round(RUBRICS.reduce((acc, r) => acc + (currentScores[r.id as keyof typeof currentScores] * (r.weight * 10)), 0))}
+                                                                <span className="text-xs md:text-base font-bold text-white/30 ml-2">/ 100</span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
-                                                        <div className="flex flex-col gap-8">
-                                                            <div className="space-y-6">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Breakdown ({selectedApp.teamSize} Member{selectedApp.teamSize > 1 ? 's' : ''})</p>
-                                                                <div className="space-y-3">
-                                                                    {selectedApp.teamMembers.map((m, i) => (
-                                                                        <div key={i} className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 transition-colors hover:bg-white/[0.08]">
-                                                                            <div className="flex items-center gap-3 w-full md:w-auto">
-                                                                                <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20 shrink-0">
-                                                                                    {i + 1}
-                                                                                </div>
-                                                                                {i === 0 && (
-                                                                                    <span className="md:hidden px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md ml-auto">
-                                                                                        Team Leader
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-
-                                                                            <div className="flex flex-wrap items-center gap-2 min-w-0 w-full md:w-auto">
-                                                                                <span className="font-bold text-sm text-white/90 truncate max-w-full">{isAdmin ? (m.name || 'Anonymous Member') : 'Anonymous Member'}</span>
-                                                                                <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap opacity-60">
-                                                                                    ({isAdmin ? m.nationality : 'Hidden'})
-                                                                                </span>
-                                                                                {i === 0 && (
-                                                                                    <span className="hidden md:inline-flex ml-2 px-2 py-0.5 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[9px] font-black uppercase tracking-widest rounded-md">
-                                                                                        Team Leader
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
+                                                    <div className="space-y-8">
+                                                        {RUBRICS.map((rubric) => (
+                                                            <div key={rubric.id} className="space-y-3">
+                                                                <div className="flex items-center justify-between gap-4">
+                                                                    <div className="space-y-1 min-w-0">
+                                                                        <label className="text-base font-bold text-white flex items-center gap-2">
+                                                                            {rubric.label}
+                                                                            <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
+                                                                                {rubric.weight * 100}% Weight
+                                                                            </span>
+                                                                        </label>
+                                                                        <p className="text-xs md:text-sm text-white/60 leading-relaxed">{rubric.description}</p>
+                                                                    </div>
+                                                                    <span className="text-2xl font-bold text-vc-mint w-12 text-right">
+                                                                        {currentScores[rubric.id as keyof typeof currentScores]}
+                                                                    </span>
+                                                                </div>
+                                                                <input
+                                                                    type="range"
+                                                                    min="0"
+                                                                    max="10"
+                                                                    step="1"
+                                                                    value={currentScores[rubric.id as keyof typeof currentScores]}
+                                                                    onChange={(e) => setCurrentScores({
+                                                                        ...currentScores,
+                                                                        [rubric.id]: parseInt(e.target.value)
+                                                                    })}
+                                                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint"
+                                                                />
+                                                                <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
+                                                                    <span>Poor (0)</span>
+                                                                    <span>Excellent (10)</span>
                                                                 </div>
                                                             </div>
+                                                        ))}
+                                                    </div>
 
-                                                            <div className="grid lg:grid-cols-2 gap-8">
-                                                                <div className="space-y-4">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Team Leader Contact</p>
-                                                                    <div className="space-y-3 text-sm">
-                                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10">
-                                                                            <Mail className="w-4 h-4 text-vc-mint" />
-                                                                            <span className="font-medium underline decoration-vc-mint/30 truncate" title={selectedApp.leaderEmail}>{isAdmin ? selectedApp.leaderEmail : 'Applicant Email'}</span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                                                                            <Phone className="w-4 h-4 text-white/40" />
-                                                                            <span className="font-medium truncate">{isAdmin ? selectedApp.leaderPhone : 'Hidden'}</span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                                                                            <Globe className="w-4 h-4 text-white/40" />
-                                                                            <span className="font-medium truncate">{isAdmin ? selectedApp.leaderNationality : 'Hidden'}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                                                    <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                                                        <button
+                                                            onClick={handleSaveScreening}
+                                                            disabled={savingScore}
+                                                            className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
+                                                        >
+                                                            {savingScore ? (
+                                                                <>
+                                                                    <div className="w-4 h-4 border-2 border-vc-green-dark border-t-transparent rounded-full animate-spin" />
+                                                                    Saving...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <CheckCircle className="w-5 h-5" /> Save Evaluation
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </section>
 
-                                                                <div className="space-y-3">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Eligibility Status</p>
-                                                                    <div className="flex flex-col gap-2">
-                                                                        <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/5 p-3 rounded-xl">
-                                                                            <div className={`w-2 h-2 rounded-full shadow-[0_0_8px] ${selectedApp.confirmations?.ageConfirmed ? 'bg-vc-mint shadow-vc-mint/50' : 'bg-red-500 shadow-red-500/50'}`} />
-                                                                            <span className="text-white/60">Age requirement (18+)</span>
-                                                                            {selectedApp.confirmations?.ageConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
-                                                                        </div>
-                                                                        <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/5 p-3 rounded-xl">
-                                                                            <div className={`w-2 h-2 rounded-full shadow-[0_0_8px] ${selectedApp.confirmations?.educationConfirmed ? 'bg-vc-mint shadow-vc-mint/50' : 'bg-red-500 shadow-red-500/50'}`} />
-                                                                            <span className="text-white/60">Education qualification</span>
-                                                                            {selectedApp.confirmations?.educationConfirmed ? <Check className="w-3 h-3 text-vc-mint ml-auto" /> : <X className="w-3 h-3 text-red-500 ml-auto" />}
-                                                                        </div>
-                                                                        {selectedApp.audienceCategory && (
-                                                                            <div className="flex items-center gap-3 text-xs bg-vc-mint/5 border border-vc-mint/10 p-3 rounded-xl mt-1">
-                                                                                <GraduationCap className="w-3 h-3 text-vc-mint" />
-                                                                                <span className="text-vc-mint/80 font-medium">{selectedApp.audienceCategory}</span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
+                                                {/* Screening Round 2 Section */}
+                                                <section className={`bg-[#0f2a27]/50 border rounded-3xl md:rounded-[2rem] p-4 md:p-8 relative overflow-hidden transition-all duration-500 ${isScreeningRound2Open ? 'border-vc-mint/30 opacity-100' : 'border-white/5 opacity-50 grayscale'}`}>
+                                                    {!isScreeningRound2Open && (
+                                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                                            <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3">
+                                                                <Shield className="w-4 h-4 text-white/40" />
+                                                                <span className="text-xs font-bold uppercase tracking-widest text-white/60">Round 2 Closed</span>
                                                             </div>
                                                         </div>
-                                                    </section>
-
-                                                    {/* Context & Disclosure */}
-                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
-                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                            <AlertCircle className="w-4 h-4" /> Context & Disclosure
-                                                        </h3>
-                                                        <div className="p-4 md:p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10">
-                                                            <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Conflict of Interest Declaration</p>
-                                                            <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap">
-                                                                {selectedApp.coiDeclaration || "No conflict of interest or organizational relationships declared by the team."}
-                                                            </p>
-                                                        </div>
-                                                    </section>
-
-                                                    {/* Referral Information Section */}
-                                                    {selectedApp.referral && (
-                                                        <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
-                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
-                                                                <Share2 className="w-4 h-4" /> Referral Information
-                                                            </h3>
-                                                            <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
-                                                                <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Referral Source</p>
-                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.source}</p>
-                                                                </div>
-                                                                {selectedApp.referral.platform && (
-                                                                    <div className="space-y-1">
-                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Platform</p>
-                                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.platform}</p>
-                                                                    </div>
-                                                                )}
-                                                                {selectedApp.referral.ambassadorId && (
-                                                                    <div className="space-y-1">
-                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador ID</p>
-                                                                        <p className="text-base md:text-lg font-medium text-vc-mint">#{selectedApp.referral.ambassadorId}</p>
-                                                                    </div>
-                                                                )}
-                                                                {selectedApp.referral.ambassadorName && (
-                                                                    <div className="space-y-1">
-                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador Name</p>
-                                                                        <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.ambassadorName}</p>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </section>
                                                     )}
 
-                                                    {/* Submission Materials */}
-                                                    <section className="bg-[#0f2a27] border border-white/10 rounded-[2.5rem] p-6 md:p-8">
-                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
-                                                            <FileText className="w-4 h-4" /> Required Materials
+                                                    <div className="flex items-center justify-between mb-8">
+                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                                            <Shield className="w-4 h-4" /> Screening Round 2
                                                         </h3>
-                                                        <div className="space-y-3">
-                                                            {[
-                                                                { id: 'pitchDeck', label: 'Pitch Deck', url: selectedApp.materials.pitchDeckUrl, icon: FileText },
-                                                                { id: 'execSummary', label: 'Exec Summary', url: selectedApp.materials.execSummaryUrl, icon: FileText },
-                                                                { id: 'eligibilityProof', label: 'Eligibility Evidence', url: selectedApp.materials.eligibilityProofUrl, icon: Shield },
-                                                                { id: 'supportingData', label: 'Supporting Data', url: selectedApp.materials.supportingDataUrl, icon: FileCode }
-                                                            ].map((item, idx) => (
-                                                                item.url ? (
-                                                                    <div key={idx} className="flex flex-col gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all">
-                                                                        <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-3">
-                                                                            <div className="flex items-center gap-3 min-w-0">
-                                                                                <item.icon className="text-vc-mint w-5 h-5 shrink-0" />
-                                                                                <div className="flex flex-col min-w-0">
-                                                                                    <span className="text-sm font-medium truncate">{item.label}</span>
-                                                                                    <a
-                                                                                        href={item.url}
-                                                                                        target="_blank"
-                                                                                        className="text-[10px] text-vc-mint/60 hover:text-vc-mint transition-colors underline decoration-vc-mint/20 underline-offset-2 truncate"
-                                                                                    >
-                                                                                        Open File
-                                                                                    </a>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div key={idx} className="flex items-center gap-3 p-4 rounded-2xl bg-white/2 border border-white/5 opacity-30 grayscale">
-                                                                        <item.icon className="w-5 h-5" />
-                                                                        <span className="text-sm font-medium">{item.label}</span>
-                                                                        <span className="ml-auto text-[8px] font-bold uppercase tracking-wider">Empty</span>
-                                                                    </div>
-                                                                )
-                                                            ))}
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
+                                                            <span className="text-2xl md:text-4xl font-black text-vc-mint">
+                                                                {Math.round(RUBRICS_ROUND2.reduce((acc, r) => acc + (currentScoresRound2[r.id as keyof typeof currentScoresRound2] * (r.weight * 10)), 0))}
+                                                                <span className="text-xs md:text-base font-bold text-white/30 ml-2">/ 100</span>
+                                                            </span>
                                                         </div>
-                                                    </section>
+                                                    </div>
 
-
-                                                </div>
-
-                                                {/* Right Column: Scoring */}
-                                                <div className="w-full lg:w-[400px] shrink-0 space-y-8 min-w-0">
-                                                    {/* Screening & Scoring Section */}
-                                                    <section className="bg-[#0f2a27]/50 border border-vc-mint/20 rounded-3xl md:rounded-[2rem] p-4 md:p-8 relative overflow-hidden">
-
-
-                                                        <div className="flex items-center justify-between mb-8">
-                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                                                                <Shield className="w-4 h-4" /> Screening Round 1
-                                                            </h3>
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
-                                                                <span className="text-2xl md:text-4xl font-black text-vc-mint">
-                                                                    {Math.round(RUBRICS.reduce((acc, r) => acc + (currentScores[r.id as keyof typeof currentScores] * (r.weight * 10)), 0))}
-                                                                    <span className="text-xs md:text-base font-bold text-white/30 ml-2">/ 100</span>
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-8">
-                                                            {RUBRICS.map((rubric) => (
-                                                                <div key={rubric.id} className="space-y-3">
-                                                                    <div className="flex items-center justify-between gap-4">
-                                                                        <div className="space-y-1 min-w-0">
-                                                                            <label className="text-base font-bold text-white flex items-center gap-2">
-                                                                                {rubric.label}
-                                                                                <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
-                                                                                    {rubric.weight * 100}% Weight
-                                                                                </span>
-                                                                            </label>
-                                                                            <p className="text-xs md:text-sm text-white/60 leading-relaxed">{rubric.description}</p>
-                                                                        </div>
-                                                                        <span className="text-2xl font-bold text-vc-mint w-12 text-right">
-                                                                            {currentScores[rubric.id as keyof typeof currentScores]}
-                                                                        </span>
+                                                    <div className="space-y-8">
+                                                        {RUBRICS_ROUND2.map((rubric) => (
+                                                            <div key={rubric.id} className="space-y-3">
+                                                                <div className="flex items-center justify-between gap-4">
+                                                                    <div className="space-y-1 min-w-0">
+                                                                        <label className="text-base font-bold text-white flex items-center gap-2">
+                                                                            {rubric.label}
+                                                                            <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
+                                                                                {Math.round(rubric.weight * 100)}% Weight
+                                                                            </span>
+                                                                        </label>
+                                                                        <p className="text-xs md:text-sm text-white/60 leading-relaxed">{rubric.description}</p>
                                                                     </div>
-                                                                    <input
-                                                                        type="range"
-                                                                        min="0"
-                                                                        max="10"
-                                                                        step="1"
-                                                                        value={currentScores[rubric.id as keyof typeof currentScores]}
-                                                                        onChange={(e) => setCurrentScores({
-                                                                            ...currentScores,
-                                                                            [rubric.id]: parseInt(e.target.value)
-                                                                        })}
-                                                                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint"
-                                                                    />
-                                                                    <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
-                                                                        <span>Poor (0)</span>
-                                                                        <span>Excellent (10)</span>
-                                                                    </div>
+                                                                    <span className="text-2xl font-bold text-vc-mint w-12 text-right">
+                                                                        {currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
+                                                                    </span>
                                                                 </div>
-                                                            ))}
-                                                        </div>
+                                                                <input
+                                                                    type="range"
+                                                                    min="0"
+                                                                    max="10"
+                                                                    step="1"
+                                                                    disabled={!isScreeningRound2Open}
+                                                                    value={currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
+                                                                    onChange={(e) => setCurrentScoresRound2({
+                                                                        ...currentScoresRound2,
+                                                                        [rubric.id]: parseInt(e.target.value)
+                                                                    })}
+                                                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint disabled:cursor-not-allowed"
+                                                                />
+                                                                <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
+                                                                    <span>Poor (0)</span>
+                                                                    <span>Excellent (10)</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
 
+                                                    {isScreeningRound2Open && (
                                                         <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
                                                             <button
-                                                                onClick={handleSaveScreening}
+                                                                onClick={handleSaveScreeningRound2}
                                                                 disabled={savingScore}
                                                                 className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
                                                             >
@@ -3280,532 +3214,627 @@ function AdminDashboardContent() {
                                                                 )}
                                                             </button>
                                                         </div>
-                                                    </section>
-
-                                                    {/* Screening Round 2 Section */}
-                                                    <section className={`bg-[#0f2a27]/50 border rounded-3xl md:rounded-[2rem] p-4 md:p-8 relative overflow-hidden transition-all duration-500 ${isScreeningRound2Open ? 'border-vc-mint/30 opacity-100' : 'border-white/5 opacity-50 grayscale'}`}>
-                                                        {!isScreeningRound2Open && (
-                                                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                                                                <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3">
-                                                                    <Shield className="w-4 h-4 text-white/40" />
-                                                                    <span className="text-xs font-bold uppercase tracking-widest text-white/60">Round 2 Closed</span>
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        <div className="flex items-center justify-between mb-8">
-                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                                                                <Shield className="w-4 h-4" /> Screening Round 2
-                                                            </h3>
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-xs uppercase tracking-widest font-bold text-white/60">Total Score</span>
-                                                                <span className="text-2xl md:text-4xl font-black text-vc-mint">
-                                                                    {Math.round(RUBRICS_ROUND2.reduce((acc, r) => acc + (currentScoresRound2[r.id as keyof typeof currentScoresRound2] * (r.weight * 10)), 0))}
-                                                                    <span className="text-xs md:text-base font-bold text-white/30 ml-2">/ 100</span>
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-8">
-                                                            {RUBRICS_ROUND2.map((rubric) => (
-                                                                <div key={rubric.id} className="space-y-3">
-                                                                    <div className="flex items-center justify-between gap-4">
-                                                                        <div className="space-y-1 min-w-0">
-                                                                            <label className="text-base font-bold text-white flex items-center gap-2">
-                                                                                {rubric.label}
-                                                                                <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/60 font-normal">
-                                                                                    {Math.round(rubric.weight * 100)}% Weight
-                                                                                </span>
-                                                                            </label>
-                                                                            <p className="text-xs md:text-sm text-white/60 leading-relaxed">{rubric.description}</p>
-                                                                        </div>
-                                                                        <span className="text-2xl font-bold text-vc-mint w-12 text-right">
-                                                                            {currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
-                                                                        </span>
-                                                                    </div>
-                                                                    <input
-                                                                        type="range"
-                                                                        min="0"
-                                                                        max="10"
-                                                                        step="1"
-                                                                        disabled={!isScreeningRound2Open}
-                                                                        value={currentScoresRound2[rubric.id as keyof typeof currentScoresRound2]}
-                                                                        onChange={(e) => setCurrentScoresRound2({
-                                                                            ...currentScoresRound2,
-                                                                            [rubric.id]: parseInt(e.target.value)
-                                                                        })}
-                                                                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-vc-mint disabled:cursor-not-allowed"
-                                                                    />
-                                                                    <div className="flex justify-between text-xs uppercase font-bold text-white/50 tracking-widest">
-                                                                        <span>Poor (0)</span>
-                                                                        <span>Excellent (10)</span>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-
-                                                        {isScreeningRound2Open && (
-                                                            <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
-                                                                <button
-                                                                    onClick={handleSaveScreeningRound2}
-                                                                    disabled={savingScore}
-                                                                    className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
-                                                                >
-                                                                    {savingScore ? (
-                                                                        <>
-                                                                            <div className="w-4 h-4 border-2 border-vc-green-dark border-t-transparent rounded-full animate-spin" />
-                                                                            Saving...
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            <CheckCircle className="w-5 h-5" /> Save Evaluation
-                                                                        </>
-                                                                    )}
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </section>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </div>
-                            )}
-                        </AnimatePresence>
-                        <AnimatePresence>
-                            {selectedAmbassadorApp && (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 md:p-8">
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        onClick={() => setSelectedAmbassadorApp(null)}
-                                        className="absolute inset-0 bg-vc-green-dark/95 backdrop-blur-2xl"
-                                    />
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                        className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
-                                    >
-                                        {/* Modal Header */}
-                                        <div className="p-4 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-4 min-w-0">
-                                                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center shrink-0">
-                                                    <Users className="text-vc-mint w-6 h-6 md:w-8 md:h-8" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h2 className="text-lg md:text-2xl font-bold truncate leading-tight">{selectedAmbassadorApp.email}</h2>
-                                                    <span className="text-white/40 text-[10px] md:text-sm block mt-0.5 truncate">Submitted on {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => setSelectedAmbassadorApp(null)}
-                                                className="p-2 md:p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors shrink-0"
-                                            >
-                                                <X className="w-5 h-5 md:w-6 md:h-6" />
-                                            </button>
-                                        </div>
-
-                                        {/* Modal Content - Synced with Startup Layout */}
-                                        <div className="flex-1 overflow-y-auto p-3 md:p-10 custom-scrollbar overflow-x-hidden">
-                                            <div className="flex flex-col lg:flex-row gap-8 md:gap-12 min-w-0">
-                                                {/* Main Column: Profiles & Experience */}
-                                                <div className="flex-1 min-w-0 space-y-10">
-                                                    {/* Person Profile Section */}
-                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
-                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
-                                                            <User className="w-4 h-4" /> Personal Profile
-                                                        </h3>
-                                                        <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
-                                                            <div className="space-y-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Full Name</p>
-                                                                <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</p>
-                                                                <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality}</p>
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</p>
-                                                                <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.location}</p>
-                                                            </div>
-                                                        </div>
-                                                    </section>
-
-                                                    {/* Education Section */}
-                                                    {(selectedAmbassadorApp.university || selectedAmbassadorApp.major) && (
-                                                        <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
-                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
-                                                                <GraduationCap className="w-4 h-4" /> Academic Background
-                                                            </h3>
-                                                            <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
-                                                                <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">University</p>
-                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedAmbassadorApp.university}</p>
-                                                                </div>
-                                                                <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Major / Field of Study</p>
-                                                                    <p className="text-base md:text-lg font-medium text-white">{selectedAmbassadorApp.major}</p>
-                                                                </div>
-                                                                <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Degree Level</p>
-                                                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[10px] font-black uppercase tracking-widest">
-                                                                        {selectedAmbassadorApp.degree}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </section>
                                                     )}
+                                                </section>
 
-                                                    {/* Experience & Motivation */}
-                                                    {(selectedAmbassadorApp.reason || selectedAmbassadorApp.experience) && (
-                                                        <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
-                                                            <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                                                <AlertCircle className="w-4 h-4" /> Context & Motivation
-                                                            </h3>
-                                                            <div className="space-y-6">
-                                                                {selectedAmbassadorApp.reason && (
-                                                                    <div className="p-4 md:p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 overflow-hidden">
-                                                                        <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Why join?</p>
-                                                                        <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap break-words min-w-0">
-                                                                            "{selectedAmbassadorApp.reason}"
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-                                                                {selectedAmbassadorApp.experience && (
-                                                                    <div className="p-4 md:p-6 rounded-2xl bg-white/5 border border-white/5 overflow-hidden">
-                                                                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3">Relevant Experience</p>
-                                                                        <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap break-words min-w-0">
-                                                                            {selectedAmbassadorApp.experience}
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </section>
-                                                    )}
-                                                </div>
 
-                                                {/* Sidebar: Contact & Decision */}
-                                                <div className="w-full lg:w-[360px] shrink-0 space-y-8 min-w-0">
-                                                    {/* Contact & Digital Presence */}
-                                                    <section className="bg-[#0f2a27] border border-white/10 rounded-3xl md:rounded-[2.5rem] p-4 md:p-8">
-                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
-                                                            <Mail className="w-4 h-4" /> Contact & Social
-                                                        </h3>
-                                                        <div className="space-y-4">
-                                                            <div className="space-y-2">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Email Address</p>
-                                                                <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10 text-vc-mint text-sm truncate">
-                                                                    <Mail className="w-4 h-4 shrink-0" />
-                                                                    <span className="truncate">{selectedAmbassadorApp.email}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Phone Number</p>
-                                                                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 text-white/70 text-sm">
-                                                                    <Phone className="w-4 h-4 shrink-0" />
-                                                                    <span>{selectedAmbassadorApp.phone}</span>
-                                                                </div>
-                                                            </div>
-                                                            {selectedAmbassadorApp.socialMedia && (
-                                                                <div className="pt-4 border-t border-white/5 space-y-3">
-                                                                    <div className="flex items-center justify-between mb-1">
-                                                                        <p className="text-[9px] font-bold text-vc-mint/40 uppercase tracking-widest">Digital Presence</p>
-                                                                    </div>
-                                                                    <a
-                                                                        href={selectedAmbassadorApp.socialMedia}
-                                                                        target="_blank"
-                                                                        className="flex items-center gap-4 p-4 md:p-5 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
-                                                                    >
-                                                                        <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0 border border-vc-mint/20 group-hover:scale-110 transition-transform">
-                                                                            <Share2 className="text-vc-mint w-5 h-5" />
-                                                                        </div>
-                                                                        <div className="flex-1 min-w-0">
-                                                                            <p className="text-xs font-bold text-white/90 mb-0.5">Social Profile</p>
-                                                                            <p className="text-[10px] text-vc-mint/60 underline decoration-vc-mint/20 truncate">
-                                                                                {selectedAmbassadorApp.socialMedia}
-                                                                            </p>
-                                                                        </div>
-                                                                        <ExternalLink className="w-4 h-4 text-vc-mint/40 group-hover:text-vc-mint transition-colors" />
-                                                                    </a>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </section>
-
-                                                    {/* Review Decision Center */}
-                                                    <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl shadow-vc-mint/5">
-                                                        <h3 className="text-vc-mint font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
-                                                            Review Decision
-                                                        </h3>
-                                                        <div className="space-y-4">
-                                                            <button
-                                                                onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'accepted')}
-                                                                className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'accepted'
-                                                                    ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20 scale-[1.02]'
-                                                                    : 'bg-white/5 text-vc-mint border border-vc-mint/20 hover:bg-vc-mint/20'
-                                                                    }`}
-                                                            >
-                                                                Accept
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'rejected')}
-                                                                className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'rejected'
-                                                                    ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 scale-[1.02]'
-                                                                    : 'bg-white/5 text-red-400 border border-red-500/20 hover:bg-red-500/20'
-                                                                    }`}
-                                                            >
-                                                                Reject
-                                                            </button>
-
-                                                            {selectedAmbassadorApp.status !== 'pending' && (
-                                                                <div className="pt-4 flex justify-center">
-                                                                    <button
-                                                                        onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'pending')}
-                                                                        className="text-[10px] font-bold text-white/30 hover:text-vc-mint transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
-                                                                    >
-                                                                        Reset Decision
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </section>
-                                                </div>
                                             </div>
                                         </div>
-                                    </motion.div>
-                                </div>
-                            )}
-                        </AnimatePresence>
-
-                        {toast && (
-                            <Toast
-                                message={toast.message}
-                                type={toast.type}
-                                onClose={() => setToast(null)}
-                            />
-                        )
-                        }
-
-                        <AnimatePresence>
-                            {showDecisionModal && decisionConfig && (
-                                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        onClick={() => !processingDecision && setShowDecisionModal(false)}
-                                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                                    />
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                        className="relative w-full max-w-lg bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
-                                    >
-                                        {/* Abstract Glow Background */}
-                                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-vc-mint/10 rounded-full blur-[60px] pointer-events-none" />
-
-                                        <div className="flex flex-col items-center text-center space-y-6">
-                                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${decisionConfig.status === 'accepted' ? 'bg-vc-mint/20 text-vc-mint' : 'bg-red-500/20 text-red-500'}`}>
-                                                {decisionConfig.status === 'accepted' ? <CheckCircle className="w-8 h-8" /> : <XCircle className="w-8 h-8" />}
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <h3 className="text-2xl font-bold">Confirm Decision</h3>
-                                                <p className="text-white/60 text-sm leading-relaxed px-4">
-                                                    Are you sure you want to <span className={`font-bold ${decisionConfig.status === 'accepted' ? 'text-vc-mint' : decisionConfig.status === 'rejected' ? 'text-red-400' : 'text-white/80'}`}>
-                                                        {decisionConfig.status === 'accepted' ? 'accept' : decisionConfig.status === 'rejected' ? 'reject' : 'reset'}
-                                                    </span> the application for <span className="text-white font-medium">{decisionConfig.userName}</span>?
-                                                </p>
-                                            </div>
-
-                                            <div className="w-full p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
-                                                <div className="flex items-start gap-4 text-left">
-                                                    <div className="p-2 rounded-lg bg-vc-mint/10 mt-1">
-                                                        <Mail className="w-4 h-4 text-vc-mint" />
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-xs font-bold text-vc-mint/60 uppercase tracking-widest">Notification Flow</p>
-                                                        <p className="text-xs text-white/50 leading-relaxed">
-                                                            An official {decisionConfig.status === 'accepted' ? 'acceptance' : 'rejection'} email will be sent automatically to <span className="text-white/80">{decisionConfig.userEmail}</span>.
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {decisionConfig.status === 'accepted' && (
-                                                    <div className="pt-4 border-t border-white/5 space-y-3">
-                                                        <p className="text-[10px] font-bold text-vc-mint/60 uppercase tracking-widest text-left">Choose Ambassador Type</p>
-                                                        <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
-                                                            <button
-                                                                onClick={() => setDecisionConfig({ ...decisionConfig, ambassadorType: 'local' })}
-                                                                className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${decisionConfig.ambassadorType === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg' : 'text-white/40 hover:text-white/60'}`}
-                                                            >
-                                                                Local Ambassador
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setDecisionConfig({ ...decisionConfig, ambassadorType: 'global' })}
-                                                                className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${decisionConfig.ambassadorType === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg' : 'text-white/40 hover:text-white/60'}`}
-                                                            >
-                                                                Global Ambassador
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4 w-full pt-4">
-                                                <button
-                                                    onClick={() => setShowDecisionModal(false)}
-                                                    disabled={processingDecision}
-                                                    className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={executeAmbassadorDecision}
-                                                    disabled={processingDecision}
-                                                    className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${decisionConfig.status === 'accepted'
-                                                        ? 'bg-vc-mint text-vc-green-dark hover:bg-white'
-                                                        : 'bg-red-500 text-white hover:bg-red-400'
-                                                        } disabled:opacity-50 shadow-xl ${decisionConfig.status === 'accepted' ? 'shadow-vc-mint/10' : 'shadow-red-500/10'}`}
-                                                >
-                                                    {processingDecision ? (
-                                                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                                    ) : (
-                                                        'Confirm'
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </div>
-                            )}
-                        </AnimatePresence>
-                        <AnimatePresence>
-                            {showRemoveModal && userToRemove && (
-                                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        onClick={() => !processingRemoval && setShowRemoveModal(false)}
-                                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                                    />
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                        className="relative w-full max-w-lg bg-[#0c1e1c] border border-red-500/20 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
-                                    >
-                                        {/* Abstract Glow Background */}
-                                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-[60px] pointer-events-none" />
-
-                                        <div className="flex flex-col items-center text-center space-y-6">
-                                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/20 text-red-500">
-                                                <XCircle className="w-8 h-8" />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <h3 className="text-2xl font-bold">Remove Ambassador?</h3>
-                                                <p className="text-white/60 text-sm leading-relaxed px-4">
-                                                    Are you sure you want to remove <span className="text-white font-medium">{userToRemove.name}</span> from the Ambassadors? This will revert their role to 'User'.
-                                                </p>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4 w-full pt-4">
-                                                <button
-                                                    onClick={() => setShowRemoveModal(false)}
-                                                    disabled={processingRemoval}
-                                                    className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={confirmRemoveAmbassador}
-                                                    disabled={processingRemoval}
-                                                    className="w-full py-4 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl shadow-red-500/10"
-                                                >
-                                                    {processingRemoval ? (
-                                                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                                    ) : (
-                                                        'Confirm Removal'
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </div>
-                            )}
-                        </AnimatePresence>
-
-                        {/* Application Deletion Modal */}
-                        <AnimatePresence>
-                            {showDeleteAppModal && appToDelete && (
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                        {selectedAmbassadorApp && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 md:p-8">
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                                    onClick={() => setShowDeleteAppModal(false)}
+                                    onClick={() => setSelectedAmbassadorApp(null)}
+                                    className="absolute inset-0 bg-vc-green-dark/95 backdrop-blur-2xl"
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
                                 >
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        exit={{ scale: 0.95, opacity: 0 }}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl"
-                                    >
-                                        <div className="flex items-center gap-4 mb-4 text-red-400">
-                                            <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
-                                                <Trash2 className="w-6 h-6" />
+                                    {/* Modal Header */}
+                                    <div className="p-4 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                                <Users className="text-vc-mint w-6 h-6 md:w-8 md:h-8" />
                                             </div>
-                                            <h3 className="text-xl font-bold text-white">Delete Application?</h3>
+                                            <div className="min-w-0">
+                                                <h2 className="text-lg md:text-2xl font-bold truncate leading-tight">{selectedAmbassadorApp.email}</h2>
+                                                <span className="text-white/40 text-[10px] md:text-sm block mt-0.5 truncate">Submitted on {selectedAmbassadorApp.submittedAt?.toDate().toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setSelectedAmbassadorApp(null)}
+                                            className="p-2 md:p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors shrink-0"
+                                        >
+                                            <X className="w-5 h-5 md:w-6 md:h-6" />
+                                        </button>
+                                    </div>
+
+                                    {/* Modal Content - Synced with Startup Layout */}
+                                    <div className="flex-1 overflow-y-auto p-3 md:p-10 custom-scrollbar overflow-x-hidden">
+                                        <div className="flex flex-col lg:flex-row gap-8 md:gap-12 min-w-0">
+                                            {/* Main Column: Profiles & Experience */}
+                                            <div className="flex-1 min-w-0 space-y-10">
+                                                {/* Person Profile Section */}
+                                                <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                        <User className="w-4 h-4" /> Personal Profile
+                                                    </h3>
+                                                    <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Full Name</p>
+                                                            <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.name || selectedAmbassadorApp.fullName}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Nationality</p>
+                                                            <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.nationality}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Current Location</p>
+                                                            <p className="text-base md:text-lg font-bold text-white/90">{selectedAmbassadorApp.location}</p>
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                {/* Education Section */}
+                                                {(selectedAmbassadorApp.university || selectedAmbassadorApp.major) && (
+                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                            <GraduationCap className="w-4 h-4" /> Academic Background
+                                                        </h3>
+                                                        <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-6 md:gap-y-8">
+                                                            <div className="space-y-1">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">University</p>
+                                                                <p className="text-base md:text-lg font-medium text-white">{selectedAmbassadorApp.university}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Major / Field of Study</p>
+                                                                <p className="text-base md:text-lg font-medium text-white">{selectedAmbassadorApp.major}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Degree Level</p>
+                                                                <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-vc-mint/10 border border-vc-mint/20 text-vc-mint text-[10px] font-black uppercase tracking-widest">
+                                                                    {selectedAmbassadorApp.degree}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </section>
+                                                )}
+
+                                                {/* Experience & Motivation */}
+                                                {(selectedAmbassadorApp.reason || selectedAmbassadorApp.experience) && (
+                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                                                            <AlertCircle className="w-4 h-4" /> Context & Motivation
+                                                        </h3>
+                                                        <div className="space-y-6">
+                                                            {selectedAmbassadorApp.reason && (
+                                                                <div className="p-4 md:p-6 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 overflow-hidden">
+                                                                    <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest mb-3">Why join?</p>
+                                                                    <p className="text-sm text-white/70 leading-relaxed italic whitespace-pre-wrap break-words min-w-0">
+                                                                        "{selectedAmbassadorApp.reason}"
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                            {selectedAmbassadorApp.experience && (
+                                                                <div className="p-4 md:p-6 rounded-2xl bg-white/5 border border-white/5 overflow-hidden">
+                                                                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3">Relevant Experience</p>
+                                                                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap break-words min-w-0">
+                                                                        {selectedAmbassadorApp.experience}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </section>
+                                                )}
+                                            </div>
+
+                                            {/* Sidebar: Contact & Decision */}
+                                            <div className="w-full lg:w-[360px] shrink-0 space-y-8 min-w-0">
+                                                {/* Contact & Digital Presence */}
+                                                <section className="bg-[#0f2a27] border border-white/10 rounded-3xl md:rounded-[2.5rem] p-4 md:p-8">
+                                                    <h3 className="text-vc-mint font-bold uppercase tracking-widest text-[10px] mb-8 flex items-center gap-2">
+                                                        <Mail className="w-4 h-4" /> Contact & Social
+                                                    </h3>
+                                                    <div className="space-y-4">
+                                                        <div className="space-y-2">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Email Address</p>
+                                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-vc-mint/5 border border-vc-mint/10 text-vc-mint text-sm truncate">
+                                                                <Mail className="w-4 h-4 shrink-0" />
+                                                                <span className="truncate">{selectedAmbassadorApp.email}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Phone Number</p>
+                                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 text-white/70 text-sm">
+                                                                <Phone className="w-4 h-4 shrink-0" />
+                                                                <span>{selectedAmbassadorApp.phone}</span>
+                                                            </div>
+                                                        </div>
+                                                        {selectedAmbassadorApp.socialMedia && (
+                                                            <div className="pt-4 border-t border-white/5 space-y-3">
+                                                                <div className="flex items-center justify-between mb-1">
+                                                                    <p className="text-[9px] font-bold text-vc-mint/40 uppercase tracking-widest">Digital Presence</p>
+                                                                </div>
+                                                                <a
+                                                                    href={selectedAmbassadorApp.socialMedia}
+                                                                    target="_blank"
+                                                                    className="flex items-center gap-4 p-4 md:p-5 rounded-2xl bg-vc-mint/[0.03] border border-vc-mint/10 hover:bg-vc-mint/10 hover:border-vc-mint/30 group transition-all"
+                                                                >
+                                                                    <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0 border border-vc-mint/20 group-hover:scale-110 transition-transform">
+                                                                        <Share2 className="text-vc-mint w-5 h-5" />
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <p className="text-xs font-bold text-white/90 mb-0.5">Social Profile</p>
+                                                                        <p className="text-[10px] text-vc-mint/60 underline decoration-vc-mint/20 truncate">
+                                                                            {selectedAmbassadorApp.socialMedia}
+                                                                        </p>
+                                                                    </div>
+                                                                    <ExternalLink className="w-4 h-4 text-vc-mint/40 group-hover:text-vc-mint transition-colors" />
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </section>
+
+                                                {/* Review Decision Center */}
+                                                <section className="bg-vc-mint/10 border-2 border-vc-mint/20 rounded-3xl md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl shadow-vc-mint/5">
+                                                    <h3 className="text-vc-mint font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-center">
+                                                        Review Decision
+                                                    </h3>
+                                                    <div className="space-y-4">
+                                                        <button
+                                                            onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'accepted')}
+                                                            className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'accepted'
+                                                                ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20 scale-[1.02]'
+                                                                : 'bg-white/5 text-vc-mint border border-vc-mint/20 hover:bg-vc-mint/20'
+                                                                }`}
+                                                        >
+                                                            Accept
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'rejected')}
+                                                            className={`w-full py-5 rounded-[1.25rem] font-bold text-base transition-all duration-300 ${selectedAmbassadorApp.status === 'rejected'
+                                                                ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 scale-[1.02]'
+                                                                : 'bg-white/5 text-red-400 border border-red-500/20 hover:bg-red-500/20'
+                                                                }`}
+                                                        >
+                                                            Reject
+                                                        </button>
+
+                                                        {selectedAmbassadorApp.status !== 'pending' && (
+                                                            <div className="pt-4 flex justify-center">
+                                                                <button
+                                                                    onClick={() => handleAmbassadorStatusUpdate(selectedAmbassadorApp.id, selectedAmbassadorApp.userId, 'pending')}
+                                                                    className="text-[10px] font-bold text-white/30 hover:text-vc-mint transition-colors uppercase tracking-[0.15em] border-b border-white/10 pb-0.5"
+                                                                >
+                                                                    Reset Decision
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                        {selectedOversightTeam && (
+                            <div className="fixed inset-0 z-[150] flex items-center justify-center px-4 py-6 md:p-8">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 bg-[#001311]/95 backdrop-blur-xl"
+                                    onClick={() => setSelectedOversightTeam(null)}
+                                />
+
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                                    className="relative w-full max-w-5xl max-h-[85vh] bg-[#0c1e1c] border border-vc-mint/20 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+                                >
+                                    {/* Modal Header */}
+                                    <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
+                                                {selectedOversightTeam}
+                                            </div>
+                                            <div>
+                                                <h2 className="text-xl md:text-2xl font-bold">Team {selectedOversightTeam} Oversight</h2>
+                                                <p className="text-xs text-white/40 uppercase tracking-widest font-black">Detailed Progress Monitor</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setSelectedOversightTeam(null)}
+                                            className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+
+                                    {/* Applications List */}
+                                    <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+                                        <div className="grid gap-4">
+                                            {applications
+                                                .filter(app => app.assignedTeam === selectedOversightTeam)
+                                                .map(app => {
+                                                    const evaluator = allJudges.find(j => j.id === app.screening?.round1?.evaluatorId);
+                                                    const isCompleted = app.screening?.round1?.isCompleted;
+
+                                                    return (
+                                                        <div
+                                                            key={app.id}
+                                                            className="glass-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
+                                                            onClick={() => {
+                                                                setSelectedApp(app);
+                                                                setSelectedOversightTeam(null);
+                                                            }}
+                                                        >
+                                                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${isCompleted ? 'bg-vc-mint/10 border-vc-mint/20 text-vc-mint' : 'bg-white/5 border-white/10 text-white/20'}`}>
+                                                                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <div className="flex items-center gap-2 mb-1">
+                                                                        <h3 className="font-bold text-lg text-white truncate">{app.startupName || 'Unnamed Venture'}</h3>
+                                                                        {app.status === 'accepted' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                                                                        {app.status === 'rejected' && <XCircle className="w-4 h-4 text-red-500" />}
+                                                                    </div>
+                                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-white/40 uppercase tracking-widest">
+                                                                        <span className="flex items-center gap-1.5"><Rocket className="w-3 h-3" /> {app.pillar}</span>
+                                                                        <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.location || 'Local'}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center justify-between md:justify-end gap-8 shrink-0 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
+                                                                <div className="flex flex-col items-start md:items-end">
+                                                                    <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Evaluator</span>
+                                                                    {evaluator ? (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-xs font-bold text-vc-mint">{evaluator.name}</span>
+                                                                            <div className="w-6 h-6 rounded-full bg-vc-mint/10 border border-vc-mint/20 flex items-center justify-center text-[8px] font-black text-vc-mint uppercase">
+                                                                                {evaluator.name?.charAt(0)}
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="text-[10px] text-white/20 font-bold uppercase italic">Pending Evaluation</span>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="w-20 flex flex-col items-center border-l md:border-l border-white/5 pl-8">
+                                                                    <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1 text-center">Score</span>
+                                                                    {isCompleted ? (
+                                                                        <div className="flex items-baseline gap-1">
+                                                                            <span className="text-xl font-black text-vc-mint">{Math.round(app.screening!.round1!.totalScore)}</span>
+                                                                            <span className="text-[8px] text-white/20">/100</span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="text-lg font-black text-white/10">--</span>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-white/40 group-hover:bg-vc-mint group-hover:text-vc-green-dark group-hover:border-vc-mint transition-all">
+                                                                    <Eye className="w-4 h-4" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            {applications.filter(app => app.assignedTeam === selectedOversightTeam).length === 0 && (
+                                                <div className="text-center py-20 glass-panel border-dashed">
+                                                    <Rocket className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                                                    <p className="text-white/40 font-medium">No applications assigned to Team {selectedOversightTeam} yet</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
+
+                    {toast && (
+                        <Toast
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={() => setToast(null)}
+                        />
+                    )
+                    }
+
+                    <AnimatePresence>
+                        {showDecisionModal && decisionConfig && (
+                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => !processingDecision && setShowDecisionModal(false)}
+                                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    className="relative w-full max-w-lg bg-[#0c1e1c] border border-vc-mint/20 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
+                                >
+                                    {/* Abstract Glow Background */}
+                                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-vc-mint/10 rounded-full blur-[60px] pointer-events-none" />
+
+                                    <div className="flex flex-col items-center text-center space-y-6">
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${decisionConfig.status === 'accepted' ? 'bg-vc-mint/20 text-vc-mint' : 'bg-red-500/20 text-red-500'}`}>
+                                            {decisionConfig.status === 'accepted' ? <CheckCircle className="w-8 h-8" /> : <XCircle className="w-8 h-8" />}
                                         </div>
 
-                                        <p className="text-white/60 mb-6 font-poppins">
-                                            Are you sure you want to permanently delete the application for <span className="text-white font-bold">{appToDelete.name}</span>? This action cannot be undone.
-                                        </p>
+                                        <div className="space-y-2">
+                                            <h3 className="text-2xl font-bold">Confirm Decision</h3>
+                                            <p className="text-white/60 text-sm leading-relaxed px-4">
+                                                Are you sure you want to <span className={`font-bold ${decisionConfig.status === 'accepted' ? 'text-vc-mint' : decisionConfig.status === 'rejected' ? 'text-red-400' : 'text-white/80'}`}>
+                                                    {decisionConfig.status === 'accepted' ? 'accept' : decisionConfig.status === 'rejected' ? 'reject' : 'reset'}
+                                                </span> the application for <span className="text-white font-medium">{decisionConfig.userName}</span>?
+                                            </p>
+                                        </div>
 
-                                        <div className="flex justify-end gap-3">
+                                        <div className="w-full p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                                            <div className="flex items-start gap-4 text-left">
+                                                <div className="p-2 rounded-lg bg-vc-mint/10 mt-1">
+                                                    <Mail className="w-4 h-4 text-vc-mint" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="text-xs font-bold text-vc-mint/60 uppercase tracking-widest">Notification Flow</p>
+                                                    <p className="text-xs text-white/50 leading-relaxed">
+                                                        An official {decisionConfig.status === 'accepted' ? 'acceptance' : 'rejection'} email will be sent automatically to <span className="text-white/80">{decisionConfig.userEmail}</span>.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {decisionConfig.status === 'accepted' && (
+                                                <div className="pt-4 border-t border-white/5 space-y-3">
+                                                    <p className="text-[10px] font-bold text-vc-mint/60 uppercase tracking-widest text-left">Choose Ambassador Type</p>
+                                                    <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+                                                        <button
+                                                            onClick={() => setDecisionConfig({ ...decisionConfig, ambassadorType: 'local' })}
+                                                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${decisionConfig.ambassadorType === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg' : 'text-white/40 hover:text-white/60'}`}
+                                                        >
+                                                            Local Ambassador
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setDecisionConfig({ ...decisionConfig, ambassadorType: 'global' })}
+                                                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all ${decisionConfig.ambassadorType === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg' : 'text-white/40 hover:text-white/60'}`}
+                                                        >
+                                                            Global Ambassador
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 w-full pt-4">
                                             <button
-                                                onClick={() => setShowDeleteAppModal(false)}
-                                                className="px-4 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors font-medium"
+                                                onClick={() => setShowDecisionModal(false)}
+                                                disabled={processingDecision}
+                                                className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
                                             >
                                                 Cancel
                                             </button>
                                             <button
-                                                onClick={confirmDeleteApplication}
-                                                disabled={processingAppDeletion}
-                                                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                                onClick={executeAmbassadorDecision}
+                                                disabled={processingDecision}
+                                                className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${decisionConfig.status === 'accepted'
+                                                    ? 'bg-vc-mint text-vc-green-dark hover:bg-white'
+                                                    : 'bg-red-500 text-white hover:bg-red-400'
+                                                    } disabled:opacity-50 shadow-xl ${decisionConfig.status === 'accepted' ? 'shadow-vc-mint/10' : 'shadow-red-500/10'}`}
                                             >
-                                                {processingAppDeletion ? (
-                                                    <>
-                                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                        Deleting...
-                                                    </>
+                                                {processingDecision ? (
+                                                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                                                 ) : (
-                                                    'Delete Application'
+                                                    'Confirm'
                                                 )}
                                             </button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 </motion.div>
-                            )}
-                        </AnimatePresence>
+                            </div>
+                        )}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                        {showRemoveModal && userToRemove && (
+                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => !processingRemoval && setShowRemoveModal(false)}
+                                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    className="relative w-full max-w-lg bg-[#0c1e1c] border border-red-500/20 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden"
+                                >
+                                    {/* Abstract Glow Background */}
+                                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 rounded-full blur-[60px] pointer-events-none" />
 
-                        {/* Startup Application Deletion Modal */}
-                        <AnimatePresence>
-                            {showDeleteStartupModal && startupToDelete && (
+                                    <div className="flex flex-col items-center text-center space-y-6">
+                                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500/20 text-red-500">
+                                            <XCircle className="w-8 h-8" />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <h3 className="text-2xl font-bold">Remove Ambassador?</h3>
+                                            <p className="text-white/60 text-sm leading-relaxed px-4">
+                                                Are you sure you want to remove <span className="text-white font-medium">{userToRemove.name}</span> from the Ambassadors? This will revert their role to 'User'.
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 w-full pt-4">
+                                            <button
+                                                onClick={() => setShowRemoveModal(false)}
+                                                disabled={processingRemoval}
+                                                className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={confirmRemoveAmbassador}
+                                                disabled={processingRemoval}
+                                                className="w-full py-4 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl shadow-red-500/10"
+                                            >
+                                                {processingRemoval ? (
+                                                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    'Confirm Removal'
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Application Deletion Modal */}
+                    <AnimatePresence>
+                        {showDeleteAppModal && appToDelete && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                                onClick={() => setShowDeleteAppModal(false)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.95, opacity: 0 }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl"
+                                >
+                                    <div className="flex items-center gap-4 mb-4 text-red-400">
+                                        <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+                                            <Trash2 className="w-6 h-6" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white">Delete Application?</h3>
+                                    </div>
+
+                                    <p className="text-white/60 mb-6 font-poppins">
+                                        Are you sure you want to permanently delete the application for <span className="text-white font-bold">{appToDelete.name}</span>? This action cannot be undone.
+                                    </p>
+
+                                    <div className="flex justify-end gap-3">
+                                        <button
+                                            onClick={() => setShowDeleteAppModal(false)}
+                                            className="px-4 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={confirmDeleteApplication}
+                                            disabled={processingAppDeletion}
+                                            className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                        >
+                                            {processingAppDeletion ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    Deleting...
+                                                </>
+                                            ) : (
+                                                'Delete Application'
+                                            )}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Startup Application Deletion Modal */}
+                    <AnimatePresence>
+                        {showDeleteStartupModal && startupToDelete && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                                onClick={() => setShowDeleteStartupModal(false)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.95, opacity: 0 }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-[40px] -mr-16 -mt-16" />
+
+                                    <div className="relative z-10">
+                                        <div className="flex flex-col items-center text-center">
+                                            <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20">
+                                                <Trash2 className="w-8 h-8 text-red-500" />
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <h3 className="text-2xl font-black text-white uppercase tracking-wider">Delete Startup?</h3>
+                                                <p className="text-white/60 text-sm leading-relaxed px-4">
+                                                    Are you sure you want to permanently delete the application for <span className="text-vc-mint font-bold">{startupToDelete.name}</span>? This action cannot be undone.
+                                                </p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 w-full pt-8">
+                                                <button
+                                                    onClick={() => setShowDeleteStartupModal(false)}
+                                                    disabled={processingStartupDeletion}
+                                                    className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={confirmDeleteStartup}
+                                                    disabled={processingStartupDeletion}
+                                                    className="w-full py-4 rounded-2xl bg-red-500 text-white font-black uppercase tracking-widest hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl shadow-red-500/10"
+                                                >
+                                                    {processingStartupDeletion ? (
+                                                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                                    ) : (
+                                                        'Confirm Delete'
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Reward System Modal */}
+                    <AnimatePresence>
+                        {
+                            showRewardModal && rewardUser && (
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                                    onClick={() => setShowDeleteStartupModal(false)}
+                                    onClick={() => setShowRewardModal(false)}
                                 >
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
@@ -3814,236 +3843,175 @@ function AdminDashboardContent() {
                                         onClick={(e) => e.stopPropagation()}
                                         className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden"
                                     >
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-[40px] -mr-16 -mt-16" />
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-vc-mint/5 rounded-full blur-[40px] -mr-16 -mt-16" />
 
                                         <div className="relative z-10">
-                                            <div className="flex flex-col items-center text-center">
-                                                <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20">
-                                                    <Trash2 className="w-8 h-8 text-red-500" />
+                                            <div className="flex items-center gap-4 mb-6">
+                                                <div className="p-3 bg-vc-mint/10 rounded-xl border border-vc-mint/20">
+                                                    <Star className="w-6 h-6 text-vc-mint" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white">Award Venture Coins</h3>
+                                                    <p className="text-xs text-white/40 uppercase tracking-widest font-bold">{rewardUser.name}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-4 mb-8">
+                                                <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                                    <span className="text-sm text-white/40 font-medium">Current Total</span>
+                                                    <span className="text-lg font-black text-vc-mint flex items-center gap-1.5 leading-none">
+                                                        <CircleDollarSign className="w-5 h-5" /> {rewardUser.currentPoints}
+                                                    </span>
                                                 </div>
 
-                                                <div className="space-y-3">
-                                                    <h3 className="text-2xl font-black text-white uppercase tracking-wider">Delete Startup?</h3>
-                                                    <p className="text-white/60 text-sm leading-relaxed px-4">
-                                                        Are you sure you want to permanently delete the application for <span className="text-vc-mint font-bold">{startupToDelete.name}</span>? This action cannot be undone.
-                                                    </p>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">Venture Coins to Award</label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="number"
+                                                            value={pointsToAdd}
+                                                            onChange={(e) => setPointsToAdd(e.target.value)}
+                                                            placeholder="e.g. 50 or -20"
+                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-vc-mint transition-colors font-bold text-lg"
+                                                        />
+                                                    </div>
+                                                    <p className="text-[10px] text-white/20 italic ml-1">Use negative numbers to subtract coins</p>
                                                 </div>
 
-                                                <div className="grid grid-cols-2 gap-4 w-full pt-8">
-                                                    <button
-                                                        onClick={() => setShowDeleteStartupModal(false)}
-                                                        disabled={processingStartupDeletion}
-                                                        className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold hover:bg-white/10 transition-all disabled:opacity-50"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                        onClick={confirmDeleteStartup}
-                                                        disabled={processingStartupDeletion}
-                                                        className="w-full py-4 rounded-2xl bg-red-500 text-white font-black uppercase tracking-widest hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl shadow-red-500/10"
-                                                    >
-                                                        {processingStartupDeletion ? (
-                                                            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                                        ) : (
-                                                            'Confirm Delete'
-                                                        )}
-                                                    </button>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">Reason / Completed Task</label>
+                                                    <textarea
+                                                        value={rewardReason}
+                                                        onChange={(e) => setRewardReason(e.target.value)}
+                                                        placeholder="e.g. Social media promotion, Event support..."
+                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-vc-mint transition-colors h-24 resize-none font-poppins"
+                                                    />
                                                 </div>
+                                            </div>
+
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => setShowRewardModal(false)}
+                                                    className="flex-1 py-4 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors font-bold text-sm"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={handleGivePoints}
+                                                    disabled={processingReward || !pointsToAdd}
+                                                    className="flex-[1.5] py-4 rounded-xl bg-vc-mint text-vc-green-dark font-black text-sm hover:bg-vc-mint/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-2"
+                                                >
+                                                    {processingReward ? (
+                                                        <div className="w-4 h-4 border-2 border-vc-green-dark/30 border-t-vc-green-dark rounded-full animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            Award Venture Coins
+                                                            <CheckCircle className="w-4 h-4" />
+                                                        </>
+                                                    )}
+                                                </button>
                                             </div>
                                         </div>
                                     </motion.div>
                                 </motion.div>
                             )}
-                        </AnimatePresence>
+                    </AnimatePresence>
 
-                        {/* Reward System Modal */}
-                        <AnimatePresence>
-                            {
-                                showRewardModal && rewardUser && (
+                    {/* Reward History Modal */}
+                    <AnimatePresence>
+                        {
+                            showHistoryModal && historyUser && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                                    onClick={() => setShowHistoryModal(false)}
+                                >
                                     <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                                        onClick={() => setShowRewardModal(false)}
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0.95, opacity: 0 }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-8 w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl relative overflow-hidden"
                                     >
-                                        <motion.div
-                                            initial={{ scale: 0.95, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            exit={{ scale: 0.95, opacity: 0 }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden"
-                                        >
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-vc-mint/5 rounded-full blur-[40px] -mr-16 -mt-16" />
+                                        <div className="absolute top-0 right-0 w-48 h-48 bg-vc-mint/5 rounded-full blur-[60px] -mr-24 -mt-24" />
 
-                                            <div className="relative z-10">
-                                                <div className="flex items-center gap-4 mb-6">
+                                        <div className="relative z-10 flex flex-col flex-1 min-h-0">
+                                            <div className="flex items-center justify-between mb-8">
+                                                <div className="flex items-center gap-4">
                                                     <div className="p-3 bg-vc-mint/10 rounded-xl border border-vc-mint/20">
-                                                        <Star className="w-6 h-6 text-vc-mint" />
+                                                        <Clock className="w-6 h-6 text-vc-mint" />
                                                     </div>
                                                     <div>
-                                                        <h3 className="text-xl font-bold text-white">Award Venture Coins</h3>
-                                                        <p className="text-xs text-white/40 uppercase tracking-widest font-bold">{rewardUser.name}</p>
+                                                        <h3 className="text-xl font-bold text-white">Venture Coin History</h3>
+                                                        <p className="text-xs text-white/40 uppercase tracking-widest font-bold font-poppins">{historyUser.name}</p>
                                                     </div>
                                                 </div>
-
-                                                <div className="space-y-4 mb-8">
-                                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                                        <span className="text-sm text-white/40 font-medium">Current Total</span>
-                                                        <span className="text-lg font-black text-vc-mint flex items-center gap-1.5 leading-none">
-                                                            <CircleDollarSign className="w-5 h-5" /> {rewardUser.currentPoints}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">Venture Coins to Award</label>
-                                                        <div className="relative">
-                                                            <input
-                                                                type="number"
-                                                                value={pointsToAdd}
-                                                                onChange={(e) => setPointsToAdd(e.target.value)}
-                                                                placeholder="e.g. 50 or -20"
-                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-vc-mint transition-colors font-bold text-lg"
-                                                            />
-                                                        </div>
-                                                        <p className="text-[10px] text-white/20 italic ml-1">Use negative numbers to subtract coins</p>
-                                                    </div>
-
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">Reason / Completed Task</label>
-                                                        <textarea
-                                                            value={rewardReason}
-                                                            onChange={(e) => setRewardReason(e.target.value)}
-                                                            placeholder="e.g. Social media promotion, Event support..."
-                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-vc-mint transition-colors h-24 resize-none font-poppins"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex gap-3">
-                                                    <button
-                                                        onClick={() => setShowRewardModal(false)}
-                                                        className="flex-1 py-4 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors font-bold text-sm"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                        onClick={handleGivePoints}
-                                                        disabled={processingReward || !pointsToAdd}
-                                                        className="flex-[1.5] py-4 rounded-xl bg-vc-mint text-vc-green-dark font-black text-sm hover:bg-vc-mint/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-2"
-                                                    >
-                                                        {processingReward ? (
-                                                            <div className="w-4 h-4 border-2 border-vc-green-dark/30 border-t-vc-green-dark rounded-full animate-spin" />
-                                                        ) : (
-                                                            <>
-                                                                Award Venture Coins
-                                                                <CheckCircle className="w-4 h-4" />
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    onClick={() => setShowHistoryModal(false)}
+                                                    className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                                                >
+                                                    <X className="w-6 h-6 text-white/40" />
+                                                </button>
                                             </div>
-                                        </motion.div>
-                                    </motion.div>
-                                )}
-                        </AnimatePresence>
 
-                        {/* Reward History Modal */}
-                        <AnimatePresence>
-                            {
-                                showHistoryModal && historyUser && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                                        onClick={() => setShowHistoryModal(false)}
-                                    >
-                                        <motion.div
-                                            initial={{ scale: 0.95, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            exit={{ scale: 0.95, opacity: 0 }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="bg-[#0c1e1c] border border-white/10 rounded-2xl p-8 w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl relative overflow-hidden"
-                                        >
-                                            <div className="absolute top-0 right-0 w-48 h-48 bg-vc-mint/5 rounded-full blur-[60px] -mr-24 -mt-24" />
-
-                                            <div className="relative z-10 flex flex-col flex-1 min-h-0">
-                                                <div className="flex items-center justify-between mb-8">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="p-3 bg-vc-mint/10 rounded-xl border border-vc-mint/20">
-                                                            <Clock className="w-6 h-6 text-vc-mint" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="text-xl font-bold text-white">Venture Coin History</h3>
-                                                            <p className="text-xs text-white/40 uppercase tracking-widest font-bold font-poppins">{historyUser.name}</p>
-                                                        </div>
+                                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                                                {loadingHistory ? (
+                                                    <div className="flex flex-col items-center justify-center py-20 gap-4 text-white/30">
+                                                        <div className="w-8 h-8 border-2 border-vc-mint/30 border-t-vc-mint rounded-full animate-spin" />
+                                                        <p className="font-poppins text-sm italic">Loading history...</p>
                                                     </div>
-                                                    <button
-                                                        onClick={() => setShowHistoryModal(false)}
-                                                        className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-                                                    >
-                                                        <X className="w-6 h-6 text-white/40" />
-                                                    </button>
-                                                </div>
-
-                                                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                                                    {loadingHistory ? (
-                                                        <div className="flex flex-col items-center justify-center py-20 gap-4 text-white/30">
-                                                            <div className="w-8 h-8 border-2 border-vc-mint/30 border-t-vc-mint rounded-full animate-spin" />
-                                                            <p className="font-poppins text-sm italic">Loading history...</p>
-                                                        </div>
-                                                    ) : userHistory.length === 0 ? (
-                                                        <div className="flex flex-col items-center justify-center py-20 gap-4 text-white/20">
-                                                            <AlertCircle className="w-12 h-12" />
-                                                            <p className="font-poppins text-sm italic">No reward history found.</p>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="space-y-4">
-                                                            {userHistory.map((item, idx) => (
-                                                                <div
-                                                                    key={idx}
-                                                                    className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-start justify-between gap-6 group hover:border-vc-mint/20 transition-all"
-                                                                >
-                                                                    <div className="space-y-1.5 flex-1">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
-                                                                                {item.timestamp?.toDate().toLocaleDateString(undefined, {
-                                                                                    year: 'numeric',
-                                                                                    month: 'short',
-                                                                                    day: 'numeric',
-                                                                                    hour: '2-digit',
-                                                                                    minute: '2-digit'
-                                                                                }) || 'Just now'}
-                                                                            </span>
-                                                                        </div>
-                                                                        <p className="text-white/90 font-medium font-poppins leading-relaxed">{item.reason}</p>
+                                                ) : userHistory.length === 0 ? (
+                                                    <div className="flex flex-col items-center justify-center py-20 gap-4 text-white/20">
+                                                        <AlertCircle className="w-12 h-12" />
+                                                        <p className="font-poppins text-sm italic">No reward history found.</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-4">
+                                                        {userHistory.map((item, idx) => (
+                                                            <div
+                                                                key={idx}
+                                                                className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-start justify-between gap-6 group hover:border-vc-mint/20 transition-all"
+                                                            >
+                                                                <div className="space-y-1.5 flex-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                                                                            {item.timestamp?.toDate().toLocaleDateString(undefined, {
+                                                                                year: 'numeric',
+                                                                                month: 'short',
+                                                                                day: 'numeric',
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit'
+                                                                            }) || 'Just now'}
+                                                                        </span>
                                                                     </div>
-                                                                    <div className={`px-3 py-1.5 rounded-xl font-black text-sm shrink-0 flex items-center gap-1.5 ${item.points > 0 ? 'bg-vc-mint/10 text-vc-mint border border-vc-mint/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                                                        }`}>
-                                                                        {item.points > 0 ? '+' : ''}{item.points}
-                                                                        <Star className="w-3 h-3" />
-                                                                    </div>
+                                                                    <p className="text-white/90 font-medium font-poppins leading-relaxed">{item.reason}</p>
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="mt-8 pt-6 border-t border-white/5">
-                                                    <button
-                                                        onClick={() => setShowHistoryModal(false)}
-                                                        className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all text-sm"
-                                                    >
-                                                        Close History
-                                                    </button>
-                                                </div>
+                                                                <div className={`px-3 py-1.5 rounded-xl font-black text-sm shrink-0 flex items-center gap-1.5 ${item.points > 0 ? 'bg-vc-mint/10 text-vc-mint border border-vc-mint/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                                                    }`}>
+                                                                    {item.points > 0 ? '+' : ''}{item.points}
+                                                                    <Star className="w-3 h-3" />
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
-                                        </motion.div>
+
+                                            <div className="mt-8 pt-6 border-t border-white/5">
+                                                <button
+                                                    onClick={() => setShowHistoryModal(false)}
+                                                    className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all text-sm"
+                                                >
+                                                    Close History
+                                                </button>
+                                            </div>
+                                        </div>
                                     </motion.div>
-                                )}
-                        </AnimatePresence>
-                    </div>
+                                </motion.div>
+                            )}
+                    </AnimatePresence>
                 </div>
             </div>
         </main >
