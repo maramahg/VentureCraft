@@ -900,16 +900,20 @@ function AdminDashboardContent() {
                 const contactsMap: Record<string, { name: string; email: string; phone: string }> = {};
 
                 await Promise.all(judgesList.map(async (j) => {
-                    const userDoc = await getDoc(doc(db, 'users', j.id));
-                    let name = `Judge (${j.id.substring(0, 8)})`;
-                    let email = '';
-                    let phone = '';
+                    // Start with data potentially already in the judge document
+                    let name = j.displayName || `Judge (${j.id.substring(0, 8)})`;
+                    let email = j.email || '';
+                    let phone = j.phoneNumber || '';
 
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        name = userData?.displayName || userData?.fullName || userData?.name || name;
-                        email = userData?.email || '';
-                        phone = userData?.phoneNumber || userData?.phone || '';
+                    // Fallback to users collection if fields are missing
+                    if (!j.displayName || !j.email || !j.phoneNumber) {
+                        const userDoc = await getDoc(doc(db, 'users', j.id));
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            name = name === `Judge (${j.id.substring(0, 8)})` ? (userData?.displayName || userData?.fullName || userData?.name || name) : name;
+                            email = email || userData?.email || '';
+                            phone = phone || userData?.phoneNumber || userData?.phone || '';
+                        }
                     }
 
                     namesMap[j.id] = name;
