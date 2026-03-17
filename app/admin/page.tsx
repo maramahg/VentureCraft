@@ -2489,7 +2489,7 @@ function AdminDashboardContent() {
                         </div>
                     )}
 
-                    {activeTab === 'startups' && (
+                    {(activeTab === 'startups' || activeTab === 'judges') && (
                         <div className="space-y-4">
                             {/* Team Roster for Judges/Supervisors */}
                             {!!judgeTeam && !isAdmin && (
