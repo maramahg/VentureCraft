@@ -211,7 +211,7 @@ interface JudgeMember {
     id: string;
     team: 'A' | 'B' | 'C' | 'D' | null;
     role: 'ultimate' | 'team_judge';
-    name?: string;
+    displayName?: string;
 }
 
 const AdminDropdown = ({ options, value, onChange, placeholder }: {
@@ -878,15 +878,17 @@ function AdminDashboardContent() {
                 await Promise.all(judgesList.map(async (j) => {
                     const userDoc = await getDoc(doc(db, 'users', j.id));
                     if (userDoc.exists()) {
-                        names[j.id] = userDoc.data()?.fullName || userDoc.data()?.name || 'Unknown Judge';
+                        const userData = userDoc.data();
+                        names[j.id] = userData?.displayName || userData?.fullName || userData?.name || `Judge (${j.id.substring(0, 8)})`;
                     } else {
                         // Fallback: If not in users collection, use first 8 chars of UID
                         names[j.id] = `Judge (${j.id.substring(0, 8)})`;
                     }
                 }));
 
+                console.log(`Resolved names for ${judgesList.length} judges:`, names);
                 setJudgeNames(names);
-                setAllJudges(judgesList.map(j => ({ ...j, name: names[j.id] })));
+                setAllJudges(judgesList.map(j => ({ ...j, displayName: names[j.id] })));
             } catch (err) {
                 console.error('Error fetching judges directory:', err);
             }
@@ -2346,11 +2348,10 @@ function AdminDashboardContent() {
                                                                             {teamMembers.length > 0 ? teamMembers.map(member => (
                                                                                 <div key={member.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
                                                                                     <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
-                                                                                        {member.name?.charAt(0) || <User className="w-3 h-3" />}
+                                                                                        {member.displayName?.charAt(0) || <User className="w-3 h-3" />}
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
-                                                                                        <p className="text-xs font-bold text-white truncate">{member.name || 'Unknown Judge'}</p>
-                                                                                        <p className="text-[8px] text-white/30 font-mono uppercase truncate">{member.id.substring(0, 8)}...</p>
+                                                                                        <p className="text-xs font-bold text-white truncate">{member.displayName || 'Unknown Judge'}</p>
                                                                                     </div>
                                                                                 </div>
                                                                             )) : (
