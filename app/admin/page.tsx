@@ -27,6 +27,7 @@ interface Application {
     location?: string;
     status: 'pending' | 'accepted' | 'rejected' | 'submitted';
     isEdited?: boolean;
+    assignedTeam?: 'A' | 'B' | 'C' | 'D' | null;
     submittedAt: any;
     updatedAt?: any;
     teamSize: number;
