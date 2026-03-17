@@ -503,7 +503,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'teams'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
     const [showOversight, setShowOversight] = useState(false);
     const [selectedOversightTeam, setSelectedOversightTeam] = useState<string | null>(null);
@@ -1754,7 +1754,7 @@ function AdminDashboardContent() {
                                         ? 'Ambassador Network Management'
                                         : activeTab === 'qr'
                                             ? 'Secure Access Protocol Control'
-                                            : activeTab === 'teams'
+                                            : activeTab === 'judges'
                                                 ? 'Oversight: Judge Network Performance'
                                                 : 'Strategic Communication Command'
                                 }
@@ -1816,21 +1816,28 @@ function AdminDashboardContent() {
                                     <p className="text-[9px] font-bold text-vc-teal/60 uppercase tracking-widest mb-0.5">Team {judgeTeam} Supervisor</p>
                                     <div className="flex flex-col">
                                         <p className="text-sm font-bold text-white mb-1">
-                                            {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.displayName || 'Not Assigned'}
+                                            {allJudges.find(j => j.team === judgeTeam && (j.role?.toLowerCase() === 'supervisor' || j.role?.toLowerCase() === 'ultimate'))?.displayName || 'Not Assigned'}
                                         </p>
                                         <div className="flex flex-col gap-0.5">
-                                            {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email && (
-                                                <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-medium">
-                                                    <Mail className="w-3 h-3 text-vc-teal/40" />
-                                                    <span>{allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email}</span>
-                                                </div>
-                                            )}
-                                            {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber && (
-                                                <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-medium">
-                                                    <Phone className="w-3 h-3 text-vc-teal/40" />
-                                                    <span>{allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber}</span>
-                                                </div>
-                                            )}
+                                            {(() => {
+                                                const sup = allJudges.find(j => j.team === judgeTeam && (j.role?.toLowerCase() === 'supervisor' || j.role?.toLowerCase() === 'ultimate'));
+                                                return sup ? (
+                                                    <>
+                                                        {sup.email && (
+                                                            <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-medium">
+                                                                <Mail className="w-3 h-3 text-vc-teal/40" />
+                                                                <span>{sup.email}</span>
+                                                            </div>
+                                                        )}
+                                                        {sup.phoneNumber && (
+                                                            <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-medium">
+                                                                <Phone className="w-3 h-3 text-vc-teal/40" />
+                                                                <span>{sup.phoneNumber}</span>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                ) : null;
+                                            })()}
                                         </div>
                                     </div>
                                 </div>
@@ -1902,6 +1909,14 @@ function AdminDashboardContent() {
                             className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                         >
                             <Users className="w-4 h-4" /> Ambassadors
+                        </button>
+                    )}
+                    {(isAdmin || isUltimateJudge) && (
+                        <button
+                            onClick={() => setActiveTab('judges')}
+                            className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'judges' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                        >
+                            <Shield className="w-4 h-4" /> Judges
                         </button>
                     )}
                     {isAdmin && (
@@ -2287,6 +2302,112 @@ function AdminDashboardContent() {
                             )}
                         </div>
                     )}
+                    {activeTab === 'judges' && (isAdmin || isUltimateJudge) && (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="mb-12">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20">
+                                            <Shield className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-white">Judging Team Oversight</h3>
+                                            <p className="text-xs text-white/40 uppercase tracking-widest font-bold font-poppins">Global Progress Monitor</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowOversight(!showOversight)}
+                                        className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border ${showOversight ? 'bg-vc-mint text-vc-green-dark border-vc-mint' : 'bg-white/5 text-white/40 border-white/10 hover:border-vc-mint/30'}`}
+                                    >
+                                        {showOversight ? 'Hide Team Details' : 'View Team Workloads'}
+                                    </button>
+                                </div>
+
+                                <AnimatePresence>
+                                    {showOversight && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+                                                {['A', 'B', 'C', 'D', 'E'].map(team => {
+                                                    const teamApps = applications.filter(a => a.assignedTeam === team);
+                                                    const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
+                                                    const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
+                                                    const teamMembers = allJudges.filter(j => j.team === team);
+
+                                                    return (
+                                                        <div
+                                                            key={team}
+                                                            className={`glass-panel p-6 transition-all group cursor-pointer active:scale-95 ${selectedOversightTeam === team ? 'border-vc-mint shadow-[0_0_20px_rgba(0,186,166,0.15)] bg-vc-mint/5 scale-[1.02]' : 'border-vc-mint/10 hover:border-vc-mint/30'}`}
+                                                            onClick={() => setSelectedOversightTeam(selectedOversightTeam === team ? null : team)}
+                                                        >
+                                                            <div className="flex items-center justify-between mb-6">
+                                                                <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
+                                                                    {team}
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">Workload</span>
+                                                                    <span className="text-lg font-bold text-white tracking-tight">{teamApps.length} Apps</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="space-y-4">
+                                                                <div>
+                                                                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5">
+                                                                        <span className="text-white/40">Evaluation Progress</span>
+                                                                        <span className="text-vc-mint">{Math.round(progress)}%</span>
+                                                                    </div>
+                                                                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                                                        <motion.div
+                                                                            initial={{ width: 0 }}
+                                                                            animate={{ width: `${progress}%` }}
+                                                                            className="h-full bg-vc-mint shadow-[0_0_10px_rgba(0,186,166,0.5)]"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="pt-4 border-t border-white/5">
+                                                                    <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
+                                                                    <div className="space-y-2">
+                                                                        {teamMembers.length > 0 ? teamMembers.map(member => {
+                                                                            const isSupMember = member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate';
+                                                                            return (
+                                                                                <div key={member.id} className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${isSupMember ? 'bg-vc-teal/10 border-vc-teal/30' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}>
+                                                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${isSupMember ? 'bg-vc-teal text-white' : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'}`}>
+                                                                                        {member.displayName?.charAt(0) || <User className="w-3 h-3" />}
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <p className={`text-xs font-bold truncate ${isSupMember ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
+                                                                                        <span className={`text-[8px] uppercase tracking-tighter font-black opacity-60 ${isSupMember ? 'text-vc-teal' : 'text-vc-mint/60'}`}>
+                                                                                            {member.role?.toLowerCase() === 'supervisor' ? 'Supervisor' :
+                                                                                                member.role?.toLowerCase() === 'ultimate' ? 'Ultimate (Supervisor)' :
+                                                                                                    member.role?.toLowerCase() === 'team_judge' ? 'Evaluator' :
+                                                                                                        (member.role || 'Evaluator')}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            );
+                                                                        }) : (
+                                                                            <p className="text-[10px] text-white/20 italic">No members assigned</p>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <div className="h-px w-full bg-white/5" />
+                            </div>
+                        </div>
+                    )}
+
                     {activeTab === 'qr' && (
                         <div className="glass-panel p-8 sm:p-12 min-h-[600px] relative overflow-hidden">
                             <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
@@ -2365,10 +2486,11 @@ function AdminDashboardContent() {
                             </div>
                         </div>
                     )}
+
                     {activeTab === 'startups' && (
                         <div className="space-y-4">
                             {/* Team Roster for Judges/Supervisors */}
-                            {(isTeamJudgeOnly || isSupervisor) && !!judgeTeam && (
+                            {!!judgeTeam && !isAdmin && (
                                 <div className="mb-8 glass-panel p-6 border-vc-teal/20 bg-vc-teal/5 animate-in fade-in slide-in-from-top-4 duration-700">
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="w-10 h-10 rounded-xl bg-vc-teal/20 flex items-center justify-center text-vc-teal border border-vc-teal/20">
@@ -2395,7 +2517,7 @@ function AdminDashboardContent() {
                                                         : 'bg-white/5 border-white/10 hover:border-vc-mint/30'
                                                         }`}
                                                 >
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-inner ${member.role?.toLowerCase() === 'supervisor'
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-inner ${(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate')
                                                         ? 'bg-vc-teal text-white'
                                                         : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'
                                                         }`}>
@@ -2403,10 +2525,10 @@ function AdminDashboardContent() {
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 mb-0.5">
-                                                            <p className={`text-xs font-bold truncate ${member.role?.toLowerCase() === 'supervisor' ? 'text-vc-teal' : 'text-white'}`}>
+                                                            <p className={`text-xs font-bold truncate ${(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') ? 'text-vc-teal' : 'text-white'}`}>
                                                                 {member.displayName || 'Unnamed'}
                                                             </p>
-                                                            {member.role?.toLowerCase() === 'supervisor' ? (
+                                                            {(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') ? (
                                                                 <span className="text-[7px] px-1.5 py-0.5 rounded bg-vc-teal/20 text-vc-teal uppercase font-black tracking-tighter">Supervisor</span>
                                                             ) : member.id === auth.currentUser?.uid ? (
                                                                 <span className="text-[7px] px-1.5 py-0.5 rounded bg-white/10 text-white/40 uppercase font-black tracking-tighter">You</span>
@@ -2418,104 +2540,6 @@ function AdminDashboardContent() {
                                             ))
                                         }
                                     </div>
-                                </div>
-                            )}
-
-                            {isUltimateJudge && (
-                                <div className="mb-12">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20">
-                                                <Shield className="w-6 h-6" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-xl font-bold text-white">Judging Team Oversight</h3>
-                                                <p className="text-xs text-white/40 uppercase tracking-widest font-bold font-poppins">Global Progress Monitor</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => setShowOversight(!showOversight)}
-                                            className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border ${showOversight ? 'bg-vc-mint text-vc-green-dark border-vc-mint' : 'bg-white/5 text-white/40 border-white/10 hover:border-vc-mint/30'}`}
-                                        >
-                                            {showOversight ? 'Hide Team Details' : 'View Team Workloads'}
-                                        </button>
-                                    </div>
-
-                                    <AnimatePresence>
-                                        {showOversight && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
-                                                    {['A', 'B', 'C', 'D', 'E'].map(team => {
-                                                        const teamApps = applications.filter(a => a.assignedTeam === team);
-                                                        const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
-                                                        const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
-                                                        const teamMembers = allJudges.filter(j => j.team === team);
-
-                                                        return (
-                                                            <div
-                                                                key={team}
-                                                                className={`glass-panel p-6 transition-all group cursor-pointer active:scale-95 ${selectedOversightTeam === team ? 'border-vc-mint shadow-[0_0_20px_rgba(0,186,166,0.15)] bg-vc-mint/5 scale-[1.02]' : 'border-vc-mint/10 hover:border-vc-mint/30'}`}
-                                                                onClick={() => setSelectedOversightTeam(selectedOversightTeam === team ? null : team)}
-                                                            >
-                                                                <div className="flex items-center justify-between mb-6">
-                                                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
-                                                                        {team}
-                                                                    </div>
-                                                                    <div className="text-right">
-                                                                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">Workload</span>
-                                                                        <span className="text-lg font-bold text-white tracking-tight">{teamApps.length} Apps</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="space-y-4">
-                                                                    <div>
-                                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5">
-                                                                            <span className="text-white/40">Evaluation Progress</span>
-                                                                            <span className="text-vc-mint">{Math.round(progress)}%</span>
-                                                                        </div>
-                                                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                                                                            <motion.div
-                                                                                initial={{ width: 0 }}
-                                                                                animate={{ width: `${progress}%` }}
-                                                                                className="h-full bg-vc-mint shadow-[0_0_10px_rgba(0,186,166,0.5)]"
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="pt-4 border-t border-white/5">
-                                                                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
-                                                                        <div className="space-y-2">
-                                                                            {teamMembers.length > 0 ? teamMembers.map(member => (
-                                                                                <div key={member.id} className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${member.role?.toLowerCase() === 'supervisor' ? 'bg-vc-teal/10 border-vc-teal/30' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}>
-                                                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${member.role?.toLowerCase() === 'supervisor' ? 'bg-vc-teal text-white' : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'}`}>
-                                                                                        {member.displayName?.charAt(0) || <User className="w-3 h-3" />}
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                        <p className={`text-xs font-bold truncate ${member.role?.toLowerCase() === 'supervisor' ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
-                                                                                        {member.role?.toLowerCase() === 'supervisor' && (
-                                                                                            <span className="text-[8px] uppercase tracking-tighter font-black opacity-60 text-vc-teal">Supervisor</span>
-                                                                                        )}
-                                                                                    </div>
-                                                                                </div>
-                                                                            )) : (
-                                                                                <p className="text-[10px] text-white/20 italic">No members assigned</p>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                    <div className="h-px w-full bg-white/5" />
                                 </div>
                             )}
 
@@ -2717,299 +2741,300 @@ function AdminDashboardContent() {
                         </div>
                     )}
 
-
-                    {activeTab === 'broadcast' && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            {/* Header Section */}
-                            <div className="glass-panel p-2 px-5 relative overflow-hidden w-fit">
-                                <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
-                                <div className="relative z-10 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center shrink-0">
-                                        <Mail className="text-vc-mint w-4 h-4" />
-                                    </div>
-                                    <h2 className="text-lg font-bold font-poppins leading-none">Email Center</h2>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                {/* Left Panel: Content Editor */}
-                                <div className="glass-panel p-8 space-y-6">
-                                    <div className="flex items-center gap-2 text-vc-mint mb-2">
-                                        <FileText className="w-5 h-5" />
-                                        <h3 className="font-bold uppercase tracking-widest text-sm">Email Content</h3>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Subject Line</label>
-                                            <input
-                                                type="text"
-                                                value={broadcastSubject}
-                                                onChange={(e) => setBroadcastSubject(e.target.value)}
-                                                placeholder="Enter email subject..."
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
-                                            />
+                    {
+                        activeTab === 'broadcast' && (
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {/* Header Section */}
+                                <div className="glass-panel p-2 px-5 relative overflow-hidden w-fit">
+                                    <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
+                                    <div className="relative z-10 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-vc-mint/10 flex items-center justify-center shrink-0">
+                                            <Mail className="text-vc-mint w-4 h-4" />
                                         </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Email Headline</label>
-                                            <input
-                                                type="text"
-                                                value={broadcastHeadline}
-                                                onChange={(e) => setBroadcastHeadline(e.target.value)}
-                                                placeholder="Enter main headline..."
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Message Body</label>
-                                                <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
-                                                    <button
-                                                        onClick={() => insertTag('**', '**')}
-                                                        title="Bold text"
-                                                        className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
-                                                    >
-                                                        <span className="font-serif">B</span>
-                                                    </button>
-                                                    <div className="w-[1px] h-3 bg-white/10" />
-                                                    <button
-                                                        onClick={() => insertTag('_', '_')}
-                                                        title="Italic text"
-                                                        className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
-                                                    >
-                                                        <span className="font-serif italic">I</span>
-                                                    </button>
-                                                    <div className="w-[1px] h-3 bg-white/10" />
-                                                    <button
-                                                        onClick={() => insertTag('[mint]', '[/mint]')}
-                                                        title="Highlight in mint"
-                                                        className="px-2 py-1 text-xs font-bold text-vc-mint hover:bg-vc-mint/10 rounded-lg transition-colors flex items-center gap-1.5"
-                                                    >
-                                                        <div className="w-2 h-2 rounded-full bg-vc-mint" />
-                                                        <span>Mint</span>
-                                                    </button>
-                                                    <div className="w-[1px] h-3 bg-white/10" />
-
-                                                    {/* Font Size Dropdown */}
-                                                    <div className="relative group/size">
-                                                        <button className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1">
-                                                            <Type className="w-3.5 h-3.5" />
-                                                            <ChevronDown className="w-3 h-3 text-white/20" />
-                                                        </button>
-                                                        <div className="absolute bottom-full left-0 mb-2 w-32 bg-[#0c1e1c] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/size:opacity-100 group-hover/size:visible transition-all z-50 p-1">
-                                                            {[12, 14, 16, 18, 20, 24, 32].map(size => (
-                                                                <button
-                                                                    key={size}
-                                                                    onClick={() => insertTag(`[size=${size}]`, '[/size]')}
-                                                                    className="w-full text-left px-3 py-2 text-[10px] font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 rounded-lg transition-all"
-                                                                >
-                                                                    {size}px {size === 16 && '(Default)'}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="w-[1px] h-3 bg-white/10" />
-
-                                                    {/* Alignment Group */}
-                                                    <div className="flex items-center gap-0.5">
-                                                        <button
-                                                            onClick={() => insertTag('[align=left]', '[/align]')}
-                                                            title="Align Left"
-                                                            className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
-                                                        >
-                                                            <AlignLeft className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => insertTag('[align=center]', '[/align]')}
-                                                            title="Align Center"
-                                                            className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
-                                                        >
-                                                            <AlignCenter className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => insertTag('[align=right]', '[/align]')}
-                                                            title="Align Right"
-                                                            className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
-                                                        >
-                                                            <AlignRight className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <textarea
-                                                ref={broadcastTextareaRef}
-                                                value={broadcastMessage}
-                                                onChange={(e) => setBroadcastMessage(e.target.value)}
-                                                placeholder="Enter your announcement message here..."
-                                                rows={8}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors resize-none"
-                                            />
-                                        </div>
-
-                                        {/* Button Options */}
-                                        <div className="pt-4 border-t border-white/5 space-y-6">
-                                            <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10 outline-none">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`p-2 rounded-lg ${broadcastShowButton ? 'bg-vc-mint/20 text-vc-mint' : 'bg-white/5 text-white/20'}`}>
-                                                        <ExternalLink className="w-4 h-4" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold">Include Action Button</p>
-                                                        <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call to Action Option</p>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => setBroadcastShowButton(!broadcastShowButton)}
-                                                    className={`w-12 h-6 rounded-full transition-all relative ${broadcastShowButton ? 'bg-vc-mint shadow-[0_0_15px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
-                                                >
-                                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${broadcastShowButton ? 'right-1' : 'left-1'}`} />
-                                                </button>
-                                            </div>
-
-                                            <AnimatePresence>
-                                                {broadcastShowButton && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, height: 0 }}
-                                                        animate={{ opacity: 1, height: 'auto' }}
-                                                        exit={{ opacity: 0, height: 0 }}
-                                                        className="space-y-4 overflow-hidden"
-                                                    >
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button Text</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={broadcastButtonText}
-                                                                    onChange={(e) => setBroadcastButtonText(e.target.value)}
-                                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button URL</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={broadcastButtonUrl}
-                                                                    onChange={(e) => setBroadcastButtonUrl(e.target.value)}
-                                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-
-                                        {/* Attachments Section */}
-                                        <div className="pt-6 border-t border-white/5 space-y-4">
-                                            <div className="flex items-center justify-between">
-                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Attachments</label>
-                                                <span className="text-[10px] text-white/20 uppercase font-medium">Total: {(broadcastAttachments.reduce((acc, att) => acc + (att.content.length * 0.75), 0) / (1024 * 1024)).toFixed(2)} MB / 10 MB</span>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {broadcastAttachments.map((file, idx) => (
-                                                    <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2 group hover:border-vc-mint/30 transition-all">
-                                                        <div className="flex items-center gap-3 overflow-hidden">
-                                                            <Paperclip className="w-3 h-3 text-vc-mint/50 shrink-0" />
-                                                            <span className="text-xs text-white/60 truncate">{file.name}</span>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeBroadcastAttachment(idx)}
-                                                            className="p-1.5 text-white/20 hover:text-red-500 transition-colors"
-                                                        >
-                                                            <X className="w-3 h-3" />
-                                                        </button>
-                                                    </div>
-                                                ))}
-
-                                                <label className="flex items-center justify-center gap-2 px-4 py-4 bg-white/5 border border-dashed border-white/20 rounded-2xl cursor-pointer hover:bg-white/10 hover:border-vc-mint/40 transition-all group">
-                                                    <Paperclip className="w-4 h-4 text-white/40 group-hover:text-vc-mint transition-colors" />
-                                                    <span className="text-xs font-bold text-white/40 group-hover:text-white transition-colors">Attach Files</span>
-                                                    <input
-                                                        type="file"
-                                                        multiple
-                                                        className="hidden"
-                                                        onChange={handleBroadcastFileChange}
-                                                    />
-                                                </label>
-                                            </div>
-                                        </div>
+                                        <h2 className="text-lg font-bold font-poppins leading-none">Email Center</h2>
                                     </div>
                                 </div>
 
-                                {/* Right Panel: Recipients & Controls */}
-                                <div className="space-y-8">
-                                    <div className="glass-panel p-8 bg-vc-mint/5 border-vc-mint/20 space-y-8">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    {/* Left Panel: Content Editor */}
+                                    <div className="glass-panel p-8 space-y-6">
                                         <div className="flex items-center gap-2 text-vc-mint mb-2">
-                                            <Users className="w-5 h-5" />
-                                            <h3 className="font-bold uppercase tracking-widest text-sm">Send Options</h3>
+                                            <FileText className="w-5 h-5" />
+                                            <h3 className="font-bold uppercase tracking-widest text-sm">Email Content</h3>
                                         </div>
 
-                                        {/* Option 1: Test Mode */}
-                                        <div className="space-y-4">
-                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                                <h4 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Phase 1: Send Test</h4>
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        type="email"
-                                                        value={sendToEmail}
-                                                        onChange={(e) => setSendToEmail(e.target.value)}
-                                                        placeholder="Your test email..."
-                                                        className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-vc-mint transition-all"
-                                                    />
+                                        <div className="space-y-5">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Subject Line</label>
+                                                <input
+                                                    type="text"
+                                                    value={broadcastSubject}
+                                                    onChange={(e) => setBroadcastSubject(e.target.value)}
+                                                    placeholder="Enter email subject..."
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Email Headline</label>
+                                                <input
+                                                    type="text"
+                                                    value={broadcastHeadline}
+                                                    onChange={(e) => setBroadcastHeadline(e.target.value)}
+                                                    placeholder="Enter main headline..."
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Message Body</label>
+                                                    <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
+                                                        <button
+                                                            onClick={() => insertTag('**', '**')}
+                                                            title="Bold text"
+                                                            className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            <span className="font-serif">B</span>
+                                                        </button>
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+                                                        <button
+                                                            onClick={() => insertTag('_', '_')}
+                                                            title="Italic text"
+                                                            className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            <span className="font-serif italic">I</span>
+                                                        </button>
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+                                                        <button
+                                                            onClick={() => insertTag('[mint]', '[/mint]')}
+                                                            title="Highlight in mint"
+                                                            className="px-2 py-1 text-xs font-bold text-vc-mint hover:bg-vc-mint/10 rounded-lg transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            <div className="w-2 h-2 rounded-full bg-vc-mint" />
+                                                            <span>Mint</span>
+                                                        </button>
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+
+                                                        {/* Font Size Dropdown */}
+                                                        <div className="relative group/size">
+                                                            <button className="px-2 py-1 text-xs font-bold hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1">
+                                                                <Type className="w-3.5 h-3.5" />
+                                                                <ChevronDown className="w-3 h-3 text-white/20" />
+                                                            </button>
+                                                            <div className="absolute bottom-full left-0 mb-2 w-32 bg-[#0c1e1c] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/size:opacity-100 group-hover/size:visible transition-all z-50 p-1">
+                                                                {[12, 14, 16, 18, 20, 24, 32].map(size => (
+                                                                    <button
+                                                                        key={size}
+                                                                        onClick={() => insertTag(`[size=${size}]`, '[/size]')}
+                                                                        className="w-full text-left px-3 py-2 text-[10px] font-bold text-white/60 hover:text-vc-mint hover:bg-white/5 rounded-lg transition-all"
+                                                                    >
+                                                                        {size}px {size === 16 && '(Default)'}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="w-[1px] h-3 bg-white/10" />
+
+                                                        {/* Alignment Group */}
+                                                        <div className="flex items-center gap-0.5">
+                                                            <button
+                                                                onClick={() => insertTag('[align=left]', '[/align]')}
+                                                                title="Align Left"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignLeft className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => insertTag('[align=center]', '[/align]')}
+                                                                title="Align Center"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignCenter className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => insertTag('[align=right]', '[/align]')}
+                                                                title="Align Right"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignRight className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <textarea
+                                                    ref={broadcastTextareaRef}
+                                                    value={broadcastMessage}
+                                                    onChange={(e) => setBroadcastMessage(e.target.value)}
+                                                    placeholder="Enter your announcement message here..."
+                                                    rows={8}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors resize-none"
+                                                />
+                                            </div>
+
+                                            {/* Button Options */}
+                                            <div className="pt-4 border-t border-white/5 space-y-6">
+                                                <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10 outline-none">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-2 rounded-lg ${broadcastShowButton ? 'bg-vc-mint/20 text-vc-mint' : 'bg-white/5 text-white/20'}`}>
+                                                            <ExternalLink className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold">Include Action Button</p>
+                                                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Call to Action Option</p>
+                                                        </div>
+                                                    </div>
                                                     <button
-                                                        onClick={handleSendTestBroadcast}
-                                                        disabled={sendingBroadcast}
-                                                        className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                                        onClick={() => setBroadcastShowButton(!broadcastShowButton)}
+                                                        className={`w-12 h-6 rounded-full transition-all relative ${broadcastShowButton ? 'bg-vc-mint shadow-[0_0_15px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
                                                     >
-                                                        {sendingBroadcast ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
-                                                        Send Test
+                                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${broadcastShowButton ? 'right-1' : 'left-1'}`} />
                                                     </button>
                                                 </div>
-                                            </div>
-                                        </div>
 
-                                        {/* Option 2: Live Mode */}
-                                        <div className="space-y-4">
-                                            <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
-                                                <div className="flex items-center justify-between mb-6">
-                                                    <div>
-                                                        <h4 className="text-xs font-bold text-red-500 uppercase tracking-widest">Phase 2: Global Broadcast</h4>
-                                                        <p className="text-[10px] text-white/30 mt-1 uppercase">Sends to all users in database</p>
-                                                    </div>
-                                                    <div className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
-                                                        <span className="text-[10px] font-black text-red-500 tracking-tighter uppercase">Danger Zone</span>
-                                                    </div>
+                                                <AnimatePresence>
+                                                    {broadcastShowButton && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: 'auto' }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            className="space-y-4 overflow-hidden"
+                                                        >
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div className="space-y-2">
+                                                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button Text</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={broadcastButtonText}
+                                                                        onChange={(e) => setBroadcastButtonText(e.target.value)}
+                                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                                    />
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] px-1">Button URL</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={broadcastButtonUrl}
+                                                                        onChange={(e) => setBroadcastButtonUrl(e.target.value)}
+                                                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Attachments Section */}
+                                            <div className="pt-6 border-t border-white/5 space-y-4">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">Attachments</label>
+                                                    <span className="text-[10px] text-white/20 uppercase font-medium">Total: {(broadcastAttachments.reduce((acc, att) => acc + (att.content.length * 0.75), 0) / (1024 * 1024)).toFixed(2)} MB / 10 MB</span>
                                                 </div>
 
-                                                <button
-                                                    onClick={handleBroadcastAll}
-                                                    disabled={sendingBroadcast}
-                                                    className="w-full py-4 bg-vc-mint text-vc-green-dark rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-3 disabled:opacity-50"
-                                                >
-                                                    {sendingBroadcast ? (
-                                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                                    ) : (
-                                                        <Rocket className="w-5 h-5" />
-                                                    )}
-                                                    {sendingBroadcast ? 'Broadcasting...' : 'Broadcast to All Users'}
-                                                </button>
-                                                <p className="text-[10px] text-white/20 text-center mt-4 italic">
-                                                    * This action is irreversible. Please verify with a test email first.
-                                                </p>
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {broadcastAttachments.map((file, idx) => (
+                                                        <div key={idx} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2 group hover:border-vc-mint/30 transition-all">
+                                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                                <Paperclip className="w-3 h-3 text-vc-mint/50 shrink-0" />
+                                                                <span className="text-xs text-white/60 truncate">{file.name}</span>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeBroadcastAttachment(idx)}
+                                                                className="p-1.5 text-white/20 hover:text-red-500 transition-colors"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+
+                                                    <label className="flex items-center justify-center gap-2 px-4 py-4 bg-white/5 border border-dashed border-white/20 rounded-2xl cursor-pointer hover:bg-white/10 hover:border-vc-mint/40 transition-all group">
+                                                        <Paperclip className="w-4 h-4 text-white/40 group-hover:text-vc-mint transition-colors" />
+                                                        <span className="text-xs font-bold text-white/40 group-hover:text-white transition-colors">Attach Files</span>
+                                                        <input
+                                                            type="file"
+                                                            multiple
+                                                            className="hidden"
+                                                            onChange={handleBroadcastFileChange}
+                                                        />
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    {/* Right Panel: Recipients & Controls */}
+                                    <div className="space-y-8">
+                                        <div className="glass-panel p-8 bg-vc-mint/5 border-vc-mint/20 space-y-8">
+                                            <div className="flex items-center gap-2 text-vc-mint mb-2">
+                                                <Users className="w-5 h-5" />
+                                                <h3 className="font-bold uppercase tracking-widest text-sm">Send Options</h3>
+                                            </div>
 
+                                            {/* Option 1: Test Mode */}
+                                            <div className="space-y-4">
+                                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                                    <h4 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Phase 1: Send Test</h4>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="email"
+                                                            value={sendToEmail}
+                                                            onChange={(e) => setSendToEmail(e.target.value)}
+                                                            placeholder="Your test email..."
+                                                            className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-vc-mint transition-all"
+                                                        />
+                                                        <button
+                                                            onClick={handleSendTestBroadcast}
+                                                            disabled={sendingBroadcast}
+                                                            className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                                                        >
+                                                            {sendingBroadcast ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                                                            Send Test
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Option 2: Live Mode */}
+                                            <div className="space-y-4">
+                                                <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
+                                                    <div className="flex items-center justify-between mb-6">
+                                                        <div>
+                                                            <h4 className="text-xs font-bold text-red-500 uppercase tracking-widest">Phase 2: Global Broadcast</h4>
+                                                            <p className="text-[10px] text-white/30 mt-1 uppercase">Sends to all users in database</p>
+                                                        </div>
+                                                        <div className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
+                                                            <span className="text-[10px] font-black text-red-500 tracking-tighter uppercase">Danger Zone</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={handleBroadcastAll}
+                                                        disabled={sendingBroadcast}
+                                                        className="w-full py-4 bg-vc-mint text-vc-green-dark rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-white hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-vc-mint/10 flex items-center justify-center gap-3 disabled:opacity-50"
+                                                    >
+                                                        {sendingBroadcast ? (
+                                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                                        ) : (
+                                                            <Rocket className="w-5 h-5" />
+                                                        )}
+                                                        {sendingBroadcast ? 'Broadcasting...' : 'Broadcast to All Users'}
+                                                    </button>
+                                                    <p className="text-[10px] text-white/20 text-center mt-4 italic">
+                                                        * This action is irreversible. Please verify with a test email first.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )
+                    }
 
                     <AnimatePresence>
                         {selectedApp && (
@@ -3663,13 +3688,14 @@ function AdminDashboardContent() {
 
 
 
-                    {toast && (
-                        <Toast
-                            message={toast.message}
-                            type={toast.type}
-                            onClose={() => setToast(null)}
-                        />
-                    )
+                    {
+                        toast && (
+                            <Toast
+                                message={toast.message}
+                                type={toast.type}
+                                onClose={() => setToast(null)}
+                            />
+                        )
                     }
 
                     <AnimatePresence>
@@ -4125,8 +4151,8 @@ function AdminDashboardContent() {
                                 </motion.div>
                             )}
                     </AnimatePresence>
-                </div>
-            </div>
+                </div >
+            </div >
         </main >
     );
 }
