@@ -793,10 +793,13 @@ function AdminDashboardContent() {
                     setIsJudge(true);
                     setJudgeTeam(judgeData.team || null);
 
-                    const role = (judgeData.role || 'team_judge').toLowerCase();
-                    setIsUltimateJudge(role === 'ultimate' || !judgeData.team);
+                    const role = (judgeData.role || '').toLowerCase();
+                    const hasTeam = !!judgeData.team;
+
+                    setIsUltimateJudge(role === 'ultimate' || !hasTeam);
                     setIsSupervisor(role === 'supervisor');
-                    setIsTeamJudgeOnly(role === 'team_judge' && !!judgeData.team);
+                    // A "Team Judge" is anyone with a team who isn't a supervisor or ultimate judge
+                    setIsTeamJudgeOnly(hasTeam && role !== 'supervisor' && role !== 'ultimate');
 
                     setActiveTab('startups');
                     setLoading(false);
