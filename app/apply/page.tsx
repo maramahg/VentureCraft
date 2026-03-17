@@ -654,6 +654,31 @@ const ApplyPageContent = () => {
             const combinedPhone = `${formData.leaderPhoneCode} ${formData.leaderPhoneNumber}`;
             const applicationRef = doc(db, 'applications', user.uid);
 
+            // 2.5 Determine Least-Appointed Team (Only for NEW apps)
+            let assignedTeam = null;
+            if (!isEditMode) {
+                try {
+                    const teams = ['A', 'B', 'C', 'D'];
+                    const teamCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
+
+                    // Fetch current assignments
+                    const appsSnap = await getDocs(query(collection(db, 'applications'), where('assignedTeam', 'in', teams)));
+                    appsSnap.forEach(doc => {
+                        const data = doc.data();
+                        if (data.assignedTeam) {
+                            teamCounts[data.assignedTeam as string]++;
+                        }
+                    });
+
+                    // Pick team with minimum count
+                    assignedTeam = teams.reduce((a, b) => teamCounts[a] <= teamCounts[b] ? a : b);
+                    console.log('AUTO_ASSIGNMENT: Assigning to Team', assignedTeam, teamCounts);
+                } catch (assignErr) {
+                    console.error('Error in auto-assignment:', assignErr);
+                    assignedTeam = 'A'; // Fallback
+                }
+            }
+
             // 3. Award Venture Coins if referred by an ambassador (Only for new applications)
             const isActuallyNew = !isEditMode;
 
@@ -686,6 +711,7 @@ const ApplyPageContent = () => {
                 videoPitchUrl: formData.videoPitchUrl,
 
                 // Metadata for materials & URLs (Keep old URL if no new file uploaded)
+                assignedTeam: isEditMode ? (existingMaterials?.assignedTeam || null) : assignedTeam,
                 materials: {
                     pitchDeckName: files.pitchDeck?.name || existingMaterials?.pitchDeckName || null,
                     pitchDeckUrl: pitchDeckUrl || existingMaterials?.pitchDeckUrl || null,

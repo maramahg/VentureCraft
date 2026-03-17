@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction, getCountFromServer } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -204,6 +204,13 @@ interface UserProfile {
     ambassadorId?: number;
     joinedAt?: any;
     createdAt?: any;
+}
+
+interface JudgeMember {
+    id: string;
+    team: 'A' | 'B' | 'C' | 'D' | null;
+    role: 'ultimate' | 'team_judge';
+    name?: string;
 }
 
 const AdminDropdown = ({ options, value, onChange, placeholder }: {
@@ -400,7 +407,11 @@ function AdminDashboardContent() {
     const [error, setError] = useState<string | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isJudge, setIsJudge] = useState(false);
+    const [judgeTeam, setJudgeTeam] = useState<string | null>(null);
+    const [isUltimateJudge, setIsUltimateJudge] = useState(false);
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
+    const [allJudges, setAllJudges] = useState<JudgeMember[]>([]);
+    const [judgeNames, setJudgeNames] = useState<Record<string, string>>({});
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -415,6 +426,41 @@ function AdminDashboardContent() {
     const [updatingReg, setUpdatingReg] = useState(false);
     const [updatingEditing, setUpdatingEditing] = useState(false);
     const [updatingScreening2, setUpdatingScreening2] = useState(false);
+
+    const handleRedistributeTeams = async (appsToFix: Application[]) => {
+        if (!isAdmin || appsToFix.length === 0) return;
+
+        console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} unassigned applications...`);
+        try {
+            const teams = ['A', 'B', 'C', 'D'];
+            const batchSize = 500;
+
+            const updates = appsToFix.map((app, idx) => ({
+                id: app.id,
+                team: teams[idx % 4]
+            }));
+
+            for (let i = 0; i < updates.length; i += batchSize) {
+                const batch = updates.slice(i, i + batchSize);
+                await Promise.all(batch.map(item =>
+                    updateDoc(doc(db, 'applications', item.id), { assignedTeam: item.team })
+                ));
+            }
+            console.log('AUTO_MIGRATION: Success');
+        } catch (error) {
+            console.error('AUTO_MIGRATION: Failed', error);
+        }
+    };
+
+    // Automatic Background Migration Effect
+    useEffect(() => {
+        if (!isAdmin || loading || applications.length === 0) return;
+
+        const unassigned = applications.filter(app => !app.assignedTeam);
+        if (unassigned.length > 0) {
+            handleRedistributeTeams(unassigned);
+        }
+    }, [isAdmin, loading, applications.length]);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
     const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
     const [totalUsers, setTotalUsers] = useState(0);
@@ -439,7 +485,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'teams'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
 
     // Ambassador Data
@@ -723,7 +769,10 @@ function AdminDashboardContent() {
 
                 const judgeDoc = await getDoc(doc(db, 'judges', uid));
                 if (judgeDoc.exists()) {
+                    const judgeData = judgeDoc.data();
                     setIsJudge(true);
+                    setJudgeTeam(judgeData.team || null);
+                    setIsUltimateJudge(judgeData.role === 'ultimate' || !judgeData.team);
                     setActiveTab('startups');
                     setLoading(false);
                     return;
@@ -809,6 +858,37 @@ function AdminDashboardContent() {
         }
     };
 
+    // Fetch All Judges for Ultimate Judge Oversight
+    useEffect(() => {
+        if (!isUltimateJudge) return;
+
+        const fetchJudgesDirectory = async () => {
+            try {
+                const judgesSnap = await getDocs(collection(db, 'judges'));
+                const judgesList = judgesSnap.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as JudgeMember[];
+
+                // Fetch names from users collection
+                const names: Record<string, string> = {};
+                await Promise.all(judgesList.map(async (j) => {
+                    const userDoc = await getDoc(doc(db, 'users', j.id));
+                    if (userDoc.exists()) {
+                        names[j.id] = userDoc.data()?.fullName || userDoc.data()?.name || 'Unknown Judge';
+                    }
+                }));
+
+                setJudgeNames(names);
+                setAllJudges(judgesList.map(j => ({ ...j, name: names[j.id] })));
+            } catch (err) {
+                console.error('Error fetching judges directory:', err);
+            }
+        };
+
+        fetchJudgesDirectory();
+    }, [isUltimateJudge]);
+
     const toggleScreening2 = async () => {
         setUpdatingScreening2(true);
         try {
@@ -853,34 +933,54 @@ function AdminDashboardContent() {
     }, [selectedApp]);
 
     useEffect(() => {
-        if (!isAdmin && !isJudge) return;
+        if (loading || (!isAdmin && !isJudge)) return;
 
-        const q = query(collection(db, 'applications'), orderBy('submittedAt', 'desc'));
+        // Build query based on role
+        let q;
+        if (isJudge && !isUltimateJudge) {
+            // Team judges must filter by their team. Wait for team ID if not yet available.
+            if (!judgeTeam) return;
+
+            q = query(
+                collection(db, 'applications'),
+                where('assignedTeam', '==', judgeTeam),
+                orderBy('submittedAt', 'desc')
+            );
+        } else {
+            // Admins and Ultimate Judges see all applications
+            q = query(collection(db, 'applications'), orderBy('submittedAt', 'desc'));
+        }
+
         const unsubscribe = onSnapshot(q, (snapshot) => {
             console.log('Fetched startups:', snapshot.size);
             const appsData = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             })) as Application[];
+
             setApplications(appsData);
-            setLoading(false);
         }, (error) => {
             console.error('FIREBASE_PERMISSION_ERROR: Startup Applications Fetch failed', error);
-            setLoading(false);
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isJudge]);
+    }, [isAdmin, isJudge, isUltimateJudge, judgeTeam, loading]);
 
     useEffect(() => {
         if (!isAdmin) return;
-        const q = query(collection(db, 'users'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            setTotalUsers(snapshot.size);
-        }, (error) => {
-            console.error('Error fetching total users:', error);
-        });
-        return () => unsubscribe();
+
+        const fetchUserCount = async () => {
+            try {
+                const coll = collection(db, 'users');
+                const snapshot = await getCountFromServer(coll);
+                setTotalUsers(snapshot.data().count);
+            } catch (error) {
+                console.error('Error fetching total users count:', error);
+            }
+        };
+
+        fetchUserCount();
+        // We only fetch this once per session/admin visit to save quota
     }, [isAdmin]);
 
     // Fetch Ambassador Applications
@@ -1428,6 +1528,7 @@ function AdminDashboardContent() {
             app.leaderNationality === nationalityFilter ||
             app.teamMembers?.some(m => m.nationality === nationalityFilter);
 
+
         const matchesScreening = screeningFilter === 'all' ||
             (screeningFilter === 'scored' ? app.screening?.round1?.isCompleted : !app.screening?.round1?.isCompleted);
 
@@ -1587,17 +1688,19 @@ function AdminDashboardContent() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3 text-white tracking-tight">
-                                Admin Dashboard
+                                {isAdmin ? 'Admin Dashboard' : isUltimateJudge ? 'Ultimate Judge Portal' : `Team ${judgeTeam} Evaluator Portal`}
                             </h1>
                             <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
                                 <Shield className="w-3 h-3" />
                                 {activeTab === 'startups'
-                                    ? 'Startup Ecosystem Oversight'
+                                    ? isAdmin ? 'Startup Ecosystem Oversight' : isUltimateJudge ? 'Ultimate Performance Oversight' : `Team ${judgeTeam} Evaluation Queue`
                                     : activeTab === 'ambassadors'
                                         ? 'Ambassador Network Management'
                                         : activeTab === 'qr'
                                             ? 'Secure Access Protocol Control'
-                                            : 'Strategic Communication Command'
+                                            : activeTab === 'teams'
+                                                ? 'Oversight: Judge Network Performance'
+                                                : 'Strategic Communication Command'
                                 }
                             </p>
                         </div>
@@ -1725,6 +1828,14 @@ function AdminDashboardContent() {
                                     >
                                         <Mail className="w-4 h-4" /> Email Center
                                     </button>
+                                    {isUltimateJudge && (
+                                        <button
+                                            onClick={() => setActiveTab('teams')}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeTab === 'teams' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/10' : 'text-white/40 hover:text-white/60 hover:bg-white/5'}`}
+                                        >
+                                            <Shield className="w-4 h-4" /> Judging Teams
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -1937,6 +2048,132 @@ function AdminDashboardContent() {
                                 </button>
                             </div>
                         )}
+                        {activeTab === 'teams' && isUltimateJudge && (
+                            <div className="space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {['A', 'B', 'C', 'D'].map(team => {
+                                        const teamApps = applications.filter(a => a.assignedTeam === team);
+                                        const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
+                                        const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
+                                        const teamMembers = allJudges.filter(j => j.team === team);
+
+                                        return (
+                                            <div key={team} className="glass-panel p-6 border-vc-mint/10 hover:border-vc-mint/30 transition-all group">
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 font-black text-xl">
+                                                        {team}
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">Workload</span>
+                                                        <span className="text-lg font-bold text-white tracking-tight">{teamApps.length} Apps</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5">
+                                                            <span className="text-white/40">Evaluation Progress</span>
+                                                            <span className="text-vc-mint">{Math.round(progress)}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${progress}%` }}
+                                                                className="h-full bg-vc-mint shadow-[0_0_10px_rgba(0,186,166,0.5)]"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-4 border-t border-white/5">
+                                                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
+                                                        <div className="space-y-2">
+                                                            {teamMembers.length > 0 ? teamMembers.map(member => (
+                                                                <div key={member.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                                                                    <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint border border-vc-mint/20">
+                                                                        {member.name?.charAt(0) || <User className="w-3 h-3" />}
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <p className="text-xs font-bold text-white truncate">{member.name || 'Unknown Judge'}</p>
+                                                                        <p className="text-[8px] text-white/30 font-mono uppercase truncate">{member.id.substring(0, 8)}...</p>
+                                                                    </div>
+                                                                </div>
+                                                            )) : (
+                                                                <p className="text-[10px] text-white/20 italic">No members assigned</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="glass-panel p-8">
+                                    <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+                                        <BarChart className="w-5 h-5 text-vc-mint" /> Detailed Oversight Log
+                                    </h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-white/10">
+                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest pl-4">Startup</th>
+                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Team</th>
+                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Status</th>
+                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Evaluator</th>
+                                                    <th className="pb-4 text-[10px] font-bold text-white/30 uppercase tracking-widest pr-4 text-right">Score</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {applications.slice(0, 50).map(app => (
+                                                    <tr key={app.id} className="hover:bg-white/5 transition-colors group">
+                                                        <td className="py-4 pl-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-vc-mint border border-white/10">
+                                                                    <Rocket className="w-4 h-4" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-white">{app.startupName || 'Unnamed'}</p>
+                                                                    <p className="text-[10px] text-white/30">{app.id.substring(0, 8)}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4">
+                                                            <span className="px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 text-[10px] font-black">
+                                                                TEAM {app.assignedTeam || '?'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-4">
+                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${app.screening?.round1?.isCompleted ? 'bg-vc-mint text-vc-green-dark' : 'bg-white/5 text-white/40'}`}>
+                                                                {app.screening?.round1?.isCompleted ? 'EVALUATED' : 'PENDING'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-4">
+                                                            <div className="flex items-center gap-2">
+                                                                {app.screening?.round1?.evaluatorId ? (
+                                                                    <>
+                                                                        <div className="w-6 h-6 rounded-full bg-vc-mint/20 flex items-center justify-center text-[10px] font-bold text-vc-mint">
+                                                                            {judgeNames[app.screening.round1.evaluatorId]?.charAt(0) || 'J'}
+                                                                        </div>
+                                                                        <span className="text-xs text-white/80">{judgeNames[app.screening.round1.evaluatorId] || 'Unknown'}</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-xs text-white/20 italic">Unassigned</span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 pr-4 text-right">
+                                                            <span className="text-sm font-mono font-bold text-vc-mint">
+                                                                {app.screening?.round1?.totalScore ? app.screening.round1.totalScore.toFixed(1) : '-'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         {activeTab === 'qr' && (
                             <div className="glass-panel p-8 sm:p-12 min-h-[600px] relative overflow-hidden">
                                 <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
@@ -2069,6 +2306,16 @@ function AdminDashboardContent() {
                                                         {app.teamMembers?.[0]?.name || app.startupName || 'Startup Application'}
                                                     </h3>
                                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest overflow-hidden">
+                                                        {isUltimateJudge && app.assignedTeam && (
+                                                            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-vc-mint/10 text-vc-mint border border-vc-mint/20 font-black">
+                                                                TEAM {app.assignedTeam}
+                                                                {isUltimateJudge && app.screening?.round1?.isCompleted && app.screening?.round1?.evaluatorId && (
+                                                                    <span className="ml-2 border-l border-vc-mint/20 pl-2 text-white/40 font-normal">
+                                                                        Evaluated by: {judgeNames[app.screening.round1.evaluatorId] || 'Unknown'}
+                                                                    </span>
+                                                                )}
+                                                            </span>
+                                                        )}
                                                         {app.startupName && (
                                                             <span className="flex items-center gap-1.5 text-vc-mint/60 font-bold shrink-0"><Rocket className="w-3 h-3" /> {app.startupName}</span>
                                                         )}

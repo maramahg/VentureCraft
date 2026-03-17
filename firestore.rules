@@ -14,50 +14,60 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/judges/$(request.auth.uid));
     }
 
+    // Helper: Get judge data safely
+    function getJudgeData() {
+      return get(/databases/$(database)/documents/judges/$(request.auth.uid)).data;
+    }
+
+    // Helper: Check if judge is Ultimate
+    function isUltimateJudge() {
+      return isJudge() && (
+        getJudgeData().get('role', '') == 'ultimate' || 
+        getJudgeData().get('team', '') == ''
+      );
+    }
+
+    // Helper: Check if judge belongs to a specific team
+    function isTeamJudge(teamId) {
+      return isJudge() && getJudgeData().get('team', '') == teamId;
+    }
+
     // Helper: Check if the user is in the 'ambassadors_lead' collection
     function isAmbassadorLead() {
       return request.auth != null && 
         exists(/databases/$(database)/documents/ambassadors_lead/$(request.auth.uid));
     }
 
-    // Helper: Check if startup registration is open
+    // Helper: Registration Status
     function isRegistrationOpen() {
-      let path = /databases/$(database)/documents/settings/registration;
-      return !exists(path) || (get(path).data.get('isOpen', get(path).data.get('isAllowed', true)) == true);
+      let reg = get(/databases/$(database)/documents/settings/registration).data;
+      return reg.get('isOpen', true) == true || reg.get('isAllowed', true) == true;
     }
 
-    // Helper: Check if editing is allowed
+    // Helper: Editing Allowed
     function isEditingAllowed() {
-      let path = /databases/$(database)/documents/settings/editing;
-      // Prioritize isOpen as set by the Admin panel
-      return !exists(path) || (get(path).data.get('isOpen', get(path).data.get('isAllowed', true)) == true);
+      let edit = get(/databases/$(database)/documents/settings/editing).data;
+      return edit.get('isOpen', true) == true || edit.get('isAllowed', true) == true;
     }
-
-    // Admins Collection
-    match /admins/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow write: if false;
-    }
-
-    // Judges Collection
-    match /judges/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow write: if false;
-    }
-
-    // Ambassador Leads Collection
-    match /ambassadors_lead/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow write: if false;
-    }
-
+    
     // Startup Applications
     match /applications/{docId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isJudge());
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || 
+        isAdmin() || 
+        isUltimateJudge() || 
+        (isJudge() && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
+      );
       allow create: if request.auth != null 
         && (isRegistrationOpen() || isAdmin());
       allow update: if request.auth != null 
-        && (request.auth.uid == docId || request.auth.uid == resource.data.userId || isAdmin() || isJudge()) 
+        && (
+          request.auth.uid == docId || 
+          request.auth.uid == resource.data.userId || 
+          isAdmin() || 
+          isUltimateJudge() ||
+          (isJudge() && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
+        ) 
         && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
       allow delete: if isAdmin();
     }
@@ -108,6 +118,20 @@ service cloud.firestore {
     // Counters (Internal tracking)
     match /counters/{docId} {
       allow read, write: if isAdmin() || isAmbassadorLead();
+    }
+
+    // Judges Collection
+    match /judges/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isUltimateJudge());
+      allow write: if isAdmin();
+    }
+
+    // Role verification collections
+    match /admins/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+    match /ambassadors_lead/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
     }
 
   }
