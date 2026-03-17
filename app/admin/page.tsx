@@ -863,7 +863,7 @@ function AdminDashboardContent() {
 
     // Fetch All Judges for Ultimate Judge Oversight
     useEffect(() => {
-        if (!isUltimateJudge) return;
+        if (!isAdmin && !isJudge) return;
 
         const fetchJudgesDirectory = async () => {
             try {
@@ -879,6 +879,9 @@ function AdminDashboardContent() {
                     const userDoc = await getDoc(doc(db, 'users', j.id));
                     if (userDoc.exists()) {
                         names[j.id] = userDoc.data()?.fullName || userDoc.data()?.name || 'Unknown Judge';
+                    } else {
+                        // Fallback: If not in users collection, use first 8 chars of UID
+                        names[j.id] = `Judge (${j.id.substring(0, 8)})`;
                     }
                 }));
 
@@ -890,7 +893,7 @@ function AdminDashboardContent() {
         };
 
         fetchJudgesDirectory();
-    }, [isUltimateJudge]);
+    }, [isAdmin, isJudge, isUltimateJudge]);
 
     const toggleScreening2 = async () => {
         setUpdatingScreening2(true);
@@ -1760,31 +1763,35 @@ function AdminDashboardContent() {
 
                     {/* Global Controls Row */}
                     <div className="flex flex-wrap items-center gap-4">
-                        {isAdmin && activeTab !== 'broadcast' && (
+                        {(isAdmin || isUltimateJudge) && activeTab !== 'broadcast' && (
                             <div className="flex flex-wrap items-center gap-3 p-2 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md">
-                                <button
-                                    onClick={toggleRegistration}
-                                    disabled={updatingReg}
-                                    className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isRegistrationOpen
-                                        ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-lg shadow-vc-mint/10'
-                                        : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
-                                        }`}
-                                >
-                                    {isRegistrationOpen ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4 text-red-500" />}
-                                    <span className="text-xs uppercase tracking-wider">Registration: {isRegistrationOpen ? 'Open' : 'Closed'}</span>
-                                </button>
+                                {isAdmin && (
+                                    <>
+                                        <button
+                                            onClick={toggleRegistration}
+                                            disabled={updatingReg}
+                                            className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isRegistrationOpen
+                                                ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-lg shadow-vc-mint/10'
+                                                : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+                                                }`}
+                                        >
+                                            {isRegistrationOpen ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4 text-red-500" />}
+                                            <span className="text-xs uppercase tracking-wider">Registration: {isRegistrationOpen ? 'Open' : 'Closed'}</span>
+                                        </button>
 
-                                <button
-                                    onClick={toggleEditing}
-                                    disabled={updatingEditing}
-                                    className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isEditingAllowed
-                                        ? 'bg-vc-teal text-white border-vc-teal shadow-lg shadow-vc-teal/10'
-                                        : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
-                                        }`}
-                                >
-                                    {isEditingAllowed ? <Edit2 className="w-4 h-4" /> : <Shield className="w-4 h-4 text-orange-500" />}
-                                    <span className="text-xs uppercase tracking-wider">Editing: {isEditingAllowed ? 'Allowed' : 'Locked'}</span>
-                                </button>
+                                        <button
+                                            onClick={toggleEditing}
+                                            disabled={updatingEditing}
+                                            className={`h-11 px-6 rounded-2xl font-bold transition-all flex items-center gap-2 border ${isEditingAllowed
+                                                ? 'bg-vc-teal text-white border-vc-teal shadow-lg shadow-vc-teal/10'
+                                                : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+                                                }`}
+                                        >
+                                            {isEditingAllowed ? <Edit2 className="w-4 h-4" /> : <Shield className="w-4 h-4 text-orange-500" />}
+                                            <span className="text-xs uppercase tracking-wider">Editing: {isEditingAllowed ? 'Allowed' : 'Locked'}</span>
+                                        </button>
+                                    </>
+                                )}
 
                                 <button
                                     onClick={toggleScreening2}
