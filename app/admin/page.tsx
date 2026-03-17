@@ -793,7 +793,7 @@ function AdminDashboardContent() {
                     setIsJudge(true);
                     setJudgeTeam(judgeData.team || null);
 
-                    const role = judgeData.role || 'team_judge';
+                    const role = (judgeData.role || 'team_judge').toLowerCase();
                     setIsUltimateJudge(role === 'ultimate' || !judgeData.team);
                     setIsSupervisor(role === 'supervisor');
                     setIsTeamJudgeOnly(role === 'team_judge' && !!judgeData.team);
@@ -1803,8 +1803,8 @@ function AdminDashboardContent() {
                             )}
                         </div>
 
-                        {/* Team Supervisor Quick Contact (For Team Judges & Supervisors) */}
-                        {(isTeamJudgeOnly || isSupervisor) && judgeTeam && (
+                        {/* Team Supervisor Quick Contact (Visible to all team participants except Ultimate Judges) */}
+                        {!!judgeTeam && !isAdmin && !isUltimateJudge && (
                             <div className="flex items-center gap-4 p-4 bg-vc-teal/5 border border-vc-teal/20 rounded-2xl animate-in fade-in slide-in-from-right-4 duration-700">
                                 <div className="w-10 h-10 rounded-xl bg-vc-teal/10 flex items-center justify-center text-vc-teal border border-vc-teal/20">
                                     <Shield className="w-5 h-5" />
@@ -1813,21 +1813,21 @@ function AdminDashboardContent() {
                                     <p className="text-[9px] font-bold text-vc-teal/60 uppercase tracking-widest mb-0.5">Team {judgeTeam} Supervisor</p>
                                     <div className="flex items-center gap-3">
                                         <p className="text-sm font-bold text-white">
-                                            {allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.displayName || 'Not Assigned'}
+                                            {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.displayName || 'Not Assigned'}
                                         </p>
                                         <div className="flex items-center gap-2">
-                                            {allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.email && (
+                                            {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email && (
                                                 <a
-                                                    href={`mailto:${allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.email}`}
+                                                    href={`mailto:${allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.email}`}
                                                     className="p-1.5 rounded-lg bg-white/5 hover:bg-vc-teal/20 hover:text-vc-teal transition-all text-white/40"
                                                     title="Email Supervisor"
                                                 >
                                                     <Mail className="w-3.5 h-3.5" />
                                                 </a>
                                             )}
-                                            {allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.phoneNumber && (
+                                            {allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber && (
                                                 <a
-                                                    href={`tel:${allJudges.find(j => j.team === judgeTeam && j.role === 'supervisor')?.phoneNumber}`}
+                                                    href={`tel:${allJudges.find(j => j.team === judgeTeam && j.role?.toLowerCase() === 'supervisor')?.phoneNumber}`}
                                                     className="p-1.5 rounded-lg bg-white/5 hover:bg-vc-teal/20 hover:text-vc-teal transition-all text-white/40"
                                                     title="Call Supervisor"
                                                 >
@@ -2011,8 +2011,8 @@ function AdminDashboardContent() {
                                 </div>
                                 <div className="flex bg-white/5 p-1.5 rounded-[1.5rem] border border-white/10 backdrop-blur-sm">
                                     <button
-                                        onClick={() => setAmbassadorSubTab('applications')}
-                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                        onClick={() => setAmbAppTypeFilter('all')}
+                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                     >
                                         Applications
                                     </button>
@@ -2424,13 +2424,13 @@ function AdminDashboardContent() {
                                                                         <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 block">Team Members ({teamMembers.length})</span>
                                                                         <div className="space-y-2">
                                                                             {teamMembers.length > 0 ? teamMembers.map(member => (
-                                                                                <div key={member.id} className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${member.role === 'supervisor' ? 'bg-vc-teal/10 border-vc-teal/30' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}>
-                                                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${member.role === 'supervisor' ? 'bg-vc-teal text-white' : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'}`}>
+                                                                                <div key={member.id} className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${member.role?.toLowerCase() === 'supervisor' ? 'bg-vc-teal/10 border-vc-teal/30' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}>
+                                                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${member.role?.toLowerCase() === 'supervisor' ? 'bg-vc-teal text-white' : 'bg-vc-mint/20 text-vc-mint border border-vc-mint/20'}`}>
                                                                                         {member.displayName?.charAt(0) || <User className="w-3 h-3" />}
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
-                                                                                        <p className={`text-xs font-bold truncate ${member.role === 'supervisor' ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
-                                                                                        {member.role === 'supervisor' && (
+                                                                                        <p className={`text-xs font-bold truncate ${member.role?.toLowerCase() === 'supervisor' ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
+                                                                                        {member.role?.toLowerCase() === 'supervisor' && (
                                                                                             <span className="text-[8px] uppercase tracking-tighter font-black opacity-60 text-vc-teal">Supervisor</span>
                                                                                         )}
                                                                                     </div>
