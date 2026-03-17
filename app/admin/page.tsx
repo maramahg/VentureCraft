@@ -27,7 +27,7 @@ interface Application {
     location?: string;
     status: 'pending' | 'accepted' | 'rejected' | 'submitted';
     isEdited?: boolean;
-    assignedTeam?: 'A' | 'B' | 'C' | 'D' | null;
+    assignedTeam?: 'A' | 'B' | 'C' | 'D' | 'E' | null;
     submittedAt: any;
     updatedAt?: any;
     teamSize: number;
@@ -436,12 +436,12 @@ function AdminDashboardContent() {
     const canScore = isAdmin || (isTeamJudgeOnly && selectedApp?.assignedTeam === judgeTeam);
 
     const handleRedistributeTeams = async (appsToFix: Application[]) => {
-        if (!isAdmin || appsToFix.length === 0) return;
+        if ((!isAdmin && !isUltimateJudge) || appsToFix.length === 0) return;
 
-        console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} unassigned applications...`);
+        console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} applications across 5 teams...`);
         try {
             const teams = ['A', 'B', 'C', 'D', 'E'];
-            const batchSize = 500;
+            const batchSize = 10;
 
             const updates = appsToFix.map((app, idx) => ({
                 id: app.id,
@@ -455,6 +455,7 @@ function AdminDashboardContent() {
                 ));
             }
             console.log('AUTO_MIGRATION: Success');
+            setToast({ message: `Successfully distributed ${appsToFix.length} applications across 5 teams.`, type: 'success' });
         } catch (error) {
             console.error('AUTO_MIGRATION: Failed', error);
         }
@@ -462,13 +463,22 @@ function AdminDashboardContent() {
 
     // Automatic Background Migration Effect
     useEffect(() => {
-        if (!isAdmin || loading || applications.length === 0) return;
+        if ((!isAdmin && !isUltimateJudge) || loading || applications.length === 0) return;
 
         const unassigned = applications.filter(app => !app.assignedTeam);
+        const teamEApps = applications.filter(a => a.assignedTeam === 'E');
+        const idealPerTeam = applications.length / 5;
+
+        // Trigger rebalance if:
+        // 1. There are unassigned apps
+        // 2. OR Team E is significantly under-populated (indicates a failed/partial migrate from 4 teams)
         if (unassigned.length > 0) {
             handleRedistributeTeams(unassigned);
+        } else if (teamEApps.length < idealPerTeam - 5) { // Use a small buffer to avoid jitter
+            console.log(`REBALANCE: Distribution is unbalanced (Team E has only ${teamEApps.length} apps). Redistributing all ${applications.length} apps...`);
+            handleRedistributeTeams(applications);
         }
-    }, [isAdmin, loading, applications.length]);
+    }, [isAdmin, loading, applications]);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
     const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
     const [totalUsers, setTotalUsers] = useState(0);
