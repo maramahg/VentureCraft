@@ -1814,7 +1814,7 @@ function AdminDashboardContent() {
 
 
                 {/* Custom Navigation Header */}
-                <div className="flex flex-wrap items-center gap-2 mb-12 p-2 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-md sticky top-24 z-40">
+                <div className="flex flex-wrap items-center gap-2 mb-12 p-2 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-md">
                     <button
                         onClick={() => setActiveTab('startups')}
                         className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
