@@ -758,7 +758,9 @@ function AdminDashboardContent() {
         }
 
         // Sync state with URL parameter if it exists and changed
-        if (tab === 'ambassadors' && activeTab !== 'ambassadors') {
+        if (!tab) {
+            if (activeTab !== 'startups') setActiveTab('startups');
+        } else if (tab === 'ambassadors' && activeTab !== 'ambassadors') {
             setActiveTab('ambassadors');
         } else if (tab === 'startups' && activeTab !== 'startups') {
             setActiveTab('startups');
@@ -1897,47 +1899,8 @@ function AdminDashboardContent() {
 
 
 
-                {/* Custom Navigation Header */}
-                <div className="flex flex-wrap items-center gap-2 mb-12 p-2 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-md">
-                    <button
-                        onClick={() => { setActiveTab('startups'); router.push('/admin?tab=startups'); }}
-                        className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'startups' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                    >
-                        <Rocket className="w-4 h-4" /> Startups
-                    </button>
-                    {(isAdmin || isAmbassadorLead) && (
-                        <button
-                            onClick={() => { setActiveTab('ambassadors'); router.push('/admin?tab=ambassadors'); }}
-                            className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'ambassadors' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                        >
-                            <Users className="w-4 h-4" /> Ambassadors
-                        </button>
-                    )}
-                    {(isAdmin || isUltimateJudge) && (
-                        <button
-                            onClick={() => { setActiveTab('judges'); router.push('/admin?tab=judges'); }}
-                            className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'judges' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                        >
-                            <Shield className="w-4 h-4" /> Judges
-                        </button>
-                    )}
-                    {isAdmin && (
-                        <>
-                            <button
-                                onClick={() => { setActiveTab('qr'); router.push('/admin?tab=qr'); }}
-                                className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'qr' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                            >
-                                <QrCode className="w-4 h-4" /> QR Access
-                            </button>
-                            <button
-                                onClick={() => { setActiveTab('broadcast'); router.push('/admin?tab=broadcast'); }}
-                                className={`flex-1 min-w-[120px] px-6 py-4 rounded-[2rem] font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${activeTab === 'broadcast' ? 'bg-vc-mint text-vc-green-dark shadow-xl shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                            >
-                                <Mail className="w-4 h-4" /> Email
-                            </button>
-                        </>
-                    )}
-                </div>
+                <div className="mb-4" /> {/* Spacer after header */}
+
 
                 {/* Filter Controls Row */}
                 {(activeTab === 'startups' || activeTab === 'ambassadors') && (
