@@ -2470,8 +2470,10 @@ function AdminDashboardContent() {
                                         {allJudges
                                             .filter(j => j.team === judgeTeam)
                                             .sort((a, b) => {
-                                                if (a.role?.toLowerCase() === 'supervisor') return -1;
-                                                if (b.role?.toLowerCase() === 'supervisor') return 1;
+                                                const isBossA = a.role?.toLowerCase() === 'supervisor' || a.role?.toLowerCase() === 'ultimate';
+                                                const isBossB = b.role?.toLowerCase() === 'supervisor' || b.role?.toLowerCase() === 'ultimate';
+                                                if (isBossA && !isBossB) return -1;
+                                                if (!isBossA && isBossB) return 1;
                                                 return (a.displayName || '').localeCompare(b.displayName || '');
                                             })
                                             .map(member => (
