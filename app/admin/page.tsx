@@ -211,11 +211,11 @@ interface JudgeMember {
     id: string;
     team: 'A' | 'B' | 'C' | 'D' | 'E' | null;
     role: 'ultimate' | 'team_judge' | 'supervisor';
+    type?: 'bus' | 'tech';
     displayName?: string;
     email?: string;
     phoneNumber?: string;
 }
-
 const AdminDropdown = ({ options, value, onChange, placeholder }: {
     options: string[],
     value: string,
@@ -2345,7 +2345,14 @@ function AdminDashboardContent() {
                                                                                         {member.displayName?.charAt(0) || <User className="w-3 h-3" />}
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
-                                                                                        <p className={`text-xs font-bold truncate ${isSupMember ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <p className={`text-xs font-bold truncate ${isSupMember ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
+                                                                                            {!isSupMember && member.role?.toLowerCase() === 'team_judge' && member.type && (
+                                                                                                <span className={`text-[7px] px-1.5 py-0.5 rounded uppercase font-black tracking-tighter ${member.type === 'bus' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                                                                                                    {member.type === 'bus' ? 'Bus' : 'Tech'}
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
                                                                                         <span className={`text-[8px] uppercase tracking-tighter font-black opacity-60 ${isSupMember ? 'text-vc-teal' : 'text-vc-mint/60'}`}>
                                                                                             {member.role?.toLowerCase() === 'supervisor' ? 'Supervisor' :
                                                                                                 member.role?.toLowerCase() === 'ultimate' ? 'Ultimate (Supervisor)' :
@@ -2495,6 +2502,11 @@ function AdminDashboardContent() {
                                                             <p className={`text-xs font-bold truncate ${(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') ? 'text-vc-teal' : 'text-white'}`}>
                                                                 {member.displayName || 'Unnamed'}
                                                             </p>
+                                                            {!(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') && member.role?.toLowerCase() === 'team_judge' && member.type && (
+                                                                <span className={`text-[7px] px-1.5 py-0.5 rounded uppercase font-black tracking-tighter ${member.type === 'bus' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                                                                    {member.type === 'bus' ? 'Business' : 'Technical'}
+                                                                </span>
+                                                            )}
                                                             {(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') ? (
                                                                 <span className="text-[7px] px-1.5 py-0.5 rounded bg-vc-teal/20 text-vc-teal uppercase font-black tracking-tighter">Supervisor</span>
                                                             ) : member.id === auth.currentUser?.uid ? (
