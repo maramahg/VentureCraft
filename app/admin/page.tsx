@@ -2347,7 +2347,7 @@ function AdminDashboardContent() {
                                                                                     <div className="flex-1 min-w-0">
                                                                                         <div className="flex items-center gap-2">
                                                                                             <p className={`text-xs font-bold truncate ${isSupMember ? 'text-vc-teal' : 'text-white'}`}>{member.displayName || 'Unknown Judge'}</p>
-                                                                                            {!isSupMember && member.role?.toLowerCase() === 'team_judge' && member.type && (
+                                                                                            {!isSupMember && member.type && (
                                                                                                 <span className={`text-[7px] px-1.5 py-0.5 rounded uppercase font-black tracking-tighter ${member.type === 'bus' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
                                                                                                     {member.type === 'bus' ? 'Bus' : 'Tech'}
                                                                                                 </span>
@@ -2502,7 +2502,7 @@ function AdminDashboardContent() {
                                                             <p className={`text-xs font-bold truncate ${(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') ? 'text-vc-teal' : 'text-white'}`}>
                                                                 {member.displayName || 'Unnamed'}
                                                             </p>
-                                                            {!(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') && member.role?.toLowerCase() === 'team_judge' && member.type && (
+                                                            {!(member.role?.toLowerCase() === 'supervisor' || member.role?.toLowerCase() === 'ultimate') && member.type && (
                                                                 <span className={`text-[7px] px-1.5 py-0.5 rounded uppercase font-black tracking-tighter ${member.type === 'bus' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
                                                                     {member.type === 'bus' ? 'Business' : 'Technical'}
                                                                 </span>
