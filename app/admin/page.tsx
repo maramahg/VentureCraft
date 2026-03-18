@@ -2611,7 +2611,7 @@ function AdminDashboardContent() {
                                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
                                                 <Rocket className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                             </div>
-                                            <div className="min-w-0">
+                                            <div className="min-w-0 flex flex-col items-center md:items-start">
                                                 <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint max-w-[200px] sm:max-w-[400px]">
                                                     {app.teamMembers?.[0]?.name || app.startupName || 'Startup Application'}
                                                 </h3>
