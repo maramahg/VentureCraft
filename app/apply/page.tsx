@@ -675,7 +675,7 @@ const ApplyPageContent = () => {
                     console.log('AUTO_ASSIGNMENT: Assigning to Team', assignedTeam, teamCounts);
                 } catch (assignErr) {
                     console.error('Error in auto-assignment:', assignErr);
-                    assignedTeam = 'A'; // Fallback
+                    assignedTeam = null; // Changed fallback to null to keep it unassigned until Admin rebalances
                 }
             }
 

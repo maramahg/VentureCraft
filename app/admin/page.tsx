@@ -438,16 +438,34 @@ function AdminDashboardContent() {
     const handleRedistributeTeams = async (appsToFix: Application[]) => {
         if ((!isAdmin && !isUltimateJudge) || appsToFix.length === 0) return;
 
-        console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} applications across 5 teams...`);
+        console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} applications based on current workloads...`);
         try {
-            const teams = ['A', 'B', 'C', 'D', 'E'];
+            const teams = ['A', 'B', 'C', 'D', 'E'] as const;
+
+            // 1. Calculate current counts for all teams from the existing state
+            const currentCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+            applications.forEach(app => {
+                if (app.assignedTeam && teams.includes(app.assignedTeam as any)) {
+                    currentCounts[app.assignedTeam as 'A' | 'B' | 'C' | 'D' | 'E']++;
+                }
+            });
+
+            // 2. Assign each app to fix to the team with the current minimum
+            const updates = appsToFix.map((app) => {
+                const assignedTeam = teams.reduce((a, b) =>
+                    currentCounts[a] <= currentCounts[b] ? a : b
+                );
+
+                // Update local counts for the next app in the batch
+                currentCounts[assignedTeam]++;
+
+                return {
+                    id: app.id,
+                    team: assignedTeam
+                };
+            });
+
             const batchSize = 10;
-
-            const updates = appsToFix.map((app, idx) => ({
-                id: app.id,
-                team: teams[idx % 5]
-            }));
-
             for (let i = 0; i < updates.length; i += batchSize) {
                 const batch = updates.slice(i, i + batchSize);
                 await Promise.all(batch.map(item =>
