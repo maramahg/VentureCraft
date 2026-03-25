@@ -2319,7 +2319,14 @@ function AdminDashboardContent() {
                                                     const teamApps = applications.filter(a => a.assignedTeam === team);
                                                     const scored = teamApps.filter(a => a.screening?.round1?.isCompleted).length;
                                                     const progress = teamApps.length > 0 ? (scored / teamApps.length) * 100 : 0;
-                                                    const teamMembers = allJudges.filter(j => j.team === team);
+                                                    const teamMembers = allJudges
+                                                        .filter(j => j.team === team)
+                                                        .sort((a, b) => {
+                                                            const priority: Record<string, number> = { 'ultimate': 0, 'supervisor': 1, 'team_judge': 2 };
+                                                            const aPri = priority[a.role.toLowerCase()] ?? 99;
+                                                            const bPri = priority[b.role.toLowerCase()] ?? 99;
+                                                            return aPri - bPri;
+                                                        });
 
                                                     return (
                                                         <div
