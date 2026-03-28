@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart, Mail } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart, Mail, Hash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 const navItems = [
   { name: 'Home', href: '/' },
@@ -47,6 +47,7 @@ export default function Navbar() {
   const [isSupervisor, setIsSupervisor] = useState(false);
   const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
   const [isAmbassador, setIsAmbassador] = useState(false);
+  const [isOutreachLead, setIsOutreachLead] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -132,14 +133,29 @@ export default function Navbar() {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          setIsAmbassador(userData.role === 'ambassador');
+          if (userData.role === 'ambassador') {
+            const ambDoc = await getDoc(doc(db, 'ambassadors', user.uid));
+            if (ambDoc.exists()) {
+              setIsAmbassador(true);
+            } else {
+              setIsAmbassador(false);
+              updateDoc(doc(db, 'users', user.uid), { role: 'user', ambassadorId: null }).catch(console.error);
+            }
+          } else {
+            setIsAmbassador(false);
+          }
         } else {
           setIsAmbassador(false);
         }
+
+        // 5. Check if Outreach Leader
+        const outreachLeadDoc = await getDoc(doc(db, 'outreach_leaders', user.uid));
+        setIsOutreachLead(outreachLeadDoc.exists());
       } catch (error) {
         console.error('Role check failed:', error);
         setIsAdmin(false);
         setIsAmbassador(false);
+        setIsOutreachLead(false);
       }
     };
     checkRole();
@@ -301,7 +317,7 @@ export default function Navbar() {
                               My Profile
                             </Link>
 
-                            {(isAdmin || isJudge || isAmbassadorLead) && (
+                            {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead) && (
                               <div className="mt-1 pt-1 border-t border-white/10">
                                 <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Management</p>
                                 {(isAdmin || isJudge) && (
@@ -364,6 +380,18 @@ export default function Navbar() {
                                       Email Center
                                     </Link>
                                   </>
+                                )}
+                                {(isAdmin || isOutreachLead) && (
+                                  <Link
+                                    href="/admin?tab=outreach"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <Hash size={14} className="text-vc-mint" />
+                                    </div>
+                                    Outreach Challenge
+                                  </Link>
                                 )}
                               </div>
                             )}
@@ -483,7 +511,7 @@ export default function Navbar() {
                           My Profile
                         </Link>
 
-                        {(isAdmin || isJudge || isAmbassadorLead) && (
+                        {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead) && (
                           <>
                             {(isAdmin || isJudge) && (
                               <Link
@@ -534,6 +562,16 @@ export default function Navbar() {
                                   Email Center
                                 </Link>
                               </>
+                            )}
+                            {(isAdmin || isOutreachLead) && (
+                              <Link
+                                href="/admin?tab=outreach"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Hash size={20} />
+                                Outreach Challenge
+                              </Link>
                             )}
                           </>
                         )}

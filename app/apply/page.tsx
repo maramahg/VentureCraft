@@ -746,43 +746,64 @@ const ApplyPageContent = () => {
             await setDoc(applicationRef, submissionData, { merge: true });
 
             // 5. Reward Points (Only if NEW)
-            if (isActuallyNew && formData.referralSource === 'Ambassadors' && (formData.referralAmbassadorId || formData.referralAmbassadorName)) {
+            if (isActuallyNew && formData.referralSource === 'Ambassadors/Outreach' && (formData.referralAmbassadorId || formData.referralAmbassadorName)) {
                 try {
                     await runTransaction(db, async (transaction) => {
-                        let ambDocId = null;
+                        let referrerDocId = null;
+                        let referrerCollection = 'ambassadors';
 
                         // Try to find by ID first if provided
                         if (formData.referralAmbassadorId) {
-                            const ambId = parseInt(formData.referralAmbassadorId.replace('#', ''));
-                            if (!isNaN(ambId)) {
-                                const q = query(collection(db, 'ambassadors'), where('ambassadorId', '==', ambId));
-                                const qSnap = await getDocs(q);
-                                if (!qSnap.empty) {
-                                    ambDocId = qSnap.docs[0].id;
+                            const refId = parseInt(formData.referralAmbassadorId.replace('#', ''));
+                            if (!isNaN(refId)) {
+                                // Check Ambassadors
+                                const qAmb = query(collection(db, 'ambassadors'), where('ambassadorId', '==', refId));
+                                const qAmbSnap = await getDocs(qAmb);
+                                if (!qAmbSnap.empty) {
+                                    referrerDocId = qAmbSnap.docs[0].id;
+                                    referrerCollection = 'ambassadors';
+                                } else {
+                                    // Check Outreach
+                                    const qOut = query(collection(db, 'outreach_participants'), where('outreachId', '==', refId));
+                                    const qOutSnap = await getDocs(qOut);
+                                    if (!qOutSnap.empty) {
+                                        referrerDocId = qOutSnap.docs[0].id;
+                                        referrerCollection = 'outreach_participants';
+                                    }
                                 }
                             }
                         }
 
                         // If not found by ID, try by name (exact match)
-                        if (!ambDocId && formData.referralAmbassadorName) {
-                            const q = query(collection(db, 'ambassadors'), where('name', '==', formData.referralAmbassadorName));
-                            const qSnap = await getDocs(q);
-                            if (!qSnap.empty) {
-                                ambDocId = qSnap.docs[0].id;
+                        if (!referrerDocId && formData.referralAmbassadorName) {
+                            // Check Ambassadors
+                            const qAmb = query(collection(db, 'ambassadors'), where('name', '==', formData.referralAmbassadorName));
+                            const qAmbSnap = await getDocs(qAmb);
+                            if (!qAmbSnap.empty) {
+                                referrerDocId = qAmbSnap.docs[0].id;
+                                referrerCollection = 'ambassadors';
+                            } else {
+                                // Check Outreach
+                                const qOut = query(collection(db, 'outreach_participants'), where('name', '==', formData.referralAmbassadorName));
+                                const qOutSnap = await getDocs(qOut);
+                                if (!qOutSnap.empty) {
+                                    referrerDocId = qOutSnap.docs[0].id;
+                                    referrerCollection = 'outreach_participants';
+                                }
                             }
                         }
 
-                        if (ambDocId) {
-                            const ambRef = doc(db, 'ambassadors', ambDocId);
-                            const userRef = doc(db, 'users', ambDocId);
+                        if (referrerDocId) {
+                            const referrerRef = doc(db, referrerCollection, referrerDocId);
+                            const userRef = doc(db, 'users', referrerDocId);
 
-                            const ambSnap = await transaction.get(ambRef);
+                            const refSnap = await transaction.get(referrerRef);
 
-                            if (ambSnap.exists()) {
-                                const currentPoints = ambSnap.data().points || 0;
+                            if (refSnap.exists()) {
+                                const currentPoints = refSnap.data().points || 0;
                                 const newPoints = currentPoints + 10;
 
-                                transaction.update(ambRef, { points: newPoints });
+                                transaction.update(referrerRef, { points: newPoints });
                                 transaction.set(userRef, { points: newPoints }, { merge: true });
 
                                 // Log in point history
@@ -2008,7 +2029,7 @@ const ApplyPageContent = () => {
                                             <SimpleDropdown
                                                 label="Referral Source *"
                                                 placeholder="Select source..."
-                                                options={["Colleagues", "Social Media", "Ambassadors", "Other"]}
+                                                options={["Colleagues", "Social Media", "Ambassadors/Outreach", "Other"]}
                                                 value={formData.referralSource}
                                                 onChange={(val) => {
                                                     setFormData({ ...formData, referralSource: val });
@@ -2031,20 +2052,24 @@ const ApplyPageContent = () => {
                                                 </div>
                                             )}
 
-                                            {formData.referralSource === "Ambassadors" && (
+                                            {formData.referralSource === "Ambassadors/Outreach" && (
                                                 <>
                                                     <div className="space-y-2">
-                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Ambassador ID</label>
+                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                            Venture ID / Ambassador ID
+                                                        </label>
                                                         <input
                                                             type="text"
                                                             value={formData.referralAmbassadorId}
                                                             onChange={(e) => setFormData({ ...formData, referralAmbassadorId: e.target.value })}
-                                                            placeholder="ID (if known)"
+                                                            placeholder="ID (e.g., #64)"
                                                             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Ambassador Name</label>
+                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                            Referrer Name
+                                                        </label>
                                                         <input
                                                             type="text"
                                                             value={formData.referralAmbassadorName}

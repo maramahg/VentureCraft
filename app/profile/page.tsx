@@ -31,6 +31,9 @@ export default function ProfilePage() {
     const [rank, setRank] = useState<number | null>(null);
     const [totalAmbassadors, setTotalAmbassadors] = useState<number>(0);
     const [ambassadorId, setAmbassadorId] = useState<number | null>(null);
+    const [isOutreach, setIsOutreach] = useState(false);
+    const [outreachId, setOutreachId] = useState<number | null>(null);
+    const [totalOutreach, setTotalOutreach] = useState<number>(0);
     const [pointHistory, setPointHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [showAllHistory, setShowAllHistory] = useState(false);
@@ -79,12 +82,13 @@ export default function ProfilePage() {
                 }
 
                 // Check Roles
-                const [adminDoc, judgeDoc, leadDoc, uDoc, ambDoc] = await Promise.all([
+                const [adminDoc, judgeDoc, leadDoc, uDoc, ambDoc, outDoc] = await Promise.all([
                     getDoc(doc(db, 'admins', user.uid)),
                     getDoc(doc(db, 'judges', user.uid)),
                     getDoc(doc(db, 'ambassadors_lead', user.uid)),
                     getDoc(doc(db, 'users', user.uid)),
-                    getDoc(doc(db, 'ambassadors', user.uid))
+                    getDoc(doc(db, 'ambassadors', user.uid)),
+                    getDoc(doc(db, 'outreach_participants', user.uid))
                 ]);
 
                 if (adminDoc.exists()) setIsAdmin(true);
@@ -92,13 +96,16 @@ export default function ProfilePage() {
                 if (leadDoc.exists()) setIsAmbassadorLead(true);
 
                 let userIsAmbassador = false;
+                let userIsOutreach = false;
                 let userPoints = 0;
 
                 if (uDoc.exists()) {
                     const userData = uDoc.data();
                     userIsAmbassador = userData.role === 'ambassador';
+                    userIsOutreach = userData.role === 'outreach';
                     userPoints = userData.points || 0;
                     setAmbassadorId(userData.ambassadorId || null);
+                    setOutreachId(userData.outreachId || null);
                 }
 
                 if (ambDoc.exists()) {
@@ -106,9 +113,33 @@ export default function ProfilePage() {
                     userIsAmbassador = true;
                     userPoints = ambData.points || 0;
                     setAmbassadorId(ambData.ambassadorId || null);
+                } else if (userIsAmbassador) {
+                    // Self-healing: if role says ambassador but document is missing, revert them.
+                    userIsAmbassador = false;
+                    try {
+                        await updateDoc(doc(db, 'users', user.uid), { role: 'user', ambassadorId: null });
+                    } catch (e) {
+                        console.warn('Silent role reversion failed:', e);
+                    }
+                }
+
+                if (outDoc.exists()) {
+                    const outData = outDoc.data();
+                    userIsOutreach = true;
+                    userPoints = Math.max(userPoints, outData.points || 0);
+                    setOutreachId(outData.outreachId || null);
+                } else if (userIsOutreach) {
+                    // Self-healing: if role says outreach but document is missing, revert them.
+                    userIsOutreach = false;
+                    try {
+                        await updateDoc(doc(db, 'users', user.uid), { role: 'user', outreachId: null });
+                    } catch (e) {
+                        console.warn('Silent role reversion failed:', e);
+                    }
                 }
 
                 setIsAmbassador(userIsAmbassador);
+                setIsOutreach(userIsOutreach);
                 setPoints(userPoints);
 
                 // Update lastSeenPoints
@@ -116,18 +147,23 @@ export default function ProfilePage() {
                     lastSeenPoints: userPoints
                 });
 
-                if (userIsAmbassador) {
-                    const ambSnapshot = await getDocs(collection(db, 'ambassadors'));
-                    const ambDocs = ambSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                    const sortedAmbs = ambDocs.sort((a: any, b: any) => (b.points || 0) - (a.points || 0));
+                if (userIsAmbassador || userIsOutreach) {
+                    const collectionName = userIsAmbassador ? 'ambassadors' : 'outreach_participants';
+                    const pointField = userIsAmbassador ? 'points' : 'points';
+                    const idField = userIsAmbassador ? 'ambassadorId' : 'outreachId';
+
+                    const snapshot = await getDocs(collection(db, collectionName));
+                    const allDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    const sortedDocs = allDocs.sort((a: any, b: any) => (b.points || 0) - (a.points || 0));
 
                     let userRank = null;
                     if (userPoints > 0) {
-                        const foundIndex = sortedAmbs.findIndex(doc => doc.id === user.uid);
+                        const foundIndex = sortedDocs.findIndex(doc => doc.id === user.uid);
                         if (foundIndex !== -1) userRank = foundIndex + 1;
                     }
                     setRank(userRank);
-                    setTotalAmbassadors(sortedAmbs.length);
+                    if (userIsAmbassador) setTotalAmbassadors(sortedDocs.length);
+                    if (userIsOutreach) setTotalOutreach(sortedDocs.length);
 
                     const historyQuery = query(
                         collection(db, 'users', user.uid, 'point_history'),
@@ -328,7 +364,13 @@ export default function ProfilePage() {
                                             Ambassador
                                         </div>
                                     )}
-                                    {!isAdmin && !isJudge && !isAmbassadorLead && !isAmbassador && (
+                                    {isOutreach && (
+                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] border bg-vc-mint/5 border-vc-mint/20 text-vc-mint shadow-[0_0_20px_rgba(20,250,230,0.05)]">
+                                            <Star className="w-3.5 h-3.5 fill-vc-mint/20" />
+                                            Outreach Participant
+                                        </div>
+                                    )}
+                                    {!isAdmin && !isJudge && !isAmbassadorLead && !isAmbassador && !isOutreach && (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-white/5 border-white/10 text-white/50">
                                             <UserIcon className="w-3 h-3" />
                                             User
@@ -402,8 +444,8 @@ export default function ProfilePage() {
                             )}
                         </div>
 
-                        {/* Ambassador Rewards Card */}
-                        {isAmbassador && (
+                        {/* Rewards Card (Ambassador or Outreach) */}
+                        {(isAmbassador || isOutreach) && (
                             <div className="space-y-6">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -424,7 +466,7 @@ export default function ProfilePage() {
                                         <div className="flex flex-col gap-1 items-center sm:items-end">
                                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-vc-mint/60">Your Rank</span>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-2xl font-black text-white">#{rank || '--'} <span className="text-[10px] font-normal text-white/40 ml-1 uppercase">out of {totalAmbassadors || '--'}</span></span>
+                                                <span className="text-2xl font-black text-white">#{rank || '--'} <span className="text-[10px] font-normal text-white/40 ml-1 uppercase">out of {isAmbassador ? totalAmbassadors : totalOutreach || '--'}</span></span>
                                                 {rank && rank <= 3 ? (
                                                     <Trophy className={`w-5 h-5 ${rank === 1 ? 'text-yellow-500 fill-yellow-500/20' :
                                                         rank === 2 ? 'text-slate-300 fill-slate-300/20' :
@@ -498,13 +540,15 @@ export default function ProfilePage() {
 
                         {/* Form Fields */}
                         <div className="space-y-6">
-                            {isAmbassador && ambassadorId && (
+                            {(isAmbassador || isOutreach) && (ambassadorId || outreachId) && (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-white/60 ml-1">Ambassador ID</label>
+                                    <label className="text-sm font-medium text-white/60 ml-1">
+                                        {isAmbassador ? 'Ambassador ID' : 'Outreach ID'}
+                                    </label>
                                     <div className="relative">
                                         <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-vc-mint/40" />
                                         <div className="w-full rounded-xl pl-12 pr-4 py-3.5 bg-vc-mint/5 border border-vc-mint/20 text-vc-mint font-black tracking-widest text-sm">
-                                            #{ambassadorId}
+                                            #{isAmbassador ? ambassadorId : outreachId}
                                         </div>
                                     </div>
                                 </div>

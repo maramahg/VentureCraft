@@ -413,8 +413,8 @@ function AdminDashboardContent() {
     const [judgeTeam, setJudgeTeam] = useState<string | null>(null);
     const [isUltimateJudge, setIsUltimateJudge] = useState(false);
     const [isSupervisor, setIsSupervisor] = useState(false);
-    const [isTeamJudgeOnly, setIsTeamJudgeOnly] = useState(false);
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
+    const [isOutreachLead, setIsOutreachLead] = useState(false);
     const [allJudges, setAllJudges] = useState<JudgeMember[]>([]);
     const [judgeNames, setJudgeNames] = useState<Record<string, string>>({});
     const [judgeContacts, setJudgeContacts] = useState<Record<string, { name: string; email: string }>>({});
@@ -433,6 +433,7 @@ function AdminDashboardContent() {
     const [updatingEditing, setUpdatingEditing] = useState(false);
     const [updatingScreening2, setUpdatingScreening2] = useState(false);
 
+    const isTeamJudgeOnly = isJudge && !isUltimateJudge && !isSupervisor;
     const canScore = isAdmin || (isTeamJudgeOnly && selectedApp?.assignedTeam === judgeTeam);
 
     const handleRedistributeTeams = async (appsToFix: Application[]) => {
@@ -521,7 +522,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges' | 'outreach'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
     const [showOversight, setShowOversight] = useState(false);
     const [selectedOversightTeam, setSelectedOversightTeam] = useState<string | null>(null);
@@ -600,12 +601,16 @@ function AdminDashboardContent() {
     const [rewardReason, setRewardReason] = useState<string>('');
     const [processingReward, setProcessingReward] = useState(false);
 
+    // Outreach Data
+    const [outreachParticipants, setOutreachParticipants] = useState<any[]>([]);
+    const [loadingOutreach, setLoadingOutreach] = useState(false);
+    const [outreachSearchTerm, setOutreachSearchTerm] = useState('');
+
     // History Modal State
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [historyUser, setHistoryUser] = useState<{ id: string, name: string } | null>(null);
-    const [userHistory, setUserHistory] = useState<Array<{ points: number, reason: string, timestamp: any }>>([]);
+    const [userHistory, setUserHistory] = useState<any[]>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
-
 
     // We use the imported countriesList directly or map it if needed
 
@@ -775,6 +780,11 @@ function AdminDashboardContent() {
             return;
         }
 
+        if (isOutreachLead) {
+            if (activeTab !== 'outreach') setActiveTab('outreach');
+            return;
+        }
+
         // Sync state with URL parameter if it exists and changed
         if (!tab) {
             if (activeTab !== 'startups') setActiveTab('startups');
@@ -788,8 +798,10 @@ function AdminDashboardContent() {
             setActiveTab('qr');
         } else if (tab === 'broadcast' && activeTab !== 'broadcast') {
             setActiveTab('broadcast');
+        } else if (tab === 'outreach' && activeTab !== 'outreach') {
+            setActiveTab('outreach');
         }
-    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead]);
+    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead]);
 
 
     useEffect(() => {
@@ -832,6 +844,15 @@ function AdminDashboardContent() {
                 if (leadDoc.exists()) {
                     setIsAmbassadorLead(true);
                     setActiveTab('ambassadors');
+                    setLoading(false);
+                    return;
+                }
+
+                // 4. Check for Outreach Leader
+                const outreachLeadDoc = await getDoc(doc(db, 'outreach_leaders', uid));
+                if (outreachLeadDoc.exists()) {
+                    setIsOutreachLead(true);
+                    setActiveTab('outreach');
                     setLoading(false);
                     return;
                 }
@@ -1140,6 +1161,26 @@ function AdminDashboardContent() {
         return () => unsubscribe();
     }, [isAdmin, isAmbassadorLead, activeTab]);
 
+    // Fetch Outreach Participants
+    useEffect(() => {
+        if (!(isAdmin || isOutreachLead) || activeTab !== 'outreach') return;
+
+        console.log('FETCHING: outreach_participants collection...');
+        const q = query(collection(db, 'outreach_participants'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            console.log('SUCCESS: outreach_participants fetched', snapshot.size);
+            const data = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setOutreachParticipants(data);
+        }, (error) => {
+            console.error('FIREBASE_PERMISSION_ERROR: Outreach Participants Fetch failed', error);
+        });
+
+        return () => unsubscribe();
+    }, [isAdmin, isOutreachLead, activeTab]);
+
 
     const handleStatusUpdate = async (appId: string, newStatus: string) => {
         try {
@@ -1436,12 +1477,9 @@ function AdminDashboardContent() {
     const confirmDeleteApplication = async () => {
         if (!appToDelete) return;
         setProcessingAppDeletion(true);
-        console.log("Attempting to delete application:", appToDelete);
         try {
             const docRef = doc(db, 'ambassador_applications', appToDelete.id);
-            console.log("Deleting document at path:", docRef.path);
             await deleteDoc(docRef);
-            console.log("Deletion successful!");
             setToast({ message: `Application for ${appToDelete.name} deleted successfully.`, type: 'success' });
             setShowDeleteAppModal(false);
             setAppToDelete(null);
@@ -1509,6 +1547,15 @@ function AdminDashboardContent() {
                 });
             }
 
+            // Update outreach_participants collection
+            const outreachRef = doc(db, 'outreach_participants', rewardUser.id);
+            const outreachSnap = await getDoc(outreachRef);
+            if (outreachSnap.exists()) {
+                await updateDoc(outreachRef, {
+                    points: newPoints
+                });
+            }
+
             // Save to point_history sub-collection
             await addDoc(collection(userRef, 'point_history'), {
                 points: amount,
@@ -1522,34 +1569,31 @@ function AdminDashboardContent() {
             setRewardUser(null);
             setPointsToAdd('');
             setRewardReason('');
-        } catch (error) {
-            console.error('Error awarding Venture Coins:', error);
-            setToast({ message: 'Failed to award Venture Coins.', type: 'error' });
+        } catch (error: any) {
+            console.error('Error awarding points:', error);
+            setToast({ message: 'Failed to award points.', type: 'error' });
         } finally {
             setProcessingReward(false);
         }
     };
 
-    const fetchHistory = async (userId: string, userName: string) => {
-        setLoadingHistory(true);
+    const handleViewHistory = async (userId: string, userName: string) => {
         setHistoryUser({ id: userId, name: userName });
         setShowHistoryModal(true);
+        setLoadingHistory(true);
+        setUserHistory([]);
 
         try {
             const q = query(
                 collection(db, 'users', userId, 'point_history'),
                 orderBy('timestamp', 'desc')
             );
-            const snapshot = await getDocs(q);
-            const history = snapshot.docs.map(doc => ({
-                points: doc.data().points,
-                reason: doc.data().reason,
-                timestamp: doc.data().timestamp
-            }));
+            const querySnapshot = await getDocs(q);
+            const history = querySnapshot.docs.map(doc => doc.data());
             setUserHistory(history);
         } catch (error) {
             console.error('Error fetching history:', error);
-            setToast({ message: 'Failed to fetch reward history.', type: 'error' });
+            setToast({ message: 'Failed to load point history.', type: 'error' });
         } finally {
             setLoadingHistory(false);
         }
@@ -1559,7 +1603,6 @@ function AdminDashboardContent() {
         try {
             const worksheet = XLSX.utils.json_to_sheet(data);
 
-            // Calculate dynamic column widths
             if (data.length > 0) {
                 const allKeys = Array.from(new Set(data.flatMap(row => Object.keys(row))));
                 const colWidths = allKeys.map(key => {
@@ -1569,7 +1612,7 @@ function AdminDashboardContent() {
                         if (val === null || val === undefined) return max;
                         return Math.max(max, val.toString().length);
                     }, 0);
-                    return { wch: Math.max(headerLen, maxValLen) + 4 }; // Added more padding
+                    return { wch: Math.max(headerLen, maxValLen) + 4 };
                 });
                 worksheet['!cols'] = colWidths;
             }
@@ -1681,6 +1724,14 @@ function AdminDashboardContent() {
             return matchesSearch && matchesType;
         });
     }, [ambassadorsList, ambSearchTerm, ambDirTypeFilter]);
+    const filteredOutreachList = useMemo(() => {
+        return outreachParticipants.filter(user => {
+            const matchesSearch =
+                (user.displayName?.toLowerCase().includes(outreachSearchTerm.toLowerCase())) ||
+                (user.email?.toLowerCase().includes(outreachSearchTerm.toLowerCase()));
+            return matchesSearch;
+        });
+    }, [outreachParticipants, outreachSearchTerm]);
 
 
     const pillars = [
@@ -1702,16 +1753,7 @@ function AdminDashboardContent() {
         return Array.from(nationalities).sort();
     }, [applications]);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-[#001311] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-vc-mint/30 border-t-vc-mint rounded-full animate-spin" />
-                    <p className="text-white/40 text-sm font-poppins animate-pulse">Verifying Admin Access...</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return <div className="min-h-screen bg-[#001311] flex items-center justify-center text-white"><span className="animate-pulse flex items-center gap-3 font-bold uppercase tracking-widest"><Shield className="w-5 h-5 text-vc-mint animate-bounce" /> Verifying Clearance...</span></div>;
 
     if (error) {
         const isOffline = error.toLowerCase().includes('offline');
@@ -1756,7 +1798,7 @@ function AdminDashboardContent() {
         );
     }
 
-    if (!isAdmin && !isJudge && !isAmbassadorLead) return null;
+    if (!isAdmin && !isJudge && !isAmbassadorLead && !isOutreachLead) return null;
 
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-32 pb-12">
@@ -1766,19 +1808,21 @@ function AdminDashboardContent() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3 text-white tracking-tight">
-                                {isAdmin ? 'Admin Dashboard' : isUltimateJudge ? 'Ultimate Judge' : isSupervisor ? `Team ${judgeTeam} Supervisor` : `Team ${judgeTeam} Evaluator`}
+                                {isAdmin ? 'Admin Dashboard' : isOutreachLead ? 'Outreach Hub' : isAmbassadorLead ? 'Ambassador Command' : isUltimateJudge ? 'Ultimate Judge' : isSupervisor ? `Team ${judgeTeam} Supervisor` : `Team ${judgeTeam} Evaluator`}
                             </h1>
                             <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
                                 <Shield className="w-3 h-3" />
                                 {activeTab === 'startups'
                                     ? isAdmin ? 'Startup Ecosystem Oversight' : isUltimateJudge ? 'Ultimate Performance Oversight' : `Team ${judgeTeam} Evaluation Queue`
-                                    : activeTab === 'ambassadors'
-                                        ? 'Ambassador Network Management'
-                                        : activeTab === 'qr'
-                                            ? 'Secure Access Protocol Control'
-                                            : activeTab === 'judges'
-                                                ? 'Oversight: Judge Network Performance'
-                                                : 'Strategic Communication Command'
+                                    : activeTab === 'outreach'
+                                        ? 'Outreach Competition Management'
+                                        : activeTab === 'ambassadors'
+                                            ? 'Ambassador Network Management'
+                                            : activeTab === 'qr'
+                                                ? 'Secure Access Protocol Control'
+                                                : activeTab === 'judges'
+                                                    ? 'Oversight: Judge Network Performance'
+                                                    : 'Strategic Communication Command'
                                 }
                             </p>
                         </div>
@@ -1929,10 +1973,10 @@ function AdminDashboardContent() {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                                 <input
                                     type="text"
-                                    placeholder="Search by name, email, or ID..."
-                                    value={activeTab === 'startups' ? searchTerm : ambSearchTerm}
-                                    onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-vc-mint transition-colors"
+                                    placeholder={activeTab === 'startups' ? "Search startup applications..." : activeTab === 'outreach' ? "Search outreach participants..." : "Search ambassadors..."}
+                                    value={activeTab === 'startups' ? searchTerm : activeTab === 'outreach' ? outreachSearchTerm : ambSearchTerm}
+                                    onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : activeTab === 'outreach' ? setOutreachSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-vc-mint/50 transition-all font-medium"
                                 />
                             </div>
                         </div>
@@ -1991,13 +2035,15 @@ function AdminDashboardContent() {
                                     setNationalityFilter('all');
                                     setScreeningFilter('all');
                                     setSortBy('date');
-                                } else {
+                                } else if (activeTab === 'ambassadors') {
                                     setAmbSearchTerm('');
                                     setAmbStatusFilter('all');
                                     setAmbNationalityFilter('all');
                                     setAmbLocationFilter('all');
                                     setAmbDegreeFilter('all');
                                     setAmbAppTypeFilter('all');
+                                } else if (activeTab === 'outreach') {
+                                    setOutreachSearchTerm('');
                                 }
                             }}
                             className="h-[46px] px-6 text-[10px] font-bold text-white/40 hover:text-vc-mint transition-colors border border-white/5 hover:border-vc-mint/20 rounded-2xl uppercase tracking-widest"
@@ -2008,6 +2054,99 @@ function AdminDashboardContent() {
                 )}
 
                 <div className="space-y-4">
+                    {activeTab === 'outreach' && (
+                        <div className="space-y-6">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20">
+                                        <Hash className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-white leading-none mb-1">Outreach Hub</h2>
+                                        <p className="text-xs text-white/40 uppercase tracking-widest font-black">Participant Management</p>
+                                    </div>
+                                </div>
+                                <div className="flex bg-white/5 p-1.5 rounded-[1.5rem] border border-white/10 backdrop-blur-sm">
+                                    <div className="px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20 flex items-center gap-2">
+                                        Directory
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-4 mb-2">
+                                <span className="text-sm text-white/40">Showing {filteredOutreachList.length} participants</span>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-vc-mint/5 border border-vc-mint/10 rounded-xl">
+                                    <Trophy className="w-4 h-4 text-vc-mint" />
+                                    <span className="text-xs uppercase tracking-widest text-vc-mint font-black">Leaderboard</span>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4">
+                                {filteredOutreachList
+                                    .sort((a, b) => (b.points || 0) - (a.points || 0))
+                                    .map((user, index) => (
+                                        <div
+                                            key={user.id}
+                                            className="glass-panel p-6 flex items-center justify-between group hover:border-vc-mint/30 transition-all"
+                                        >
+                                            <div className="flex items-center gap-6">
+                                                <div className="relative">
+                                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                                                        <User className="w-6 h-6 text-white/20" />
+                                                    </div>
+                                                    {index < 3 && (user.points || 0) > 0 && (
+                                                        <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${index === 0 ? 'bg-yellow-500 border-yellow-200 text-yellow-900' :
+                                                            index === 1 ? 'bg-slate-300 border-slate-100 text-slate-800' :
+                                                                'bg-amber-600 border-amber-400 text-amber-50'
+                                                            }`}>
+                                                            {index + 1}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <div className="flex items-center gap-3 mb-1">
+                                                        <h3 className="font-bold text-lg leading-tight">{user.displayName}</h3>
+                                                        <div className="px-2.5 py-0.5 rounded-full bg-vc-mint/10 border border-vc-mint/20 flex items-center gap-1.5">
+                                                            <CircleDollarSign className="w-4 h-4 text-vc-mint" />
+                                                            <span className="text-xs font-black text-vc-mint">{user.points || 0}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-4 text-xs text-white/30 uppercase tracking-[0.1em]">
+                                                        <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {user.email}</span>
+                                                        <span className="flex items-center gap-1 text-vc-mint/60 font-black whitespace-nowrap"><Hash className="w-3 h-3" /> ID: #{user.outreachId || '---'}</span>
+                                                        {user.university && <span className="flex items-center gap-1"><GraduationCap className="w-3 h-3" /> {user.university}</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => fetchHistory(user.id, user.displayName)}
+                                                    className="p-3 rounded-xl bg-white/5 text-white/40 hover:bg-vc-mint/10 hover:text-vc-mint transition-all border border-white/10 hover:border-vc-mint/30"
+                                                    title="Reward History"
+                                                >
+                                                    <History className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setRewardUser({ id: user.id, name: user.displayName || 'Participant', currentPoints: user.points || 0 });
+                                                        setShowRewardModal(true);
+                                                    }}
+                                                    className="px-5 py-3 rounded-xl bg-vc-mint text-vc-green-dark font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-vc-mint/20"
+                                                >
+                                                    Manage Points
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                {filteredOutreachList.length === 0 && (
+                                    <div className="text-center py-24 glass-panel bg-white/0 border-dashed">
+                                        <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                                        <p className="text-white/40">No outreach participants found</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     {activeTab === 'ambassadors' && (
                         <div className="space-y-6">
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
@@ -3256,13 +3395,13 @@ function AdminDashboardContent() {
                                                             )}
                                                             {selectedApp.referral.ambassadorId && (
                                                                 <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador ID</p>
+                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Referrer ID</p>
                                                                     <p className="text-base md:text-lg font-medium text-vc-mint">#{selectedApp.referral.ambassadorId}</p>
                                                                 </div>
                                                             )}
                                                             {selectedApp.referral.ambassadorName && (
                                                                 <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Ambassador Name</p>
+                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Referrer Name</p>
                                                                     <p className="text-base md:text-lg font-medium text-white">{selectedApp.referral.ambassadorName}</p>
                                                                 </div>
                                                             )}

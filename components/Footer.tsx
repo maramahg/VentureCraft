@@ -102,6 +102,11 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
+                                <Link href="/outreach-challenge" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
+                                    Outreach Challenge
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/apply" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
                                     Register
                                 </Link>

@@ -45,6 +45,12 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/ambassadors_lead/$(request.auth.uid));
     }
 
+    // Helper: Check if the user is in the 'outreach_leaders' collection
+    function isOutreachLead() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/outreach_leaders/$(request.auth.uid));
+    }
+
     // Helper: Registration Status
     function isRegistrationOpen() {
       let reg = get(/databases/$(database)/documents/settings/registration).data;
@@ -57,13 +63,26 @@ service cloud.firestore {
       return edit.get('isOpen', true) == true || edit.get('isAllowed', true) == true;
     }
     
+    // Outreach Participants
+    match /outreach_participants/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
+    }
+
+    // Counters (Internal tracking)
+    match /counters/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
     // Startup Applications
     match /applications/{docId} {
       allow read: if request.auth != null && (
-        request.auth.uid == resource.data.userId || 
+        request.auth.uid == docId || 
+        (resource != null && request.auth.uid == resource.data.userId) || 
         isAdmin() || 
         isUltimateJudge() || 
-        (isJudge() && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
+        (isJudge() && resource != null && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
       );
       allow create: if request.auth != null 
         && (isRegistrationOpen() || isAdmin());
@@ -88,8 +107,8 @@ service cloud.firestore {
 
     // Ambassador Applications
     match /ambassador_applications/{docId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isAmbassadorLead());
-      allow write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin() || isAmbassadorLead());
+      allow read: if request.auth != null && (request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId) || isAdmin() || isAmbassadorLead());
+      allow write: if request.auth != null && (request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId) || isAdmin() || isAmbassadorLead());
       allow delete: if request.auth != null && (isAdmin() || isAmbassadorLead());
       allow create: if request.auth != null;
     }
@@ -97,7 +116,7 @@ service cloud.firestore {
     // Ambassadors Collection (Public Profiles)
     match /ambassadors/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
       // Allow point increments for referrals
       allow update: if request.auth != null 
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
@@ -106,8 +125,8 @@ service cloud.firestore {
 
     // Users Collection (Profiles)
     match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isJudge());
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead());
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isJudge() || isOutreachLead());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
       allow create: if request.auth != null;
       // Allow point increments for referrals
       allow update: if request.auth != null 
@@ -116,8 +135,8 @@ service cloud.firestore {
 
       // Point History Sub-collection
       match /point_history/{historyId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead());
-        allow write: if isAdmin() || isAmbassadorLead();
+        allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
+        allow write: if isAdmin() || isAmbassadorLead() || isOutreachLead();
         // Allow automatic referral logging
         allow create: if request.auth != null && request.resource.data.type == 'referral';
       }
@@ -127,11 +146,6 @@ service cloud.firestore {
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin() || (isUltimateJudge() && docId == 'screeningRound2');
-    }
-
-    // Counters (Internal tracking)
-    match /counters/{docId} {
-      allow read, write: if isAdmin() || isAmbassadorLead();
     }
 
     // Judges Collection
@@ -145,6 +159,9 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
     match /ambassadors_lead/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+    match /outreach_leaders/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
 
