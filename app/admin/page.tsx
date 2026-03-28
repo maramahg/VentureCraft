@@ -833,7 +833,6 @@ function AdminDashboardContent() {
                     setIsUltimateJudge(role === 'ultimate' || !hasTeam);
                     setIsSupervisor(role === 'supervisor');
                     // A "Team Judge" is anyone with a team who isn't a supervisor or ultimate judge
-                    setIsTeamJudgeOnly(hasTeam && role !== 'supervisor' && role !== 'ultimate');
 
                     setActiveTab('startups');
                     setLoading(false);
