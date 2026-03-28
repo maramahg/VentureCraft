@@ -364,8 +364,8 @@ export default function OutreachChallengePage() {
 
             <div className="relative z-10 w-full">
                 {/* Hero Section */}
-                <section className="relative pt-40 pb-24 overflow-hidden">
-                    <div className="container mx-auto px-6 lg:px-20">
+                <section className="relative pt-28 md:pt-40 pb-16 md:pb-24 overflow-hidden">
+                    <div className="container mx-auto px-4 md:px-6 lg:px-20">
                         <motion.div
                             initial="hidden"
                             animate="visible"
@@ -377,21 +377,21 @@ export default function OutreachChallengePage() {
                                     JOIN THE GLOBAL COMMUNITY
                                 </span>
 
-                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white uppercase tracking-tight leading-tight font-poppins mb-8">
+                                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-white uppercase tracking-tight leading-tight font-poppins mb-6 md:mb-8">
                                     Outreach Challenge
                                 </h1>
 
                                 <h1 className="sr-only">Venture Craft Outreach Challenge</h1>
 
-                                <p className="text-white/70 text-lg md:text-xl font-poppins max-w-2xl mx-auto leading-relaxed font-light text-center">
+                                <p className="text-white/70 text-base md:text-xl font-poppins max-w-2xl mx-auto leading-relaxed font-light text-center">
                                     Help us drive innovation globally by identifying high-potential startups and supporting their journey into the Venture Craft ecosystem.
                                 </p>
                             </motion.div>
 
-                            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-5 justify-center items-center mt-12">
+                            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8 md:mt-12">
                                 <button
                                     onClick={() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-xl transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)] inline-block"
+                                    className="group relative w-full sm:w-auto px-8 md:px-10 py-3.5 md:py-4 bg-vc-mint text-[#001D1B] font-bold text-base md:text-lg rounded-xl transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)] inline-flex justify-center"
                                 >
                                     <span className="relative z-10 flex items-center gap-2">
                                         REGISTER NOW <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
@@ -399,7 +399,7 @@ export default function OutreachChallengePage() {
                                 </button>
                                 <button
                                     onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="px-10 py-4 bg-white/5 border border-white/10 text-white font-bold text-lg rounded-xl transition-all hover:bg-white/10 backdrop-blur-xl"
+                                    className="w-full sm:w-auto px-8 md:px-10 py-3.5 md:py-4 bg-white/5 border border-white/10 text-white font-bold text-base md:text-lg rounded-xl transition-all hover:bg-white/10 backdrop-blur-xl"
                                 >
                                     LEARN MORE
                                 </button>
@@ -409,7 +409,7 @@ export default function OutreachChallengePage() {
                 </section>
 
                 {/* Ribbon Divider 1 */}
-                <section className="py-16 relative overflow-hidden">
+                <section className="py-10 md:py-16 relative overflow-hidden">
                     <div className="absolute inset-0 z-0 bg-vc-mint/15" />
                     <div className="container mx-auto px-6 relative z-10 text-center">
                         <motion.div
@@ -419,7 +419,7 @@ export default function OutreachChallengePage() {
                             transition={{ duration: 0.8 }}
                             className="max-w-5xl mx-auto"
                         >
-                            <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-white py-2 font-poppins uppercase leading-tight tracking-tighter whitespace-nowrap">
+                            <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-white py-2 font-poppins uppercase leading-tight tracking-tighter whitespace-normal md:whitespace-nowrap">
                                 Driving <span className="text-vc-mint">Innovation</span>, One Referral at a Time!
                             </h2>
                         </motion.div>
@@ -427,8 +427,8 @@ export default function OutreachChallengePage() {
                 </section>
 
                 {/* What is it? Section */}
-                <section id="about" className="py-24 relative overflow-hidden border-t border-white/5 bg-[#157369]/[0.05]">
-                    <div className="container mx-auto px-6 lg:px-20">
+                <section id="about" className="py-16 md:py-24 relative overflow-hidden border-t border-white/5 bg-[#157369]/[0.05]">
+                    <div className="container mx-auto px-4 md:px-6 lg:px-20">
                         <div className="max-w-4xl mx-auto text-center mb-16">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
@@ -453,13 +453,13 @@ export default function OutreachChallengePage() {
                             </motion.div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                             {/* Venture Coins Box */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-vc-mint/30 hover:bg-white/[0.05] transition-all flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                                className="p-7 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-vc-mint/30 hover:bg-white/[0.05] transition-all flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-vc-mint/5 blur-[40px] -translate-y-1/2 translate-x-1/2" />
                                 <div className="w-16 h-16 rounded-2xl bg-vc-mint/10 border border-vc-mint/20 flex items-center justify-center text-vc-mint mb-8 group-hover:scale-110 group-hover:bg-vc-mint/20 transition-all duration-500">
@@ -475,7 +475,7 @@ export default function OutreachChallengePage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
-                                className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-blue-400/30 hover:bg-white/[0.05] transition-all flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                                className="p-7 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-blue-400/30 hover:bg-white/[0.05] transition-all flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/5 blur-[40px] -translate-y-1/2 translate-x-1/2" />
                                 <div className="w-16 h-16 rounded-2xl bg-blue-400/10 border border-blue-400/20 flex items-center justify-center text-blue-400 mb-8 group-hover:scale-110 group-hover:bg-blue-400/20 transition-all duration-500">
@@ -491,7 +491,7 @@ export default function OutreachChallengePage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-purple-500/30 hover:bg-white/[0.05] transition-all flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                                className="p-7 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-purple-500/30 hover:bg-white/[0.05] transition-all flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 blur-[40px] -translate-y-1/2 translate-x-1/2" />
                                 <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-8 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all duration-500">
@@ -505,8 +505,8 @@ export default function OutreachChallengePage() {
                 </section>
 
                 {/* Participant Expectations Section */}
-                <section className="py-24 relative z-20 overflow-hidden border-t border-white/5">
-                    <div className="container mx-auto px-6 lg:px-20">
+                <section className="py-16 md:py-24 relative z-20 overflow-hidden border-t border-white/5">
+                    <div className="container mx-auto px-4 md:px-6 lg:px-20">
                         <div className="max-w-5xl mx-auto">
                             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-black mb-16 font-poppins uppercase tracking-tight leading-tight text-white text-center">
                                 Participant Expectations
@@ -520,7 +520,7 @@ export default function OutreachChallengePage() {
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.1 }}
-                                        className="p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:bg-white/5 hover:border-vc-mint/20 transition-all text-center group shadow-2xl"
+                                        className="p-8 md:p-12 rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:bg-white/5 hover:border-vc-mint/20 transition-all text-center group shadow-2xl"
                                     >
                                         <div className="w-12 h-12 shrink-0 bg-vc-mint mx-auto rounded-xl flex items-center justify-center text-[#001D1B] mb-8 group-hover:bg-vc-mint/10 group-hover:text-vc-mint transition-all duration-500">
                                             {exp.icon}
@@ -535,14 +535,14 @@ export default function OutreachChallengePage() {
                 </section>
 
                 {/* Steps Section */}
-                <section className="py-24 relative overflow-hidden border-t border-white/5 bg-[#157369]/[0.05]">
-                    <div className="container mx-auto px-6 lg:px-20">
-                        <div className="text-center mb-24">
+                <section className="py-16 md:py-24 relative overflow-hidden border-t border-white/5 bg-[#157369]/[0.05]">
+                    <div className="container mx-auto px-4 md:px-6 lg:px-20">
+                        <div className="text-center mb-12 md:mb-24">
                             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-black mb-8 font-poppins uppercase tracking-tight leading-tight text-white">Participation Process</h2>
                             <p className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins">Four steps to complete the outreach cycle</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
                             {steps.map((step, idx) => (
                                 <motion.div
                                     key={idx}
@@ -567,10 +567,10 @@ export default function OutreachChallengePage() {
                 </section>
 
                 {/* Enrollment Section */}
-                <section id="register" className="py-24 relative border-t border-white/5">
-                    <div className="container mx-auto px-6">
+                <section id="register" className="py-16 md:py-24 relative border-t border-white/5">
+                    <div className="container mx-auto px-4 md:px-6">
                         <div className="max-w-4xl mx-auto rounded-[3rem] bg-gradient-to-br from-purple-500 via-blue-500 to-vc-mint p-[1.5px] shadow-2xl group relative">
-                            <div className="bg-[#001D1B] rounded-[3rem] p-10 md:p-16 relative">
+                            <div className="bg-[#001D1B] rounded-[3rem] p-6 md:p-16 relative">
                                 {/* Decorative Blobs */}
                                 <div className="absolute inset-0 rounded-[3rem] overflow-hidden pointer-events-none">
                                     <div className="absolute top-0 right-0 w-96 h-96 bg-vc-mint/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
@@ -587,7 +587,7 @@ export default function OutreachChallengePage() {
                                         </p>
 
                                         <div className="text-vc-mint text-center lg:text-left mt-8">
-                                            <span className="text-xl md:text-2xl font-black uppercase tracking-widest font-poppins whitespace-nowrap">Open For All Students!</span>
+                                            <span className="text-xl md:text-2xl font-black uppercase tracking-widest font-poppins whitespace-normal sm:whitespace-nowrap">Open For All Students!</span>
                                         </div>
                                     </div>
 
@@ -596,31 +596,32 @@ export default function OutreachChallengePage() {
                                             <motion.div
                                                 initial={{ opacity: 0, scale: 0.95 }}
                                                 animate={{ opacity: 1, scale: 1 }}
-                                                className="bg-vc-mint/10 border border-vc-mint/20 rounded-[2rem] p-8 text-center space-y-6"
+                                                className="bg-vc-mint/10 border border-vc-mint/20 rounded-[2rem] p-6 md:p-8 text-center space-y-6"
                                             >
-                                                <div className="w-20 h-20 bg-vc-mint rounded-full flex items-center justify-center mx-auto shadow-lg shadow-vc-mint/20">
-                                                    <CheckCircle2 className="w-10 h-10 text-[#001D1B]" />
+                                                <div className="w-16 h-16 md:w-20 md:h-20 bg-vc-mint rounded-full flex items-center justify-center mx-auto shadow-lg shadow-vc-mint/20">
+                                                    <CheckCircle2 className="w-8 h-8 md:w-10 md:h-10 text-[#001D1B]" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Registration Complete</h3>
-                                                    <p className="text-white/60">Welcome to the Outreach Challenge! Here is your unique Venture ID:</p>
-                                                    <p className="text-vc-mint text-xs font-bold mt-2 uppercase tracking-widest flex items-center justify-center gap-1">
+                                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight mb-2">Registration Complete</h3>
+                                                    <p className="text-white/60 text-sm md:text-base">Welcome to the Outreach Challenge! Here is your unique Venture ID:</p>
+                                                    <p className="text-vc-mint text-[10px] md:text-xs font-bold mt-2 uppercase tracking-wide md:tracking-widest flex items-center justify-center gap-1">
                                                         <Mail className="w-3 h-3" /> A confirmation email was sent!
                                                     </p>
                                                 </div>
 
-                                                <div className="bg-[#001D1B] border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                                                <div className="bg-[#001D1B] border border-white/10 rounded-2xl p-5 md:p-6 relative group overflow-hidden">
                                                     <div className="absolute inset-0 bg-gradient-to-r from-vc-mint/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    <div className="relative z-10 flex items-center justify-between">
-                                                        <div className="text-left">
-                                                            <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-[0.2em] mb-1">Your Referral ID</p>
-                                                            <p className="text-4xl font-black text-white tracking-tighter">#{regData?.outreachId}</p>
+                                                    <div className="relative z-10 flex flex-col sm:flex-row items-center sm:justify-between gap-4">
+                                                        <div className="text-center sm:text-left flex-1 min-w-0">
+                                                            <p className="text-[10px] font-bold text-vc-mint/40 uppercase tracking-widest md:tracking-[0.2em] mb-1">Your Referral ID</p>
+                                                            <p className="text-3xl sm:text-4xl font-black text-white tracking-tighter">#{regData?.outreachId}</p>
                                                         </div>
                                                         <button
                                                             onClick={copyReferralId}
-                                                            className="p-4 bg-white/5 hover:bg-vc-mint hover:text-[#001D1B] rounded-xl transition-all duration-300 group/copy"
+                                                            className="p-3 md:p-4 bg-white/5 hover:bg-vc-mint hover:text-[#001D1B] rounded-xl transition-all duration-300 group/copy shrink-0 flex items-center gap-2"
                                                         >
-                                                            {copied ? <CheckCircle2 className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
+                                                            {copied ? <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" /> : <Copy className="w-5 h-5 md:w-6 md:h-6" />}
+                                                            <span className="text-xs font-bold uppercase sm:hidden">{copied ? 'Copied' : 'Copy'}</span>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -639,7 +640,7 @@ export default function OutreachChallengePage() {
                                                             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                                                             placeholder="Full Name"
                                                             required
-                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder-white/20 font-bold focus:outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all shadow-inner"
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 text-white placeholder-white/20 font-bold focus:outline-none focus:border-vc-mint/50 focus:bg-white/10 transition-all shadow-inner"
                                                         />
                                                     </div>
                                                     <div className="relative group/input">
@@ -649,7 +650,7 @@ export default function OutreachChallengePage() {
                                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                             placeholder="Personal Email"
                                                             required
-                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder-white/20 font-bold focus:outline-none focus:border-purple-400/50 focus:bg-white/10 transition-all shadow-inner"
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 text-white placeholder-white/20 font-bold focus:outline-none focus:border-purple-400/50 focus:bg-white/10 transition-all shadow-inner"
                                                         />
                                                     </div>
                                                     <div className="relative group/input">
@@ -659,7 +660,7 @@ export default function OutreachChallengePage() {
                                                             onChange={(e) => setFormData({ ...formData, university: e.target.value })}
                                                             placeholder="University Name"
                                                             required
-                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder-white/20 font-bold focus:outline-none focus:border-blue-400/50 focus:bg-white/10 transition-all shadow-inner"
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 text-white placeholder-white/20 font-bold focus:outline-none focus:border-blue-400/50 focus:bg-white/10 transition-all shadow-inner"
                                                         />
                                                     </div>
                                                     <div className="relative group/input">
@@ -682,7 +683,7 @@ export default function OutreachChallengePage() {
                                                 <button
                                                     type="submit"
                                                     disabled={loading}
-                                                    className="w-full py-6 bg-vc-mint text-[#001D1B] font-bold text-2xl uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-all transform active:scale-95 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
+                                                    className="w-full py-4 md:py-6 bg-vc-mint text-[#001D1B] font-bold text-base md:text-2xl uppercase tracking-wider md:tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-all transform active:scale-95 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
                                                 >
                                                     {loading ? (
                                                         <>
@@ -705,3 +706,4 @@ export default function OutreachChallengePage() {
         </main>
     );
 }
+
