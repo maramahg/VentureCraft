@@ -33,6 +33,7 @@ const navItems = [
     ]
   },
   { name: 'Ambassadors', href: '/ambassadors' },
+  { name: 'Challenge', href: '/outreach-challenge' },
   { name: 'Contact Us', href: '/contact', type: 'link' },
 ];
 
