@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction, getCountFromServer } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction, getCountFromServer, limit } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -1180,7 +1180,27 @@ function AdminDashboardContent() {
         return () => unsubscribe();
     }, [isAdmin, isOutreachLead, activeTab]);
 
+    const fetchHistory = async (userId: string, userName: string) => {
+        setHistoryUser({ id: userId, name: userName });
+        setLoadingHistory(true);
+        setShowHistoryModal(true);
+        try {
+            const historyRef = collection(db, 'point_history');
+            const q = query(historyRef, where('userId', '==', userId), orderBy('timestamp', 'desc'), limit(50));
+            const snapshot = await getDocs(q);
 
+            const historyData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setUserHistory(historyData);
+        } catch (error) {
+            console.error('Error fetching point history:', error);
+            setToast({ message: 'Failed to load user history.', type: 'error' });
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
     const handleStatusUpdate = async (appId: string, newStatus: string) => {
         try {
             await updateDoc(doc(db, 'applications', appId), {
@@ -1964,7 +1984,7 @@ function AdminDashboardContent() {
 
 
                 {/* Filter Controls Row */}
-                {(activeTab === 'startups' || activeTab === 'ambassadors') && (
+                {(activeTab === 'startups' || activeTab === 'ambassadors' || activeTab === 'outreach') && (
                     <div className="glass-panel p-6 mb-8 flex flex-wrap items-end gap-6">
                         <div className="flex-1 min-w-[300px]">
                             <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Search Records</label>
