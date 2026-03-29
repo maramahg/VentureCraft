@@ -8,13 +8,13 @@ import {
     Phone, Globe, Linkedin, Video, ArrowLeft,
     Check, X, AlertCircle, Shield, FileText, FileCode, Edit2, History, UserMinus,
     User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, BarChart3, Paperclip, CheckCircle2,
-    AlignLeft, AlignCenter, AlignRight, Type
+    AlignLeft, AlignCenter, AlignRight, Type, RotateCcw
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
 import { Toast, ToastType } from '@/components/ui/Toast';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction, getCountFromServer, limit } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteField, getDoc, setDoc, where, deleteDoc, serverTimestamp, addDoc, getDocs, runTransaction, getCountFromServer, limit } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -432,6 +432,17 @@ function AdminDashboardContent() {
     const [updatingReg, setUpdatingReg] = useState(false);
     const [updatingEditing, setUpdatingEditing] = useState(false);
     const [updatingScreening2, setUpdatingScreening2] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: React.ReactNode;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { }
+    });
 
     const isTeamJudgeOnly = isJudge && !isUltimateJudge && !isSupervisor;
     const canScore = isAdmin || (isTeamJudgeOnly && selectedApp?.assignedTeam === judgeTeam);
@@ -1259,6 +1270,65 @@ function AdminDashboardContent() {
         }
     };
 
+    const handleResetScreening = async () => {
+        if (!selectedApp) return;
+
+        setConfirmModal({
+            isOpen: true,
+            title: 'Reset Evaluation',
+            message: (
+                <>
+                    Are you sure you want to reset the evaluation score for <span className="text-white font-bold">"{selectedApp.startupName || 'this startup'}"</span>? This action cannot be undone.
+                </>
+            ),
+            onConfirm: async () => {
+                setSavingScore(true);
+                const resetData = {
+                    round1: {
+                        scores: {
+                            problemClarity: 0,
+                            solutionInnovation: 0,
+                            earlyBusinessLogic: 0,
+                            communicationConviction: 0
+                        },
+                        totalScore: 0,
+                        evaluatorId: '',
+                        evaluatedAt: null as any,
+                        isCompleted: false
+                    }
+                };
+
+                try {
+                    await updateDoc(doc(db, 'applications', selectedApp.id), {
+                        'screening.round1': deleteField()
+                    });
+
+                    const updatedScreening = { ...selectedApp.screening };
+                    delete updatedScreening.round1;
+
+                    setSelectedApp({
+                        ...selectedApp,
+                        screening: updatedScreening
+                    });
+
+                    setCurrentScores({
+                        problemClarity: 0,
+                        solutionInnovation: 0,
+                        earlyBusinessLogic: 0,
+                        communicationConviction: 0
+                    });
+                    setToast({ message: 'Screening evaluation reset successfully!', type: 'success' });
+                } catch (error) {
+                    console.error('Error resetting screening:', error);
+                    setToast({ message: 'Failed to reset screening evaluation.', type: 'error' });
+                } finally {
+                    setSavingScore(false);
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                }
+            }
+        });
+    };
+
     const handleSaveScreeningRound2 = async () => {
         if (!selectedApp) return;
         setSavingScore(true);
@@ -1302,6 +1372,70 @@ function AdminDashboardContent() {
         } finally {
             setSavingScore(false);
         }
+    };
+
+    const handleResetScreeningRound2 = async () => {
+        if (!selectedApp) return;
+
+        setConfirmModal({
+            isOpen: true,
+            title: 'Reset Round 2',
+            message: (
+                <>
+                    Are you sure you want to reset the Round 2 evaluation score for <span className="text-white font-bold">"{selectedApp.startupName || 'this startup'}"</span>? This action cannot be undone.
+                </>
+            ),
+            onConfirm: async () => {
+                setSavingScore(true);
+                const resetData = {
+                    round2: {
+                        status: 'pending' as const,
+                        scores: {
+                            technicalFeasibility: 0,
+                            scientificRigor: 0,
+                            commercialLogic: 0,
+                            scalability: 0,
+                            impactAlignment: 0,
+                            communicationQuality: 0
+                        },
+                        totalScore: 0,
+                        evaluatorId: '',
+                        evaluatedAt: null as any,
+                        isCompleted: false
+                    }
+                };
+
+                try {
+                    await updateDoc(doc(db, 'applications', selectedApp.id), {
+                        'screening.round2': deleteField()
+                    });
+
+                    const updatedScreening = { ...selectedApp.screening };
+                    delete updatedScreening.round2;
+
+                    setSelectedApp({
+                        ...selectedApp,
+                        screening: updatedScreening
+                    });
+
+                    setCurrentScoresRound2({
+                        technicalFeasibility: 0,
+                        scientificRigor: 0,
+                        commercialLogic: 0,
+                        scalability: 0,
+                        impactAlignment: 0,
+                        communicationQuality: 0
+                    });
+                    setToast({ message: 'Round 2 evaluation reset successfully!', type: 'success' });
+                } catch (error) {
+                    console.error('Error resetting round 2 screening:', error);
+                    setToast({ message: 'Failed to reset round 2 screening evaluation.', type: 'error' });
+                } finally {
+                    setSavingScore(false);
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                }
+            }
+        });
     };
 
     const handleAmbassadorStatusUpdate = (appId: string, userId: string | undefined, newStatus: string) => {
@@ -2018,6 +2152,15 @@ function AdminDashboardContent() {
                                         value={stageFilter}
                                         onChange={setStageFilter}
                                         placeholder="All Stages"
+                                    />
+                                </div>
+                                <div className="w-[160px]">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Screening Filter</label>
+                                    <AdminDropdown
+                                        options={['All', 'Scored', 'Pending']}
+                                        value={screeningFilter === 'all' ? 'All' : screeningFilter === 'scored' ? 'Scored' : 'Pending'}
+                                        onChange={(val) => setScreeningFilter(val.toLowerCase() as any)}
+                                        placeholder="All"
                                     />
                                 </div>
                                 <div className="w-[160px]">
@@ -3529,11 +3672,18 @@ function AdminDashboardContent() {
                                                         ))}
                                                     </div>
 
-                                                    <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                                                    <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-end gap-3 flex-nowrap">
+                                                        <button
+                                                            onClick={handleResetScreening}
+                                                            disabled={savingScore || !canScore}
+                                                            className="flex-1 sm:flex-none px-5 py-2.5 bg-white/5 text-white/70 border border-white/10 rounded-xl font-bold hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap text-xs shadow-lg"
+                                                        >
+                                                            <RotateCcw className="w-4 h-4 shrink-0" /> Reset
+                                                        </button>
                                                         <button
                                                             onClick={handleSaveScreening}
                                                             disabled={savingScore || !canScore}
-                                                            className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                                            className="flex-1 sm:flex-none px-5 py-2.5 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap text-xs shadow-lg shadow-vc-mint/10"
                                                         >
                                                             {savingScore ? (
                                                                 <>
@@ -3612,11 +3762,18 @@ function AdminDashboardContent() {
                                                     </div>
 
                                                     {isScreeningRound2Open && (
-                                                        <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                                                        <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-end gap-3 flex-nowrap">
+                                                            <button
+                                                                onClick={handleResetScreeningRound2}
+                                                                disabled={savingScore || !canScore}
+                                                                className="flex-1 sm:flex-none px-5 py-2.5 bg-white/5 text-white/70 border border-white/10 rounded-xl font-bold hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap text-xs shadow-lg"
+                                                            >
+                                                                <RotateCcw className="w-4 h-4 shrink-0" /> Reset
+                                                            </button>
                                                             <button
                                                                 onClick={handleSaveScreeningRound2}
                                                                 disabled={savingScore || !canScore}
-                                                                className="px-6 py-3 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                                                className="flex-1 sm:flex-none px-5 py-2.5 bg-vc-mint text-vc-green-dark rounded-xl font-bold hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap text-xs shadow-lg shadow-vc-mint/10"
                                                             >
                                                                 {savingScore ? (
                                                                     <>
@@ -4312,6 +4469,57 @@ function AdminDashboardContent() {
                                     </motion.div>
                                 </motion.div>
                             )}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                        {confirmModal.isOpen && (
+                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    className="relative w-full max-w-md bg-[#0a1a19] border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-vc-mint/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+                                    
+                                    <div className="relative space-y-6">
+                                        <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
+                                            <AlertCircle className="w-8 h-8 text-red-500" />
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <h3 className="text-xl font-black text-white leading-tight">{confirmModal.title}</h3>
+                                            <p className="text-white/60 text-sm leading-relaxed">
+                                                {confirmModal.message}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3 pt-4">
+                                            <button
+                                                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                                className="flex-1 px-6 py-3 bg-white/5 text-white/70 border border-white/10 rounded-xl font-bold hover:bg-white/10 transition-all text-sm"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={confirmModal.onConfirm}
+                                                disabled={savingScore}
+                                                className="flex-1 px-6 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-lg shadow-red-500/20"
+                                            >
+                                                {savingScore ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : 'Yes, Reset'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
                     </AnimatePresence>
                 </div >
             </div >
