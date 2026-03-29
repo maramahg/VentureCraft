@@ -92,16 +92,13 @@ service cloud.firestore {
           request.auth.uid == docId || 
           request.auth.uid == resource.data.userId || 
           isAdmin() || 
-          isUltimateJudge() ||
-          isSupervisor() ||
-          (isJudge() && resource.data.get('assignedTeam', '') == getJudgeData().get('team', ''))
+          isJudge()
         ) 
         && (
-          // If modifying screening data, MUST be Admin, assigned Team Judge, or Ultimate Judge
+          // If modifying screening data, MUST be Admin or Judge
           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['screening'])) ||
           isAdmin() ||
-          isUltimateJudge() ||
-          (isTeamJudge(resource.data.get('assignedTeam', '')))
+          isJudge()
         )
         && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
       allow delete: if isAdmin();
