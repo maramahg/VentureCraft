@@ -34,9 +34,10 @@ service cloud.firestore {
 
     // Helper: Check if judge belongs to a specific team
     function isTeamJudge(teamId) {
+      let r = getJudgeData().get('role', '');
       return isJudge() && 
              getJudgeData().get('team', '') == teamId && 
-             getJudgeData().get('role', '') == 'team_judge';
+             (r == 'team_judge' || r == 'Technical' || r == 'Business' || r == 'technical' || r == 'business' || r == 'tech' || r == 'bus');
     }
 
     // Helper: Check if the user is in the 'ambassadors_lead' collection
@@ -96,9 +97,10 @@ service cloud.firestore {
           (isJudge() && resource.data.get('assignedTeam', '') == getJudgeData().get('team', ''))
         ) 
         && (
-          // If modifying screening data, MUST be Admin or the assigned Team Judge (NOT Supervisor/Ultimate)
+          // If modifying screening data, MUST be Admin, assigned Team Judge, or Ultimate Judge
           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['screening'])) ||
           isAdmin() ||
+          isUltimateJudge() ||
           (isTeamJudge(resource.data.get('assignedTeam', '')))
         )
         && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
