@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, Rocket, CheckCircle, XCircle, Clock,
     Filter, Search, ChevronDown, Eye, Mail,
-    Phone, Globe, Linkedin, Video, ArrowLeft,
+    Phone, Globe, Linkedin, Video, ArrowLeft, MapPin,
     Check, X, AlertCircle, Shield, FileText, FileCode, Edit2, History, UserMinus,
     User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, BarChart3, Paperclip, CheckCircle2,
     AlignLeft, AlignCenter, AlignRight, Type, RotateCcw
@@ -35,6 +35,7 @@ interface Application {
     leaderEmail: string;
     leaderPhone: string;
     leaderNationality: string;
+    leaderLocation?: string;
     pillar: string;
     stage: string;
     isOlderThan5Years: string;
@@ -426,6 +427,9 @@ function AdminDashboardContent() {
     const [teamSizeFilter, setTeamSizeFilter] = useState<string>('all');
     const [ageFilter, setAgeFilter] = useState<string>('all');
     const [nationalityFilter, setNationalityFilter] = useState<string>('all');
+    const [residenceFilter, setResidenceFilter] = useState<string>('all');
+    const [natSearchTerm, setNatSearchTerm] = useState('');
+    const [resSearchTerm, setResSearchTerm] = useState('');
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [isEditingAllowed, setIsEditingAllowed] = useState<boolean>(true);
     const [isScreeningRound2Open, setIsScreeningRound2Open] = useState<boolean>(false);
@@ -533,7 +537,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges' | 'outreach'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges' | 'outreach' | 'logistics'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
     const [showOversight, setShowOversight] = useState(false);
     const [selectedOversightTeam, setSelectedOversightTeam] = useState<string | null>(null);
@@ -778,6 +782,69 @@ function AdminDashboardContent() {
         }
     };
 
+    const logisticsStats = useMemo(() => {
+        const nationalities: Record<string, number> = {};
+        const residences: Record<string, number> = {};
+        let grandTotalPeople = 0;
+
+        // Title Case Helper to match lib/countries.ts (e.g. 'palestine state' -> 'Palestine State')
+        const toTitleCase = (str: string) => {
+            if (!str) return '';
+            return str.trim().toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        };
+
+        applications.forEach(app => {
+            const teamMembers = app.teamMembers || [];
+            const teamSize = Math.max(Number(app.teamSize) || 1, teamMembers.length);
+            let natsInThisApp = 0;
+
+            // 1. Residence Accounting (Team-Level: 1 per Application)
+            // Use ONLY the leader's dropdown location as the source of truth
+            const rawLoc = (app.leaderLocation || 'Not Specified').trim();
+            const normalizedLoc = toTitleCase(rawLoc);
+            residences[normalizedLoc] = (residences[normalizedLoc] || 0) + 1;
+            
+            // Total People remains the individual-level metric for Nationalities
+            grandTotalPeople += teamSize;
+
+            // 2. Nationality Accounting (Exhaustive Individual Count)
+            // Rule: Account for every person in 'teamSize'. 
+            if (teamMembers.length > 0) {
+                teamMembers.forEach(member => {
+                    const rawNat = member.nationality?.trim();
+                    if (rawNat) {
+                        const normalizedNat = toTitleCase(rawNat);
+                        nationalities[normalizedNat] = (nationalities[normalizedNat] || 0) + 1;
+                        natsInThisApp++;
+                    }
+                });
+            } else {
+                const rawLeadNat = app.leaderNationality?.trim();
+                if (rawLeadNat) {
+                    const normalizedLeadNat = toTitleCase(rawLeadNat);
+                    nationalities[normalizedLeadNat] = (nationalities[normalizedLeadNat] || 0) + 1;
+                    natsInThisApp++;
+                }
+            }
+
+            const missing = teamSize - natsInThisApp;
+            if (missing > 0) {
+                nationalities['NOT SPECIFIED'] = (nationalities['NOT SPECIFIED'] || 0) + missing;
+            }
+        });
+
+        const sortFn = (a: [string, number], b: [string, number]) => b[1] - a[1];
+
+        return {
+            nationalities: Object.entries(nationalities).sort(sortFn),
+            residences: Object.entries(residences).sort(sortFn),
+            totalPeople: grandTotalPeople
+        };
+    }, [applications]);
+
     useEffect(() => {
         const tab = searchParams.get('tab');
 
@@ -799,18 +866,8 @@ function AdminDashboardContent() {
         // Sync state with URL parameter if it exists and changed
         if (!tab) {
             if (activeTab !== 'startups') setActiveTab('startups');
-        } else if (tab === 'ambassadors' && activeTab !== 'ambassadors') {
-            setActiveTab('ambassadors');
-        } else if (tab === 'startups' && activeTab !== 'startups') {
-            setActiveTab('startups');
-        } else if (tab === 'judges' && activeTab !== 'judges') {
-            setActiveTab('judges');
-        } else if (tab === 'qr' && activeTab !== 'qr') {
-            setActiveTab('qr');
-        } else if (tab === 'broadcast' && activeTab !== 'broadcast') {
-            setActiveTab('broadcast');
-        } else if (tab === 'outreach' && activeTab !== 'outreach') {
-            setActiveTab('outreach');
+        } else if (['startups', 'ambassadors', 'qr', 'broadcast', 'judges', 'outreach', 'logistics'].includes(tab)) {
+            if (activeTab !== tab) setActiveTab(tab as any);
         }
     }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead]);
 
@@ -1797,12 +1854,14 @@ function AdminDashboardContent() {
             app.leaderNationality === nationalityFilter ||
             app.teamMembers?.some(m => m.nationality === nationalityFilter);
 
+        const matchesResidence = residenceFilter === 'all' || app.leaderLocation === residenceFilter;
+
         const matchesOversightTeam = !selectedOversightTeam || app.assignedTeam === selectedOversightTeam;
 
         const matchesScreening = screeningFilter === 'all' ||
             (screeningFilter === 'scored' ? app.screening?.round1?.isCompleted : !app.screening?.round1?.isCompleted);
 
-        return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality && matchesScreening && matchesOversightTeam;
+        return matchesSearch && matchesStatus && matchesPillar && matchesStage && matchesTeamSize && matchesAge && matchesNationality && matchesResidence && matchesScreening && matchesOversightTeam;
     }).sort((a, b) => {
         if (sortBy === 'score') {
             const scoreA = a.screening?.round1?.totalScore || 0;
@@ -2154,6 +2213,22 @@ function AdminDashboardContent() {
                                         placeholder="All Stages"
                                     />
                                 </div>
+                                <div className="w-[180px]">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Nationality</label>
+                                    <AdminFlagDropdown
+                                        value={nationalityFilter}
+                                        onChange={setNationalityFilter}
+                                        placeholder="All Nationalities"
+                                    />
+                                </div>
+                                <div className="w-[180px]">
+                                    <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Residence</label>
+                                    <AdminFlagDropdown
+                                        value={residenceFilter}
+                                        onChange={setResidenceFilter}
+                                        placeholder="All Residences"
+                                    />
+                                </div>
                                 <div className="w-[160px]">
                                     <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Screening Filter</label>
                                     <AdminDropdown
@@ -2195,6 +2270,7 @@ function AdminDashboardContent() {
                                     setTeamSizeFilter('all');
                                     setAgeFilter('all');
                                     setNationalityFilter('all');
+                                    setResidenceFilter('all');
                                     setScreeningFilter('all');
                                     setSortBy('date');
                                 } else if (activeTab === 'ambassadors') {
@@ -2781,6 +2857,187 @@ function AdminDashboardContent() {
                                         Download PNG
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'logistics' && (
+                        <div className="space-y-8 animate-in fade-in duration-700">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 shadow-lg shadow-vc-mint/5">
+                                        <BarChart3 className="w-7 h-7" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-white tracking-tight leading-none mb-2 font-poppins">Logistics Dashboard</h2>
+                                        <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-black italic">Applicant Demographics & Statistics</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="glass-panel px-6 py-3 border-vc-mint/20 flex flex-col items-center min-w-[120px]">
+                                        <span className="text-[10px] font-black text-vc-mint/60 uppercase tracking-widest mb-1">Total People</span>
+                                        <span className="text-2xl font-black text-vc-mint leading-none">{logisticsStats.totalPeople}</span>
+                                    </div>
+                                    <div className="glass-panel px-6 py-3 border-white/10 flex flex-col items-center min-w-[120px]">
+                                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Total Teams</span>
+                                        <span className="text-2xl font-black text-white leading-none">{applications.length}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Nationalities Section */}
+                                <div className="glass-panel p-8 space-y-8 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+                                        <Globe className="w-32 h-32 text-vc-mint" />
+                                    </div>
+                                    
+                                    <div className="relative z-10">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <h3 className="text-xl font-bold text-vc-mint flex items-center gap-3 font-poppins">
+                                                    <Globe className="w-5 h-5" />
+                                                    Nationalities Breakdown
+                                                </h3>
+                                                <span className="text-[10px] font-black bg-vc-mint/10 text-vc-mint px-3 py-1 rounded-full border border-vc-mint/20 tracking-widest uppercase">
+                                                    {logisticsStats.totalPeople} People 
+                                                </span>
+                                            </div>
+
+                                        <div className="space-y-6">
+                                            {/* Search Input at Top */}
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search Nationalities..."
+                                                    value={natSearchTerm}
+                                                    onChange={(e) => setNatSearchTerm(e.target.value)}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-vc-mint/50 transition-all font-bold uppercase tracking-widest"
+                                                />
+                                            </div>
+
+                                            {/* Scrollable Bar Chart Visualization (Unified Filtered List) */}
+                                            <div className="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                                                {logisticsStats.nationalities
+                                                    .filter(([name]) => name.toLowerCase().includes(natSearchTerm.toLowerCase()))
+                                                    .map(([name, count], idx) => {
+                                                        const percentage = (count / (logisticsStats.totalPeople || 1)) * 100;
+                                                        const country = countriesList.find(c => c.name.toUpperCase() === name.toUpperCase());
+                                                        return (
+                                                            <div key={name} className="space-y-1.5 group">
+                                                                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                                                                    <span className="flex items-center gap-2 text-white/80 group-hover:text-vc-mint transition-colors">
+                                                                        {country ? (
+                                                                            <img src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} width="20" height="15" alt={name} className="rounded-sm shadow-sm opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                                        ) : (
+                                                                            <span className="w-5 h-3.5 bg-white/10 rounded-sm" />
+                                                                        )}
+                                                                        {name}
+                                                                    </span>
+                                                                    <span className="text-vc-mint">{count}</span>
+                                                                </div>
+                                                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                                                    <motion.div
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${percentage}%` }}
+                                                                        transition={{ duration: 1, delay: idx * 0.02 }}
+                                                                        className="h-full bg-vc-mint shadow-[0_0_15px_rgba(79,209,197,0.3)] relative"
+                                                                    >
+                                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20" />
+                                                                    </motion.div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {logisticsStats.nationalities.filter(([name]) => name.toLowerCase().includes(natSearchTerm.toLowerCase())).length === 0 && (
+                                                    <div className="text-center py-12 text-white/20 text-[10px] uppercase font-bold tracking-widest">No results found</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Residence Section */}
+                                <div className="glass-panel p-8 space-y-8 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+                                        <MapPin className="w-32 h-32 text-vc-teal" />
+                                    </div>
+
+                                    <div className="relative z-10">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <h3 className="text-xl font-bold text-vc-teal flex items-center gap-3 font-poppins">
+                                                    <MapPin className="w-5 h-5" />
+                                                    Leader&apos;s Country of Residence
+                                                </h3>
+                                                <span className="text-[10px] font-black bg-vc-teal/10 text-vc-teal px-3 py-1 rounded-full border border-vc-teal/20 tracking-widest uppercase">
+                                                    {applications.length} Applications
+                                                </span>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                {/* Search Input at Top */}
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Search Residence..."
+                                                        value={resSearchTerm}
+                                                        onChange={(e) => setResSearchTerm(e.target.value)}
+                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-vc-teal/50 transition-all font-bold uppercase tracking-widest"
+                                                    />
+                                                </div>
+
+                                                {/* Scrollable Bar Chart Visualization (Unified Filtered List) */}
+                                                <div className="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                                                    {logisticsStats.residences
+                                                        .filter(([name]) => name.toLowerCase().includes(resSearchTerm.toLowerCase()))
+                                                        .map(([name, count], idx) => {
+                                                            const percentage = (count / (applications.length || 1)) * 100;
+                                                        const country = countriesList.find(c => c.name.toUpperCase() === name.toUpperCase());
+                                                        return (
+                                                            <div key={name} className="space-y-1.5 group">
+                                                                <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                                                                    <span className="flex items-center gap-2 text-white/80 group-hover:text-vc-teal transition-colors">
+                                                                        {country ? (
+                                                                            <img src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} width="20" height="15" alt={name} className="rounded-sm shadow-sm opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                                        ) : (
+                                                                            <span className="w-5 h-3.5 bg-white/10 rounded-sm" />
+                                                                        )}
+                                                                        {name}
+                                                                    </span>
+                                                                    <span className="text-vc-teal">{count}</span>
+                                                                </div>
+                                                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                                                    <motion.div
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${percentage}%` }}
+                                                                        transition={{ duration: 1, delay: idx * 0.02 }}
+                                                                        className="h-full bg-vc-teal shadow-[0_0_15px_rgba(0,186,166,0.3)] relative"
+                                                                    >
+                                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20" />
+                                                                    </motion.div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {logisticsStats.nationalities.filter(([name]) => name.toLowerCase().includes(natSearchTerm.toLowerCase())).length === 0 && (
+                                                    <div className="text-center py-12 text-white/20 text-[10px] uppercase font-bold tracking-widest">No results found</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <AlertCircle className="w-5 h-5 text-vc-mint" />
+                                    <p className="text-xs font-bold text-white uppercase tracking-widest">Data Information</p>
+                                </div>
+                                <p className="text-[11px] text-white/40 italic leading-relaxed">
+                                    Nationalities include all unique individuals (Team Leaders + all Team Members) across all submitted applications. 
+                                    Residence data for team members is approximated using the Team Leader's reported current location.
+                                </p>
                             </div>
                         </div>
                     )}
