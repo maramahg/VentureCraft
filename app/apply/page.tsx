@@ -1146,7 +1146,7 @@ const ApplyPageContent = () => {
 
     if (!isRegistrationOpen && !regLoading) {
         return (
-            <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-32">
+            <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-20 md:pt-32">
                 {/* Background Orbs */}
                 <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-vc-mint/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
                 <div className="absolute bottom-[20%] right-[15%] w-[40%] h-[40%] bg-vc-teal/15 rounded-full blur-[120px] animate-pulse pointer-events-none" />
