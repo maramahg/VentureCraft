@@ -77,14 +77,11 @@ export default function CallToAction({
                             {description}
                         </p>
 
-                        <Link
-                            href={registerHref}
-                            onClick={onRegisterClick}
-                            className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-teal text-white font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-vc-teal/30 group/btn"
+                        <div
+                            className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-mint/40 text-white font-bold rounded-xl transition-all duration-300 shadow-lg cursor-not-allowed"
                         >
-                            Register Now
-                            <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
+                            Registration Closed
+                        </div>
                     </motion.div>
 
                 </div>

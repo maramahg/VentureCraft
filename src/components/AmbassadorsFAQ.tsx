@@ -21,8 +21,8 @@ const faqData: FAQItem[] = [
         question: 'When does the ambassador role end?',
         answer: (
             <div className="space-y-2">
-                <p>The official ambassador duties continue until the competition registration closes.</p>
-                <p className="text-vc-mint/80 font-medium italic text-sm">However, ambassadors remain part of the program community until the end of the competition.</p>
+                <p>The official ambassador duties for the registration phase have now <strong className="text-vc-mint">concluded</strong> as registration is closed.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">However, ambassadors remain part of the program community and continue to support the competition through the finals.</p>
             </div>
         ),
     },
@@ -81,8 +81,8 @@ const faqData: FAQItem[] = [
         question: 'Can I apply for ambassador and participate in the competition?',
         answer: (
             <div className="space-y-2">
-                <p>Yes, you are welcome to apply for the ambassador program even if you are participating in the competition.</p>
-                <p className="text-vc-mint/80 font-medium italic text-sm">However, please note that ambassadors do not receive any advantages or preferential treatment in the competition judging process.</p>
+                <p>Registration for both the ambassador program and the competition is now <strong className="text-vc-mint">closed</strong>.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">For those already selected, participating in both roles was permitted, provided that ambassadors received no preferential treatment in judging.</p>
             </div>
         ),
     },

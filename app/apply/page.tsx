@@ -1158,8 +1158,8 @@ const ApplyPageContent = () => {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="mb-8 flex justify-center"
                     >
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/20 flex items-center justify-center border border-vc-mint/30 shadow-[0_0_30px_rgba(79,209,197,0.2)]">
-                            <Clock className="w-10 h-10 text-vc-mint" />
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-vc-teal/20 to-vc-mint/20 flex items-center justify-center border border-vc-mint/30 shadow-[0_0_30px_rgba(79,209,197,0.2)]">
+                            <Clock className="w-7 h-7 text-vc-mint" />
                         </div>
                     </motion.div>
 
@@ -1169,10 +1169,10 @@ const ApplyPageContent = () => {
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="space-y-4 mb-10"
                     >
-                        <h1 className="text-5xl md:text-7xl font-extrabold font-poppins tracking-tighter text-white">
+                        <h1 className="text-3xl md:text-5xl font-extrabold font-poppins tracking-tighter text-white">
                             Applications are <br /> <span className="text-vc-mint">Now Closed</span>
                         </h1>
-                        <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
                             Thank you for your interest in KFUPM Venture Craft. The application window is currently closed, but the journey doesn't end here!
                             <br /><br />
                             Stay connected through our social media for updates, workshops, and future opportunities.

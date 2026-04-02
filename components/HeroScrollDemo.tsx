@@ -70,10 +70,7 @@ export function HeroScrollDemo() {
             {" "}, supporting student-led ventures building science and technology-based solutions with global impact.
           </motion.p>
 
-          {/* Countdown Timer */}
-          <div className="mb-10 xl:mb-12 flex justify-center xl:justify-start">
-            <CountdownTimer />
-          </div>
+
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -81,12 +78,12 @@ export function HeroScrollDemo() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row items-center gap-4 justify-center xl:justify-start mb-10 xl:mb-12 relative z-50"
           >
-            <Link href="/apply" className="group relative px-8 py-3 sm:py-3.5 rounded-full text-base font-bold text-[#001D1B] transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(79,209,197,0.3)] hover:scale-105 active:scale-95 w-full sm:w-auto hover:shadow-vc-mint/40 inline-block text-center cursor-pointer">
-              <div className="absolute inset-0 bg-vc-mint transition-colors duration-300" />
+            <div className="group relative px-8 py-3 sm:py-3.5 rounded-full text-base font-bold text-[#001D1B] transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(79,209,197,0.1)] opacity-80 w-full sm:w-auto inline-block text-center cursor-not-allowed">
+              <div className="absolute inset-0 bg-vc-mint/50 transition-colors duration-300" />
               <span className="relative flex items-center justify-center gap-2">
-                Submit Your Idea <span className="text-xl sm:text-2xl group-hover:translate-x-1 transition-transform">→</span>
+                Registration Closed
               </span>
-            </Link>
+            </div>
 
             <Link
               href="/about"
@@ -109,13 +106,6 @@ export function HeroScrollDemo() {
           >
             <div className="relative group/stat">
               <div className="absolute -left-6 top-0 bottom-0 w-1 bg-vc-mint rounded-full opacity-60 group-hover/stat:opacity-100 transition-opacity duration-500" />
-              <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
-                <span className="block text-xl sm:text-2xl font-black text-vc-mint mb-0.5">April 1st</span>
-                Extended Deadline
-              </div>
-            </div>
-            <div className="relative group/stat">
-              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-vc-mint rounded-full opacity-20 group-hover/stat:opacity-100 transition-opacity duration-500" />
               <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
                 <span className="block text-xl sm:text-2xl font-black text-white mb-0.5">$245K</span>
                 Prize Pool
@@ -164,7 +154,7 @@ export function HeroScrollDemo() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[250px] sm:h-[400px] md:h-[500px] xl:h-[580px] w-full flex items-center justify-center xl:-mt-24"
+          className="relative h-[250px] sm:h-[400px] md:h-[500px] xl:h-[580px] w-full flex items-center justify-center xl:mt-4"
         >
           {/* Light hue emanating from the globe */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] bg-vc-mint/10 blur-[80px] sm:blur-[100px] rounded-full pointer-events-none" />

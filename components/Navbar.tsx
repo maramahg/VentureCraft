@@ -394,6 +394,18 @@ export default function Navbar() {
                                     Outreach Challenge
                                   </Link>
                                 )}
+                                {isAdmin && (
+                                  <Link
+                                    href="/admin?tab=logistics"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <BarChart size={14} className="text-vc-mint" />
+                                    </div>
+                                    Logistics
+                                  </Link>
+                                )}
                               </div>
                             )}
                           </div>
@@ -572,6 +584,16 @@ export default function Navbar() {
                               >
                                 <Hash size={20} />
                                 Outreach Challenge
+                              </Link>
+                            )}
+                            {isAdmin && (
+                              <Link
+                                href="/admin?tab=logistics"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <BarChart size={20} />
+                                Logistics
                               </Link>
                             )}
                           </>
