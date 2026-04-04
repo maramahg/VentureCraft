@@ -8,7 +8,7 @@ import {
     Phone, Globe, Linkedin, Video, ArrowLeft, MapPin,
     Check, X, AlertCircle, Shield, FileText, FileCode, Edit2, History, UserMinus,
     User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, BarChart3, Paperclip, CheckCircle2,
-    AlignLeft, AlignCenter, AlignRight, Type, RotateCcw
+    AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, RotateCcw
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
@@ -3421,6 +3421,13 @@ function AdminDashboardContent() {
                                                                 className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
                                                             >
                                                                 <AlignRight className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => insertTag('[align=justify]', '[/align]')}
+                                                                title="Justify Text"
+                                                                className="px-2 py-1 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white"
+                                                            >
+                                                                <AlignJustify className="w-3.5 h-3.5" />
                                                             </button>
                                                         </div>
                                                     </div>

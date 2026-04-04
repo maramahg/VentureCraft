@@ -49,7 +49,7 @@ export async function POST(request: Request) {
                             .replace(/_([\s\S]*?)_/g, '<i>$1</i>')
                             .replace(/\[mint\]([\s\S]*?)\[\/mint\]/g, '<span style="color: #39cc89; font-weight: bold;">$1</span>')
                             .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, '<span style="font-size: $1px;">$2</span>')
-                            .replace(/\[align=(left|center|right)\]([\s\S]*?)\[\/align\]/g, '<div style="text-align: $1;">$2</div>')
+                            .replace(/\[align=(left|center|right|justify)\]([\s\S]*?)\[\/align\]/g, '<div style="text-align: $1;">$2</div>')
                             .replace(/\n/g, '<br/>')}</div>
                     `,
                     button: showButton !== false ? {
