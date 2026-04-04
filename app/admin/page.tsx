@@ -8,7 +8,7 @@ import {
     Phone, Globe, Linkedin, Video, ArrowLeft, MapPin,
     Check, X, AlertCircle, Shield, FileText, FileCode, Edit2, History, UserMinus,
     User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, BarChart3, Paperclip, CheckCircle2,
-    AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, RotateCcw
+    AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, RotateCcw, Bell
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
@@ -641,6 +641,7 @@ function AdminDashboardContent() {
     const [broadcastShowButton, setBroadcastShowButton] = useState(true);
     const [broadcastButtonText, setBroadcastButtonText] = useState('');
     const [broadcastButtonUrl, setBroadcastButtonUrl] = useState('');
+    const [broadcastIsAnnouncement, setBroadcastIsAnnouncement] = useState(false);
     const [broadcastAttachments, setBroadcastAttachments] = useState<Array<{ name: string; content: string; type: string }>>([]);
 
     const handleBroadcastFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -723,7 +724,8 @@ function AdminDashboardContent() {
                     showButton: broadcastShowButton,
                     buttonText: broadcastButtonText,
                     buttonUrl: broadcastButtonUrl,
-                    attachments: broadcastAttachments
+                    attachments: broadcastAttachments,
+                    isAnnouncement: broadcastIsAnnouncement
                 })
             });
             const data = await res.json();
@@ -765,7 +767,8 @@ function AdminDashboardContent() {
                     showButton: broadcastShowButton,
                     buttonText: broadcastButtonText,
                     buttonUrl: broadcastButtonUrl,
-                    attachments: broadcastAttachments
+                    attachments: broadcastAttachments,
+                    isAnnouncement: broadcastIsAnnouncement
                 })
             });
             const data = await res.json();
@@ -3346,6 +3349,25 @@ function AdminDashboardContent() {
                                                     placeholder="Enter main headline..."
                                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-vc-mint transition-all"
                                                 />
+                                            </div>
+
+                                            {/* Announcement Template Toggle */}
+                                            <div className="flex items-center justify-between bg-vc-mint/5 p-4 rounded-2xl border border-vc-mint/10 outline-none">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 rounded-lg ${broadcastIsAnnouncement ? 'bg-vc-mint text-vc-green-dark' : 'bg-white/5 text-white/20'}`}>
+                                                        <Bell className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-white">Announcement Template</p>
+                                                        <p className="text-[10px] text-vc-mint/60 uppercase tracking-widest font-bold">White theme + Bell Icon</p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => setBroadcastIsAnnouncement(!broadcastIsAnnouncement)}
+                                                    className={`w-12 h-6 rounded-full transition-all relative ${broadcastIsAnnouncement ? 'bg-vc-mint shadow-[0_0_15px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
+                                                >
+                                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${broadcastIsAnnouncement ? 'right-1' : 'left-1'}`} />
+                                                </button>
                                             </div>
 
                                             <div className="space-y-3">

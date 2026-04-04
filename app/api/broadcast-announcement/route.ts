@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { email, emails, subject, headline, message, showButton, buttonText, buttonUrl, attachments } = body;
+        const { email, emails, subject, headline, message, showButton, buttonText, buttonUrl, attachments, isAnnouncement } = body;
 
         const recipients = emails || (email ? [email] : []);
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         }
 
         // Process attachments once outside the loops
-        console.log(`[EmailCenter] API Start. Recipients: ${recipients.length}, Attachments: ${attachments?.length || 0}`);
+        console.log(`[EmailCenter] API Start. Recipients: ${recipients.length}, Attachments: ${attachments?.length || 0}, isAnnouncement: ${isAnnouncement}`);
 
         const processedAttachments = attachments && attachments.length > 0
             ? attachments.map((att: any) => {
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
                 const htmlRow = getEmailHtml({
                     title: headline || 'Announcement',
                     previewText: subject || 'New Update from Venture Craft',
+                    templateType: isAnnouncement ? 'announcement' : 'default',
                     content: `
                         <div style="font-size: 16px; line-height: 1.6; color: #e2e8f0; margin-bottom: 32px;">${(message || 'No message content provided.')
                             .replace(/\*\*([\s\S]*?)\*\*/g, '<b>$1</b>')

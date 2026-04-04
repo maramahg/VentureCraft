@@ -3,6 +3,7 @@ export interface EmailTemplateOptions {
   previewText?: string;
   content: string;
   footerMessage?: string;
+  templateType?: 'default' | 'announcement';
   button?: {
     text: string;
     url: string;
@@ -10,8 +11,8 @@ export interface EmailTemplateOptions {
 }
 
 export const getEmailHtml = (options: EmailTemplateOptions) => {
-  const { title, previewText, content, footerMessage, button } = options;
-  const currentYear = new Date().getFullYear();
+  const { title, previewText, content, footerMessage, button, templateType = 'default' } = options;
+  const isAnnouncement = templateType === 'announcement';
 
   const buttonHtml = button ? `
     <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
@@ -19,9 +20,13 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
     </div>
   ` : '';
 
-  // Every email needs a unique content block to prevent Gmail from "trimming" (the three dots)
   const uniqueId = Math.random().toString(36).substring(2, 10);
-  const timestamp = new Date().toLocaleTimeString();
+  const mainBg = '#0c1e1c';
+  const textColor = '#ffffff';
+  const subTextColor = '#e2e8f0';
+  const titleColor = '#39cc89';
+  const borderColor = '#39cc89';
+  const borderThickness = isAnnouncement ? '0px' : '1px'; // Removed border for announcements
 
   return `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -49,7 +54,7 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
 
   <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#001311" style="background-color: #001311;">
     <tr>
-      <td align="center" valign="top" style="padding: 40px 10px;">
+      <td align="center" valign="top" style="padding: 60px 10px;">
         
         <!--[if (gte mso 9)|(IE)]>
         <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
@@ -57,34 +62,61 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
         <td align="center" valign="top" width="600">
         <![endif]-->
         
-        <table class="main-table" border="0" cellpadding="0" cellspacing="0" width="600" bgcolor="#0c1e1c" style="background-color: #0c1e1c; border: 1px solid #1a3a36;">
+        <table class="main-table" border="0" cellpadding="0" cellspacing="0" width="600" bgcolor="${mainBg}" style="width: 600px; background-color: ${mainBg}; border: ${borderThickness} solid ${isAnnouncement ? 'transparent' : '#1a3a36'}; border-radius: 24px; border-collapse: collapse; overflow: hidden;">
           
-          <!-- Header -->
+          ${isAnnouncement ? `
+          <!-- Announcement Bell Header (No Border) -->
+          <tr>
+            <td align="center" style="padding: 50px 20px 20px;">
+               <table border="0" cellpadding="0" cellspacing="0" width="100" height="100" style="width: 100px; height: 100px; background-color: #ffde59; border-radius: 50%;">
+                    <tr>
+                      <td align="center" valign="middle">
+                        <img src="https://img.icons8.com/ios-filled/100/000000/bell.png" alt="Announcement" width="54" height="54" style="display: block;">
+                      </td>
+                    </tr>
+               </table>
+            </td>
+          </tr>
+          ` : `
+          <!-- Default Logo Header -->
           <tr>
             <td align="center" style="padding: 50px 20px 30px;">
               <img src="https://kfupm-venturecraft.org/logo.png" alt="Venture Craft" width="200" style="display: block; width: 200px; height: auto;">
             </td>
           </tr>
+          `}
 
-          <!-- Title -->
+          <!-- Title / Heading -->
           <tr>
             <td align="center" style="padding: 0 40px 30px;">
-              <h1 style="color: #39cc89; font-family: Arial, sans-serif; font-size: 26px; font-weight: bold; margin: 0; line-height: 1.3;">${title}</h1>
+              ${isAnnouncement ? `
+                <p style="color: #39cc89; font-family: Arial, sans-serif; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 10px;">Announcement</p>
+              ` : ''}
+              <h1 style="color: ${titleColor}; font-family: Arial, sans-serif; font-size: 26px; font-weight: bold; margin: 0; line-height: 1.3;">${title}</h1>
             </td>
           </tr>
 
           <!-- Content -->
           <tr>
-            <td class="content-cell" align="center" style="padding: 0 40px 40px; color: #ffffff; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; word-break: break-word; overflow-wrap: break-word;">
-              <div style="text-align: left; color: #e2e8f0;">
+            <td class="content-cell" align="center" style="padding: 0 40px 40px; color: ${textColor}; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; word-break: break-word; overflow-wrap: break-word;">
+              <div style="text-align: left; color: ${subTextColor};">
                 ${content}
               </div>
-              <div style="display: none; max-height: 0px; overflow: hidden; font-size: 1px; color: #0c1e1c; line-height: 1px; mso-hide: all;">
+              <div style="display: none; max-height: 0px; overflow: hidden; font-size: 1px; color: ${mainBg}; line-height: 1px; mso-hide: all;">
                 Ref: ${uniqueId}
               </div>
               ${buttonHtml}
             </td>
           </tr>
+
+          ${isAnnouncement ? `
+          <!-- Logo at Bottom for Announcement -->
+          <tr>
+            <td align="center" style="padding: 0 20px 40px;">
+              <img src="https://kfupm-venturecraft.org/logo.png" alt="Venture Craft" width="180" style="display: block; width: 180px; height: auto;">
+            </td>
+          </tr>
+          ` : ''}
 
           <!-- Socials -->
           <tr>
@@ -93,16 +125,16 @@ export const getEmailHtml = (options: EmailTemplateOptions) => {
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="padding: 0 10px;">
-                    <a href="https://x.com/venturecraft_sa?s=21" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/x.png" alt="X" width="24" height="24"></a>
+                    <a href="https://x.com/venturecraft_sa" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/x.png" alt="X" width="24" height="24"></a>
                   </td>
                   <td style="padding: 0 10px;">
                     <a href="https://www.linkedin.com/company/venturecraftsa/" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/linkedin.png" alt="LinkedIn" width="24" height="24"></a>
                   </td>
                   <td style="padding: 0 10px;">
-                    <a href="https://www.instagram.com/venturecraft.sa?igsh=bHJmMjF6dGM2MXU1" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/instagram-new.png" alt="Instagram" width="24" height="24"></a>
+                    <a href="https://www.instagram.com/venturecraft.sa" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/instagram-new.png" alt="Instagram" width="24" height="24"></a>
                   </td>
                   <td style="padding: 0 10px;">
-                    <a href="https://www.tiktok.com/@venturecraft_sa?_r=1&_t=ZS-93h9rM2RRDu" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/tiktok.png" alt="TikTok" width="24" height="24"></a>
+                    <a href="https://www.tiktok.com/@venturecraft_sa" target="_blank"><img src="https://img.icons8.com/ios-filled/50/39cc89/tiktok.png" alt="TikTok" width="24" height="24"></a>
                   </td>
                 </tr>
               </table>
