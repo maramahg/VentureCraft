@@ -10,6 +10,7 @@ interface CallToActionProps {
     description?: string;
     registerHref?: string;
     onRegisterClick?: (e: React.MouseEvent) => void;
+    isClosed?: boolean;
 }
 
 export default function CallToAction({
@@ -17,7 +18,8 @@ export default function CallToAction({
     title = "Want to register?",
     description = "Take the first step towards transforming your deep-tech idea into a global solution.",
     registerHref = "/apply",
-    onRegisterClick
+    onRegisterClick,
+    isClosed = false
 }: CallToActionProps) {
     return (
         <section className="relative z-30 pt-12 pb-24 overflow-hidden">
@@ -77,11 +79,22 @@ export default function CallToAction({
                             {description}
                         </p>
 
-                        <div
-                            className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-mint/40 text-white font-bold rounded-xl transition-all duration-300 shadow-lg cursor-not-allowed"
-                        >
-                            Registration Closed
-                        </div>
+                        {!isClosed ? (
+                            <Link
+                                href={registerHref}
+                                onClick={onRegisterClick}
+                                className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-xl transition-all duration-300 group/btn shadow-[0_0_20px_rgba(79,209,197,0.3)] hover:scale-105"
+                            >
+                                Register Now (Free)
+                                <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                            </Link>
+                        ) : (
+                            <div
+                                className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-white/5 text-white/40 font-bold rounded-xl transition-all duration-300 border border-white/10 cursor-not-allowed"
+                            >
+                                Registration Closed
+                            </div>
+                        )}
                     </motion.div>
 
                 </div>

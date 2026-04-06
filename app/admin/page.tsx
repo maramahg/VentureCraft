@@ -431,9 +431,11 @@ function AdminDashboardContent() {
     const [natSearchTerm, setNatSearchTerm] = useState('');
     const [resSearchTerm, setResSearchTerm] = useState('');
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
+    const [isAmbRegistrationOpen, setIsAmbRegistrationOpen] = useState<boolean>(true);
     const [isEditingAllowed, setIsEditingAllowed] = useState<boolean>(true);
     const [isScreeningRound2Open, setIsScreeningRound2Open] = useState<boolean>(false);
     const [updatingReg, setUpdatingReg] = useState(false);
+    const [updatingAmbReg, setUpdatingAmbReg] = useState(false);
     const [updatingEditing, setUpdatingEditing] = useState(false);
     const [updatingScreening2, setUpdatingScreening2] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{
@@ -953,6 +955,10 @@ function AdminDashboardContent() {
             if (regDoc.exists()) {
                 setIsRegistrationOpen(regDoc.data().isOpen ?? regDoc.data().isAllowed ?? true);
             }
+            const ambRegDoc = await getDoc(doc(db, 'settings', 'ambassadorRegistration'));
+            if (ambRegDoc.exists()) {
+                setIsAmbRegistrationOpen(ambRegDoc.data().isOpen ?? true);
+            }
             const editingDoc = await getDoc(doc(db, 'settings', 'editing'));
             if (editingDoc.exists()) {
                 setIsEditingAllowed(editingDoc.data().isAllowed ?? editingDoc.data().isOpen ?? true);
@@ -979,6 +985,23 @@ function AdminDashboardContent() {
             setToast({ message: "Failed to update registration status.", type: 'error' });
         } finally {
             setUpdatingReg(false);
+        }
+    };
+
+    const toggleAmbRegistration = async () => {
+        setUpdatingAmbReg(true);
+        try {
+            const newStatus = !isAmbRegistrationOpen;
+            await setDoc(doc(db, 'settings', 'ambassadorRegistration'), {
+                isOpen: newStatus
+            }, { merge: true });
+            setIsAmbRegistrationOpen(newStatus);
+            setToast({ message: `Ambassador registration ${newStatus ? 'Opened' : 'Closed'} successfully.`, type: 'success' });
+        } catch (error) {
+            console.error("Error toggling ambassador registration:", error);
+            setToast({ message: "Failed to update ambassador registration status.", type: 'error' });
+        } finally {
+            setUpdatingAmbReg(false);
         }
     };
 
@@ -2128,7 +2151,7 @@ function AdminDashboardContent() {
 
                     {/* Global Controls Row */}
                     <div className="flex flex-wrap items-center gap-4">
-                        {(isAdmin || isUltimateJudge) && activeTab !== 'broadcast' && (
+                        {(isAdmin || isUltimateJudge) && activeTab === 'startups' && (
                             <div className="flex flex-wrap items-center gap-3 p-2 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md">
                                 {isAdmin && (
                                     <>
@@ -2388,53 +2411,77 @@ function AdminDashboardContent() {
                             </div>
                         </div>
                     )}
-                    {activeTab === 'ambassadors' && (
-                        <div className="space-y-6">
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20">
-                                        <Users className="w-6 h-6" />
+                        {activeTab === 'ambassadors' && (
+                            <div className="space-y-6">
+                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 shrink-0">
+                                            <Users className="w-5 h-5 sm:w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl sm:text-2xl font-bold text-white leading-none mb-1">Ambassador Hub</h2>
+                                            <p className="text-[10px] sm:text-xs text-white/40 uppercase tracking-widest font-black">Management & Directory</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-white leading-none mb-1">Ambassador Hub</h2>
-                                        <p className="text-xs text-white/40 uppercase tracking-widest font-black">Management & Directory</p>
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                                        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 backdrop-blur-sm grow sm:grow-0">
+                                            <button
+                                                onClick={() => setAmbassadorSubTab('applications')}
+                                                className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-xl sm:rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                Applications
+                                            </button>
+                                            <button
+                                                onClick={() => setAmbassadorSubTab('directory')}
+                                                className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-xl sm:rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${ambassadorSubTab === 'directory' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                Active Directory
+                                            </button>
+                                        </div>
+
+                                        {isAdmin && (
+                                            <button
+                                                onClick={toggleAmbRegistration}
+                                                disabled={updatingAmbReg}
+                                                className={`h-11 px-6 rounded-xl sm:rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border ${isAmbRegistrationOpen
+                                                    ? 'bg-vc-mint text-vc-green-dark border-vc-mint shadow-lg shadow-vc-mint/10'
+                                                    : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {updatingAmbReg ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : isAmbRegistrationOpen ? (
+                                                    <CheckCircle className="w-4 h-4" />
+                                                ) : (
+                                                    <XCircle className="w-4 h-4 text-red-500" />
+                                                )}
+                                                <span className="text-[10px] sm:text-xs uppercase tracking-wider">
+                                                    Ambassador Reg: {isAmbRegistrationOpen ? 'Open' : 'Closed'}
+                                                </span>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex bg-white/5 p-1.5 rounded-[1.5rem] border border-white/10 backdrop-blur-sm">
-                                    <button
-                                        onClick={() => setAmbassadorSubTab('applications')}
-                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambassadorSubTab === 'applications' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                    >
-                                        Applications
-                                    </button>
-                                    <button
-                                        onClick={() => setAmbassadorSubTab('directory')}
-                                        className={`px-6 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambassadorSubTab === 'directory' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
-                                    >
-                                        Active Directory
-                                    </button>
-                                </div>
-                            </div>
 
                             {ambassadorSubTab === 'applications' ? (
                                 <div className="space-y-4">
                                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
-                                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
+                                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 w-full lg:w-auto">
                                             <button
                                                 onClick={() => setAmbAppTypeFilter('all')}
-                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                className={`flex-1 lg:flex-none px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${ambAppTypeFilter === 'all' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                             >
                                                 ALL ({ambAppCounts.all})
                                             </button>
                                             <button
                                                 onClick={() => setAmbAppTypeFilter('local')}
-                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                className={`flex-1 lg:flex-none px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${ambAppTypeFilter === 'local' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                             >
                                                 LOCAL ({ambAppCounts.local})
                                             </button>
                                             <button
                                                 onClick={() => setAmbAppTypeFilter('global')}
-                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${ambAppTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                                className={`flex-1 lg:flex-none px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${ambAppTypeFilter === 'global' ? 'bg-vc-mint text-vc-green-dark shadow-lg shadow-vc-mint/20' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                             >
                                                 GLOBAL ({ambAppCounts.global})
                                             </button>
@@ -2473,20 +2520,20 @@ function AdminDashboardContent() {
                                                 className="glass-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-vc-mint/30 transition-all cursor-pointer"
                                                 onClick={() => setSelectedAmbassadorApp(app)}
                                             >
-                                                <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left w-full md:w-auto">
+                                                <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left w-full md:w-auto overflow-hidden">
                                                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-vc-mint/10 flex items-center justify-center shrink-0">
                                                         <Users className="text-vc-mint w-5 h-5 sm:w-6 h-6" />
                                                     </div>
-                                                    <div className="min-w-0 flex flex-col items-center md:items-start">
-                                                        <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint">{app.name || app.fullName || 'Unknown Applicant'}</h3>
+                                                    <div className="min-w-0 flex flex-col items-center md:items-start w-full">
+                                                        <h3 className="font-bold text-base sm:text-lg mb-1 truncate text-vc-mint w-full">{app.name || app.fullName || 'Unknown Applicant'}</h3>
                                                         <div className="flex flex-col gap-1 text-[10px] sm:text-xs text-white/40 uppercase tracking-widest w-full">
                                                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1">
-                                                                <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> {app.email}</span>
-                                                                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
+                                                                <span className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] sm:max-w-none"><Mail className="w-3 h-3 shrink-0" /> {app.email}</span>
+                                                                <span className="flex items-center gap-1.5 whitespace-nowrap"><Clock className="w-3 h-3 shrink-0" /> {app.submittedAt?.toDate().toLocaleString() || 'N/A'}</span>
                                                             </div>
                                                             {app.location && (
                                                                 <div className="text-vc-mint/60 font-bold flex justify-center md:justify-start">
-                                                                    <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> {app.location}</span>
+                                                                    <span className="flex items-center gap-1.5 whitespace-nowrap"><Globe className="w-3 h-3 shrink-0" /> {app.location}</span>
                                                                 </div>
                                                             )}
                                                         </div>

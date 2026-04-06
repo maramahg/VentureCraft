@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import CallToAction from "@/components/CallToAction";
 import AmbassadorsFAQ from "@/src/components/AmbassadorsFAQ";
 import AmbassadorStandards from "@/src/components/AmbassadorStandards";
@@ -109,6 +110,16 @@ export default function AmbassadorsPage() {
     const { scrollY } = useScroll();
     const [currentStep, setCurrentStep] = useState(0);
     const [benefitsPerView, setBenefitsPerView] = useState(3);
+    const [isAmbRegistrationOpen, setIsAmbRegistrationOpen] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'ambassadorRegistration'), (doc) => {
+            if (doc.exists()) {
+                setIsAmbRegistrationOpen(doc.data().isOpen);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         const handleResize = () => {
@@ -150,6 +161,7 @@ export default function AmbassadorsPage() {
 
     const handleApplyClick = (e: React.MouseEvent) => {
         e.preventDefault();
+        if (!isAmbRegistrationOpen) return;
         if (!auth.currentUser) {
             router.push(`/signin?redirect=${encodeURIComponent('/ambassadors/apply')}`);
         } else {
@@ -212,13 +224,19 @@ export default function AmbassadorsPage() {
                                 </motion.div>
 
                                 <motion.div variants={fadeInUp}>
-                                    <Link
-                                        href="/ambassadors/apply"
-                                        onClick={handleApplyClick}
-                                        className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)] inline-block"
-                                    >
-                                        Apply Now
-                                    </Link>
+                                    {!isAmbRegistrationOpen ? (
+                                        <div className="px-10 py-4 bg-white/10 text-white/40 font-bold text-lg rounded-full border border-white/10 inline-block cursor-not-allowed">
+                                            Registration Closed
+                                        </div>
+                                    ) : (
+                                        <Link
+                                            href="/ambassadors/apply"
+                                            onClick={handleApplyClick}
+                                            className="group relative px-10 py-4 bg-vc-mint text-[#001D1B] font-bold text-lg rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(79,209,197,0.4)] inline-block"
+                                        >
+                                            Apply Now
+                                        </Link>
+                                    )}
                                 </motion.div>
                             </motion.div>
                         </div>
@@ -477,6 +495,7 @@ export default function AmbassadorsPage() {
                     description="If you are a motivated university student with an interest in startups, technology, and sustainability, we invite you to join the Venture Craft Ambassadors Program and be part of a global movement driving innovation forward."
                     registerHref="/ambassadors/apply"
                     onRegisterClick={handleApplyClick}
+                    isClosed={!isAmbRegistrationOpen}
                 />
             </div>
             <Footer />

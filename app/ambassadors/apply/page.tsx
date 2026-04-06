@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, CheckCircle, FileText, Users, Rocket, Globe, AlertCircle, ChevronDown, Search, X, GraduationCap, Share2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, FileText, Users, Rocket, Globe, AlertCircle, ChevronDown, Search, X, GraduationCap, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { countries } from '@/lib/countries';
 import { isValidUrl, isPersonalEmail } from '@/lib/utils';
 
@@ -157,6 +157,8 @@ function ApplicationFormContent() {
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [authLoading, setAuthLoading] = useState(true);
+    const [isAmbRegistrationOpen, setIsAmbRegistrationOpen] = useState<boolean>(true);
+    const [regLoading, setRegLoading] = useState(true);
     const router = useRouter();
 
     // Ambassador Form State
@@ -181,6 +183,21 @@ function ApplicationFormContent() {
             setAuthLoading(false);
         });
         return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        // Fetch or listen to ambassador registration status
+        const unsubReg = onSnapshot(doc(db, 'settings', 'ambassadorRegistration'), (snapshot) => {
+            if (snapshot.exists()) {
+                setIsAmbRegistrationOpen(snapshot.data().isOpen ?? true);
+            }
+            setRegLoading(false);
+        }, (error) => {
+            console.error("Error fetching ambassador registration status:", error);
+            setRegLoading(false);
+        });
+
+        return () => unsubReg();
     }, []);
 
     useEffect(() => {
@@ -241,6 +258,12 @@ function ApplicationFormContent() {
             return;
         }
 
+        // Registration Status Check
+        if (!isAmbRegistrationOpen) {
+            alert("Ambassador registration is now closed. Your application cannot be submitted at this time.");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -295,7 +318,7 @@ function ApplicationFormContent() {
         );
     };
 
-    if (authLoading) {
+    if (authLoading || regLoading) {
         return (
             <div className="min-h-screen bg-[#001311] flex flex-col items-center justify-center gap-4">
                 <div className="w-12 h-12 border-4 border-vc-mint/20 border-t-vc-mint rounded-full animate-spin" />
@@ -360,99 +383,118 @@ function ApplicationFormContent() {
                                     <h2 className="text-2xl font-bold">About you</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-                                    <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">
-                                            1. Your name <span className="text-vc-mint">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.name}
-                                            onChange={(e) => {
-                                                setFormData({ ...formData, name: e.target.value });
-                                                if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
-                                            }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.name ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                            placeholder="Enter your answer"
-                                        />
-                                        {errors.name && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.name}</p>}
-                                    </div>
-
-                                    <FlagDropdown
-                                        options={countries}
-                                        value={formData.nationality}
-                                        onChange={(val) => setFormData({ ...formData, nationality: val })}
-                                        label="2. Nationality *"
-                                        type="country"
-                                    />
-
-                                    <FlagDropdown
-                                        options={countries}
-                                        value={formData.location}
-                                        onChange={(val) => setFormData({ ...formData, location: val })}
-                                        label="3. Current Location (Residing) *"
-                                        description="Note: Current location refers to where you are physically residing at this time."
-                                        type="country"
-                                    />
-
-                                    <div className="space-y-4">
-                                        <label className="block text-base font-medium text-white/70">
-                                            4. Personal Email <span className="text-vc-mint">*</span>
-                                        </label>
-                                        <input
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={(e) => {
-                                                setFormData({ ...formData, email: e.target.value });
-                                                if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
-                                            }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.email ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
-                                            placeholder="personal.email@example.com"
-                                        />
-                                        {errors.email && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.email}</p>}
-                                    </div>
-
-                                    <div className="space-y-4 md:col-span-2">
-                                        <label className="block text-base font-medium text-white/70">
-                                            5. Phone number <span className="text-vc-mint">*</span>
-                                        </label>
-                                        <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.phone ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
-                                            <div className="w-fit border-r border-white/10">
-                                                <FlagDropdown
-                                                    options={countries}
-                                                    value={formData.phoneCode}
-                                                    onChange={(val) => setFormData({ ...formData, phoneCode: val })}
-                                                    type="phone"
-                                                />
-                                            </div>
-                                            <input
-                                                type="tel"
-                                                placeholder="5123456789"
-                                                value={formData.phone}
-                                                maxLength={15}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.replace(/\D/g, '');
-                                                    if (val.length <= 15) {
-                                                        setFormData({ ...formData, phone: val });
-                                                        if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
-                                                    }
-                                                }}
-                                                className="flex-1 bg-transparent border-none px-4 py-3.5 focus:outline-none focus:ring-0 text-white placeholder:text-white/20"
-                                            />
+                                {!isAmbRegistrationOpen ? (
+                                    <div className="py-12 px-6 rounded-3xl bg-vc-mint/5 border border-vc-mint/10 flex flex-col items-center text-center gap-6">
+                                        <div className="w-16 h-16 rounded-full bg-vc-mint/10 flex items-center justify-center">
+                                            <XCircle className="w-8 h-8 text-vc-mint" />
                                         </div>
-                                        {errors.phone && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.phone}</p>}
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-white mb-2">Registration Closed</h3>
+                                            <p className="text-white/60 max-w-md mx-auto">
+                                                Thank you for your interest. Registration for the Venture Craft Ambassadors Program is currently closed.
+                                            </p>
+                                        </div>
+                                        <Link href="/ambassadors" className="btn-primary !px-10 !py-4 !rounded-2xl">
+                                            Return to Ambassadors Info
+                                        </Link>
                                     </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+                                            <div className="space-y-4">
+                                                <label className="block text-base font-medium text-white/70">
+                                                    1. Your name <span className="text-vc-mint">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.name}
+                                                    onChange={(e) => {
+                                                        setFormData({ ...formData, name: e.target.value });
+                                                        if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
+                                                    }}
+                                                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.name ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                                    placeholder="Enter your answer"
+                                                />
+                                                {errors.name && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.name}</p>}
+                                            </div>
 
-                                <div className="flex justify-end pt-8">
-                                    <button
-                                        onClick={nextStep}
-                                        className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
-                                    >
-                                        <span>Next Step</span>
-                                        <ArrowRight className="w-5 h-5" />
-                                    </button>
-                                </div>
+                                            <FlagDropdown
+                                                options={countries}
+                                                value={formData.nationality}
+                                                onChange={(val) => setFormData({ ...formData, nationality: val })}
+                                                label="2. Nationality *"
+                                                type="country"
+                                            />
+
+                                            <FlagDropdown
+                                                options={countries}
+                                                value={formData.location}
+                                                onChange={(val) => setFormData({ ...formData, location: val })}
+                                                label="3. Current Location (Residing) *"
+                                                description="Note: Current location refers to where you are physically residing at this time."
+                                                type="country"
+                                            />
+
+                                            <div className="space-y-4">
+                                                <label className="block text-base font-medium text-white/70">
+                                                    4. Personal Email <span className="text-vc-mint">*</span>
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    value={formData.email}
+                                                    onChange={(e) => {
+                                                        setFormData({ ...formData, email: e.target.value });
+                                                        if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+                                                    }}
+                                                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.email ? 'border-vc-mint' : 'border-white/10 focus:border-vc-mint'}`}
+                                                    placeholder="personal.email@example.com"
+                                                />
+                                                {errors.email && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.email}</p>}
+                                            </div>
+
+                                            <div className="space-y-4 md:col-span-2">
+                                                <label className="block text-base font-medium text-white/70">
+                                                    5. Phone number <span className="text-vc-mint">*</span>
+                                                </label>
+                                                <div className={`flex items-center bg-white/5 border rounded-xl transition-all ${errors.phone ? 'border-vc-mint' : 'border-white/10 focus-within:border-vc-mint'}`}>
+                                                    <div className="w-fit border-r border-white/10">
+                                                        <FlagDropdown
+                                                            options={countries}
+                                                            value={formData.phoneCode}
+                                                            onChange={(val) => setFormData({ ...formData, phoneCode: val })}
+                                                            type="phone"
+                                                        />
+                                                    </div>
+                                                    <input
+                                                        type="tel"
+                                                        placeholder="5123456789"
+                                                        value={formData.phone}
+                                                        maxLength={15}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value.replace(/\D/g, '');
+                                                            if (val.length <= 15) {
+                                                                setFormData({ ...formData, phone: val });
+                                                                if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
+                                                            }
+                                                        }}
+                                                        className="flex-1 bg-transparent border-none px-4 py-3.5 focus:outline-none focus:ring-0 text-white placeholder:text-white/20"
+                                                    />
+                                                </div>
+                                                {errors.phone && <p className="text-xs text-vc-mint/80 mt-1 ml-1">{errors.phone}</p>}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-end pt-8">
+                                            <button
+                                                onClick={nextStep}
+                                                className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
+                                            >
+                                                <span>Next Step</span>
+                                                <ArrowRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </motion.div>
                         )}
 
