@@ -9,6 +9,7 @@ interface CallToActionProps {
     title?: string;
     description?: string;
     registerHref?: string;
+    registerButtonText?: string;
     onRegisterClick?: (e: React.MouseEvent) => void;
     isClosed?: boolean;
 }
@@ -18,6 +19,7 @@ export default function CallToAction({
     title = "Want to register?",
     description = "Take the first step towards transforming your deep-tech idea into a global solution.",
     registerHref = "/apply",
+    registerButtonText = "Register Now (Free)",
     onRegisterClick,
     isClosed = false
 }: CallToActionProps) {
@@ -85,7 +87,7 @@ export default function CallToAction({
                                 onClick={onRegisterClick}
                                 className="mt-auto relative z-40 inline-flex items-center gap-2 px-10 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-xl transition-all duration-300 group/btn shadow-[0_0_20px_rgba(79,209,197,0.3)] hover:scale-105"
                             >
-                                Register Now (Free)
+                                {registerButtonText}
                                 <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                             </Link>
                         ) : (

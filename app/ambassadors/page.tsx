@@ -494,6 +494,7 @@ export default function AmbassadorsPage() {
                     title="Join Us"
                     description="If you are a motivated university student with an interest in startups, technology, and sustainability, we invite you to join the Venture Craft Ambassadors Program and be part of a global movement driving innovation forward."
                     registerHref="/ambassadors/apply"
+                    registerButtonText="Register Now"
                     onRegisterClick={handleApplyClick}
                     isClosed={!isAmbRegistrationOpen}
                 />
