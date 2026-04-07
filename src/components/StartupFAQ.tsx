@@ -13,6 +13,15 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
     {
+        id: 'postponed',
+        question: 'Has the competition been delayed, and what is the new date?',
+        answer: (
+            <div className="space-y-2">
+                <p>Yes, the competition has been <strong className="text-vc-mint">postponed</strong> for the time being. We are working on a revised schedule and will share updates through our <Link href="/contact" className="text-vc-mint underline underline-offset-4 hover:text-vc-mint/80 transition-colors font-bold">socials</Link> very soon. Thank you for your continued interest and support!</p>
+            </div>
+        ),
+    },
+    {
         id: 'deadline',
         question: 'When is the application deadline?',
         answer: (

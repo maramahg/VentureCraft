@@ -60,7 +60,7 @@ export default function Home() {
 
 
         <Timeline />
-        <CallToAction />
+        <CallToAction isClosed={true} />
 
         <Footer />
       </div>
