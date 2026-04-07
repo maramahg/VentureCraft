@@ -1,167 +1,154 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper: Check if the user is in the 'admins' collection
+
+    // =============================
+    // Helpers
+    // =============================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function isAdmin() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return isAuthenticated() &&
+        (
+          userDoc().data.role == "admin" ||
+          (
+            userDoc().data.preferences != null &&
+            userDoc().data.preferences.role == "admin"
+          )
+        );
     }
 
-    // Helper: Check if the user is in the 'judges' collection
-    function isJudge() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/judges/$(request.auth.uid));
+    function isEventManager() {
+      return isAuthenticated() &&
+        userDoc().data.role == "eventManager";
     }
 
-    // Helper: Get judge data safely
-    function getJudgeData() {
-      return get(/databases/$(database)/documents/judges/$(request.auth.uid)).data;
-    }
-
-    // Helper: Check if judge is Ultimate
-    function isUltimateJudge() {
-      return isJudge() && (
-        getJudgeData().get('role', '') == 'ultimate' || 
-        getJudgeData().get('team', '') == ''
-      );
-    }
-
-    // Helper: Check if judge is Supervisor
-    function isSupervisor() {
-      return isJudge() && getJudgeData().get('role', '') == 'supervisor';
-    }
-
-    // Helper: Check if judge belongs to a specific team
-    function isTeamJudge(teamId) {
-      let r = getJudgeData().get('role', '');
-      return isJudge() && 
-             getJudgeData().get('team', '') == teamId && 
-             (r == 'team_judge' || r == 'Technical' || r == 'Business' || r == 'technical' || r == 'business' || r == 'tech' || r == 'bus');
-    }
-
-    // Helper: Check if the user is in the 'ambassadors_lead' collection
     function isAmbassadorLead() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/ambassadors_lead/$(request.auth.uid));
+      return isAuthenticated() && exists(/databases/$(database)/documents/ambassadors_lead/$(request.auth.uid));
     }
 
-    // Helper: Check if the user is in the 'outreach_leaders' collection
     function isOutreachLead() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/outreach_leaders/$(request.auth.uid));
+      return isAuthenticated() && exists(/databases/$(database)/documents/outreach_leaders/$(request.auth.uid));
     }
 
-    // Helper: Registration Status
-    function isRegistrationOpen() {
-      let reg = get(/databases/$(database)/documents/settings/registration).data;
-      return reg.get('isOpen', true) == true || reg.get('isAllowed', true) == true;
-    }
+    // =============================
+    // PUBLIC READ COLLECTIONS
+    // =============================
 
-    // Helper: Editing Allowed
-    function isEditingAllowed() {
-      let edit = get(/databases/$(database)/documents/settings/editing).data;
-      return edit.get('isOpen', true) == true || edit.get('isAllowed', true) == true;
-    }
-    
-    // Outreach Participants
-    match /outreach_participants/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
-    }
-
-    // Counters (Internal tracking)
-    match /counters/{docId} {
-      allow read: if request.auth != null;
+    match /committees/{id} {
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Startup Applications
-    match /applications/{docId} {
-      allow read: if request.auth != null && (
-        request.auth.uid == docId || 
-        (resource != null && request.auth.uid == resource.data.userId) || 
-        isAdmin() || 
-        isUltimateJudge() || 
-        (isJudge() && resource != null && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
-      );
-      allow create: if request.auth != null 
-        && (isRegistrationOpen() || isAdmin());
-      allow update: if request.auth != null 
-        && (
-          request.auth.uid == docId || 
-          request.auth.uid == resource.data.userId || 
-          isAdmin() || 
-          isJudge()
-        ) 
-        && (
-          // If modifying screening data, MUST be Admin or Judge
-          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['screening'])) ||
-          isAdmin() ||
-          isJudge()
-        )
-        && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
+    match /members/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /leadership/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /regions/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // =============================
+    // EVENTS
+    // =============================
+
+    match /events/{id} {
+      allow read: if true;
+      allow write: if isAdmin() || isEventManager();
+    }
+
+    // =============================
+    // APPLICATIONS
+    // =============================
+
+    match /applications/{id} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated() || true;
+      allow update, delete: if isAdmin();
+    }
+
+    // =============================
+    // REGISTRATIONS
+    // =============================
+
+    match /registrations/{id} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isAdmin() || isEventManager();
       allow delete: if isAdmin();
     }
 
-    // Ambassador Applications
-    match /ambassador_applications/{docId} {
-      allow read: if request.auth != null && (isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)) || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
-      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)) || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
-      allow delete: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
-      allow create: if request.auth != null;
+    // =============================
+    // USERS
+    // =============================
+
+    match /users/{id} {
+      allow read: if isAuthenticated() && request.auth.uid == id;
+      allow create: if isAuthenticated() && request.auth.uid == id;
+      allow update: if isAuthenticated() &&
+        (request.auth.uid == id || isAdmin()) &&
+        request.resource.data.updatedAt is timestamp;
+      allow delete: if isAdmin();
     }
 
-    // Ambassadors Collection (Public Profiles)
-    match /ambassadors/{userId} {
+    // =============================
+    // ANNOUNCEMENTS
+    // =============================
+
+    match /announcements/{id} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)));
-      // Allow point increments for referrals
-      allow update: if request.auth != null 
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
-        && request.resource.data.points == resource.data.points + 10;
-    }
-
-    // Users Collection (Profiles)
-    match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isJudge() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)));
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)));
-      allow create: if request.auth != null;
-      // Allow point increments for referrals
-      allow update: if request.auth != null 
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
-        && request.resource.data.points == resource.data.points + 10;
-
-      // Point History Sub-collection
-      match /point_history/{historyId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
-        allow write: if isAdmin() || isAmbassadorLead() || isOutreachLead();
-        // Allow automatic referral logging
-        allow create: if request.auth != null && request.resource.data.type == 'referral';
-      }
-    }
-
-    // System Settings
-    match /settings/{docId} {
-      allow read: if true;
-      allow write: if isAdmin() || (isUltimateJudge() && docId == 'screeningRound2');
-    }
-
-    // Judges Collection
-    match /judges/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isJudge());
       allow write: if isAdmin();
     }
 
-    // Role verification collections
-    match /admins/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+    // =============================
+    // CONFIG
+    // =============================
+
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
-    match /ambassadors_lead/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+
+    // =============================
+    // SETTINGS
+    // =============================
+
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
-    match /outreach_leaders/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+
+    // =============================
+    // AMBASSADORS & OUTREACH
+    // =============================
+
+    match /ambassador_applications/{id} {
+      allow read, write: if isAdmin() || isAmbassadorLead() || isOutreachLead() || (isAuthenticated() && (id == request.auth.uid || resource.data.userId == request.auth.uid));
+      allow create: if isAuthenticated();
+    }
+
+    match /ambassadors/{userId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
+    }
+
+    match /outreach_participants/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isAmbassadorLead() || isOutreachLead());
     }
 
   }
