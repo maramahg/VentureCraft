@@ -106,9 +106,9 @@ service cloud.firestore {
 
     // Ambassador Applications
     match /ambassador_applications/{docId} {
-      allow read: if request.auth != null && (request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId) || isAdmin() || isAmbassadorLead());
-      allow write: if request.auth != null && (request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId) || isAdmin() || isAmbassadorLead());
-      allow delete: if request.auth != null && (isAdmin() || isAmbassadorLead());
+      allow read: if request.auth != null && (request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId) || isAdmin() || isAmbassadorLead() || isOutreachLead());
+      allow write: if request.auth != null && (request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId) || isAdmin() || isAmbassadorLead() || isOutreachLead());
+      allow delete: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
       allow create: if request.auth != null;
     }
 

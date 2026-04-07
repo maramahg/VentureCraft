@@ -863,7 +863,7 @@ function AdminDashboardContent() {
             return;
         }
 
-        if (isOutreachLead) {
+        if (isOutreachLead && !tab) {
             if (activeTab !== 'outreach') setActiveTab('outreach');
             return;
         }
@@ -1172,7 +1172,7 @@ function AdminDashboardContent() {
 
     // Fetch Ambassador Applications
     useEffect(() => {
-        if (!(isAdmin || isAmbassadorLead) || activeTab !== 'ambassadors') return;
+        if (!(isAdmin || isAmbassadorLead || isOutreachLead) || activeTab !== 'ambassadors') return;
 
         console.log('FETCHING: ambassador_applications...');
         const q = query(collection(db, 'ambassador_applications'), orderBy('submittedAt', 'desc'));
@@ -1189,11 +1189,11 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isAmbassadorLead, activeTab]);
+    }, [isAdmin, isAmbassadorLead, isOutreachLead, activeTab]);
 
     // Fetch Current Ambassadors
     useEffect(() => {
-        if (!(isAdmin || isAmbassadorLead) || activeTab !== 'ambassadors') return;
+        if (!(isAdmin || isAmbassadorLead || isOutreachLead) || activeTab !== 'ambassadors') return;
 
         console.log('FETCHING: ambassadors collection...');
         const q = query(collection(db, 'ambassadors'));
@@ -1252,7 +1252,7 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isAmbassadorLead, activeTab]);
+    }, [isAdmin, isAmbassadorLead, isOutreachLead, activeTab]);
 
     // Fetch Outreach Participants
     useEffect(() => {

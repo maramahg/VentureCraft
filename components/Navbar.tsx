@@ -333,7 +333,7 @@ export default function Navbar() {
                                     Startup Applications
                                   </Link>
                                 )}
-                                {(isAdmin || isAmbassadorLead) && (
+                                {(isAdmin || isAmbassadorLead || isOutreachLead) && (
                                   <Link
                                     href="/admin?tab=ambassadors"
                                     onClick={() => setIsProfileOpen(false)}
@@ -536,7 +536,7 @@ export default function Navbar() {
                                 Startup Applications
                               </Link>
                             )}
-                            {(isAdmin || isAmbassadorLead) && (
+                            {(isAdmin || isAmbassadorLead || isOutreachLead) && (
                               <Link
                                 href="/admin?tab=ambassadors"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
