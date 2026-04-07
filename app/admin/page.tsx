@@ -1185,7 +1185,7 @@ function AdminDashboardContent() {
             setAmbassadorApps(apps);
         }, (error) => {
             console.error('FIREBASE_PERMISSION_ERROR: Ambassador Applications Fetch failed', error);
-            setError(`Permission Denied: Unable to fetch ambassador applications. Please ensure Firestore rules are deployed for Outreach Leaders.`);
+            setError(`Fetch Error (${error.code}): ${error.message}`);
         });
 
         return () => unsubscribe();
@@ -1249,7 +1249,7 @@ function AdminDashboardContent() {
             setAmbassadorsList(sortedUsers);
         }, (error) => {
             console.error('FIREBASE_PERMISSION_ERROR: Ambassadors collection Fetch failed', error);
-            setError(`Permission Denied: Unable to fetch ambassadors directory.`);
+            setError(`Fetch Error (${error.code}): ${error.message}`);
         });
 
         return () => unsubscribe();
