@@ -1174,7 +1174,7 @@ function AdminDashboardContent() {
     useEffect(() => {
         if (!(isAdmin || isAmbassadorLead || isOutreachLead) || activeTab !== 'ambassadors') return;
 
-        console.log('FETCHING: ambassador_applications...');
+        console.log(`FETCHING: ambassador_applications (isAdmin=${isAdmin}, isAmbassadorLead=${isAmbassadorLead}, isOutreachLead=${isOutreachLead})`);
         const q = query(collection(db, 'ambassador_applications'), orderBy('submittedAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             console.log('SUCCESS: ambassador_applications fetched', snapshot.size);
@@ -1185,7 +1185,7 @@ function AdminDashboardContent() {
             setAmbassadorApps(apps);
         }, (error) => {
             console.error('FIREBASE_PERMISSION_ERROR: Ambassador Applications Fetch failed', error);
-            console.log('Action Item: Ensure "ambassador_applications" collection has rules for admins.');
+            setError(`Permission Denied: Unable to fetch ambassador applications. Please ensure Firestore rules are deployed for Outreach Leaders.`);
         });
 
         return () => unsubscribe();
@@ -1195,7 +1195,7 @@ function AdminDashboardContent() {
     useEffect(() => {
         if (!(isAdmin || isAmbassadorLead || isOutreachLead) || activeTab !== 'ambassadors') return;
 
-        console.log('FETCHING: ambassadors collection...');
+        console.log(`FETCHING: ambassadors (isAdmin=${isAdmin}, isAmbassadorLead=${isAmbassadorLead}, isOutreachLead=${isOutreachLead})`);
         const q = query(collection(db, 'ambassadors'));
         const unsubscribe = onSnapshot(q, async (snapshot) => {
             console.log('SUCCESS: ambassadors fetched', snapshot.size);
@@ -1249,6 +1249,7 @@ function AdminDashboardContent() {
             setAmbassadorsList(sortedUsers);
         }, (error) => {
             console.error('FIREBASE_PERMISSION_ERROR: Ambassadors collection Fetch failed', error);
+            setError(`Permission Denied: Unable to fetch ambassadors directory.`);
         });
 
         return () => unsubscribe();
