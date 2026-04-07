@@ -106,8 +106,8 @@ service cloud.firestore {
 
     // Ambassador Applications
     match /ambassador_applications/{docId} {
-      allow read: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead() || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
-      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead() || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
+      allow read: if request.auth != null && (isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)) || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
+      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)) || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
       allow delete: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
       allow create: if request.auth != null;
     }
@@ -115,7 +115,7 @@ service cloud.firestore {
     // Ambassadors Collection (Public Profiles)
     match /ambassadors/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)));
       // Allow point increments for referrals
       allow update: if request.auth != null 
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
@@ -124,8 +124,8 @@ service cloud.firestore {
 
     // Users Collection (Profiles)
     match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isJudge() || isOutreachLead());
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isOutreachLead());
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || isJudge() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)));
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin() || isAmbassadorLead() || exists(/databases/(default)/documents/outreach_leaders/$(request.auth.uid)));
       allow create: if request.auth != null;
       // Allow point increments for referrals
       allow update: if request.auth != null 
