@@ -46,6 +46,7 @@ export default function Navbar() {
   const [isJudge, setIsJudge] = useState(false);
   const [isUltimateJudge, setIsUltimateJudge] = useState(false);
   const [isSupervisor, setIsSupervisor] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
   const [isAmbassador, setIsAmbassador] = useState(false);
   const [isOutreachLead, setIsOutreachLead] = useState(false);
@@ -88,7 +89,7 @@ export default function Navbar() {
   }, []);
 
   const filteredNavItems = useMemo(() => {
-    if (isAdmin) return navItems;
+    if (isAdmin || isSuperAdmin) return navItems;
 
     return navItems.map(item => {
       // If the main item is hidden
@@ -105,7 +106,7 @@ export default function Navbar() {
 
       return item;
     }).filter(Boolean);
-  }, [hiddenPages, isAdmin]);
+  }, [hiddenPages, isAdmin, isSuperAdmin]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -139,9 +140,15 @@ export default function Navbar() {
         return;
       }
       try {
-        // 1. Check if Admin
-        const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-        setIsAdmin(adminDoc.exists());
+        // 1. Check if Admin or Super Admin
+        const [adminDoc, superAdminDoc] = await Promise.all([
+          getDoc(doc(db, 'admins', user.uid)),
+          getDoc(doc(db, 'super_admins', user.uid))
+        ]);
+        
+        const isSAdmin = superAdminDoc.exists();
+        setIsSuperAdmin(isSAdmin);
+        setIsAdmin(adminDoc.exists() || isSAdmin);
 
         // 2. Check if Judge
         const judgeDoc = await getDoc(doc(db, 'judges', user.uid));
@@ -186,6 +193,7 @@ export default function Navbar() {
       } catch (error) {
         console.error('Role check failed:', error);
         setIsAdmin(false);
+        setIsSuperAdmin(false);
         setIsAmbassador(false);
         setIsOutreachLead(false);
       }
@@ -327,8 +335,11 @@ export default function Navbar() {
                             <p className="text-base font-bold text-white mb-0.5">{user.displayName || 'User'}</p>
                             <div className="flex flex-wrap gap-2 items-center mt-1">
                               <p className="text-xs font-medium text-white/50 truncate max-w-[150px]">{user.email}</p>
-                              {isAdmin && (
+                              {isAdmin && !isSuperAdmin && (
                                 <span className="px-1.5 py-0.5 bg-vc-mint/20 border border-vc-mint/30 rounded text-[9px] font-bold text-vc-mint uppercase tracking-wider">Admin</span>
+                              )}
+                              {isSuperAdmin && (
+                                <span className="px-1.5 py-0.5 bg-purple-500/20 border border-purple-500/30 rounded text-[9px] font-bold text-purple-400 uppercase tracking-wider">Super Admin</span>
                               )}
                               {isJudge && !isAdmin && (
                                 <span className="px-1.5 py-0.5 bg-vc-mint/20 border border-vc-mint/30 rounded text-[9px] font-bold text-vc-mint uppercase tracking-wider">Judge</span>
@@ -402,7 +413,7 @@ export default function Navbar() {
                                   </Link>
                                 )}
 
-                                {isAdmin && (
+                                {isSuperAdmin && (
                                   <>
                                     <Link
                                       href="/qr"
@@ -588,7 +599,7 @@ export default function Navbar() {
                                 Judges
                               </Link>
                             )}
-                            {isAdmin && (
+                            {isSuperAdmin && (
                               <Link
                                 href="/admin?tab=page-management"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -598,7 +609,7 @@ export default function Navbar() {
                                 Page Management
                               </Link>
                             )}
-                            {isAdmin && (
+                            {isSuperAdmin && (
                               <>
                                 <Link
                                   href="/qr"

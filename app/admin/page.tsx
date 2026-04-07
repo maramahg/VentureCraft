@@ -410,6 +410,7 @@ function AdminDashboardContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false);
     const [isJudge, setIsJudge] = useState(false);
     const [judgeTeam, setJudgeTeam] = useState<string | null>(null);
     const [isUltimateJudge, setIsUltimateJudge] = useState(false);
@@ -451,10 +452,10 @@ function AdminDashboardContent() {
     });
 
     const isTeamJudgeOnly = isJudge && !isUltimateJudge && !isSupervisor;
-    const canScore = isAdmin || (isTeamJudgeOnly && selectedApp?.assignedTeam === judgeTeam);
+    const canScore = isAdmin || isSuperAdmin || (isTeamJudgeOnly && selectedApp?.assignedTeam === judgeTeam);
 
     const handleRedistributeTeams = async (appsToFix: Application[]) => {
-        if ((!isAdmin && !isUltimateJudge) || appsToFix.length === 0) return;
+        if ((!isAdmin && !isSuperAdmin && !isUltimateJudge) || appsToFix.length === 0) return;
 
         console.log(`AUTO_MIGRATION: Redistributing ${appsToFix.length} applications based on current workloads...`);
         try {
@@ -499,7 +500,7 @@ function AdminDashboardContent() {
 
     // Automatic Background Migration Effect
     useEffect(() => {
-        if ((!isAdmin && !isUltimateJudge) || loading || applications.length === 0) return;
+        if ((!isAdmin && !isSuperAdmin && !isUltimateJudge) || loading || applications.length === 0) return;
 
         const unassigned = applications.filter(app => !app.assignedTeam);
         const teamEApps = applications.filter(a => a.assignedTeam === 'E');
@@ -514,7 +515,7 @@ function AdminDashboardContent() {
             console.log(`REBALANCE: Distribution is unbalanced (Team E has only ${teamEApps.length} apps). Redistributing all ${applications.length} apps...`);
             handleRedistributeTeams(applications);
         }
-    }, [isAdmin, loading, applications]);
+    }, [isAdmin, isSuperAdmin, loading, applications]);
     const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
     const [screeningFilter, setScreeningFilter] = useState<'all' | 'pending' | 'scored'>('all');
     const [totalUsers, setTotalUsers] = useState(0);
@@ -814,9 +815,15 @@ function AdminDashboardContent() {
         if (!tab) {
             if (activeTab !== 'startups') setActiveTab('startups');
         } else if (['startups', 'ambassadors', 'qr', 'broadcast', 'judges', 'outreach', 'page-management'].includes(tab)) {
-            if (activeTab !== tab) setActiveTab(tab as any);
+            // Restricted Tabs Control: Only Super Admins can access 'qr', 'broadcast', and 'page-management'
+            const restrictedTabs = ['qr', 'broadcast', 'page-management'];
+            if (restrictedTabs.includes(tab) && !isSuperAdmin) {
+                if (activeTab !== 'startups') setActiveTab('startups');
+            } else if (activeTab !== tab) {
+                setActiveTab(tab as any);
+            }
         }
-    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead]);
+    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead, isSuperAdmin]);
 
 
     // Listen for Page Visibility Settings
@@ -828,7 +835,7 @@ function AdminDashboardContent() {
             }
         });
         return () => unsubscribe();
-    }, [isAdmin]);
+    }, [isAdmin, isSuperAdmin]);
 
     const handleTogglePageVisibility = async (path: string) => {
         setSavingVisibility(true);
@@ -863,8 +870,19 @@ function AdminDashboardContent() {
 
             try {
                 const uid = user.uid;
-                // Check roles in order: Admin -> Judge -> Ambassador Lead
-                const adminDoc = await getDoc(doc(db, 'admins', uid));
+                // Check roles in order: Super Admin -> Admin -> Judge -> Ambassador Lead
+                const [superAdminDoc, adminDoc] = await Promise.all([
+                    getDoc(doc(db, 'super_admins', uid)),
+                    getDoc(doc(db, 'admins', uid))
+                ]);
+
+                if (superAdminDoc.exists()) {
+                    setIsSuperAdmin(true);
+                    setIsAdmin(true); // Super admin is also effectively an admin for logic checks
+                    setLoading(false);
+                    return;
+                }
+
                 if (adminDoc.exists()) {
                     setIsAdmin(true);
                     setLoading(false);
@@ -2811,7 +2829,7 @@ function AdminDashboardContent() {
                         </div>
                     )}
 
-                    {activeTab === 'qr' && (
+                    {activeTab === 'qr' && isSuperAdmin && (
                         <div className="glass-panel p-8 sm:p-12 min-h-[600px] relative overflow-hidden">
                             <div className="absolute inset-0 bg-vc-mint/5 pointer-events-none" />
 
@@ -3153,8 +3171,7 @@ function AdminDashboardContent() {
                         </div>
                     )}
 
-                    {
-                        activeTab === 'broadcast' && (
+                    {activeTab === 'broadcast' && isSuperAdmin && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 {/* Header Section */}
                                 <div className="glass-panel p-2 px-5 relative overflow-hidden w-fit">
@@ -3473,7 +3490,7 @@ function AdminDashboardContent() {
                             </div>
                         )
                     }
-                    {activeTab === 'page-management' && (
+                    {activeTab === 'page-management' && isSuperAdmin && (
                         <div className="space-y-8 animate-in fade-in duration-700">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-14 h-14 rounded-2xl bg-vc-mint/10 flex items-center justify-center text-vc-mint border border-vc-mint/20 shadow-lg shadow-vc-mint/5">

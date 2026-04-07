@@ -2,10 +2,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper: Check if the user is in the 'admins' collection
+    // Helper: Check if the user is in the 'admins' or 'super_admins' collection
     function isAdmin() {
+      return request.auth != null && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        isSuperAdmin()
+      );
+    }
+
+    // Helper: Check if the user is in the 'super_admins' collection
+    function isSuperAdmin() {
       return request.auth != null && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+        exists(/databases/$(database)/documents/super_admins/$(request.auth.uid));
     }
 
     // Helper: Check if the user is in the 'judges' collection
@@ -161,6 +169,9 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
     match /outreach_leaders/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+    match /super_admins/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
 

@@ -22,9 +22,13 @@ export default function QRPage() {
             }
 
             try {
-                const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-                if (adminDoc.exists()) {
-                    setIsAdmin(true);
+                const [adminDoc, superAdminDoc] = await Promise.all([
+                    getDoc(doc(db, 'admins', user.uid)),
+                    getDoc(doc(db, 'super_admins', user.uid))
+                ]);
+                
+                if (superAdminDoc.exists()) {
+                    setIsAdmin(true); // Reusing 'isAdmin' state name but check is for Super Admin
                 } else {
                     setIsAdmin(false);
                 }

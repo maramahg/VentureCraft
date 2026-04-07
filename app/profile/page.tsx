@@ -17,6 +17,7 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false);
     const [isJudge, setIsJudge] = useState(false);
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [isAmbassador, setIsAmbassador] = useState(false);
@@ -82,7 +83,8 @@ export default function ProfilePage() {
                 }
 
                 // Check Roles
-                const [adminDoc, judgeDoc, leadDoc, uDoc, ambDoc, outDoc] = await Promise.all([
+                const [superAdminDoc, adminDoc, judgeDoc, leadDoc, uDoc, ambDoc, outDoc] = await Promise.all([
+                    getDoc(doc(db, 'super_admins', user.uid)),
                     getDoc(doc(db, 'admins', user.uid)),
                     getDoc(doc(db, 'judges', user.uid)),
                     getDoc(doc(db, 'ambassadors_lead', user.uid)),
@@ -90,8 +92,10 @@ export default function ProfilePage() {
                     getDoc(doc(db, 'ambassadors', user.uid)),
                     getDoc(doc(db, 'outreach_participants', user.uid))
                 ]);
-
-                if (adminDoc.exists()) setIsAdmin(true);
+                
+                const isSAdmin = superAdminDoc.exists();
+                if (isSAdmin) setIsSuperAdmin(true);
+                if (adminDoc.exists() || isSAdmin) setIsAdmin(true);
                 if (judgeDoc.exists()) setIsJudge(true);
                 if (leadDoc.exists()) setIsAmbassadorLead(true);
 
@@ -340,7 +344,13 @@ export default function ProfilePage() {
 
                             <div className="text-center">
                                 <div className="flex flex-wrap justify-center gap-2">
-                                    {isAdmin && (
+                                    {isSuperAdmin && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-purple-500/10 border-purple-500/30 text-purple-400">
+                                            <Shield className="w-3 h-3" />
+                                            Super Admin
+                                        </span>
+                                    )}
+                                    {isAdmin && !isSuperAdmin && (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border bg-vc-mint/10 border-vc-mint/30 text-vc-mint">
                                             <Shield className="w-3 h-3" />
                                             Administrator

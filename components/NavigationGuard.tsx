@@ -10,6 +10,7 @@ export default function NavigationGuard({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [hiddenPages, setHiddenPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,10 +25,16 @@ export default function NavigationGuard({ children }: { children: React.ReactNod
     // 2. Check admin status
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-        setIsAdmin(adminDoc.exists());
+        const [adminDoc, superAdminDoc] = await Promise.all([
+          getDoc(doc(db, 'admins', user.uid)),
+          getDoc(doc(db, 'super_admins', user.uid))
+        ]);
+        const isSAdmin = superAdminDoc.exists();
+        setIsSuperAdmin(isSAdmin);
+        setIsAdmin(adminDoc.exists() || isSAdmin);
       } else {
         setIsAdmin(false);
+        setIsSuperAdmin(false);
       }
       setLoading(false);
     });
@@ -41,8 +48,8 @@ export default function NavigationGuard({ children }: { children: React.ReactNod
   useEffect(() => {
     if (loading) return;
 
-    // Admin can access everything
-    if (isAdmin) return;
+    // Admin or Super Admin can access everything
+    if (isAdmin || isSuperAdmin) return;
 
     // Check if current path is hidden
     // We check if the path starts with any of the hidden routes (to cover sub-pages for e.g. /apply)
