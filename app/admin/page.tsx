@@ -1185,7 +1185,8 @@ function AdminDashboardContent() {
             setAmbassadorApps(apps);
         }, (error) => {
             console.error('FIREBASE_PERMISSION_ERROR: Ambassador Applications Fetch failed', error);
-            setError(`Fetch Error (${error.code}): ${error.message}`);
+            const uid = auth.currentUser?.uid || 'Unknown';
+            setError(`[UID: ${uid}] Fetch Error (${error.code}): ${error.message}`);
         });
 
         return () => unsubscribe();
