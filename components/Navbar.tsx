@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart, Mail, Hash } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Shield, QrCode, Users, BarChart, Mail, Hash, Layout } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -50,6 +50,7 @@ export default function Navbar() {
   const [isAmbassador, setIsAmbassador] = useState(false);
   const [isOutreachLead, setIsOutreachLead] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [hiddenPages, setHiddenPages] = useState<string[]>([]);
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -75,6 +76,36 @@ export default function Navbar() {
     });
     return () => unsubscribe();
   }, [user]);
+
+  // Listen for hidden pages
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, 'settings', 'navigation'), (doc) => {
+      if (doc.exists()) {
+        setHiddenPages(doc.data().hiddenRoutes || []);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const filteredNavItems = useMemo(() => {
+    if (isAdmin) return navItems;
+
+    return navItems.map(item => {
+      // If the main item is hidden
+      if (item.href !== '#' && hiddenPages.includes(item.href)) {
+        return null;
+      }
+
+      // If it has subItems, filter them
+      if (item.subItems) {
+        const filteredSub = item.subItems.filter(sub => !hiddenPages.includes(sub.href));
+        if (filteredSub.length === 0 && item.href === '#') return null;
+        return { ...item, subItems: filteredSub };
+      }
+
+      return item;
+    }).filter(Boolean);
+  }, [hiddenPages, isAdmin]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -198,8 +229,8 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-10 ml-auto mr-8">
-            {navItems.map((item) => (
+          <div className="hidden lg:flex items-center gap-10 ml-auto mr-8">
+            {filteredNavItems.map((item: any) => (
               <div
                 key={item.name}
                 className="relative group"
@@ -221,8 +252,8 @@ export default function Navbar() {
                           exit={{ opacity: 0, y: 0, scale: 0.98 }}
                           className="absolute left-0 mt-2 w-64 bg-[#111111] border border-white/5 shadow-2xl z-50 top-full"
                         >
-                          <div className="flex flex-col">
-                            {item.subItems.map((subItem) => {
+                          <div className="flex flex-col gap-1">
+                            {item.subItems.map((subItem: any) => {
                               const isApplyNow = subItem.name === 'Apply Now';
                               return (
                                 <Link
@@ -359,6 +390,19 @@ export default function Navbar() {
                                 )}
 
                                 {isAdmin && (
+                                  <Link
+                                    href="/admin?tab=page-management"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <Layout size={14} className="text-vc-mint" />
+                                    </div>
+                                    Page Management
+                                  </Link>
+                                )}
+
+                                {isAdmin && (
                                   <>
                                     <Link
                                       href="/qr"
@@ -392,18 +436,6 @@ export default function Navbar() {
                                       <Hash size={14} className="text-vc-mint" />
                                     </div>
                                     Outreach Challenge
-                                  </Link>
-                                )}
-                                {isAdmin && (
-                                  <Link
-                                    href="/admin?tab=logistics"
-                                    onClick={() => setIsProfileOpen(false)}
-                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                  >
-                                    <div className="w-[18px] flex justify-center">
-                                      <BarChart size={14} className="text-vc-mint" />
-                                    </div>
-                                    Logistics
                                   </Link>
                                 )}
                               </div>
@@ -465,7 +497,7 @@ export default function Navbar() {
                 className="md:hidden absolute top-20 left-4 right-4 z-50 overflow-hidden"
               >
                 <div className="glass-panel p-6 flex flex-col gap-4 bg-[#0D1B1A]/95 !backdrop-blur-lg border border-white/10 shadow-2xl max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
-                  {navItems.map((item) => (
+                  {filteredNavItems.map((item: any) => (
                     <div key={item.name} className="flex flex-col gap-2">
                       {item.subItems ? (
                         <>
@@ -473,7 +505,7 @@ export default function Navbar() {
                             {item.name}
                           </div>
                           <div className="flex flex-col gap-3 pl-4 border-l border-white/10 ml-1">
-                            {item.subItems.map((subItem) => {
+                            {item.subItems.map((subItem: any) => {
                               const isApplyNow = subItem.name === 'Apply Now';
                               return (
                                 <Link
@@ -557,6 +589,16 @@ export default function Navbar() {
                               </Link>
                             )}
                             {isAdmin && (
+                              <Link
+                                href="/admin?tab=page-management"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Layout size={20} />
+                                Page Management
+                              </Link>
+                            )}
+                            {isAdmin && (
                               <>
                                 <Link
                                   href="/qr"
@@ -584,16 +626,6 @@ export default function Navbar() {
                               >
                                 <Hash size={20} />
                                 Outreach Challenge
-                              </Link>
-                            )}
-                            {isAdmin && (
-                              <Link
-                                href="/admin?tab=logistics"
-                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                                onClick={() => setIsOpen(false)}
-                              >
-                                <BarChart size={20} />
-                                Logistics
                               </Link>
                             )}
                           </>
