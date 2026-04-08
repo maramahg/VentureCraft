@@ -400,7 +400,7 @@ export default function Navbar() {
                                   </Link>
                                 )}
 
-                                {isAdmin && (
+                                {isSuperAdmin && (
                                   <Link
                                     href="/admin?tab=page-management"
                                     onClick={() => setIsProfileOpen(false)}
