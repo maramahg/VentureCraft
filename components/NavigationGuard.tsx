@@ -48,8 +48,8 @@ export default function NavigationGuard({ children }: { children: React.ReactNod
   useEffect(() => {
     if (loading) return;
 
-    // Admin or Super Admin can access everything
-    if (isAdmin || isSuperAdmin) return;
+    // Only Super Admin can access hidden pages
+    if (isSuperAdmin) return;
 
     // Check if current path is hidden
     // We check if the path starts with any of the hidden routes (to cover sub-pages for e.g. /apply)

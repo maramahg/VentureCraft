@@ -540,7 +540,7 @@ function AdminDashboardContent() {
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Tab Management
-    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges' | 'outreach' | 'page-management'>('startups');
+    const [activeTab, setActiveTab] = useState<'startups' | 'ambassadors' | 'qr' | 'broadcast' | 'judges' | 'outreach' | 'page-management' | 'supervisor-view'>('startups');
     const [ambassadorSubTab, setAmbassadorSubTab] = useState<'applications' | 'directory'>('applications');
     const [showOversight, setShowOversight] = useState(false);
     const [selectedOversightTeam, setSelectedOversightTeam] = useState<string | null>(null);
@@ -798,7 +798,7 @@ function AdminDashboardContent() {
 
         // Handle forcing for specific roles if needed
         if (isJudge && !isUltimateJudge && !isSupervisor) {
-            if (activeTab !== 'startups') setActiveTab('startups');
+            if (activeTab !== 'startups' && activeTab !== 'supervisor-view') setActiveTab('startups');
             return;
         }
         if (isAmbassadorLead) {
@@ -814,7 +814,7 @@ function AdminDashboardContent() {
         // Sync state with URL parameter if it exists and changed
         if (!tab) {
             if (activeTab !== 'startups') setActiveTab('startups');
-        } else if (['startups', 'ambassadors', 'qr', 'broadcast', 'judges', 'outreach', 'page-management'].includes(tab)) {
+        } else if (['startups', 'ambassadors', 'qr', 'broadcast', 'judges', 'outreach', 'page-management', 'supervisor-view'].includes(tab)) {
             // Restricted Tabs Control: Only Super Admins can access 'qr', 'broadcast', and 'page-management'
             const restrictedTabs = ['qr', 'broadcast', 'page-management'];
             if (restrictedTabs.includes(tab) && !isSuperAdmin) {
@@ -870,26 +870,27 @@ function AdminDashboardContent() {
 
             try {
                 const uid = user.uid;
-                // Check roles in order: Super Admin -> Admin -> Judge -> Ambassador Lead
-                const [superAdminDoc, adminDoc] = await Promise.all([
+                const [superAdminDoc, adminDoc, judgeDoc, leadDoc, outreachLeadDoc] = await Promise.all([
                     getDoc(doc(db, 'super_admins', uid)),
-                    getDoc(doc(db, 'admins', uid))
+                    getDoc(doc(db, 'admins', uid)),
+                    getDoc(doc(db, 'judges', uid)),
+                    getDoc(doc(db, 'ambassadors_lead', uid)),
+                    getDoc(doc(db, 'outreach_leaders', uid))
                 ]);
+
+                let hasAnyRole = false;
 
                 if (superAdminDoc.exists()) {
                     setIsSuperAdmin(true);
-                    setIsAdmin(true); // Super admin is also effectively an admin for logic checks
-                    setLoading(false);
-                    return;
+                    setIsAdmin(true);
+                    hasAnyRole = true;
                 }
 
                 if (adminDoc.exists()) {
                     setIsAdmin(true);
-                    setLoading(false);
-                    return;
+                    hasAnyRole = true;
                 }
 
-                const judgeDoc = await getDoc(doc(db, 'judges', uid));
                 if (judgeDoc.exists()) {
                     const judgeData = judgeDoc.data();
                     setIsJudge(true);
@@ -900,33 +901,27 @@ function AdminDashboardContent() {
 
                     setIsUltimateJudge(role === 'ultimate' || !hasTeam);
                     setIsSupervisor(role === 'supervisor');
-                    // A "Team Judge" is anyone with a team who isn't a supervisor or ultimate judge
-
-                    setActiveTab('startups');
-                    setLoading(false);
-                    return;
+                    hasAnyRole = true;
                 }
 
-                const leadDoc = await getDoc(doc(db, 'ambassadors_lead', uid));
                 if (leadDoc.exists()) {
                     setIsAmbassadorLead(true);
-                    setActiveTab('ambassadors');
-                    setLoading(false);
-                    return;
+                    hasAnyRole = true;
                 }
 
-                // 4. Check for Outreach Leader
-                const outreachLeadDoc = await getDoc(doc(db, 'outreach_leaders', uid));
                 if (outreachLeadDoc.exists()) {
                     setIsOutreachLead(true);
-                    setActiveTab('outreach');
-                    setLoading(false);
+                    hasAnyRole = true;
+                }
+
+                if (!hasAnyRole) {
+                    // If no role found
+                    setError('Access Denied: You do not have admin or evaluator privileges.');
+                    router.push('/');
                     return;
                 }
 
-                // If no role found
-                setError('Access Denied: You do not have admin or evaluator privileges.');
-                router.push('/');
+                setLoading(false);
             } catch (err: any) {
                 console.error('Error checking admin status:', err);
                 if (err.code === 'permission-denied') {
@@ -1118,18 +1113,27 @@ function AdminDashboardContent() {
     useEffect(() => {
         if (loading || (!isAdmin && !isJudge)) return;
 
-        // Build query based on role
+        // Build query based on role and active tab
         let q;
-        if (isJudge && !isUltimateJudge) {
-            // Team judges must filter by their team. Wait for team ID if not yet available.
+        if (activeTab === 'supervisor-view') {
+            // Explicit Supervisor View: filter by assigned team
             if (!judgeTeam) return;
-
+            q = query(
+                collection(db, 'applications'),
+                where('assignedTeam', '==', judgeTeam)
+            );
+        } else if (isAdmin || isUltimateJudge) {
+            // Admins and Ultimate Judges see all applications in the startups tab
+            q = query(collection(db, 'applications'), orderBy('submittedAt', 'desc'));
+        } else if (isJudge && !isUltimateJudge) {
+            // Regular Supervisors (non-admin) filter by their team by default
+            if (!judgeTeam) return;
             q = query(
                 collection(db, 'applications'),
                 where('assignedTeam', '==', judgeTeam)
             );
         } else {
-            // Admins and Ultimate Judges see all applications
+            // Default fallback
             q = query(collection(db, 'applications'), orderBy('submittedAt', 'desc'));
         }
 
@@ -1146,7 +1150,7 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isJudge, isUltimateJudge, judgeTeam, loading]);
+    }, [isAdmin, isJudge, isUltimateJudge, judgeTeam, loading, activeTab]);
 
     useEffect(() => {
         if (!isAdmin) return;
@@ -2047,8 +2051,8 @@ function AdminDashboardContent() {
                             </h1>
                             <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
                                 <Shield className="w-3 h-3" />
-                                {activeTab === 'startups'
-                                    ? isAdmin ? 'Startup Ecosystem Oversight' : isUltimateJudge ? 'Ultimate Performance Oversight' : `Team ${judgeTeam} Evaluation Queue`
+                                {activeTab === 'startups' || activeTab === 'supervisor-view'
+                                    ? activeTab === 'supervisor-view' ? `Team ${judgeTeam} Evaluation Queue` : isAdmin ? 'Startup Ecosystem Oversight' : isUltimateJudge ? 'Ultimate Performance Oversight' : `Team ${judgeTeam} Evaluation Queue`
                                     : activeTab === 'outreach'
                                         ? 'Outreach Competition Management'
                                         : activeTab === 'ambassadors'
@@ -2064,7 +2068,7 @@ function AdminDashboardContent() {
 
                         {/* Quick Stats Grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            {activeTab === 'startups' && (
+                            {(activeTab === 'startups' || activeTab === 'supervisor-view') && (
                                 <>
                                     <div className={`bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3 min-w-[120px] backdrop-blur-sm ${!isAdmin ? 'opacity-0 pointer-events-none invisible' : ''}`}>
                                         <span className="text-white/30 text-[9px] uppercase font-bold tracking-widest block mb-1">Total Users</span>
@@ -2108,7 +2112,7 @@ function AdminDashboardContent() {
                         </div>
 
                         {/* Team Supervisor Quick Contact (Visible to all team participants except Ultimate Judges) */}
-                        {!!judgeTeam && !isAdmin && !isUltimateJudge && (
+                        {!!judgeTeam && (!isAdmin || activeTab === 'supervisor-view') && !isUltimateJudge && (
                             <div className="flex items-center gap-4 p-4 bg-vc-teal/5 border border-vc-teal/20 rounded-2xl animate-in fade-in slide-in-from-right-4 duration-700">
                                 <div className="w-10 h-10 rounded-xl bg-vc-teal/10 flex items-center justify-center text-vc-teal border border-vc-teal/20">
                                     <Shield className="w-5 h-5" />
@@ -2148,7 +2152,7 @@ function AdminDashboardContent() {
 
                     {/* Global Controls Row */}
                     <div className="flex flex-wrap items-center gap-4">
-                        {(isAdmin || isUltimateJudge) && activeTab === 'startups' && (
+                        {(isAdmin || isUltimateJudge) && (activeTab === 'startups' || activeTab === 'supervisor-view') && (
                             <div className="flex flex-wrap items-center gap-3 p-2 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md">
                                 {isAdmin && (
                                     <>
@@ -2200,7 +2204,7 @@ function AdminDashboardContent() {
 
 
                 {/* Filter Controls Row */}
-                {(activeTab === 'startups' || activeTab === 'ambassadors' || activeTab === 'outreach') && (
+                {(activeTab === 'startups' || activeTab === 'supervisor-view' || activeTab === 'ambassadors' || activeTab === 'outreach') && (
                     <div className="glass-panel p-6 mb-8 flex flex-wrap items-end gap-6">
                         <div className="flex-1 min-w-[300px]">
                             <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Search Records</label>
@@ -2208,15 +2212,15 @@ function AdminDashboardContent() {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                                 <input
                                     type="text"
-                                    placeholder={activeTab === 'startups' ? "Search startup applications..." : activeTab === 'outreach' ? "Search outreach participants..." : "Search ambassadors..."}
-                                    value={activeTab === 'startups' ? searchTerm : activeTab === 'outreach' ? outreachSearchTerm : ambSearchTerm}
-                                    onChange={(e) => activeTab === 'startups' ? setSearchTerm(e.target.value) : activeTab === 'outreach' ? setOutreachSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
+                                    placeholder={(activeTab === 'startups' || activeTab === 'supervisor-view') ? "Search startup applications..." : activeTab === 'outreach' ? "Search outreach participants..." : "Search ambassadors..."}
+                                    value={(activeTab === 'startups' || activeTab === 'supervisor-view') ? searchTerm : activeTab === 'outreach' ? outreachSearchTerm : ambSearchTerm}
+                                    onChange={(e) => (activeTab === 'startups' || activeTab === 'supervisor-view') ? setSearchTerm(e.target.value) : activeTab === 'outreach' ? setOutreachSearchTerm(e.target.value) : setAmbSearchTerm(e.target.value)}
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-vc-mint/50 transition-all font-medium"
                                 />
                             </div>
                         </div>
 
-                        {activeTab === 'startups' ? (
+                        {(activeTab === 'startups' || activeTab === 'supervisor-view') ? (
                             <>
                                 <div className="w-[200px]">
                                     <label className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2 block px-2">Pillar</label>
@@ -2285,7 +2289,7 @@ function AdminDashboardContent() {
 
                         <button
                             onClick={() => {
-                                if (activeTab === 'startups') {
+                                if (activeTab === 'startups' || activeTab === 'supervisor-view') {
                                     setSearchTerm('');
                                     setPillarFilter('all');
                                     setStatusFilter('all');
@@ -2910,10 +2914,10 @@ function AdminDashboardContent() {
 
 
 
-                    {(activeTab === 'startups' || activeTab === 'judges') && (
+                    {(activeTab === 'startups' || activeTab === 'supervisor-view' || activeTab === 'judges') && (
                         <div className="space-y-4">
                             {/* Team Roster for Judges/Supervisors */}
-                            {!!judgeTeam && !isAdmin && (
+                            {!!judgeTeam && (!isAdmin || activeTab === 'supervisor-view') && (
                                 <div className="mb-8 glass-panel p-6 border-vc-teal/20 bg-vc-teal/5 animate-in fade-in slide-in-from-top-4 duration-700">
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="w-10 h-10 rounded-xl bg-vc-teal/20 flex items-center justify-center text-vc-teal border border-vc-teal/20">

@@ -89,7 +89,7 @@ export default function Navbar() {
   }, []);
 
   const filteredNavItems = useMemo(() => {
-    if (isAdmin || isSuperAdmin) return navItems;
+    if (isSuperAdmin) return navItems;
 
     return navItems.map(item => {
       // If the main item is hidden
@@ -363,7 +363,31 @@ export default function Navbar() {
                             {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead) && (
                               <div className="mt-1 pt-1 border-t border-white/10">
                                 <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Management</p>
-                                {(isAdmin || isJudge) && (
+                                 {isAdmin && (
+                                  <Link
+                                    href="/admin"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <div className="w-1.5 h-1.5 bg-vc-mint rounded-full" />
+                                    </div>
+                                    Startup Applications
+                                  </Link>
+                                )}
+                                {isSupervisor && (
+                                  <Link
+                                    href="/admin?tab=supervisor-view"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <Shield size={14} className="text-vc-mint" />
+                                    </div>
+                                    Supervisor View
+                                  </Link>
+                                )}
+                                {isJudge && !isSupervisor && !isAdmin && (
                                   <Link
                                     href="/admin"
                                     onClick={() => setIsProfileOpen(false)}
@@ -569,7 +593,27 @@ export default function Navbar() {
 
                         {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead) && (
                           <>
-                            {(isAdmin || isJudge) && (
+                            {isAdmin && (
+                              <Link
+                                href="/admin"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Shield size={20} />
+                                Startup Applications
+                              </Link>
+                            )}
+                            {isSupervisor && (
+                              <Link
+                                href="/admin?tab=supervisor-view"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Shield size={20} />
+                                Supervisor View
+                              </Link>
+                            )}
+                            {isJudge && !isSupervisor && !isAdmin && (
                               <Link
                                 href="/admin"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
