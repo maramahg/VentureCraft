@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Shield, Hash, HelpCircle, ExternalLink, Edit2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, FileText, Video, Users, Rocket, Link as LinkIcon, AlertCircle, ChevronDown, Search, Globe, X, Clock, ShieldCheck, Shield, Hash, HelpCircle, ExternalLink, Edit2, Plane, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
@@ -15,6 +15,20 @@ import Navbar from '@/components/Navbar';
 
 import { countries } from '@/lib/countries';
 import { isValidUrl, isValidYoutubeUrl, isValidLinkedinUrl, isPersonalEmail } from '@/lib/utils';
+import {
+    cleanTravelAttendeeForSave,
+    createTravelAttendee,
+    createVisaDocumentFiles,
+    gccCountries,
+    gccResidencyOptions,
+    MAX_VISA_DOCUMENT_SIZE_BYTES,
+    normalizeTravelVisaInfo,
+    sixMonthsFromArrival,
+    travelVisaSchemaVersion,
+    type TravelAttendee,
+    type TravelAttendeeDocuments,
+    type VisaDocumentFiles
+} from '@/lib/travelVisa';
 
 function FlagDropdown({
     options,
@@ -236,6 +250,143 @@ function SimpleDropdown({
     );
 }
 
+function DatePicker({
+    value,
+    onChange,
+    error,
+    placeholder = 'Select date'
+}: {
+    value: string;
+    onChange: (val: string) => void;
+    error?: string;
+    placeholder?: string;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [visibleMonth, setVisibleMonth] = useState(() => {
+        if (value) {
+            const [year, month] = value.split('-').map(Number);
+            if (year && month) return new Date(year, month - 1, 1);
+        }
+        return new Date();
+    });
+    const pickerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (!value) return;
+        const [year, month] = value.split('-').map(Number);
+        if (year && month) setVisibleMonth(new Date(year, month - 1, 1));
+    }, [value]);
+
+    const selectedDate = value ? new Date(`${value}T00:00:00`) : null;
+    const monthLabel = visibleMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const firstDay = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
+    const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate();
+    const leadingBlanks = firstDay.getDay();
+    const cells = [
+        ...Array.from({ length: leadingBlanks }, () => null),
+        ...Array.from({ length: daysInMonth }, (_, index) => index + 1)
+    ];
+
+    const formatValue = (date: Date) => {
+        const year = date.getFullYear();
+        const month = `${date.getMonth() + 1}`.padStart(2, '0');
+        const day = `${date.getDate()}`.padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const displayValue = selectedDate
+        ? selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : placeholder;
+
+    const moveMonth = (delta: number) => {
+        setVisibleMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + delta, 1));
+    };
+
+    return (
+        <div className="relative w-full" ref={pickerRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-white/10 transition-all ${error ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+            >
+                <span className={`text-base ${value ? 'text-white' : 'text-white/40'}`}>{displayValue}</span>
+                <CalendarDays className="w-4 h-4 text-vc-mint shrink-0" />
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                        className="absolute z-50 mt-2 w-full min-w-[300px] rounded-2xl border border-vc-mint/20 bg-[#0c1e1c] p-4 shadow-2xl backdrop-blur-xl"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <button
+                                type="button"
+                                onClick={() => moveMonth(-1)}
+                                className="w-9 h-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-vc-mint hover:border-vc-mint/40 transition-all"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <p className="text-sm font-bold text-white uppercase tracking-widest">{monthLabel}</p>
+                            <button
+                                type="button"
+                                onClick={() => moveMonth(1)}
+                                className="w-9 h-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-vc-mint hover:border-vc-mint/40 transition-all"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1 mb-2">
+                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                                <div key={`${day}-${index}`} className="h-8 flex items-center justify-center text-[10px] font-black text-white/30 uppercase">
+                                    {day}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1">
+                            {cells.map((day, index) => {
+                                if (!day) return <div key={`blank-${index}`} className="h-9" />;
+
+                                const date = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day);
+                                const nextValue = formatValue(date);
+                                const isSelected = nextValue === value;
+
+                                return (
+                                    <button
+                                        key={nextValue}
+                                        type="button"
+                                        onClick={() => {
+                                            onChange(nextValue);
+                                            setIsOpen(false);
+                                        }}
+                                        className={`h-9 rounded-xl text-sm font-semibold transition-all ${isSelected ? 'bg-vc-mint text-[#001311] shadow-[0_0_18px_rgba(79,209,197,0.35)]' : 'text-white/70 hover:bg-vc-mint/10 hover:text-vc-mint'}`}
+                                    >
+                                        {day}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 const ApplyPageContent = () => {
     const [step, setStep] = useState(0); // 0 = Intro, 1-3 = Form
     const [isTermsOpen, setIsTermsOpen] = useState(false);
@@ -251,14 +402,18 @@ const ApplyPageContent = () => {
     const [regLoading, setRegLoading] = useState(true);
     const router = useRouter();
     const searchParams = useSearchParams();
+    const isLocalPreview =
+        process.env.NEXT_PUBLIC_ENABLE_FORM_PREVIEW === 'true' &&
+        searchParams.get('preview') === '1';
+    const canAccessRegistrationForm = isRegistrationOpen || isLocalPreview;
 
 
     // Force clear step parameter if registration is closed to show header
     useEffect(() => {
-        if (!regLoading && !isRegistrationOpen && searchParams.get('step')) {
+        if (!regLoading && !canAccessRegistrationForm && searchParams.get('step')) {
             router.replace('/apply', { scroll: false });
         }
-    }, [regLoading, isRegistrationOpen, searchParams, router]);
+    }, [regLoading, canAccessRegistrationForm, searchParams, router]);
 
     useEffect(() => {
         // Fetch or listen to global settings for registration status
@@ -300,6 +455,7 @@ const ApplyPageContent = () => {
         leaderNationality: 'Saudi Arabia',
         leaderLocation: 'Saudi Arabia',
         audienceCategory: '',
+        travelVisaInfo: normalizeTravelVisaInfo(null, [{ name: '', nationality: 'Saudi Arabia' }]),
 
         // Part 2
         startupName: '',
@@ -326,11 +482,13 @@ const ApplyPageContent = () => {
         execSummary: File | null;
         supportingData: File | null;
         eligibilityProof: File | null;
+        visaDocuments: VisaDocumentFiles[];
     }>({
         pitchDeck: null,
         execSummary: null,
         supportingData: null,
-        eligibilityProof: null
+        eligibilityProof: null,
+        visaDocuments: [createVisaDocumentFiles()]
     });
 
     // Sync URL to Step on mount/update (Moved after formData/files for visibility)
@@ -395,6 +553,7 @@ const ApplyPageContent = () => {
                         location: data.location || '',
                         teamSize: data.teamSize || 1,
                         teamMembers: data.teamMembers || [{ name: '', nationality: 'Saudi Arabia' }],
+                        travelVisaInfo: normalizeTravelVisaInfo(data.travelVisaInfo, data.teamMembers || [{ name: '', nationality: 'Saudi Arabia' }]),
                         leaderEmail: data.leaderEmail || '',
                         leaderPhoneNumber: data.leaderPhone?.split(' ')[1] || '',
                         leaderPhoneCode: data.leaderPhone?.split(' ')[0] || '+966',
@@ -415,6 +574,11 @@ const ApplyPageContent = () => {
                         referralAmbassadorId: data.referral?.ambassadorId || '',
                         referralAmbassadorName: data.referral?.ambassadorName || '',
                         agreedToTerms: true // They already agreed
+                    }));
+                    const savedTravelInfo = normalizeTravelVisaInfo(data.travelVisaInfo, data.teamMembers || [{ name: '', nationality: 'Saudi Arabia' }]);
+                    setFiles(prev => ({
+                        ...prev,
+                        visaDocuments: savedTravelInfo.attendees.map(() => createVisaDocumentFiles())
                     }));
                 }
             } catch (error) {
@@ -437,14 +601,14 @@ const ApplyPageContent = () => {
 
     // Sync step with URL for Navbar/Footer visibility
     useEffect(() => {
-        if (isRegistrationOpen) {
+        if (canAccessRegistrationForm) {
             if (step > 0) {
-                router.push(`/apply?step=${step}`, { scroll: false });
+                router.push(`/apply?step=${step}${isLocalPreview ? '&preview=1' : ''}`, { scroll: false });
             } else {
-                router.push('/apply', { scroll: false });
+                router.push(`/apply${isLocalPreview ? '?preview=1' : ''}`, { scroll: false });
             }
         }
-    }, [step, router, isRegistrationOpen]);
+    }, [step, router, canAccessRegistrationForm, isLocalPreview]);
 
     const handleTeamSizeChange = (size: number) => {
         const newSize = Math.max(1, size);
@@ -469,6 +633,64 @@ const ApplyPageContent = () => {
             teamMembers: newMembers,
             ...(index === 0 && field === 'nationality' ? { leaderNationality: value } : {})
         }));
+    };
+
+    const handleTravelAttendeeCountChange = (count: number) => {
+        const attendingCount = Math.max(1, count || 1);
+        setFormData(prev => {
+            const current = prev.travelVisaInfo.attendees || [];
+            const attendees = Array.from({ length: attendingCount }, (_, index) => ({
+                ...createTravelAttendee(prev.teamMembers[index]?.name || ''),
+                ...(current[index] || {}),
+                fullName: current[index]?.fullName || prev.teamMembers[index]?.name || ''
+            }));
+
+            return {
+                ...prev,
+                travelVisaInfo: {
+                    attendingCount,
+                    attendees
+                }
+            };
+        });
+
+        setFiles(prev => ({
+            ...prev,
+            visaDocuments: Array.from({ length: attendingCount }, (_, index) => prev.visaDocuments[index] || createVisaDocumentFiles())
+        }));
+    };
+
+    const handleTravelAttendeeChange = (index: number, field: keyof TravelAttendee, value: string) => {
+        setFormData(prev => {
+            const attendees = [...prev.travelVisaInfo.attendees];
+            attendees[index] = {
+                ...attendees[index],
+                [field]: value
+            };
+
+            return {
+                ...prev,
+                travelVisaInfo: {
+                    ...prev.travelVisaInfo,
+                    attendees
+                }
+            };
+        });
+    };
+
+    const handleVisaDocumentChange = (index: number, field: keyof VisaDocumentFiles, file: File | null) => {
+        setFiles(prev => {
+            const visaDocuments = [...prev.visaDocuments];
+            visaDocuments[index] = {
+                ...(visaDocuments[index] || createVisaDocumentFiles()),
+                [field]: file
+            };
+
+            return {
+                ...prev,
+                visaDocuments
+            };
+        });
     };
 
     const validateStep1 = () => {
@@ -503,6 +725,66 @@ const ApplyPageContent = () => {
             if (!m.name.trim()) {
                 newErrors[`member_${idx}`] = "Please provide name for this member.";
             }
+        });
+
+        const allowedVisaUpload = ['.pdf', '.jpg', '.jpeg', '.png'];
+        const allowedPhotoUpload = ['.jpg', '.jpeg', '.png'];
+        const maxVisaFileSize = MAX_VISA_DOCUMENT_SIZE_BYTES;
+        if (!formData.travelVisaInfo.attendingCount || formData.travelVisaInfo.attendingCount < 1) {
+            newErrors.travelAttendingCount = "Please enter how many team members will physically attend.";
+        }
+        formData.travelVisaInfo.attendees.forEach((attendee, idx) => {
+            const docs = attendee.documents || {};
+            const docFiles = files.visaDocuments[idx] || createVisaDocumentFiles();
+            const isGccCitizen = attendee.isGccCitizen === 'Yes';
+            const hasExisting = (key: keyof TravelAttendeeDocuments) => Boolean(docs[key]);
+            const fileExt = (file: File | null) => '.' + file?.name.split('.').pop()?.toLowerCase();
+            const validateFile = (file: File | null, key: string, allowed: string[], label: string) => {
+                if (!file) return;
+                if (!allowed.includes(fileExt(file))) {
+                    newErrors[key] = `${label} must be ${allowed.join(', ').replaceAll('.', '').toUpperCase()}.`;
+                } else if (file.size > maxVisaFileSize) {
+                    newErrors[key] = `${label} must be 5MB or smaller.`;
+                }
+            };
+
+            if (!attendee.fullName.trim()) newErrors[`travel_${idx}_fullName`] = "Please enter the attendee's full name.";
+            if (!attendee.dateOfBirth) newErrors[`travel_${idx}_dateOfBirth`] = "Please enter the attendee's date of birth.";
+            if (!attendee.nationalityPassport) newErrors[`travel_${idx}_nationalityPassport`] = "Please select the passport nationality.";
+            if (!attendee.currentResidence) newErrors[`travel_${idx}_currentResidence`] = "Please select current country of residence.";
+            if (!attendee.occupation.trim()) newErrors[`travel_${idx}_occupation`] = "Please enter occupation or job title.";
+            if (!attendee.sponsorshipStatus) newErrors[`travel_${idx}_sponsorshipStatus`] = "Please select sponsorship status.";
+            if (!attendee.isGccCitizen) newErrors[`travel_${idx}_isGccCitizen`] = "Please answer whether this attendee is a GCC citizen.";
+            if (!docFiles.personalPhoto && !hasExisting('personalPhotoUrl')) newErrors[`travel_${idx}_personalPhoto`] = "Please upload a personal photo.";
+            if (!attendee.email.trim()) newErrors[`travel_${idx}_email`] = "Please enter the attendee's email address.";
+            else if (!attendee.email.includes('@')) newErrors[`travel_${idx}_email`] = "Please enter a valid email address.";
+
+            if (isGccCitizen) {
+                if (!docFiles.nationalIdFront && !hasExisting('nationalIdFrontUrl')) newErrors[`travel_${idx}_nationalIdFront`] = "Please upload the national ID front side.";
+                if (!docFiles.nationalIdBack && !hasExisting('nationalIdBackUrl')) newErrors[`travel_${idx}_nationalIdBack`] = "Please upload the national ID back side.";
+            } else {
+                if (!docFiles.passportBioPage && !hasExisting('passportBioPageUrl')) newErrors[`travel_${idx}_passportBioPage`] = "Please upload the passport bio-data page.";
+                if (!attendee.passportNumber.trim()) newErrors[`travel_${idx}_passportNumber`] = "Please enter the passport number.";
+                if (!attendee.passportIssueDate) newErrors[`travel_${idx}_passportIssueDate`] = "Please enter the passport issue date.";
+                if (!attendee.passportExpiryDate) newErrors[`travel_${idx}_passportExpiryDate`] = "Please enter the passport expiry date.";
+                if (!attendee.passportBlankPages) newErrors[`travel_${idx}_passportBlankPages`] = "Please enter the number of blank passport pages.";
+                if (!attendee.hasSaudiVisa) newErrors[`travel_${idx}_hasSaudiVisa`] = "Please answer the Saudi visa question.";
+                if (!attendee.hasUsUkSchengenVisa) newErrors[`travel_${idx}_hasUsUkSchengenVisa`] = "Please answer the US/UK/Schengen visa question.";
+                if (!attendee.hasGccResidency) newErrors[`travel_${idx}_hasGccResidency`] = "Please answer the GCC residency question.";
+                if (attendee.hasGccResidency === 'Yes') {
+                    if (!attendee.gccResidencyCountry) newErrors[`travel_${idx}_gccResidencyCountry`] = "Please select the GCC residency country.";
+                    if (!attendee.gccResidencyExpiryDate) newErrors[`travel_${idx}_gccResidencyExpiryDate`] = "Please enter residency permit expiry date.";
+                    if (!docFiles.gccResidencyFront && !hasExisting('gccResidencyFrontUrl')) newErrors[`travel_${idx}_gccResidencyFront`] = "Please upload the residency permit front side.";
+                    if (!docFiles.gccResidencyBack && !hasExisting('gccResidencyBackUrl')) newErrors[`travel_${idx}_gccResidencyBack`] = "Please upload the residency permit back side.";
+                }
+            }
+
+            validateFile(docFiles.nationalIdFront, `travel_${idx}_nationalIdFront`, allowedVisaUpload, 'National ID front side');
+            validateFile(docFiles.nationalIdBack, `travel_${idx}_nationalIdBack`, allowedVisaUpload, 'National ID back side');
+            validateFile(docFiles.passportBioPage, `travel_${idx}_passportBioPage`, allowedVisaUpload, 'Passport bio-data page');
+            validateFile(docFiles.personalPhoto, `travel_${idx}_personalPhoto`, allowedPhotoUpload, 'Personal photo');
+            validateFile(docFiles.gccResidencyFront, `travel_${idx}_gccResidencyFront`, allowedVisaUpload, 'Residency permit front side');
+            validateFile(docFiles.gccResidencyBack, `travel_${idx}_gccResidencyBack`, allowedVisaUpload, 'Residency permit back side');
         });
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -651,6 +933,49 @@ const ApplyPageContent = () => {
                 uploadFile(files.eligibilityProof, 'eligibility_proofs')
             ]);
 
+            const travelAttendees = await Promise.all(formData.travelVisaInfo.attendees.map(async (attendee, index) => {
+                const docFiles = files.visaDocuments[index] || createVisaDocumentFiles();
+                const existingDocs = attendee.documents || {};
+                const uploadVisaDocument = (file: File | null, key: string) =>
+                    uploadFile(file, `visa_documents/attendee_${index + 1}/${key}`);
+
+                const [
+                    nationalIdFrontUrl,
+                    nationalIdBackUrl,
+                    passportBioPageUrl,
+                    personalPhotoUrl,
+                    gccResidencyFrontUrl,
+                    gccResidencyBackUrl
+                ] = await Promise.all([
+                    uploadVisaDocument(docFiles.nationalIdFront, 'national_id_front'),
+                    uploadVisaDocument(docFiles.nationalIdBack, 'national_id_back'),
+                    uploadVisaDocument(docFiles.passportBioPage, 'passport_bio_page'),
+                    uploadVisaDocument(docFiles.personalPhoto, 'personal_photo'),
+                    uploadVisaDocument(docFiles.gccResidencyFront, 'gcc_residency_front'),
+                    uploadVisaDocument(docFiles.gccResidencyBack, 'gcc_residency_back')
+                ]);
+
+                const documents: TravelAttendeeDocuments = {
+                    nationalIdFrontName: docFiles.nationalIdFront?.name || existingDocs.nationalIdFrontName || null,
+                    nationalIdFrontUrl: nationalIdFrontUrl || existingDocs.nationalIdFrontUrl || null,
+                    nationalIdBackName: docFiles.nationalIdBack?.name || existingDocs.nationalIdBackName || null,
+                    nationalIdBackUrl: nationalIdBackUrl || existingDocs.nationalIdBackUrl || null,
+                    passportBioPageName: docFiles.passportBioPage?.name || existingDocs.passportBioPageName || null,
+                    passportBioPageUrl: passportBioPageUrl || existingDocs.passportBioPageUrl || null,
+                    personalPhotoName: docFiles.personalPhoto?.name || existingDocs.personalPhotoName || null,
+                    personalPhotoUrl: personalPhotoUrl || existingDocs.personalPhotoUrl || null,
+                    gccResidencyFrontName: docFiles.gccResidencyFront?.name || existingDocs.gccResidencyFrontName || null,
+                    gccResidencyFrontUrl: gccResidencyFrontUrl || existingDocs.gccResidencyFrontUrl || null,
+                    gccResidencyBackName: docFiles.gccResidencyBack?.name || existingDocs.gccResidencyBackName || null,
+                    gccResidencyBackUrl: gccResidencyBackUrl || existingDocs.gccResidencyBackUrl || null,
+                };
+
+                return cleanTravelAttendeeForSave({
+                    ...attendee,
+                    documents
+                }, index);
+            }));
+
             const combinedPhone = `${formData.leaderPhoneCode} ${formData.leaderPhoneNumber}`;
             const applicationRef = doc(db, 'applications', user.uid);
 
@@ -698,6 +1023,12 @@ const ApplyPageContent = () => {
                 leaderPhone: combinedPhone,
                 leaderNationality: formData.leaderNationality,
                 leaderLocation: formData.leaderLocation,
+                travelVisaInfo: {
+                    schemaVersion: travelVisaSchemaVersion,
+                    attendingCount: formData.travelVisaInfo.attendingCount,
+                    sponsorshipReviewRequired: travelAttendees.filter(attendee => attendee.sponsorshipStatus === 'Sponsored').length > 2,
+                    attendees: travelAttendees
+                },
 
                 // Details
                 pillar: formData.pillar,
@@ -1133,6 +1464,55 @@ const ApplyPageContent = () => {
         { title: 'Conflict of Interest', detail: 'Teams must disclose any existing mentor, investor, or organizational relationships with judges or organizers.', reason: 'Ensures impartial evaluation.' },
     ];
 
+    const renderTravelError = (key: string) => (
+        errors[key] ? <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors[key]}</p> : null
+    );
+
+    const renderTravelWarning = (message: string) => (
+        <p className="text-xs text-orange-400 mt-1 ml-1 font-medium">{message}</p>
+    );
+
+    const renderVisaUpload = (
+        attendeeIndex: number,
+        field: keyof VisaDocumentFiles,
+        label: string,
+        helper: string,
+        existingName?: string | null,
+        accept = '.pdf,.jpg,.jpeg,.png'
+    ) => {
+        const selectedFile = files.visaDocuments[attendeeIndex]?.[field];
+        const errorKey = `travel_${attendeeIndex}_${field}`;
+
+        return (
+            <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                    {label} <span className="text-vc-mint">*</span>
+                </label>
+                <div className="relative group">
+                    <input
+                        type="file"
+                        accept={accept}
+                        onChange={(e) => {
+                            handleVisaDocumentChange(attendeeIndex, field, e.target.files?.[0] || null);
+                            if (errors[errorKey]) setErrors(prev => ({ ...prev, [errorKey]: '' }));
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className={`p-5 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${selectedFile ? 'border-vc-mint bg-vc-mint/5' : existingName ? 'border-vc-mint/50 bg-vc-mint/5' : errors[errorKey] ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
+                        <FileText className={`w-5 h-5 ${selectedFile || existingName ? 'text-vc-mint' : errors[errorKey] ? 'text-red-500' : 'text-white/20'}`} />
+                        <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">
+                                {selectedFile ? selectedFile.name : existingName ? `On File: ${existingName}` : `Upload ${label}`}
+                            </p>
+                            <p className="text-xs text-white/40">{selectedFile || existingName ? 'Click to replace file' : helper}</p>
+                        </div>
+                    </div>
+                </div>
+                {renderTravelError(errorKey)}
+            </div>
+        );
+    };
+
     if (authLoading || regLoading) {
         return (
             <div className="min-h-screen bg-[#001311] flex flex-col items-center justify-center gap-4">
@@ -1144,7 +1524,7 @@ const ApplyPageContent = () => {
 
     if (!user) return null; // Prevent flicker before redirect
 
-    if (!isRegistrationOpen && !regLoading) {
+    if (!canAccessRegistrationForm && !regLoading) {
         return (
             <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-20 md:pt-32">
                 {/* Background Orbs */}
@@ -1245,6 +1625,20 @@ const ApplyPageContent = () => {
                             <span className="border-b border-transparent group-hover:border-vc-mint/40 py-0.5 transition-all">Check Application FAQ</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
+
+                        {process.env.NEXT_PUBLIC_ENABLE_FORM_PREVIEW === 'true' && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    router.push('/apply?preview=1');
+                                    setStep(0);
+                                }}
+                                className="mt-2 inline-flex items-center gap-2 rounded-xl border border-vc-mint/30 bg-vc-mint/10 px-5 py-3 text-sm font-bold uppercase tracking-wider text-vc-mint transition-all hover:bg-vc-mint hover:text-[#001311]"
+                            >
+                                Preview Form Locally
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        )}
                     </motion.div>
 
                     {/* Decorative Grid */}
@@ -1284,6 +1678,11 @@ const ApplyPageContent = () => {
                 )}
 
                 <div className="text-center mb-12">
+                    {isLocalPreview && (
+                        <div className="mx-auto mb-6 max-w-2xl rounded-2xl border border-vc-mint/30 bg-vc-mint/10 px-4 py-3 text-sm font-semibold text-vc-mint">
+                            Local preview mode is on. You can inspect the form UI, but submission remains blocked while registration is closed.
+                        </div>
+                    )}
                     <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-4 tracking-tight">
                         Application Form
                     </h1>
@@ -1434,7 +1833,7 @@ const ApplyPageContent = () => {
                                             <span>
                                                 {isEditMode
                                                     ? (isEditingAllowed ? 'Update Submission' : 'Submission Locked')
-                                                    : (isRegistrationOpen ? 'Start Application' : 'Registration Closed')
+                                                    : (canAccessRegistrationForm ? 'Start Application' : 'Registration Closed')
                                                 }
                                             </span>
                                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -1640,6 +2039,344 @@ const ApplyPageContent = () => {
                                             )}
                                         </div>
                                     ))}
+                                </div>
+
+                                <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10 mt-12">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-vc-mint flex items-center gap-2">
+                                            <Plane className="w-5 h-5" />
+                                            Travel & Visa Information
+                                        </h3>
+                                        <p className="text-sm text-white/50 mt-3 leading-relaxed">
+                                            Sponsorship only covers travel for a maximum of 2 members per startup. Every team member who plans to physically attend must complete this section individually.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-4 max-w-md">
+                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                            How many members will physically attend? <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={formData.travelVisaInfo.attendingCount}
+                                            onChange={(e) => {
+                                                handleTravelAttendeeCountChange(parseInt(e.target.value));
+                                                if (errors.travelAttendingCount) setErrors(prev => ({ ...prev, travelAttendingCount: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.travelAttendingCount ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                        />
+                                        {renderTravelError('travelAttendingCount')}
+                                        <p className="text-xs text-white/40">You may list more than 2 attendees. Only the first 2 sponsored attendees are covered.</p>
+                                    </div>
+
+                                    {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length > 2 && (
+                                        <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm leading-relaxed">
+                                            More than 2 attendees are marked Sponsored. Logistics/admin should review sponsorship assignment; additional attendees may attend at their own expense.
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-8">
+                                        {formData.travelVisaInfo.attendees.map((attendee, attendeeIndex) => {
+                                            const isGccCitizen = attendee.isGccCitizen === 'Yes';
+                                            const docs = attendee.documents || {};
+                                            const passportExpiryWarning = !isGccCitizen && attendee.passportExpiryDate && attendee.passportExpiryDate < sixMonthsFromArrival;
+                                            const blankPagesWarning = !isGccCitizen && attendee.passportBlankPages && Number(attendee.passportBlankPages) < 2;
+
+                                            return (
+                                                <div key={attendeeIndex} className="p-5 md:p-6 rounded-2xl border border-white/10 bg-[#001311]/30 space-y-6">
+                                                    <div className="flex items-center justify-between gap-4">
+                                                        <h4 className="text-lg font-bold text-white">Attendee {attendeeIndex + 1}</h4>
+                                                        <span className="text-xs text-vc-mint/70 font-bold uppercase tracking-widest">
+                                                            {attendee.sponsorshipStatus || 'Status pending'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Full Name <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.fullName}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'fullName', e.target.value)}
+                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_fullName`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                placeholder="Must match passport or national ID exactly"
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_fullName`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Date of Birth <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <DatePicker
+                                                                value={attendee.dateOfBirth}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'dateOfBirth', val)}
+                                                                error={errors[`travel_${attendeeIndex}_dateOfBirth`]}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_dateOfBirth`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <FlagDropdown
+                                                                options={countries}
+                                                                value={attendee.nationalityPassport}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'nationalityPassport', val)}
+                                                                label="Nationality (Passport) *"
+                                                                description="If holding more than one passport, select the one this attendee will travel on."
+                                                                type="country"
+                                                                error={errors[`travel_${attendeeIndex}_nationalityPassport`]}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_nationalityPassport`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <FlagDropdown
+                                                                options={countries}
+                                                                value={attendee.currentResidence}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'currentResidence', val)}
+                                                                label="Current Country of Residence *"
+                                                                type="country"
+                                                                error={errors[`travel_${attendeeIndex}_currentResidence`]}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_currentResidence`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Occupation / Job Title <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.occupation}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'occupation', e.target.value)}
+                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_occupation`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                placeholder="Founder, Researcher, Student, etc."
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_occupation`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <SimpleDropdown
+                                                                options={['Sponsored', 'Self-funded']}
+                                                                value={attendee.sponsorshipStatus}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'sponsorshipStatus', val)}
+                                                                label="Sponsorship Status *"
+                                                                placeholder="Select sponsorship status"
+                                                                error={errors[`travel_${attendeeIndex}_sponsorshipStatus`]}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_sponsorshipStatus`)}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                            Are you a citizen of a GCC country? <span className="text-vc-mint">*</span>
+                                                        </label>
+                                                        <div className="flex gap-3">
+                                                            {['Yes', 'No'].map((opt) => (
+                                                                <button
+                                                                    key={opt}
+                                                                    type="button"
+                                                                    onClick={() => handleTravelAttendeeChange(attendeeIndex, 'isGccCitizen', opt)}
+                                                                    className={`px-6 py-3 rounded-xl border transition-all ${attendee.isGccCitizen === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                                                >
+                                                                    {opt}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <p className="text-xs text-white/40">GCC citizens are nationals of Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, or UAE.</p>
+                                                        {renderTravelError(`travel_${attendeeIndex}_isGccCitizen`)}
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        {isGccCitizen ? (
+                                                            <>
+                                                                {renderVisaUpload(attendeeIndex, 'nationalIdFront', 'National ID - Front Side', 'JPG, PNG, or PDF up to 5MB', docs.nationalIdFrontName)}
+                                                                {renderVisaUpload(attendeeIndex, 'nationalIdBack', 'National ID - Back Side', 'JPG, PNG, or PDF up to 5MB', docs.nationalIdBackName)}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                {renderVisaUpload(attendeeIndex, 'passportBioPage', 'Passport Bio-Data Page', 'Single page with photo and personal details, JPG/PNG/PDF up to 5MB', docs.passportBioPageName)}
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Passport Number <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={attendee.passportNumber}
+                                                                        onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportNumber', e.target.value)}
+                                                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportNumber`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportNumber`)}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Passport Issue Date <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <DatePicker
+                                                                        value={attendee.passportIssueDate}
+                                                                        onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportIssueDate', val)}
+                                                                        error={errors[`travel_${attendeeIndex}_passportIssueDate`]}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportIssueDate`)}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Passport Expiry Date <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <DatePicker
+                                                                        value={attendee.passportExpiryDate}
+                                                                        onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportExpiryDate', val)}
+                                                                        error={errors[`travel_${attendeeIndex}_passportExpiryDate`]}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportExpiryDate`)}
+                                                                    {passportExpiryWarning && renderTravelWarning('Your passport may not be valid for travel. Most visas require at least 6 months validity from the date of arrival.')}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Number of Blank Passport Pages <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        value={attendee.passportBlankPages}
+                                                                        onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportBlankPages', e.target.value)}
+                                                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportBlankPages`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportBlankPages`)}
+                                                                    {blankPagesWarning && renderTravelWarning('At least 2 blank passport pages are required for a Saudi visa.')}
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        {renderVisaUpload(attendeeIndex, 'personalPhoto', 'Personal Photo', 'White background, face centred, taken within the last 6 months. JPG/PNG only, up to 5MB.', docs.personalPhotoName, '.jpg,.jpeg,.png')}
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Email Address <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <input
+                                                                type="email"
+                                                                value={attendee.email}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'email', e.target.value)}
+                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_email`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                placeholder="Visa approval document will be sent here"
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_email`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Departure City / Country</label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.departureCityCountry}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'departureCityCountry', e.target.value)}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                                placeholder="Optional"
+                                                            />
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Intended Airline</label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.intendedAirline}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'intendedAirline', e.target.value)}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                                placeholder="e.g. Saudia, Flynas, Emirates, etc."
+                                                            />
+                                                            <p className="text-xs text-white/40">Some visa pathways only work when flying Saudia, Flynas, or Flyadeal.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {!isGccCitizen && (
+                                                        <div className="space-y-6 pt-2">
+                                                            <div className="p-4 rounded-xl bg-vc-mint/10 border border-vc-mint/20 text-sm text-white/70 leading-relaxed">
+                                                                These questions can unlock faster or cheaper visa pathways. Please do not skip them.
+                                                            </div>
+
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                <SimpleDropdown
+                                                                    options={['Yes', 'No']}
+                                                                    value={attendee.hasSaudiVisa}
+                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasSaudiVisa', val)}
+                                                                    label="Do you currently hold a valid Saudi eVisa or visit visa? *"
+                                                                    placeholder="Select"
+                                                                    error={errors[`travel_${attendeeIndex}_hasSaudiVisa`]}
+                                                                />
+                                                                <SimpleDropdown
+                                                                    options={['Yes', 'No']}
+                                                                    value={attendee.hasUsUkSchengenVisa}
+                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasUsUkSchengenVisa', val)}
+                                                                    label="Do you hold a valid US, UK, or Schengen visa or residence permit? *"
+                                                                    placeholder="Select"
+                                                                    error={errors[`travel_${attendeeIndex}_hasUsUkSchengenVisa`]}
+                                                                />
+                                                            </div>
+
+                                                            {attendee.hasSaudiVisa === 'Yes' && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <SimpleDropdown options={['eVisa', 'Embassy visit visa', 'Other']} value={attendee.saudiVisaType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaType', val)} label="Saudi Visa Type" placeholder="Select type" />
+                                                                    <SimpleDropdown options={['Single', 'Multiple']} value={attendee.saudiVisaEntryType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaEntryType', val)} label="Single or Multiple Entry?" placeholder="Select" />
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Issue Date</label>
+                                                                        <DatePicker value={attendee.saudiVisaIssueDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaIssueDate', val)} />
+                                                                    </div>
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
+                                                                        <DatePicker value={attendee.saudiVisaExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaExpiryDate', val)} />
+                                                                    </div>
+                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.saudiVisaUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaUsedBefore', val)} label="Used it to enter KSA before?" placeholder="Select" />
+                                                                </div>
+                                                            )}
+
+                                                            {attendee.hasUsUkSchengenVisa === 'Yes' && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <SimpleDropdown options={['US', 'UK', 'Schengen']} value={attendee.usUkSchengenType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenType', val)} label="Which one?" placeholder="Select" />
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
+                                                                        <DatePicker value={attendee.usUkSchengenExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenExpiryDate', val)} />
+                                                                    </div>
+                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.usUkSchengenUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenUsedBefore', val)} label="Used it to travel to that country?" placeholder="Select" />
+                                                                </div>
+                                                            )}
+
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                <SimpleDropdown
+                                                                    options={['Yes', 'No']}
+                                                                    value={attendee.hasGccResidency}
+                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasGccResidency', val)}
+                                                                    label="Do you currently hold a GCC residency permit (iqama)? *"
+                                                                    placeholder="Select"
+                                                                    error={errors[`travel_${attendeeIndex}_hasGccResidency`]}
+                                                                />
+                                                            </div>
+
+                                                            {attendee.hasGccResidency === 'Yes' && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <SimpleDropdown options={gccResidencyOptions} value={attendee.gccResidencyCountry} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyCountry', val)} label="Which GCC Country? *" placeholder="Select country" error={errors[`travel_${attendeeIndex}_gccResidencyCountry`]} />
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Residency Permit Expiry Date <span className="text-vc-mint">*</span></label>
+                                                                        <DatePicker value={attendee.gccResidencyExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyExpiryDate', val)} error={errors[`travel_${attendeeIndex}_gccResidencyExpiryDate`]} />
+                                                                        {renderTravelError(`travel_${attendeeIndex}_gccResidencyExpiryDate`)}
+                                                                    </div>
+                                                                    {renderVisaUpload(attendeeIndex, 'gccResidencyFront', 'Residency Permit (Iqama) - Front Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyFrontName)}
+                                                                    {renderVisaUpload(attendeeIndex, 'gccResidencyBack', 'Residency Permit (Iqama) - Back Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyBackName)}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">

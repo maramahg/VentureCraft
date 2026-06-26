@@ -8,7 +8,7 @@ import {
     Phone, Globe, Linkedin, Video, ArrowLeft, MapPin,
     Check, X, AlertCircle, Shield, FileText, FileCode, Edit2, History, UserMinus,
     User, Link as LinkIcon, Share2, ExternalLink, GraduationCap, WifiOff, QrCode, Download, MoreVertical, Calendar, Hash, Trash2, Trophy, Star, CircleDollarSign, Loader2, FileSpreadsheet, BarChart, BarChart3, Paperclip, CheckCircle2,
-    AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, RotateCcw, Bell, Layout
+    AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, RotateCcw, Bell, Layout, Plane
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { QRCodeSVG } from 'qrcode.react';
@@ -19,6 +19,13 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { countries as countriesList } from '@/lib/countries';
+import {
+    countPassportWarningAttendees,
+    countSponsoredAttendees,
+    type SavedTravelAttendee,
+    type TravelAttendeeDocuments,
+    type TravelVisaInfo
+} from '@/lib/travelVisa';
 
 interface Application {
     id: string;
@@ -59,6 +66,7 @@ interface Application {
         ageConfirmed: boolean;
         educationConfirmed: boolean;
     };
+    travelVisaInfo?: TravelVisaInfo;
     screening?: {
         round1?: {
             scores: {
@@ -97,6 +105,20 @@ interface Application {
         ambassadorName?: string | null;
     };
 }
+
+type TravelDocumentLink = {
+    label: string;
+    url: string;
+};
+
+const getTravelDocumentLinks = (documents: TravelAttendeeDocuments = {}): TravelDocumentLink[] => [
+    { label: 'Personal Photo', url: documents.personalPhotoUrl },
+    { label: 'Passport Bio Page', url: documents.passportBioPageUrl },
+    { label: 'National ID Front', url: documents.nationalIdFrontUrl },
+    { label: 'National ID Back', url: documents.nationalIdBackUrl },
+    { label: 'GCC Residency Front', url: documents.gccResidencyFrontUrl },
+    { label: 'GCC Residency Back', url: documents.gccResidencyBackUrl }
+].filter((doc): doc is TravelDocumentLink => Boolean(doc.url));
 
 const RUBRICS = [
     {
@@ -3057,7 +3079,12 @@ function AdminDashboardContent() {
                                             'Executive Summary': app.materials?.execSummaryUrl || 'N/A',
                                             'Supporting Data': app.materials?.supportingDataUrl || 'N/A',
                                             'Audience Category': app.audienceCategory || 'N/A',
-                                            'COI Declaration': app.coiDeclaration || 'N/A'
+                                            'COI Declaration': app.coiDeclaration || 'N/A',
+                                            'Travel Attendees': app.travelVisaInfo?.attendingCount || 0,
+                                            'Sponsored Attendees': countSponsoredAttendees(app.travelVisaInfo),
+                                            'Sponsorship Review Required': app.travelVisaInfo?.sponsorshipReviewRequired ? 'Yes' : 'No',
+                                            'Visa Passport Warnings': countPassportWarningAttendees(app.travelVisaInfo),
+                                            'Travel Visa Data': app.travelVisaInfo ? JSON.stringify(app.travelVisaInfo) : 'N/A'
                                         }));
                                         exportToExcel(exportData, 'Startup_Applications');
                                     }}
@@ -3750,6 +3777,135 @@ function AdminDashboardContent() {
                                                         </div>
                                                     </div>
                                                 </section>
+
+                                                {selectedApp.travelVisaInfo?.attendees?.length ? (
+                                                    <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
+                                                        <h3 className="text-vc-mint font-bold uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                                            <Plane className="w-4 h-4" /> Travel & Visa Information
+                                                        </h3>
+
+                                                        <div className="grid md:grid-cols-3 gap-3 mb-8">
+                                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">Physical Attendees</p>
+                                                                <p className="text-2xl font-bold text-white">{selectedApp.travelVisaInfo.attendingCount || selectedApp.travelVisaInfo.attendees.length}</p>
+                                                            </div>
+                                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">Sponsored Attendees</p>
+                                                                <p className="text-2xl font-bold text-white">
+                                                                    {countSponsoredAttendees(selectedApp.travelVisaInfo)}
+                                                                </p>
+                                                            </div>
+                                                            <div className={`p-4 rounded-2xl border ${selectedApp.travelVisaInfo.sponsorshipReviewRequired ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
+                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">Sponsorship Review</p>
+                                                                <p className={`text-sm font-bold ${selectedApp.travelVisaInfo.sponsorshipReviewRequired ? 'text-yellow-300' : 'text-vc-mint'}`}>
+                                                                    {selectedApp.travelVisaInfo.sponsorshipReviewRequired ? 'Required' : 'Not Required'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-4">
+                                                            {selectedApp.travelVisaInfo.attendees.map((attendee: SavedTravelAttendee, index: number) => {
+                                                                const documentLinks = getTravelDocumentLinks(attendee.documents);
+                                                                const hasWarnings = attendee.warnings?.passportExpiryUnderSixMonthsFromArrival || attendee.warnings?.blankPassportPagesUnderTwo;
+
+                                                                return (
+                                                                    <div key={attendee.attendeeNumber || index} className="p-4 md:p-5 rounded-2xl bg-white/5 border border-white/5 space-y-5">
+                                                                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                                                                            <div className="min-w-0">
+                                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">Attendee {attendee.attendeeNumber || index + 1}</p>
+                                                                                <h4 className="text-lg font-bold text-white truncate">{isAdmin ? attendee.fullName : 'Hidden Attendee'}</h4>
+                                                                                <p className="text-xs text-white/40 mt-1">{attendee.isGccCitizen ? 'GCC citizen' : 'Non-GCC passport holder'} | {attendee.sponsorshipStatus || 'Sponsorship not set'}</p>
+                                                                            </div>
+                                                                            {hasWarnings && (
+                                                                                <div className="flex flex-wrap gap-2">
+                                                                                    {attendee.warnings?.passportExpiryUnderSixMonthsFromArrival && (
+                                                                                        <span className="px-2.5 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-[10px] font-bold uppercase tracking-wider">
+                                                                                            Passport expiry warning
+                                                                                        </span>
+                                                                                    )}
+                                                                                    {attendee.warnings?.blankPassportPagesUnderTwo && (
+                                                                                        <span className="px-2.5 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-[10px] font-bold uppercase tracking-wider">
+                                                                                            Blank pages warning
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+
+                                                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                                            {[
+                                                                                ['Date of Birth', attendee.dateOfBirth],
+                                                                                ['Nationality / Passport', attendee.nationalityPassport],
+                                                                                ['Residence', attendee.currentResidence],
+                                                                                ['Occupation', attendee.occupation],
+                                                                                ['Email', isAdmin ? attendee.email : 'Hidden'],
+                                                                                ['Departure', attendee.flightDetails?.departureCityCountry || 'N/A'],
+                                                                                ['Airline', attendee.flightDetails?.intendedAirline || 'N/A']
+                                                                            ].map(([label, value]) => (
+                                                                                <div key={label} className="space-y-1 min-w-0">
+                                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">{label}</p>
+                                                                                    <p className="text-sm font-medium text-white/80 truncate">{value || 'N/A'}</p>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+
+                                                                        {!attendee.isGccCitizen && (
+                                                                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-white/5">
+                                                                                {[
+                                                                                    ['Passport Number', attendee.passportDetails?.passportNumber],
+                                                                                    ['Issue Date', attendee.passportDetails?.issueDate],
+                                                                                    ['Expiry Date', attendee.passportDetails?.expiryDate],
+                                                                                    ['Blank Pages', attendee.passportDetails?.blankPages?.toString?.()]
+                                                                                ].map(([label, value]) => (
+                                                                                    <div key={label} className="space-y-1 min-w-0">
+                                                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">{label}</p>
+                                                                                        <p className="text-sm font-medium text-white/80 truncate">{isAdmin ? (value || 'N/A') : 'Hidden'}</p>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+
+                                                                        {!attendee.isGccCitizen && (
+                                                                            <div className="grid md:grid-cols-3 gap-3 pt-4 border-t border-white/5">
+                                                                                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Saudi Visa</p>
+                                                                                    <p className="text-xs text-white/70">{attendee.existingSaudiVisa?.hasVisa ? `${attendee.existingSaudiVisa.visaType || 'Visa'} | expires ${attendee.existingSaudiVisa.expiryDate || 'N/A'}` : 'No'}</p>
+                                                                                </div>
+                                                                                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">US / UK / Schengen</p>
+                                                                                    <p className="text-xs text-white/70">{attendee.usUkSchengenVisaOrResidence?.hasVisaOrResidence ? `${attendee.usUkSchengenVisaOrResidence.type || 'Yes'} | expires ${attendee.usUkSchengenVisaOrResidence.expiryDate || 'N/A'}` : 'No'}</p>
+                                                                                </div>
+                                                                                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                                                                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">GCC Residency</p>
+                                                                                    <p className="text-xs text-white/70">{attendee.gccResidency?.hasResidency ? `${attendee.gccResidency.country || 'Yes'} | expires ${attendee.gccResidency.expiryDate || 'N/A'}` : 'No'}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {documentLinks.length > 0 && (
+                                                                            <div className="pt-4 border-t border-white/5">
+                                                                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3">Uploaded Documents</p>
+                                                                                <div className="flex flex-wrap gap-2">
+                                                                                    {documentLinks.map(doc => (
+                                                                                        isAdmin ? (
+                                                                                            <a key={doc.label} href={doc.url} target="_blank" className="inline-flex items-center gap-2 px-3 py-2 bg-vc-mint/10 border border-vc-mint/20 text-vc-mint rounded-xl hover:bg-vc-mint hover:text-black transition-all text-xs font-bold">
+                                                                                                <Paperclip className="w-3.5 h-3.5" /> {doc.label}
+                                                                                            </a>
+                                                                                        ) : (
+                                                                                            <span key={doc.label} className="inline-flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/5 text-white/40 rounded-xl text-xs font-bold">
+                                                                                                <Paperclip className="w-3.5 h-3.5" /> Hidden Document
+                                                                                            </span>
+                                                                                        )
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </section>
+                                                ) : null}
 
                                                 {/* Context & Disclosure */}
                                                 <section className="bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[2rem] p-4 md:p-8">
