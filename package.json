@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test --headed --workers=1",
-    "test:e2e:ci": "playwright test",
-    "test:e2e:debug": "playwright test --debug --workers=1"
+    "test:e2e": "playwright test --debug --workers=1",
+    "test:e2e:headed": "playwright test --headed --workers=1",
+    "test:e2e:ci": "playwright test"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",

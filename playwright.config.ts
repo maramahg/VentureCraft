@@ -14,7 +14,7 @@ function loadLocalEnvFile(fileName: string) {
         const separatorIndex = trimmed.indexOf('=');
         if (separatorIndex === -1) continue;
 
-        const key = trimmed.slice(0, separatorIndex).trim();
+        const key = trimmed.slice(0, separatorIndex).trim().replace(/^\$env:/, '');
         const value = trimmed.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, '');
         if (key && process.env[key] === undefined) {
             process.env[key] = value;
@@ -38,6 +38,9 @@ export default defineConfig({
     reporter: [['list'], ['html', { open: 'never' }]],
     use: {
         baseURL,
+        launchOptions: {
+            slowMo: Number(process.env.PLAYWRIGHT_SLOW_MO || 250)
+        },
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure'

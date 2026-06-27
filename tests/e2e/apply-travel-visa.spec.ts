@@ -23,7 +23,7 @@ function getRequiredTestCredentials() {
         throw new Error(
             [
                 'Missing Playwright test credentials.',
-                'Set them in PowerShell before running the test:',
+                'Set them in PowerShell before running the test, or add E2E_USER_EMAIL and E2E_USER_PASSWORD to .env.local:',
                 '$env:E2E_USER_EMAIL="your-test-user@email.com"',
                 '$env:E2E_USER_PASSWORD="your-test-password"',
                 'npm run test:e2e'
