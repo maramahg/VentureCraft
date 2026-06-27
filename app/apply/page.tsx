@@ -2459,6 +2459,7 @@ const ApplyPageContent = () => {
                                         </label>
                                         <input
                                             type="text"
+                                            data-testid="startup-name"
                                             value={formData.startupName}
                                             onChange={(e) => {
                                                 setFormData({ ...formData, startupName: e.target.value });
@@ -2476,6 +2477,7 @@ const ApplyPageContent = () => {
                                         </label>
                                         <input
                                             type="text"
+                                            data-testid="startup-location"
                                             value={formData.location}
                                             onChange={(e) => {
                                                 setFormData({ ...formData, location: e.target.value });
@@ -2615,6 +2617,7 @@ const ApplyPageContent = () => {
                                         </button>
                                         <button
                                             onClick={nextStep}
+                                            data-testid="step-2-next"
                                             className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
                                         >
                                             <span>Next Step</span>
@@ -2654,6 +2657,7 @@ const ApplyPageContent = () => {
                                             <div className="relative group">
                                                 <input
                                                     type="file"
+                                                    data-testid="pitch-deck-upload"
                                                     accept=".pdf,.pptx,.ppt"
                                                     onChange={(e) => {
                                                         setFiles({ ...files, pitchDeck: e.target.files?.[0] || null });
@@ -2689,6 +2693,7 @@ const ApplyPageContent = () => {
                                             <div className="relative group">
                                                 <input
                                                     type="file"
+                                                    data-testid="exec-summary-upload"
                                                     accept=".pdf,.docx,.doc"
                                                     onChange={(e) => {
                                                         setFiles({ ...files, execSummary: e.target.files?.[0] || null });
@@ -2725,6 +2730,7 @@ const ApplyPageContent = () => {
                                         </label>
                                         <input
                                             type="url"
+                                            data-testid="video-pitch-url"
                                             value={formData.videoPitchUrl}
                                             onChange={(e) => {
                                                 setFormData({ ...formData, videoPitchUrl: e.target.value });
@@ -2839,6 +2845,7 @@ const ApplyPageContent = () => {
                                             <input
                                                 type="checkbox"
                                                 id="final-agreement"
+                                                data-testid="final-agreement"
                                                 checked={formData.agreedToTerms}
                                                 onChange={(e) => {
                                                     setFormData({ ...formData, agreedToTerms: e.target.checked });
@@ -2861,6 +2868,7 @@ const ApplyPageContent = () => {
                                         <button
                                             onClick={handleSubmit}
                                             disabled={loading}
+                                            data-testid="submit-application"
                                             className="btn-primary flex items-center gap-2 !px-12 !py-4 !rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-vc-mint/20 transition-all active:scale-95"
                                         >
                                             {loading ? (

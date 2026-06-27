@@ -1,7 +1,44 @@
 import { expect, test, type Page } from '@playwright/test';
+import * as admin from 'firebase-admin';
 
 const testUserEmail = process.env.E2E_USER_EMAIL;
 const testUserPassword = process.env.E2E_USER_PASSWORD;
+const e2eStartupName = `E2E Visa Save ${Date.now()}`;
+
+function getAdminApp() {
+    if (admin.apps.length) return admin.app();
+
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+    if (!projectId || !clientEmail || !privateKey) {
+        throw new Error('Missing Firebase Admin credentials. Set NEXT_PUBLIC_FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.');
+    }
+
+    return admin.initializeApp({
+        credential: admin.credential.cert({ projectId, clientEmail, privateKey })
+    });
+}
+
+async function ensureRegistrationOpen() {
+    const db = getAdminApp().firestore();
+    await Promise.all([
+        db.doc('settings/registration').set({ isOpen: true, isAllowed: true }, { merge: true }),
+        db.doc('settings/editing').set({ isOpen: true, isAllowed: true }, { merge: true })
+    ]);
+}
+
+async function getApplicationForTestUser() {
+    const app = getAdminApp();
+    const user = await app.auth().getUserByEmail(getRequiredTestCredentials().email);
+    const snapshot = await app.firestore().doc(`applications/${user.uid}`).get();
+    return {
+        uid: user.uid,
+        exists: snapshot.exists,
+        data: snapshot.data()
+    };
+}
 
 const samplePdf = {
     name: 'eligibility-proof.pdf',
@@ -52,7 +89,11 @@ async function chooseFirstAvailableCalendarDay(page: Page) {
 }
 
 test.describe('application travel and visa flow', () => {
-    test('fills GCC attendee travel details and advances from step 1', async ({ page }) => {
+    test.beforeAll(async () => {
+        await ensureRegistrationOpen();
+    });
+
+    test('submits GCC attendee travel details and verifies Firestore save', async ({ page }) => {
         const credentials = getRequiredTestCredentials();
 
         await signIn(page);
@@ -86,5 +127,54 @@ test.describe('application travel and visa flow', () => {
 
         await page.getByTestId('step-1-next').click();
         await expect(page.getByText('Start-up Details')).toBeVisible();
+
+        await page.getByTestId('startup-name').fill(e2eStartupName);
+        await page.getByTestId('startup-location').fill('Dhahran, Saudi Arabia');
+        await page.getByRole('button', { name: 'Decarbonization Technologies' }).click();
+        await page.getByText('Select stage').click();
+        await page.getByText('Ideation').click();
+        await page.getByTestId('step-2-next').click();
+        await expect(page.getByText('Application Material')).toBeVisible();
+
+        await page.getByTestId('pitch-deck-upload').setInputFiles(samplePdf);
+        await page.getByTestId('exec-summary-upload').setInputFiles(samplePdf);
+        await page.getByTestId('video-pitch-url').fill('https://youtu.be/dQw4w9WgXcQ');
+        await page.getByText('Select source...').click();
+        await page.getByText('Other').click();
+        await page.getByTestId('final-agreement').check();
+
+        await page.getByTestId('submit-application').click();
+        await expect(page.getByText(/Application (Sent|Updated)!/)).toBeVisible({ timeout: 60_000 });
+
+        await expect.poll(
+            async () => {
+                const result = await getApplicationForTestUser();
+                return result.exists ? result.data : null;
+            },
+            { timeout: 30_000 }
+        ).toBeTruthy();
+
+        const saved = (await getApplicationForTestUser()).data;
+        expect(saved?.startupName).toBe(e2eStartupName);
+        expect(saved?.leaderEmail).toBe(credentials.email);
+        expect(saved?.travelVisaInfo?.schemaVersion).toBe(1);
+        expect(saved?.travelVisaInfo?.attendingCount).toBe(1);
+        expect(saved?.travelVisaInfo?.sponsorshipReviewRequired).toBe(false);
+        expect(saved?.travelVisaInfo?.attendees).toHaveLength(1);
+        expect(saved?.travelVisaInfo?.attendees?.[0]).toMatchObject({
+            fullName: 'Rayan Test',
+            occupation: 'Founder',
+            email: credentials.email.toLowerCase(),
+            sponsorshipStatus: 'Sponsored',
+            isGccCitizen: true,
+            documents: {
+                nationalIdFrontName: samplePng.name,
+                nationalIdBackName: samplePng.name,
+                personalPhotoName: samplePng.name
+            }
+        });
+        expect(saved?.travelVisaInfo?.attendees?.[0]?.documents?.nationalIdFrontUrl).toContain('blob.vercel-storage.com');
+        expect(saved?.travelVisaInfo?.attendees?.[0]?.documents?.nationalIdBackUrl).toContain('blob.vercel-storage.com');
+        expect(saved?.travelVisaInfo?.attendees?.[0]?.documents?.personalPhotoUrl).toContain('blob.vercel-storage.com');
     });
 });
