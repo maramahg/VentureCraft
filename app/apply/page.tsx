@@ -176,14 +176,16 @@ function SimpleDropdown({
     onChange,
     label,
     placeholder = "Select...",
-    error
+    error,
+    testId
 }: {
     options: string[],
     value: string,
     onChange: (val: string) => void,
     label?: string,
     placeholder?: string,
-    error?: string
+    error?: string,
+    testId?: string
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -212,6 +214,7 @@ function SimpleDropdown({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
+                data-testid={testId}
                 className={`w-full bg-white/5 border rounded-xl px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-all text-left ${error ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
             >
                 <span className={`text-base ${value ? 'text-white' : 'text-white/40'}`}>
@@ -237,6 +240,7 @@ function SimpleDropdown({
                                         onChange(opt);
                                         setIsOpen(false);
                                     }}
+                                    data-testid={testId ? `${testId}-option-${opt}` : undefined}
                                     className="w-full px-4 py-3 text-left hover:bg-vc-mint/10 transition-colors group"
                                 >
                                     <span className="text-base text-white/80 group-hover:text-white">{opt}</span>
@@ -2178,6 +2182,7 @@ const ApplyPageContent = () => {
                                                                 label="Sponsorship Status *"
                                                                 placeholder="Select sponsorship status"
                                                                 error={errors[`travel_${attendeeIndex}_sponsorshipStatus`]}
+                                                                testId={`travel-${attendeeIndex}-sponsorship-status`}
                                                             />
                                                             {renderTravelError(`travel_${attendeeIndex}_sponsorshipStatus`)}
                                                         </div>
@@ -2193,6 +2198,7 @@ const ApplyPageContent = () => {
                                                                     key={opt}
                                                                     type="button"
                                                                     onClick={() => handleTravelAttendeeChange(attendeeIndex, 'isGccCitizen', opt)}
+                                                                    data-testid={`travel-${attendeeIndex}-gcc-citizen-${opt}`}
                                                                     className={`px-6 py-3 rounded-xl border transition-all ${attendee.isGccCitizen === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
                                                                 >
                                                                     {opt}
@@ -2219,6 +2225,7 @@ const ApplyPageContent = () => {
                                                                     </label>
                                                                     <input
                                                                         type="text"
+                                                                        data-testid={`travel-${attendeeIndex}-passport-number`}
                                                                         value={attendee.passportNumber}
                                                                         onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportNumber', e.target.value)}
                                                                         className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportNumber`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
@@ -2234,6 +2241,7 @@ const ApplyPageContent = () => {
                                                                         value={attendee.passportIssueDate}
                                                                         onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportIssueDate', val)}
                                                                         error={errors[`travel_${attendeeIndex}_passportIssueDate`]}
+                                                                        testId={`travel-${attendeeIndex}-passport-issue-date`}
                                                                     />
                                                                     {renderTravelError(`travel_${attendeeIndex}_passportIssueDate`)}
                                                                 </div>
@@ -2246,6 +2254,7 @@ const ApplyPageContent = () => {
                                                                         value={attendee.passportExpiryDate}
                                                                         onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportExpiryDate', val)}
                                                                         error={errors[`travel_${attendeeIndex}_passportExpiryDate`]}
+                                                                        testId={`travel-${attendeeIndex}-passport-expiry-date`}
                                                                     />
                                                                     {renderTravelError(`travel_${attendeeIndex}_passportExpiryDate`)}
                                                                     {passportExpiryWarning && renderTravelWarning('Your passport may not be valid for travel. Most visas require at least 6 months validity from the date of arrival.')}
@@ -2258,6 +2267,7 @@ const ApplyPageContent = () => {
                                                                     <input
                                                                         type="number"
                                                                         min="0"
+                                                                        data-testid={`travel-${attendeeIndex}-passport-blank-pages`}
                                                                         value={attendee.passportBlankPages}
                                                                         onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportBlankPages', e.target.value)}
                                                                         className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportBlankPages`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
@@ -2323,6 +2333,7 @@ const ApplyPageContent = () => {
                                                                     label="Do you currently hold a valid Saudi eVisa or visit visa? *"
                                                                     placeholder="Select"
                                                                     error={errors[`travel_${attendeeIndex}_hasSaudiVisa`]}
+                                                                    testId={`travel-${attendeeIndex}-has-saudi-visa`}
                                                                 />
                                                                 <SimpleDropdown
                                                                     options={['Yes', 'No']}
@@ -2331,33 +2342,34 @@ const ApplyPageContent = () => {
                                                                     label="Do you hold a valid US, UK, or Schengen visa or residence permit? *"
                                                                     placeholder="Select"
                                                                     error={errors[`travel_${attendeeIndex}_hasUsUkSchengenVisa`]}
+                                                                    testId={`travel-${attendeeIndex}-has-us-uk-schengen`}
                                                                 />
                                                             </div>
 
                                                             {attendee.hasSaudiVisa === 'Yes' && (
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                    <SimpleDropdown options={['eVisa', 'Embassy visit visa', 'Other']} value={attendee.saudiVisaType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaType', val)} label="Saudi Visa Type" placeholder="Select type" />
-                                                                    <SimpleDropdown options={['Single', 'Multiple']} value={attendee.saudiVisaEntryType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaEntryType', val)} label="Single or Multiple Entry?" placeholder="Select" />
+                                                                    <SimpleDropdown options={['eVisa', 'Embassy visit visa', 'Other']} value={attendee.saudiVisaType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaType', val)} label="Saudi Visa Type" placeholder="Select type" testId={`travel-${attendeeIndex}-saudi-visa-type`} />
+                                                                    <SimpleDropdown options={['Single', 'Multiple']} value={attendee.saudiVisaEntryType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaEntryType', val)} label="Single or Multiple Entry?" placeholder="Select" testId={`travel-${attendeeIndex}-saudi-visa-entry-type`} />
                                                                     <div className="space-y-2">
                                                                         <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Issue Date</label>
-                                                                        <DatePicker value={attendee.saudiVisaIssueDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaIssueDate', val)} />
+                                                                        <DatePicker value={attendee.saudiVisaIssueDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaIssueDate', val)} testId={`travel-${attendeeIndex}-saudi-visa-issue-date`} />
                                                                     </div>
                                                                     <div className="space-y-2">
                                                                         <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
-                                                                        <DatePicker value={attendee.saudiVisaExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaExpiryDate', val)} />
+                                                                        <DatePicker value={attendee.saudiVisaExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaExpiryDate', val)} testId={`travel-${attendeeIndex}-saudi-visa-expiry-date`} />
                                                                     </div>
-                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.saudiVisaUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaUsedBefore', val)} label="Used it to enter KSA before?" placeholder="Select" />
+                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.saudiVisaUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaUsedBefore', val)} label="Used it to enter KSA before?" placeholder="Select" testId={`travel-${attendeeIndex}-saudi-visa-used-before`} />
                                                                 </div>
                                                             )}
 
                                                             {attendee.hasUsUkSchengenVisa === 'Yes' && (
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                    <SimpleDropdown options={['US', 'UK', 'Schengen']} value={attendee.usUkSchengenType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenType', val)} label="Which one?" placeholder="Select" />
+                                                                    <SimpleDropdown options={['US', 'UK', 'Schengen']} value={attendee.usUkSchengenType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenType', val)} label="Which one?" placeholder="Select" testId={`travel-${attendeeIndex}-us-uk-schengen-type`} />
                                                                     <div className="space-y-2">
                                                                         <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
-                                                                        <DatePicker value={attendee.usUkSchengenExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenExpiryDate', val)} />
+                                                                        <DatePicker value={attendee.usUkSchengenExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenExpiryDate', val)} testId={`travel-${attendeeIndex}-us-uk-schengen-expiry-date`} />
                                                                     </div>
-                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.usUkSchengenUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenUsedBefore', val)} label="Used it to travel to that country?" placeholder="Select" />
+                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.usUkSchengenUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenUsedBefore', val)} label="Used it to travel to that country?" placeholder="Select" testId={`travel-${attendeeIndex}-us-uk-schengen-used-before`} />
                                                                 </div>
                                                             )}
 
@@ -2369,15 +2381,16 @@ const ApplyPageContent = () => {
                                                                     label="Do you currently hold a GCC residency permit (iqama)? *"
                                                                     placeholder="Select"
                                                                     error={errors[`travel_${attendeeIndex}_hasGccResidency`]}
+                                                                    testId={`travel-${attendeeIndex}-has-gcc-residency`}
                                                                 />
                                                             </div>
 
                                                             {attendee.hasGccResidency === 'Yes' && (
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                    <SimpleDropdown options={gccResidencyOptions} value={attendee.gccResidencyCountry} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyCountry', val)} label="Which GCC Country? *" placeholder="Select country" error={errors[`travel_${attendeeIndex}_gccResidencyCountry`]} />
+                                                                    <SimpleDropdown options={gccResidencyOptions} value={attendee.gccResidencyCountry} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyCountry', val)} label="Which GCC Country? *" placeholder="Select country" error={errors[`travel_${attendeeIndex}_gccResidencyCountry`]} testId={`travel-${attendeeIndex}-gcc-residency-country`} />
                                                                     <div className="space-y-2">
                                                                         <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Residency Permit Expiry Date <span className="text-vc-mint">*</span></label>
-                                                                        <DatePicker value={attendee.gccResidencyExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyExpiryDate', val)} error={errors[`travel_${attendeeIndex}_gccResidencyExpiryDate`]} />
+                                                                        <DatePicker value={attendee.gccResidencyExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyExpiryDate', val)} error={errors[`travel_${attendeeIndex}_gccResidencyExpiryDate`]} testId={`travel-${attendeeIndex}-gcc-residency-expiry-date`} />
                                                                         {renderTravelError(`travel_${attendeeIndex}_gccResidencyExpiryDate`)}
                                                                     </div>
                                                                     {renderVisaUpload(attendeeIndex, 'gccResidencyFront', 'Residency Permit (Iqama) - Front Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyFrontName)}
@@ -2793,6 +2806,7 @@ const ApplyPageContent = () => {
                                                     if (errors.referralSource) setErrors(prev => ({ ...prev, referralSource: '' }));
                                                 }}
                                                 error={errors.referralSource}
+                                                testId="referral-source"
                                             />
                                             {errors.referralSource && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.referralSource}</p>}
 

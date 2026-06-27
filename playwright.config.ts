@@ -34,7 +34,7 @@ export default defineConfig({
     expect: {
         timeout: 10_000
     },
-    fullyParallel: true,
+    fullyParallel: false,
     reporter: [['list'], ['html', { open: 'never' }]],
     use: {
         baseURL,
