@@ -254,12 +254,14 @@ function DatePicker({
     value,
     onChange,
     error,
-    placeholder = 'Select date'
+    placeholder = 'Select date',
+    testId
 }: {
     value: string;
     onChange: (val: string) => void;
     error?: string;
     placeholder?: string;
+    testId?: string;
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [visibleMonth, setVisibleMonth] = useState(() => {
@@ -317,6 +319,7 @@ function DatePicker({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
+                data-testid={testId}
                 className={`w-full bg-white/5 border rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-white/10 transition-all ${error ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
             >
                 <span className={`text-base ${value ? 'text-white' : 'text-white/40'}`}>{displayValue}</span>
@@ -1491,6 +1494,7 @@ const ApplyPageContent = () => {
                 <div className="relative group">
                     <input
                         type="file"
+                        data-testid={`travel-${attendeeIndex}-${field}-upload`}
                         accept={accept}
                         onChange={(e) => {
                             handleVisaDocumentChange(attendeeIndex, field, e.target.files?.[0] || null);
@@ -1880,6 +1884,7 @@ const ApplyPageContent = () => {
                                         </label>
                                         <input
                                             type="email"
+                                            data-testid="leader-email"
                                             value={formData.leaderEmail}
                                             onChange={(e) => {
                                                 setFormData({ ...formData, leaderEmail: e.target.value });
@@ -1907,6 +1912,7 @@ const ApplyPageContent = () => {
                                             </div>
                                             <input
                                                 type="tel"
+                                                data-testid="leader-phone"
                                                 placeholder="5123456789"
                                                 value={formData.leaderPhoneNumber}
                                                 maxLength={15}
@@ -1954,6 +1960,7 @@ const ApplyPageContent = () => {
                                         <div className="relative group">
                                             <input
                                                 type="file"
+                                                data-testid="eligibility-proof-upload"
                                                 accept=".pdf,.jpg,.jpeg,.png"
                                                 onChange={(e) => {
                                                     setFiles({ ...files, eligibilityProof: e.target.files?.[0] || null });
@@ -2001,6 +2008,7 @@ const ApplyPageContent = () => {
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    data-testid={`team-member-${idx}-name`}
                                                     value={formData.teamMembers[idx].name}
                                                     onChange={(e) => {
                                                         handleMemberChange(idx, 'name', e.target.value);
@@ -2059,6 +2067,7 @@ const ApplyPageContent = () => {
                                         <input
                                             type="number"
                                             min="1"
+                                            data-testid="travel-attendee-count"
                                             value={formData.travelVisaInfo.attendingCount}
                                             onChange={(e) => {
                                                 handleTravelAttendeeCountChange(parseInt(e.target.value));
@@ -2099,6 +2108,7 @@ const ApplyPageContent = () => {
                                                             </label>
                                                             <input
                                                                 type="text"
+                                                                data-testid={`travel-${attendeeIndex}-full-name`}
                                                                 value={attendee.fullName}
                                                                 onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'fullName', e.target.value)}
                                                                 className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_fullName`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
@@ -2115,6 +2125,7 @@ const ApplyPageContent = () => {
                                                                 value={attendee.dateOfBirth}
                                                                 onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'dateOfBirth', val)}
                                                                 error={errors[`travel_${attendeeIndex}_dateOfBirth`]}
+                                                                testId={`travel-${attendeeIndex}-date-of-birth`}
                                                             />
                                                             {renderTravelError(`travel_${attendeeIndex}_dateOfBirth`)}
                                                         </div>
@@ -2150,6 +2161,7 @@ const ApplyPageContent = () => {
                                                             </label>
                                                             <input
                                                                 type="text"
+                                                                data-testid={`travel-${attendeeIndex}-occupation`}
                                                                 value={attendee.occupation}
                                                                 onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'occupation', e.target.value)}
                                                                 className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_occupation`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
@@ -2264,6 +2276,7 @@ const ApplyPageContent = () => {
                                                             </label>
                                                             <input
                                                                 type="email"
+                                                                data-testid={`travel-${attendeeIndex}-email`}
                                                                 value={attendee.email}
                                                                 onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'email', e.target.value)}
                                                                 className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_email`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
@@ -2414,6 +2427,7 @@ const ApplyPageContent = () => {
                                 <div className="flex justify-end pt-8">
                                     <button
                                         onClick={nextStep}
+                                        data-testid="step-1-next"
                                         className="btn-primary flex items-center gap-2 !px-8 !py-4 !rounded-2xl"
                                     >
                                         <span>Next Step</span>
