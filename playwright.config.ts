@@ -18,7 +18,7 @@ export default defineConfig({
         video: 'retain-on-failure'
     },
     webServer: {
-        command: `npm run dev -- --port ${port}`,
+        command: `npx next dev --port ${port}`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
@@ -34,4 +34,3 @@ export default defineConfig({
         }
     ]
 });
-
