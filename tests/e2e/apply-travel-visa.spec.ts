@@ -18,10 +18,31 @@ const samplePng = {
     )
 };
 
+function getRequiredTestCredentials() {
+    if (!testUserEmail || !testUserPassword) {
+        throw new Error(
+            [
+                'Missing Playwright test credentials.',
+                'Set them in PowerShell before running the test:',
+                '$env:E2E_USER_EMAIL="your-test-user@email.com"',
+                '$env:E2E_USER_PASSWORD="your-test-password"',
+                'npm run test:e2e'
+            ].join('\n')
+        );
+    }
+
+    return {
+        email: testUserEmail,
+        password: testUserPassword
+    };
+}
+
 async function signIn(page: Page) {
+    const credentials = getRequiredTestCredentials();
+
     await page.goto(`/signin?redirect=${encodeURIComponent('/apply?preview=1')}`);
-    await page.getByLabel('Email Address').fill(testUserEmail!);
-    await page.getByLabel('Password').fill(testUserPassword!);
+    await page.getByLabel('Email Address').fill(credentials.email);
+    await page.getByLabel('Password').fill(credentials.password);
     await page.getByRole('button', { name: 'Sign In' }).click();
     await expect(page).toHaveURL(/\/apply/);
 }
@@ -31,16 +52,16 @@ async function chooseFirstAvailableCalendarDay(page: Page) {
 }
 
 test.describe('application travel and visa flow', () => {
-    test.skip(!testUserEmail || !testUserPassword, 'Set E2E_USER_EMAIL and E2E_USER_PASSWORD to run the authenticated application flow.');
-
     test('fills GCC attendee travel details and advances from step 1', async ({ page }) => {
+        const credentials = getRequiredTestCredentials();
+
         await signIn(page);
 
         await expect(page.getByText('Application Form')).toBeVisible();
         await page.getByRole('button', { name: /Start Application|Continue Editing|Update Submission/i }).click();
         await expect(page.getByText('Personal & Demographic Information')).toBeVisible();
 
-        await page.getByTestId('leader-email').fill(testUserEmail!);
+        await page.getByTestId('leader-email').fill(credentials.email);
         await page.getByTestId('leader-phone').fill('512345678');
 
         await page.getByText('Select who best describes your team...').click();
@@ -54,7 +75,7 @@ test.describe('application travel and visa flow', () => {
         await page.getByTestId('travel-0-date-of-birth').click();
         await chooseFirstAvailableCalendarDay(page);
         await page.getByTestId('travel-0-occupation').fill('Founder');
-        await page.getByTestId('travel-0-email').fill(testUserEmail!);
+        await page.getByTestId('travel-0-email').fill(credentials.email);
 
         await page.getByTestId('travel-0-nationalIdFront-upload').setInputFiles(samplePng);
         await page.getByTestId('travel-0-nationalIdBack-upload').setInputFiles(samplePng);
