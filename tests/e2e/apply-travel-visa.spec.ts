@@ -77,7 +77,7 @@ function getRequiredTestCredentials() {
 async function signIn(page: Page) {
     const credentials = getRequiredTestCredentials();
 
-    await page.goto(`/signin?redirect=${encodeURIComponent('/apply?preview=1')}`);
+    await page.goto(`/signin?redirect=${encodeURIComponent('/apply')}`);
     await page.getByLabel('Email Address').fill(credentials.email);
     await page.getByLabel('Password').fill(credentials.password);
     await page.getByRole('button', { name: 'Sign In' }).click();
@@ -134,7 +134,7 @@ test.describe('application travel and visa flow', () => {
         await page.getByText('Select stage').click();
         await page.getByText('Ideation').click();
         await page.getByTestId('step-2-next').click();
-        await expect(page.getByText('Application Material')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Application Material' })).toBeVisible();
 
         await page.getByTestId('pitch-deck-upload').setInputFiles(samplePdf);
         await page.getByTestId('exec-summary-upload').setInputFiles(samplePdf);
