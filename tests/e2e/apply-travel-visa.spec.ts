@@ -324,6 +324,16 @@ test.describe('application travel and visa flow', () => {
         await expect(page.getByText('Start-up Details')).not.toBeVisible();
     });
 
+    test('limits physical attendees to ten', async ({ page }) => {
+        await signIn(page);
+        await openApplicationForm(page);
+
+        await page.getByTestId('travel-attendee-count').fill('11');
+        await expect(page.getByTestId('travel-attendee-count')).toHaveValue('10');
+        await expect(page.getByText('Attendee 10')).toBeVisible();
+        await expect(page.getByText('Attendee 11')).not.toBeVisible();
+    });
+
     test('blocks normal application access when registration is closed', async ({ page }) => {
         await setRegistration(false);
         await signIn(page);

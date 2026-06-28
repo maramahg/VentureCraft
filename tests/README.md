@@ -13,6 +13,7 @@ This folder contains Playwright tests for the application flow.
 - US/UK/Schengen visa or residence fields.
 - GCC residency permit fields and uploads.
 - Sponsorship review when more than two attendees are marked sponsored.
+- Physical attendee count capped at 10.
 - Step 1 required field and upload validation.
 - Closed registration blocking normal application access.
 
@@ -41,4 +42,3 @@ npm run test:e2e:ci
 - The E2E suite mutates the configured Firebase project by opening registration, deleting the test user's application document, submitting new applications, and verifying Firestore data.
 - The suite runs serially because it uses one configured test user and one application document.
 - `test-results/` and `playwright-report/` are ignored and should not be committed.
-

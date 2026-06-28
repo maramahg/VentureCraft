@@ -21,6 +21,7 @@ import {
     createVisaDocumentFiles,
     gccCountries,
     gccResidencyOptions,
+    maxTravelAttendees,
     MAX_VISA_DOCUMENT_SIZE_BYTES,
     normalizeTravelVisaInfo,
     sixMonthsFromArrival,
@@ -643,7 +644,7 @@ const ApplyPageContent = () => {
     };
 
     const handleTravelAttendeeCountChange = (count: number) => {
-        const attendingCount = Math.max(1, count || 1);
+        const attendingCount = Math.min(Math.max(1, count || 1), maxTravelAttendees);
         setFormData(prev => {
             const current = prev.travelVisaInfo.attendees || [];
             const attendees = Array.from({ length: attendingCount }, (_, index) => ({
@@ -739,6 +740,8 @@ const ApplyPageContent = () => {
         const maxVisaFileSize = MAX_VISA_DOCUMENT_SIZE_BYTES;
         if (!formData.travelVisaInfo.attendingCount || formData.travelVisaInfo.attendingCount < 1) {
             newErrors.travelAttendingCount = "Please enter how many team members will physically attend.";
+        } else if (formData.travelVisaInfo.attendingCount > maxTravelAttendees) {
+            newErrors.travelAttendingCount = `A maximum of ${maxTravelAttendees} attendees can be listed.`;
         }
         formData.travelVisaInfo.attendees.forEach((attendee, idx) => {
             const docs = attendee.documents || {};
@@ -2071,6 +2074,7 @@ const ApplyPageContent = () => {
                                         <input
                                             type="number"
                                             min="1"
+                                            max={maxTravelAttendees}
                                             data-testid="travel-attendee-count"
                                             value={formData.travelVisaInfo.attendingCount}
                                             onChange={(e) => {
@@ -2080,7 +2084,7 @@ const ApplyPageContent = () => {
                                             className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.travelAttendingCount ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
                                         />
                                         {renderTravelError('travelAttendingCount')}
-                                        <p className="text-xs text-white/40">You may list more than 2 attendees. Only the first 2 sponsored attendees are covered.</p>
+                                        <p className="text-xs text-white/40">You may list up to {maxTravelAttendees} attendees. Only the first 2 sponsored attendees are covered.</p>
                                     </div>
 
                                     {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length > 2 && (

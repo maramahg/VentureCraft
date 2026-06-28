@@ -10,6 +10,7 @@ export const gccCountries = ['Bahrain', 'Kuwait', 'Oman', 'Qatar', 'Saudi Arabia
 export const gccResidencyOptions = ['Bahrain', 'Kuwait', 'Oman', 'Qatar', 'Saudi Arabia', 'UAE'];
 export const sixMonthsFromArrival = '2027-04-01';
 export const travelVisaSchemaVersion = 1;
+export const maxTravelAttendees = 10;
 
 export type TravelAttendeeDocuments = {
     nationalIdFrontName?: string | null;
@@ -173,7 +174,10 @@ export const normalizeTravelVisaInfo = (
 ): { attendingCount: number; attendees: TravelAttendee[] } => {
     const source = asRecord(travelVisaInfo);
     const existingAttendees = Array.isArray(source.attendees) ? source.attendees : [];
-    const attendingCount = Math.max(Number(source.attendingCount) || existingAttendees.length || 1, 1);
+    const attendingCount = Math.min(
+        Math.max(Number(source.attendingCount) || existingAttendees.length || 1, 1),
+        maxTravelAttendees
+    );
 
     const hydrateAttendee = (savedValue: unknown, fallbackName: string): TravelAttendee => {
         if (!savedValue) return createTravelAttendee(fallbackName);
