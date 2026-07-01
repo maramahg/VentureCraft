@@ -662,12 +662,17 @@ const ApplyPageContent = () => {
             const current = prev.travelVisaInfo.attendees || [];
             const attendees = Array.from({ length: attendingCount }, (_, index) => {
                 const defaultSponsorship = index < 2 ? 'Sponsored' : 'Self-funded';
-                const baseAttendee = createTravelAttendee(prev.teamMembers[index]?.name || '');
+                const member = prev.teamMembers[index];
+                const baseAttendee = createTravelAttendee(member?.name || '');
                 baseAttendee.sponsorshipStatus = defaultSponsorship;
+                if (member) {
+                    baseAttendee.nationalityPassport = member.nationality || 'Saudi Arabia';
+                    baseAttendee.isGccCitizen = gccCountries.includes(baseAttendee.nationalityPassport) ? 'Yes' : 'No';
+                }
                 return {
                     ...baseAttendee,
                     ...(current[index] || {}),
-                    fullName: current[index]?.fullName || prev.teamMembers[index]?.name || ''
+                    fullName: current[index]?.fullName || member?.name || ''
                 };
             });
 

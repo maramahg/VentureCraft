@@ -179,11 +179,17 @@ export const normalizeTravelVisaInfo = (
         maxTravelAttendees
     );
 
-    const hydrateAttendee = (savedValue: unknown, fallbackName: string, index: number): TravelAttendee => {
+    const hydrateAttendee = (savedValue: unknown, member: TeamMemberSeed | undefined, index: number): TravelAttendee => {
         const defaultSponsorship = index < 2 ? 'Sponsored' : 'Self-funded';
+        const fallbackName = member?.name || '';
+        const fallbackNationality = member?.nationality || 'Saudi Arabia';
+        const fallbackIsGcc = gccCountries.includes(fallbackNationality) ? 'Yes' : 'No';
+
         if (!savedValue) {
             const base = createTravelAttendee(fallbackName);
             base.sponsorshipStatus = defaultSponsorship;
+            base.nationalityPassport = fallbackNationality;
+            base.isGccCitizen = fallbackIsGcc;
             return base;
         }
 
@@ -195,6 +201,8 @@ export const normalizeTravelVisaInfo = (
         if (!isCleanShape) {
             return {
                 ...base,
+                nationalityPassport: fallbackNationality,
+                isGccCitizen: fallbackIsGcc,
                 ...saved,
                 documents: asRecord(saved.documents) as TravelAttendeeDocuments
             } as TravelAttendee;
@@ -210,7 +218,7 @@ export const normalizeTravelVisaInfo = (
             ...base,
             fullName: String(saved.fullName || fallbackName),
             dateOfBirth: String(saved.dateOfBirth || ''),
-            nationalityPassport: String(saved.nationalityPassport || base.nationalityPassport),
+            nationalityPassport: String(saved.nationalityPassport || fallbackNationality),
             currentResidence: String(saved.currentResidence || base.currentResidence),
             occupation: String(saved.occupation || ''),
             sponsorshipStatus: String(saved.sponsorshipStatus || base.sponsorshipStatus),
@@ -240,7 +248,7 @@ export const normalizeTravelVisaInfo = (
     };
 
     const attendees = Array.from({ length: attendingCount }, (_, index) =>
-        hydrateAttendee(existingAttendees[index], teamMembers[index]?.name || '', index)
+        hydrateAttendee(existingAttendees[index], teamMembers[index], index)
     );
 
     return { attendingCount, attendees };
