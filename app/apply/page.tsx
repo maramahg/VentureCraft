@@ -1838,7 +1838,7 @@ const ApplyPageContent = () => {
 
                                 <div className="flex flex-col items-center gap-6 pt-8">
                                     {isEditMode && !isEditingAllowed && (
-                                        <div className="w-full max-w-xl p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center gap-4 animate-pulse">
+                                        <div className="w-full max-w-xl p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center gap-4">
                                             <div className="p-2 bg-orange-500/20 rounded-lg">
                                                 <Shield className="w-5 h-5 text-orange-500" />
                                             </div>
