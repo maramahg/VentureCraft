@@ -988,7 +988,8 @@ function AdminDashboardContent() {
         try {
             const newStatus = !isRegistrationOpen;
             await setDoc(doc(db, 'settings', 'registration'), {
-                isOpen: newStatus
+                isOpen: newStatus,
+                isAllowed: newStatus
             }, { merge: true });
             setIsRegistrationOpen(newStatus);
             setToast({ message: `Registration ${newStatus ? 'Opened' : 'Closed'} successfully.`, type: 'success' });
@@ -1005,7 +1006,8 @@ function AdminDashboardContent() {
         try {
             const newStatus = !isAmbRegistrationOpen;
             await setDoc(doc(db, 'settings', 'ambassadorRegistration'), {
-                isOpen: newStatus
+                isOpen: newStatus,
+                isAllowed: newStatus
             }, { merge: true });
             setIsAmbRegistrationOpen(newStatus);
             setToast({ message: `Ambassador registration ${newStatus ? 'Opened' : 'Closed'} successfully.`, type: 'success' });
@@ -1022,7 +1024,8 @@ function AdminDashboardContent() {
         try {
             const newStatus = !isEditingAllowed;
             await setDoc(doc(db, 'settings', 'editing'), {
-                isOpen: newStatus
+                isOpen: newStatus,
+                isAllowed: newStatus
             }, { merge: true });
             setIsEditingAllowed(newStatus);
             setToast({ message: `Editing ${newStatus ? 'Allowed' : 'Locked'} successfully.`, type: 'success' });

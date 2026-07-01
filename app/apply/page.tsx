@@ -408,20 +408,28 @@ const ApplyPageContent = () => {
     const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
     const [isEditingAllowed, setIsEditingAllowed] = useState<boolean>(true);
     const [regLoading, setRegLoading] = useState(true);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [existingMaterials, setExistingMaterials] = useState<any>(null);
+    const [fetchingOldApp, setFetchingOldApp] = useState(true);
     const router = useRouter();
     const searchParams = useSearchParams();
     const isLocalPreview =
         process.env.NEXT_PUBLIC_ENABLE_FORM_PREVIEW === 'true' &&
         searchParams.get('preview') === '1';
     const canAccessRegistrationForm = isRegistrationOpen || isLocalPreview;
+    const canAccessForm = isEditMode ? isEditingAllowed : canAccessRegistrationForm;
 
 
-    // Force clear step parameter if registration is closed to show header
+    // Force clear step parameter if access is not allowed
     useEffect(() => {
-        if (!regLoading && !canAccessRegistrationForm && searchParams.get('step')) {
-            router.replace('/apply', { scroll: false });
+        if (!regLoading && !authLoading && !fetchingOldApp) {
+            const hasStep = !!searchParams.get('step');
+            if (hasStep && !canAccessForm) {
+                router.replace('/apply', { scroll: false });
+                setStep(0);
+            }
         }
-    }, [regLoading, canAccessRegistrationForm, searchParams, router]);
+    }, [regLoading, authLoading, fetchingOldApp, canAccessForm, searchParams, router]);
 
     useEffect(() => {
         // Fetch or listen to global settings for registration status
@@ -541,12 +549,12 @@ const ApplyPageContent = () => {
     }, [user, authLoading, router]);
 
     // PRE-FILL LOGIC: Fetch existing application if it exists
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [existingMaterials, setExistingMaterials] = useState<any>(null);
-
     useEffect(() => {
         const fetchOldApplication = async () => {
-            if (!user) return;
+            if (!user) {
+                setFetchingOldApp(false);
+                return;
+            }
             try {
                 const appDoc = await getDoc(doc(db, 'applications', user.uid));
                 if (appDoc.exists()) {
@@ -591,13 +599,18 @@ const ApplyPageContent = () => {
                 }
             } catch (error) {
                 console.error("Error fetching existing application:", error);
+            } finally {
+                setFetchingOldApp(false);
             }
         };
 
         if (user) {
+            setFetchingOldApp(true);
             fetchOldApplication();
+        } else if (!authLoading) {
+            setFetchingOldApp(false);
         }
-    }, [user]);
+    }, [user, authLoading]);
 
     // ... (keep existing sync useEffect)
 
@@ -2521,6 +2534,7 @@ const ApplyPageContent = () => {
                                         </h3>
                                         <p className="text-sm text-white/50 mt-3 leading-relaxed">
                                             Sponsorship only covers travel for a maximum of 2 members per startup. Every team member who plans to physically attend must complete this section individually.
+                                            <Link href="/apply/materials#travel-&-visa-info" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Learn More</Link>
                                         </p>
                                         <p className="text-xs text-red-500 mt-1 italic">
                                             All data submitted through this form will be handled by the Logistics & Planning team and used only for visa processing purposes.

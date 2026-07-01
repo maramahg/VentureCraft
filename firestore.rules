@@ -67,14 +67,16 @@ service cloud.firestore {
 
     // Helper: Registration Status
     function isRegistrationOpen() {
-      let reg = get(/databases/$(database)/documents/settings/registration).data;
-      return reg.get('isOpen', true) == true || reg.get('isAllowed', true) == true;
+      return !exists(/databases/$(database)/documents/settings/registration) || 
+             get(/databases/$(database)/documents/settings/registration).data.get('isOpen', true) == true || 
+             get(/databases/$(database)/documents/settings/registration).data.get('isAllowed', true) == true;
     }
 
     // Helper: Editing Allowed
     function isEditingAllowed() {
-      let edit = get(/databases/$(database)/documents/settings/editing).data;
-      return edit.get('isOpen', true) == true || edit.get('isAllowed', true) == true;
+      return !exists(/databases/$(database)/documents/settings/editing) || 
+             get(/databases/$(database)/documents/settings/editing).data.get('isOpen', true) == true || 
+             get(/databases/$(database)/documents/settings/editing).data.get('isAllowed', true) == true;
     }
     
     // Outreach Participants
@@ -113,7 +115,7 @@ service cloud.firestore {
           isAdmin() ||
           isJudge()
         )
-        && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
+        && (isEditingAllowed() || isAdmin() || isJudge());
       allow delete: if isAdmin();
     }
 
