@@ -296,7 +296,7 @@ test.describe('application travel and visa flow', () => {
         expect(attendee?.documents?.gccResidencyBackUrl).toContain('blob.vercel-storage.com');
     });
 
-    test('marks sponsorship review when more than two attendees are sponsored', async ({ page }) => {
+    test('blocks setting more than two sponsored attendees and submits with valid limit', async ({ page }) => {
         const startupName = `E2E Sponsored Review ${Date.now()}`;
 
         await signIn(page);
@@ -305,19 +305,31 @@ test.describe('application travel and visa flow', () => {
         await confirmEligibility(page);
         await completeStepTwo(page, startupName);
 
-        // Step 3: Travel & Visa
+        // Step 3: Travel & Visa with 3 attendees
         await page.getByTestId('travel-attendee-count').fill('3');
         await fillGccAttendee(page, 0, 'Sponsored One');
         await fillGccAttendee(page, 1, 'Sponsored Two');
-        await fillGccAttendee(page, 2, 'Sponsored Three');
+        await fillGccAttendee(page, 2, 'Self Funded Three');
+
+        // Attempt to set the 3rd attendee to Sponsored — the UI should block this with an alert
+        let alertMessage = '';
+        page.on('dialog', async (dialog) => {
+            alertMessage = dialog.message();
+            await dialog.accept();
+        });
         await selectOption(page, 'travel-2-sponsorship-status', 'Sponsored');
-        await expect(page.getByText('More than 2 attendees are marked Sponsored')).toBeVisible();
+        expect(alertMessage).toContain('Only 2 attendees are allowed to be sponsored');
+
+        // Submit — should succeed with 2 sponsored (the allowed max)
         await fillMaterialsAndSubmit(page);
 
         const travelVisaInfo = (await getApplicationForTestUser()).data?.travelVisaInfo;
         expect(travelVisaInfo?.attendingCount).toBe(3);
         expect(travelVisaInfo?.attendees).toHaveLength(3);
-        expect(travelVisaInfo?.sponsorshipReviewRequired).toBe(true);
+        expect(travelVisaInfo?.sponsorshipReviewRequired).toBe(false);
+        expect(travelVisaInfo?.attendees?.[0]?.sponsorshipStatus).toBe('Sponsored');
+        expect(travelVisaInfo?.attendees?.[1]?.sponsorshipStatus).toBe('Sponsored');
+        expect(travelVisaInfo?.attendees?.[2]?.sponsorshipStatus).toBe('Self-funded');
     });
 
     test('blocks submission when required travel visa fields and files are missing', async ({ page }) => {
