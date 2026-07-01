@@ -107,7 +107,7 @@ async function openApplicationForm(page: Page) {
     await expect(page.getByText('Personal & Demographic Information')).toBeVisible();
 }
 
-async function fillBaseStepOne(page: Page, attendeeCount = 1) {
+async function fillBaseStepOne(page: Page) {
     const credentials = getRequiredTestCredentials();
 
     await page.getByTestId('leader-email').fill(credentials.email);
@@ -116,7 +116,6 @@ async function fillBaseStepOne(page: Page, attendeeCount = 1) {
     await page.getByText("STEM Students & Recent Graduates (0-5 years) - Bachelor's / Diploma").click();
     await page.getByTestId('eligibility-proof-upload').setInputFiles(samplePdf);
     await page.getByTestId('team-member-0-name').fill('Rayan Test');
-    await page.getByTestId('travel-attendee-count').fill(String(attendeeCount));
 }
 
 async function fillGccAttendee(page: Page, index: number, name = `Rayan GCC ${index + 1}`) {
@@ -182,7 +181,7 @@ async function completeStepTwo(page: Page, startupName: string) {
     await expect(page.getByRole('heading', { name: 'Application Material' })).toBeVisible();
 }
 
-async function submitStepThree(page: Page) {
+async function fillMaterialsAndSubmit(page: Page) {
     await page.getByTestId('pitch-deck-upload').setInputFiles(samplePdf);
     await page.getByTestId('exec-summary-upload').setInputFiles(samplePdf);
     await page.getByTestId('video-pitch-url').fill('https://youtu.be/dQw4w9WgXcQ');
@@ -190,11 +189,6 @@ async function submitStepThree(page: Page) {
     await page.getByTestId('final-agreement').check();
     await page.getByTestId('submit-application').click();
     await expect(page.getByText(/Application (Sent|Updated)!/)).toBeVisible({ timeout: 60_000 });
-}
-
-async function submitApplication(page: Page, startupName: string) {
-    await completeStepTwo(page, startupName);
-    await submitStepThree(page);
 }
 
 test.describe('application travel and visa flow', () => {
@@ -216,9 +210,13 @@ test.describe('application travel and visa flow', () => {
         await signIn(page);
         await openApplicationForm(page);
         await fillBaseStepOne(page);
-        await fillGccAttendee(page, 0, 'Rayan Test');
         await confirmEligibility(page);
-        await submitApplication(page, startupName);
+        await completeStepTwo(page, startupName);
+
+        // Step 3: Travel & Visa
+        await page.getByTestId('travel-attendee-count').fill('1');
+        await fillGccAttendee(page, 0, 'Rayan Test');
+        await fillMaterialsAndSubmit(page);
 
         const saved = (await getApplicationForTestUser()).data;
         expect(saved?.startupName).toBe(startupName);
@@ -251,9 +249,13 @@ test.describe('application travel and visa flow', () => {
         await signIn(page);
         await openApplicationForm(page);
         await fillBaseStepOne(page);
-        await fillNonGccAttendee(page);
         await confirmEligibility(page);
-        await submitApplication(page, startupName);
+        await completeStepTwo(page, startupName);
+
+        // Step 3: Travel & Visa
+        await page.getByTestId('travel-attendee-count').fill('1');
+        await fillNonGccAttendee(page);
+        await fillMaterialsAndSubmit(page);
 
         const attendee = (await getApplicationForTestUser()).data?.travelVisaInfo?.attendees?.[0];
         expect(attendee).toMatchObject({
@@ -299,13 +301,18 @@ test.describe('application travel and visa flow', () => {
 
         await signIn(page);
         await openApplicationForm(page);
-        await fillBaseStepOne(page, 3);
+        await fillBaseStepOne(page);
+        await confirmEligibility(page);
+        await completeStepTwo(page, startupName);
+
+        // Step 3: Travel & Visa
+        await page.getByTestId('travel-attendee-count').fill('3');
         await fillGccAttendee(page, 0, 'Sponsored One');
         await fillGccAttendee(page, 1, 'Sponsored Two');
         await fillGccAttendee(page, 2, 'Sponsored Three');
+        await selectOption(page, 'travel-2-sponsorship-status', 'Sponsored');
         await expect(page.getByText('More than 2 attendees are marked Sponsored')).toBeVisible();
-        await confirmEligibility(page);
-        await submitApplication(page, startupName);
+        await fillMaterialsAndSubmit(page);
 
         const travelVisaInfo = (await getApplicationForTestUser()).data?.travelVisaInfo;
         expect(travelVisaInfo?.attendingCount).toBe(3);
@@ -313,20 +320,45 @@ test.describe('application travel and visa flow', () => {
         expect(travelVisaInfo?.sponsorshipReviewRequired).toBe(true);
     });
 
-    test('blocks step 1 when required visa fields and files are missing', async ({ page }) => {
+    test('blocks submission when required travel visa fields and files are missing', async ({ page }) => {
+        const startupName = `E2E Validation Test ${Date.now()}`;
+
         await signIn(page);
         await openApplicationForm(page);
-        await page.getByTestId('step-1-next').click();
 
+        // Step 1 next check blocks when leader email is missing
+        await page.getByTestId('step-1-next').click();
         await expect(page.getByText("Please enter the team leader's email address.")).toBeVisible();
-        await expect(page.getByText('Please upload the national ID front side.')).toBeVisible();
-        await expect(page.getByText('Please upload a personal photo.')).toBeVisible();
         await expect(page.getByText('Start-up Details')).not.toBeVisible();
+
+        // Fill Step 1 correctly
+        await fillBaseStepOne(page);
+        await confirmEligibility(page);
+
+        // Complete Step 2 (clicks step-1-next internally)
+        await completeStepTwo(page, startupName);
+
+        // Try to submit on Step 3 without filling travel details (default count is 1)
+        await page.getByTestId('pitch-deck-upload').setInputFiles(samplePdf);
+        await page.getByTestId('exec-summary-upload').setInputFiles(samplePdf);
+        await page.getByTestId('video-pitch-url').fill('https://youtu.be/dQw4w9WgXcQ');
+        await selectOption(page, 'referral-source', 'Other');
+        await page.getByTestId('final-agreement').check();
+        await page.getByTestId('submit-application').click();
+
+        // Should show travel validations
+        await expect(page.getByText('Please upload a personal photo.')).toBeVisible();
+        await expect(page.getByText("Please enter the attendee's full name.")).toBeVisible();
     });
 
     test('limits physical attendees to ten', async ({ page }) => {
+        const startupName = `E2E Limit Test ${Date.now()}`;
         await signIn(page);
         await openApplicationForm(page);
+
+        await fillBaseStepOne(page);
+        await confirmEligibility(page);
+        await completeStepTwo(page, startupName);
 
         await page.getByTestId('travel-attendee-count').fill('11');
         await expect(page.getByTestId('travel-attendee-count')).toHaveValue('10');

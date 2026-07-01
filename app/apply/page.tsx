@@ -647,11 +647,16 @@ const ApplyPageContent = () => {
         const attendingCount = Math.min(Math.max(1, count || 1), maxTravelAttendees);
         setFormData(prev => {
             const current = prev.travelVisaInfo.attendees || [];
-            const attendees = Array.from({ length: attendingCount }, (_, index) => ({
-                ...createTravelAttendee(prev.teamMembers[index]?.name || ''),
-                ...(current[index] || {}),
-                fullName: current[index]?.fullName || prev.teamMembers[index]?.name || ''
-            }));
+            const attendees = Array.from({ length: attendingCount }, (_, index) => {
+                const defaultSponsorship = index < 2 ? 'Sponsored' : 'Self-funded';
+                const baseAttendee = createTravelAttendee(prev.teamMembers[index]?.name || '');
+                baseAttendee.sponsorshipStatus = defaultSponsorship;
+                return {
+                    ...baseAttendee,
+                    ...(current[index] || {}),
+                    fullName: current[index]?.fullName || prev.teamMembers[index]?.name || ''
+                };
+            });
 
             return {
                 ...prev,
@@ -735,67 +740,6 @@ const ApplyPageContent = () => {
             }
         });
 
-        const allowedVisaUpload = ['.pdf', '.jpg', '.jpeg', '.png'];
-        const allowedPhotoUpload = ['.jpg', '.jpeg', '.png'];
-        const maxVisaFileSize = MAX_VISA_DOCUMENT_SIZE_BYTES;
-        if (!formData.travelVisaInfo.attendingCount || formData.travelVisaInfo.attendingCount < 1) {
-            newErrors.travelAttendingCount = "Please enter how many team members will physically attend.";
-        } else if (formData.travelVisaInfo.attendingCount > maxTravelAttendees) {
-            newErrors.travelAttendingCount = `A maximum of ${maxTravelAttendees} attendees can be listed.`;
-        }
-        formData.travelVisaInfo.attendees.forEach((attendee, idx) => {
-            const docs = attendee.documents || {};
-            const docFiles = files.visaDocuments[idx] || createVisaDocumentFiles();
-            const isGccCitizen = attendee.isGccCitizen === 'Yes';
-            const hasExisting = (key: keyof TravelAttendeeDocuments) => Boolean(docs[key]);
-            const fileExt = (file: File | null) => '.' + file?.name.split('.').pop()?.toLowerCase();
-            const validateFile = (file: File | null, key: string, allowed: string[], label: string) => {
-                if (!file) return;
-                if (!allowed.includes(fileExt(file))) {
-                    newErrors[key] = `${label} must be ${allowed.join(', ').replaceAll('.', '').toUpperCase()}.`;
-                } else if (file.size > maxVisaFileSize) {
-                    newErrors[key] = `${label} must be 5MB or smaller.`;
-                }
-            };
-
-            if (!attendee.fullName.trim()) newErrors[`travel_${idx}_fullName`] = "Please enter the attendee's full name.";
-            if (!attendee.dateOfBirth) newErrors[`travel_${idx}_dateOfBirth`] = "Please enter the attendee's date of birth.";
-            if (!attendee.nationalityPassport) newErrors[`travel_${idx}_nationalityPassport`] = "Please select the passport nationality.";
-            if (!attendee.currentResidence) newErrors[`travel_${idx}_currentResidence`] = "Please select current country of residence.";
-            if (!attendee.occupation.trim()) newErrors[`travel_${idx}_occupation`] = "Please enter occupation or job title.";
-            if (!attendee.sponsorshipStatus) newErrors[`travel_${idx}_sponsorshipStatus`] = "Please select sponsorship status.";
-            if (!attendee.isGccCitizen) newErrors[`travel_${idx}_isGccCitizen`] = "Please answer whether this attendee is a GCC citizen.";
-            if (!docFiles.personalPhoto && !hasExisting('personalPhotoUrl')) newErrors[`travel_${idx}_personalPhoto`] = "Please upload a personal photo.";
-            if (!attendee.email.trim()) newErrors[`travel_${idx}_email`] = "Please enter the attendee's email address.";
-            else if (!attendee.email.includes('@')) newErrors[`travel_${idx}_email`] = "Please enter a valid email address.";
-
-            if (isGccCitizen) {
-                if (!docFiles.nationalIdFront && !hasExisting('nationalIdFrontUrl')) newErrors[`travel_${idx}_nationalIdFront`] = "Please upload the national ID front side.";
-                if (!docFiles.nationalIdBack && !hasExisting('nationalIdBackUrl')) newErrors[`travel_${idx}_nationalIdBack`] = "Please upload the national ID back side.";
-            } else {
-                if (!docFiles.passportBioPage && !hasExisting('passportBioPageUrl')) newErrors[`travel_${idx}_passportBioPage`] = "Please upload the passport bio-data page.";
-                if (!attendee.passportNumber.trim()) newErrors[`travel_${idx}_passportNumber`] = "Please enter the passport number.";
-                if (!attendee.passportIssueDate) newErrors[`travel_${idx}_passportIssueDate`] = "Please enter the passport issue date.";
-                if (!attendee.passportExpiryDate) newErrors[`travel_${idx}_passportExpiryDate`] = "Please enter the passport expiry date.";
-                if (!attendee.passportBlankPages) newErrors[`travel_${idx}_passportBlankPages`] = "Please enter the number of blank passport pages.";
-                if (!attendee.hasSaudiVisa) newErrors[`travel_${idx}_hasSaudiVisa`] = "Please answer the Saudi visa question.";
-                if (!attendee.hasUsUkSchengenVisa) newErrors[`travel_${idx}_hasUsUkSchengenVisa`] = "Please answer the US/UK/Schengen visa question.";
-                if (!attendee.hasGccResidency) newErrors[`travel_${idx}_hasGccResidency`] = "Please answer the GCC residency question.";
-                if (attendee.hasGccResidency === 'Yes') {
-                    if (!attendee.gccResidencyCountry) newErrors[`travel_${idx}_gccResidencyCountry`] = "Please select the GCC residency country.";
-                    if (!attendee.gccResidencyExpiryDate) newErrors[`travel_${idx}_gccResidencyExpiryDate`] = "Please enter residency permit expiry date.";
-                    if (!docFiles.gccResidencyFront && !hasExisting('gccResidencyFrontUrl')) newErrors[`travel_${idx}_gccResidencyFront`] = "Please upload the residency permit front side.";
-                    if (!docFiles.gccResidencyBack && !hasExisting('gccResidencyBackUrl')) newErrors[`travel_${idx}_gccResidencyBack`] = "Please upload the residency permit back side.";
-                }
-            }
-
-            validateFile(docFiles.nationalIdFront, `travel_${idx}_nationalIdFront`, allowedVisaUpload, 'National ID front side');
-            validateFile(docFiles.nationalIdBack, `travel_${idx}_nationalIdBack`, allowedVisaUpload, 'National ID back side');
-            validateFile(docFiles.passportBioPage, `travel_${idx}_passportBioPage`, allowedVisaUpload, 'Passport bio-data page');
-            validateFile(docFiles.personalPhoto, `travel_${idx}_personalPhoto`, allowedPhotoUpload, 'Personal photo');
-            validateFile(docFiles.gccResidencyFront, `travel_${idx}_gccResidencyFront`, allowedVisaUpload, 'Residency permit front side');
-            validateFile(docFiles.gccResidencyBack, `travel_${idx}_gccResidencyBack`, allowedVisaUpload, 'Residency permit back side');
-        });
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -860,6 +804,68 @@ const ApplyPageContent = () => {
                 newErrors.supportingData = "Supporting Data must be a PDF or Word document.";
             }
         }
+
+        const allowedVisaUpload = ['.pdf', '.jpg', '.jpeg', '.png'];
+        const allowedPhotoUpload = ['.jpg', '.jpeg', '.png'];
+        const maxVisaFileSize = MAX_VISA_DOCUMENT_SIZE_BYTES;
+        if (!formData.travelVisaInfo.attendingCount || formData.travelVisaInfo.attendingCount < 1) {
+            newErrors.travelAttendingCount = "Please enter how many team members will physically attend.";
+        } else if (formData.travelVisaInfo.attendingCount > maxTravelAttendees) {
+            newErrors.travelAttendingCount = `A maximum of ${maxTravelAttendees} attendees can be listed.`;
+        }
+        formData.travelVisaInfo.attendees.forEach((attendee, idx) => {
+            const docs = attendee.documents || {};
+            const docFiles = files.visaDocuments[idx] || createVisaDocumentFiles();
+            const isGccCitizen = attendee.isGccCitizen === 'Yes';
+            const hasExisting = (key: keyof TravelAttendeeDocuments) => Boolean(docs[key]);
+            const fileExt = (file: File | null) => '.' + file?.name.split('.').pop()?.toLowerCase();
+            const validateFile = (file: File | null, key: string, allowed: string[], label: string) => {
+                if (!file) return;
+                if (!allowed.includes(fileExt(file))) {
+                    newErrors[key] = `${label} must be ${allowed.join(', ').replaceAll('.', '').toUpperCase()}.`;
+                } else if (file.size > maxVisaFileSize) {
+                    newErrors[key] = `${label} must be 5MB or smaller.`;
+                }
+            };
+
+            if (!attendee.fullName.trim()) newErrors[`travel_${idx}_fullName`] = "Please enter the attendee's full name.";
+            if (!attendee.dateOfBirth) newErrors[`travel_${idx}_dateOfBirth`] = "Please enter the attendee's date of birth.";
+            if (!attendee.nationalityPassport) newErrors[`travel_${idx}_nationalityPassport`] = "Please select the passport nationality.";
+            if (!attendee.currentResidence) newErrors[`travel_${idx}_currentResidence`] = "Please select current country of residence.";
+            if (!attendee.occupation.trim()) newErrors[`travel_${idx}_occupation`] = "Please enter occupation or job title.";
+            if (!attendee.sponsorshipStatus) newErrors[`travel_${idx}_sponsorshipStatus`] = "Please select sponsorship status.";
+            if (!attendee.isGccCitizen) newErrors[`travel_${idx}_isGccCitizen`] = "Please answer whether this attendee is a GCC citizen.";
+            if (!docFiles.personalPhoto && !hasExisting('personalPhotoUrl')) newErrors[`travel_${idx}_personalPhoto`] = "Please upload a personal photo.";
+            if (!attendee.email.trim()) newErrors[`travel_${idx}_email`] = "Please enter the attendee's email address.";
+            else if (!attendee.email.includes('@')) newErrors[`travel_${idx}_email`] = "Please enter a valid email address.";
+
+            if (isGccCitizen) {
+                if (!docFiles.nationalIdFront && !hasExisting('nationalIdFrontUrl')) newErrors[`travel_${idx}_nationalIdFront`] = "Please upload the national ID front side.";
+                if (!docFiles.nationalIdBack && !hasExisting('nationalIdBackUrl')) newErrors[`travel_${idx}_nationalIdBack`] = "Please upload the national ID back side.";
+            } else {
+                if (!docFiles.passportBioPage && !hasExisting('passportBioPageUrl')) newErrors[`travel_${idx}_passportBioPage`] = "Please upload the passport bio-data page.";
+                if (!attendee.passportNumber.trim()) newErrors[`travel_${idx}_passportNumber`] = "Please enter the passport number.";
+                if (!attendee.passportIssueDate) newErrors[`travel_${idx}_passportIssueDate`] = "Please enter the passport issue date.";
+                if (!attendee.passportExpiryDate) newErrors[`travel_${idx}_passportExpiryDate`] = "Please enter the passport expiry date.";
+                if (!attendee.passportBlankPages) newErrors[`travel_${idx}_passportBlankPages`] = "Please enter the number of blank passport pages.";
+                if (!attendee.hasSaudiVisa) newErrors[`travel_${idx}_hasSaudiVisa`] = "Please answer the Saudi visa question.";
+                if (!attendee.hasUsUkSchengenVisa) newErrors[`travel_${idx}_hasUsUkSchengenVisa`] = "Please answer the US/UK/Schengen visa question.";
+                if (!attendee.hasGccResidency) newErrors[`travel_${idx}_hasGccResidency`] = "Please answer the GCC residency question.";
+                if (attendee.hasGccResidency === 'Yes') {
+                    if (!attendee.gccResidencyCountry) newErrors[`travel_${idx}_gccResidencyCountry`] = "Please select the GCC residency country.";
+                    if (!attendee.gccResidencyExpiryDate) newErrors[`travel_${idx}_gccResidencyExpiryDate`] = "Please enter residency permit expiry date.";
+                    if (!docFiles.gccResidencyFront && !hasExisting('gccResidencyFrontUrl')) newErrors[`travel_${idx}_gccResidencyFront`] = "Please upload the residency permit front side.";
+                    if (!docFiles.gccResidencyBack && !hasExisting('gccResidencyBackUrl')) newErrors[`travel_${idx}_gccResidencyBack`] = "Please upload the residency permit back side.";
+                }
+            }
+
+            validateFile(docFiles.nationalIdFront, `travel_${idx}_nationalIdFront`, allowedVisaUpload, 'National ID front side');
+            validateFile(docFiles.nationalIdBack, `travel_${idx}_nationalIdBack`, allowedVisaUpload, 'National ID back side');
+            validateFile(docFiles.passportBioPage, `travel_${idx}_passportBioPage`, allowedVisaUpload, 'Passport bio-data page');
+            validateFile(docFiles.personalPhoto, `travel_${idx}_personalPhoto`, allowedPhotoUpload, 'Personal photo');
+            validateFile(docFiles.gccResidencyFront, `travel_${idx}_gccResidencyFront`, allowedVisaUpload, 'Residency permit front side');
+            validateFile(docFiles.gccResidencyBack, `travel_${idx}_gccResidencyBack`, allowedVisaUpload, 'Residency permit back side');
+        });
 
         if (!formData.agreedToTerms) {
             newErrors.agreedToTerms = "You must agree to the Terms and Conditions to submit.";
@@ -1510,7 +1516,7 @@ const ApplyPageContent = () => {
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
                     <div className={`p-5 rounded-2xl border border-dashed transition-all flex items-center gap-4 ${selectedFile ? 'border-vc-mint bg-vc-mint/5' : existingName ? 'border-vc-mint/50 bg-vc-mint/5' : errors[errorKey] ? 'border-red-500 bg-red-500/5' : 'border-white/10 bg-white/5 group-hover:border-vc-mint/50'}`}>
-                        <FileText className={`w-5 h-5 ${selectedFile || existingName ? 'text-vc-mint' : errors[errorKey] ? 'text-red-500' : 'text-white/20'}`} />
+                        <FileText className={`w-5 h-5 flex-shrink-0 ${selectedFile || existingName ? 'text-vc-mint' : errors[errorKey] ? 'text-red-500' : 'text-white/20'}`} />
                         <div className="min-w-0">
                             <p className="text-sm font-medium truncate">
                                 {selectedFile ? selectedFile.name : existingName ? `On File: ${existingName}` : `Upload ${label}`}
@@ -2056,358 +2062,7 @@ const ApplyPageContent = () => {
                                     ))}
                                 </div>
 
-                                <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10 mt-12">
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-vc-mint flex items-center gap-2">
-                                            <Plane className="w-5 h-5" />
-                                            Travel & Visa Information
-                                        </h3>
-                                        <p className="text-sm text-white/50 mt-3 leading-relaxed">
-                                            Sponsorship only covers travel for a maximum of 2 members per startup. Every team member who plans to physically attend must complete this section individually.
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-4 max-w-md">
-                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                            How many members will physically attend? <span className="text-vc-mint">*</span>
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            max={maxTravelAttendees}
-                                            data-testid="travel-attendee-count"
-                                            value={formData.travelVisaInfo.attendingCount}
-                                            onChange={(e) => {
-                                                handleTravelAttendeeCountChange(parseInt(e.target.value));
-                                                if (errors.travelAttendingCount) setErrors(prev => ({ ...prev, travelAttendingCount: '' }));
-                                            }}
-                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.travelAttendingCount ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
-                                        />
-                                        {renderTravelError('travelAttendingCount')}
-                                        <p className="text-xs text-white/40">You may list up to {maxTravelAttendees} attendees. Only the first 2 sponsored attendees are covered.</p>
-                                    </div>
-
-                                    {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length > 2 && (
-                                        <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm leading-relaxed">
-                                            More than 2 attendees are marked Sponsored. Logistics/admin should review sponsorship assignment; additional attendees may attend at their own expense.
-                                        </div>
-                                    )}
-
-                                    <div className="space-y-8">
-                                        {formData.travelVisaInfo.attendees.map((attendee, attendeeIndex) => {
-                                            const isGccCitizen = attendee.isGccCitizen === 'Yes';
-                                            const docs = attendee.documents || {};
-                                            const passportExpiryWarning = !isGccCitizen && attendee.passportExpiryDate && attendee.passportExpiryDate < sixMonthsFromArrival;
-                                            const blankPagesWarning = !isGccCitizen && attendee.passportBlankPages && Number(attendee.passportBlankPages) < 2;
-
-                                            return (
-                                                <div key={attendeeIndex} className="p-5 md:p-6 rounded-2xl border border-white/10 bg-[#001311]/30 space-y-6">
-                                                    <div className="flex items-center justify-between gap-4">
-                                                        <h4 className="text-lg font-bold text-white">Attendee {attendeeIndex + 1}</h4>
-                                                        <span className="text-xs text-vc-mint/70 font-bold uppercase tracking-widest">
-                                                            {attendee.sponsorshipStatus || 'Status pending'}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                        <div className="space-y-2">
-                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                Full Name <span className="text-vc-mint">*</span>
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                data-testid={`travel-${attendeeIndex}-full-name`}
-                                                                value={attendee.fullName}
-                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'fullName', e.target.value)}
-                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_fullName`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
-                                                                placeholder="Must match passport or national ID exactly"
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_fullName`)}
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                Date of Birth <span className="text-vc-mint">*</span>
-                                                            </label>
-                                                            <DatePicker
-                                                                value={attendee.dateOfBirth}
-                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'dateOfBirth', val)}
-                                                                error={errors[`travel_${attendeeIndex}_dateOfBirth`]}
-                                                                testId={`travel-${attendeeIndex}-date-of-birth`}
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_dateOfBirth`)}
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <FlagDropdown
-                                                                options={countries}
-                                                                value={attendee.nationalityPassport}
-                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'nationalityPassport', val)}
-                                                                label="Nationality (Passport) *"
-                                                                description="If holding more than one passport, select the one this attendee will travel on."
-                                                                type="country"
-                                                                error={errors[`travel_${attendeeIndex}_nationalityPassport`]}
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_nationalityPassport`)}
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <FlagDropdown
-                                                                options={countries}
-                                                                value={attendee.currentResidence}
-                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'currentResidence', val)}
-                                                                label="Current Country of Residence *"
-                                                                type="country"
-                                                                error={errors[`travel_${attendeeIndex}_currentResidence`]}
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_currentResidence`)}
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                Occupation / Job Title <span className="text-vc-mint">*</span>
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                data-testid={`travel-${attendeeIndex}-occupation`}
-                                                                value={attendee.occupation}
-                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'occupation', e.target.value)}
-                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_occupation`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
-                                                                placeholder="Founder, Researcher, Student, etc."
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_occupation`)}
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <SimpleDropdown
-                                                                options={['Sponsored', 'Self-funded']}
-                                                                value={attendee.sponsorshipStatus}
-                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'sponsorshipStatus', val)}
-                                                                label="Sponsorship Status *"
-                                                                placeholder="Select sponsorship status"
-                                                                error={errors[`travel_${attendeeIndex}_sponsorshipStatus`]}
-                                                                testId={`travel-${attendeeIndex}-sponsorship-status`}
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_sponsorshipStatus`)}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-3">
-                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                            Are you a citizen of a GCC country? <span className="text-vc-mint">*</span>
-                                                        </label>
-                                                        <div className="flex gap-3">
-                                                            {['Yes', 'No'].map((opt) => (
-                                                                <button
-                                                                    key={opt}
-                                                                    type="button"
-                                                                    onClick={() => handleTravelAttendeeChange(attendeeIndex, 'isGccCitizen', opt)}
-                                                                    data-testid={`travel-${attendeeIndex}-gcc-citizen-${opt}`}
-                                                                    className={`px-6 py-3 rounded-xl border transition-all ${attendee.isGccCitizen === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
-                                                                >
-                                                                    {opt}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                        <p className="text-xs text-white/40">GCC citizens are nationals of Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, or UAE.</p>
-                                                        {renderTravelError(`travel_${attendeeIndex}_isGccCitizen`)}
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                        {isGccCitizen ? (
-                                                            <>
-                                                                {renderVisaUpload(attendeeIndex, 'nationalIdFront', 'National ID - Front Side', 'JPG, PNG, or PDF up to 5MB', docs.nationalIdFrontName)}
-                                                                {renderVisaUpload(attendeeIndex, 'nationalIdBack', 'National ID - Back Side', 'JPG, PNG, or PDF up to 5MB', docs.nationalIdBackName)}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                {renderVisaUpload(attendeeIndex, 'passportBioPage', 'Passport Bio-Data Page', 'Single page with photo and personal details, JPG/PNG/PDF up to 5MB', docs.passportBioPageName)}
-
-                                                                <div className="space-y-2">
-                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                        Passport Number <span className="text-vc-mint">*</span>
-                                                                    </label>
-                                                                    <input
-                                                                        type="text"
-                                                                        data-testid={`travel-${attendeeIndex}-passport-number`}
-                                                                        value={attendee.passportNumber}
-                                                                        onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportNumber', e.target.value)}
-                                                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportNumber`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
-                                                                    />
-                                                                    {renderTravelError(`travel_${attendeeIndex}_passportNumber`)}
-                                                                </div>
-
-                                                                <div className="space-y-2">
-                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                        Passport Issue Date <span className="text-vc-mint">*</span>
-                                                                    </label>
-                                                                    <DatePicker
-                                                                        value={attendee.passportIssueDate}
-                                                                        onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportIssueDate', val)}
-                                                                        error={errors[`travel_${attendeeIndex}_passportIssueDate`]}
-                                                                        testId={`travel-${attendeeIndex}-passport-issue-date`}
-                                                                    />
-                                                                    {renderTravelError(`travel_${attendeeIndex}_passportIssueDate`)}
-                                                                </div>
-
-                                                                <div className="space-y-2">
-                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                        Passport Expiry Date <span className="text-vc-mint">*</span>
-                                                                    </label>
-                                                                    <DatePicker
-                                                                        value={attendee.passportExpiryDate}
-                                                                        onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportExpiryDate', val)}
-                                                                        error={errors[`travel_${attendeeIndex}_passportExpiryDate`]}
-                                                                        testId={`travel-${attendeeIndex}-passport-expiry-date`}
-                                                                    />
-                                                                    {renderTravelError(`travel_${attendeeIndex}_passportExpiryDate`)}
-                                                                    {passportExpiryWarning && renderTravelWarning('Your passport may not be valid for travel. Most visas require at least 6 months validity from the date of arrival.')}
-                                                                </div>
-
-                                                                <div className="space-y-2">
-                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                        Number of Blank Passport Pages <span className="text-vc-mint">*</span>
-                                                                    </label>
-                                                                    <input
-                                                                        type="number"
-                                                                        min="0"
-                                                                        data-testid={`travel-${attendeeIndex}-passport-blank-pages`}
-                                                                        value={attendee.passportBlankPages}
-                                                                        onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportBlankPages', e.target.value)}
-                                                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportBlankPages`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
-                                                                    />
-                                                                    {renderTravelError(`travel_${attendeeIndex}_passportBlankPages`)}
-                                                                    {blankPagesWarning && renderTravelWarning('At least 2 blank passport pages are required for a Saudi visa.')}
-                                                                </div>
-                                                            </>
-                                                        )}
-
-                                                        {renderVisaUpload(attendeeIndex, 'personalPhoto', 'Personal Photo', 'White background, face centred, taken within the last 6 months. JPG/PNG only, up to 5MB.', docs.personalPhotoName, '.jpg,.jpeg,.png')}
-
-                                                        <div className="space-y-2">
-                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
-                                                                Email Address <span className="text-vc-mint">*</span>
-                                                            </label>
-                                                            <input
-                                                                type="email"
-                                                                data-testid={`travel-${attendeeIndex}-email`}
-                                                                value={attendee.email}
-                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'email', e.target.value)}
-                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_email`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
-                                                                placeholder="Visa approval document will be sent here"
-                                                            />
-                                                            {renderTravelError(`travel_${attendeeIndex}_email`)}
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Departure City / Country</label>
-                                                            <input
-                                                                type="text"
-                                                                value={attendee.departureCityCountry}
-                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'departureCityCountry', e.target.value)}
-                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                                                placeholder="Optional"
-                                                            />
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Intended Airline</label>
-                                                            <input
-                                                                type="text"
-                                                                value={attendee.intendedAirline}
-                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'intendedAirline', e.target.value)}
-                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
-                                                                placeholder="e.g. Saudia, Flynas, Emirates, etc."
-                                                            />
-                                                            <p className="text-xs text-white/40">Some visa pathways only work when flying Saudia, Flynas, or Flyadeal.</p>
-                                                        </div>
-                                                    </div>
-
-                                                    {!isGccCitizen && (
-                                                        <div className="space-y-6 pt-2">
-                                                            <div className="p-4 rounded-xl bg-vc-mint/10 border border-vc-mint/20 text-sm text-white/70 leading-relaxed">
-                                                                These questions can unlock faster or cheaper visa pathways. Please do not skip them.
-                                                            </div>
-
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                <SimpleDropdown
-                                                                    options={['Yes', 'No']}
-                                                                    value={attendee.hasSaudiVisa}
-                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasSaudiVisa', val)}
-                                                                    label="Do you currently hold a valid Saudi eVisa or visit visa? *"
-                                                                    placeholder="Select"
-                                                                    error={errors[`travel_${attendeeIndex}_hasSaudiVisa`]}
-                                                                    testId={`travel-${attendeeIndex}-has-saudi-visa`}
-                                                                />
-                                                                <SimpleDropdown
-                                                                    options={['Yes', 'No']}
-                                                                    value={attendee.hasUsUkSchengenVisa}
-                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasUsUkSchengenVisa', val)}
-                                                                    label="Do you hold a valid US, UK, or Schengen visa or residence permit? *"
-                                                                    placeholder="Select"
-                                                                    error={errors[`travel_${attendeeIndex}_hasUsUkSchengenVisa`]}
-                                                                    testId={`travel-${attendeeIndex}-has-us-uk-schengen`}
-                                                                />
-                                                            </div>
-
-                                                            {attendee.hasSaudiVisa === 'Yes' && (
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                    <SimpleDropdown options={['eVisa', 'Embassy visit visa', 'Other']} value={attendee.saudiVisaType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaType', val)} label="Saudi Visa Type" placeholder="Select type" testId={`travel-${attendeeIndex}-saudi-visa-type`} />
-                                                                    <SimpleDropdown options={['Single', 'Multiple']} value={attendee.saudiVisaEntryType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaEntryType', val)} label="Single or Multiple Entry?" placeholder="Select" testId={`travel-${attendeeIndex}-saudi-visa-entry-type`} />
-                                                                    <div className="space-y-2">
-                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Issue Date</label>
-                                                                        <DatePicker value={attendee.saudiVisaIssueDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaIssueDate', val)} testId={`travel-${attendeeIndex}-saudi-visa-issue-date`} />
-                                                                    </div>
-                                                                    <div className="space-y-2">
-                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
-                                                                        <DatePicker value={attendee.saudiVisaExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaExpiryDate', val)} testId={`travel-${attendeeIndex}-saudi-visa-expiry-date`} />
-                                                                    </div>
-                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.saudiVisaUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaUsedBefore', val)} label="Used it to enter KSA before?" placeholder="Select" testId={`travel-${attendeeIndex}-saudi-visa-used-before`} />
-                                                                </div>
-                                                            )}
-
-                                                            {attendee.hasUsUkSchengenVisa === 'Yes' && (
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                    <SimpleDropdown options={['US', 'UK', 'Schengen']} value={attendee.usUkSchengenType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenType', val)} label="Which one?" placeholder="Select" testId={`travel-${attendeeIndex}-us-uk-schengen-type`} />
-                                                                    <div className="space-y-2">
-                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
-                                                                        <DatePicker value={attendee.usUkSchengenExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenExpiryDate', val)} testId={`travel-${attendeeIndex}-us-uk-schengen-expiry-date`} />
-                                                                    </div>
-                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.usUkSchengenUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenUsedBefore', val)} label="Used it to travel to that country?" placeholder="Select" testId={`travel-${attendeeIndex}-us-uk-schengen-used-before`} />
-                                                                </div>
-                                                            )}
-
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                <SimpleDropdown
-                                                                    options={['Yes', 'No']}
-                                                                    value={attendee.hasGccResidency}
-                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasGccResidency', val)}
-                                                                    label="Do you currently hold a GCC residency permit (iqama)? *"
-                                                                    placeholder="Select"
-                                                                    error={errors[`travel_${attendeeIndex}_hasGccResidency`]}
-                                                                    testId={`travel-${attendeeIndex}-has-gcc-residency`}
-                                                                />
-                                                            </div>
-
-                                                            {attendee.hasGccResidency === 'Yes' && (
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                    <SimpleDropdown options={gccResidencyOptions} value={attendee.gccResidencyCountry} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyCountry', val)} label="Which GCC Country? *" placeholder="Select country" error={errors[`travel_${attendeeIndex}_gccResidencyCountry`]} testId={`travel-${attendeeIndex}-gcc-residency-country`} />
-                                                                    <div className="space-y-2">
-                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Residency Permit Expiry Date <span className="text-vc-mint">*</span></label>
-                                                                        <DatePicker value={attendee.gccResidencyExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyExpiryDate', val)} error={errors[`travel_${attendeeIndex}_gccResidencyExpiryDate`]} testId={`travel-${attendeeIndex}-gcc-residency-expiry-date`} />
-                                                                        {renderTravelError(`travel_${attendeeIndex}_gccResidencyExpiryDate`)}
-                                                                    </div>
-                                                                    {renderVisaUpload(attendeeIndex, 'gccResidencyFront', 'Residency Permit (Iqama) - Front Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyFrontName)}
-                                                                    {renderVisaUpload(attendeeIndex, 'gccResidencyBack', 'Residency Permit (Iqama) - Back Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyBackName)}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+                                
 
                                 <div className="space-y-4">
                                     <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer hover:bg-vc-mint/10 transition-all duration-200 ${errors.eligibility ? 'bg-red-500/10 border-red-500' : 'bg-vc-mint/5 border-vc-mint/10'}`}>
@@ -2857,6 +2512,362 @@ const ApplyPageContent = () => {
                                             )}
                                         </div>
                                     </div>
+
+                                    <div className="space-y-6 bg-white/5 p-6 rounded-2xl border border-white/10 mt-12">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-vc-mint flex items-center gap-2">
+                                            <Plane className="w-5 h-5" />
+                                            Travel & Visa Information
+                                        </h3>
+                                        <p className="text-sm text-white/50 mt-3 leading-relaxed">
+                                            Sponsorship only covers travel for a maximum of 2 members per startup. Every team member who plans to physically attend must complete this section individually.
+                                        </p>
+                                        <p className="text-xs text-red-500 mt-1 italic">
+                                            All data submitted through this form will be handled by the Logistics & Planning team and used only for visa processing purposes.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-4 max-w-md">
+                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                            How many members will physically attend? <span className="text-vc-mint">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max={maxTravelAttendees}
+                                            data-testid="travel-attendee-count"
+                                            value={formData.travelVisaInfo.attendingCount}
+                                            onChange={(e) => {
+                                                handleTravelAttendeeCountChange(parseInt(e.target.value));
+                                                if (errors.travelAttendingCount) setErrors(prev => ({ ...prev, travelAttendingCount: '' }));
+                                            }}
+                                            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors.travelAttendingCount ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                        />
+                                        {renderTravelError('travelAttendingCount')}
+                                        <p className="text-xs text-white/40">You may list up to {maxTravelAttendees} attendees. Only the first 2 sponsored attendees are covered.</p>
+                                    </div>
+
+                                    {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length > 2 && (
+                                        <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm leading-relaxed">
+                                            More than 2 attendees are marked Sponsored. Logistics/admin should review sponsorship assignment; additional attendees may attend at their own expense.
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-8">
+                                        {formData.travelVisaInfo.attendees.map((attendee, attendeeIndex) => {
+                                            const isGccCitizen = attendee.isGccCitizen === 'Yes';
+                                            const docs = attendee.documents || {};
+                                            const passportExpiryWarning = !isGccCitizen && attendee.passportExpiryDate && attendee.passportExpiryDate < sixMonthsFromArrival;
+                                            const blankPagesWarning = !isGccCitizen && attendee.passportBlankPages && Number(attendee.passportBlankPages) < 2;
+
+                                            return (
+                                                <div key={attendeeIndex} className="p-5 md:p-6 rounded-2xl border border-white/10 bg-[#001311]/30 space-y-6">
+                                                    <div className="flex items-center justify-between gap-4">
+                                                        <h4 className="text-lg font-bold text-white">Attendee {attendeeIndex + 1}</h4>
+                                                        <span className="text-xs text-vc-mint/70 font-bold uppercase tracking-widest">
+                                                            {attendee.sponsorshipStatus || 'Status pending'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Full Name <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                data-testid={`travel-${attendeeIndex}-full-name`}
+                                                                value={attendee.fullName}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'fullName', e.target.value)}
+                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_fullName`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                placeholder="Must match passport or national ID exactly"
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_fullName`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Date of Birth <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <DatePicker
+                                                                value={attendee.dateOfBirth}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'dateOfBirth', val)}
+                                                                error={errors[`travel_${attendeeIndex}_dateOfBirth`]}
+                                                                testId={`travel-${attendeeIndex}-date-of-birth`}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_dateOfBirth`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <FlagDropdown
+                                                                options={countries}
+                                                                value={attendee.nationalityPassport}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'nationalityPassport', val)}
+                                                                label="Nationality (Passport) *"
+                                                                description="If holding more than one passport, select the one this attendee will travel on."
+                                                                type="country"
+                                                                error={errors[`travel_${attendeeIndex}_nationalityPassport`]}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_nationalityPassport`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <FlagDropdown
+                                                                options={countries}
+                                                                value={attendee.currentResidence}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'currentResidence', val)}
+                                                                label="Current Country of Residence *"
+                                                                type="country"
+                                                                error={errors[`travel_${attendeeIndex}_currentResidence`]}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_currentResidence`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Occupation / Job Title <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                data-testid={`travel-${attendeeIndex}-occupation`}
+                                                                value={attendee.occupation}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'occupation', e.target.value)}
+                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_occupation`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                placeholder="Founder, Researcher, Student, etc."
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_occupation`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <SimpleDropdown
+                                                                options={['Sponsored', 'Self-funded']}
+                                                                value={attendee.sponsorshipStatus}
+                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'sponsorshipStatus', val)}
+                                                                label="Sponsorship Status *"
+                                                                placeholder="Select sponsorship status"
+                                                                error={errors[`travel_${attendeeIndex}_sponsorshipStatus`]}
+                                                                testId={`travel-${attendeeIndex}-sponsorship-status`}
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_sponsorshipStatus`)}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                            Are you a citizen of a GCC country? <span className="text-vc-mint">*</span>
+                                                        </label>
+                                                        <div className="flex gap-3">
+                                                            {['Yes', 'No'].map((opt) => (
+                                                                <button
+                                                                    key={opt}
+                                                                    type="button"
+                                                                    onClick={() => handleTravelAttendeeChange(attendeeIndex, 'isGccCitizen', opt)}
+                                                                    data-testid={`travel-${attendeeIndex}-gcc-citizen-${opt}`}
+                                                                    className={`px-6 py-3 rounded-xl border transition-all ${attendee.isGccCitizen === opt ? 'border-vc-mint bg-vc-mint/10 text-vc-mint' : 'border-white/10 bg-white/5 text-white/60'}`}
+                                                                >
+                                                                    {opt}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <p className="text-xs text-white/40">GCC citizens are nationals of Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, or UAE.</p>
+                                                        {renderTravelError(`travel_${attendeeIndex}_isGccCitizen`)}
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        {isGccCitizen ? (
+                                                            <>
+                                                                {renderVisaUpload(attendeeIndex, 'nationalIdFront', 'National ID - Front Side', 'JPG, PNG, or PDF up to 5MB', docs.nationalIdFrontName)}
+                                                                {renderVisaUpload(attendeeIndex, 'nationalIdBack', 'National ID - Back Side', 'JPG, PNG, or PDF up to 5MB', docs.nationalIdBackName)}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                {renderVisaUpload(attendeeIndex, 'passportBioPage', 'Passport Bio-Data Page', 'Single page with photo and personal details, JPG/PNG/PDF up to 5MB', docs.passportBioPageName)}
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Passport Number <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        data-testid={`travel-${attendeeIndex}-passport-number`}
+                                                                        value={attendee.passportNumber}
+                                                                        onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportNumber', e.target.value)}
+                                                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportNumber`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportNumber`)}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Passport Issue Date <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <DatePicker
+                                                                        value={attendee.passportIssueDate}
+                                                                        onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportIssueDate', val)}
+                                                                        error={errors[`travel_${attendeeIndex}_passportIssueDate`]}
+                                                                        testId={`travel-${attendeeIndex}-passport-issue-date`}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportIssueDate`)}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Passport Expiry Date <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <DatePicker
+                                                                        value={attendee.passportExpiryDate}
+                                                                        onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'passportExpiryDate', val)}
+                                                                        error={errors[`travel_${attendeeIndex}_passportExpiryDate`]}
+                                                                        testId={`travel-${attendeeIndex}-passport-expiry-date`}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportExpiryDate`)}
+                                                                    {passportExpiryWarning && renderTravelWarning('Your passport may not be valid for travel. Most visas require at least 6 months validity from the date of arrival.')}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                        Number of Blank Passport Pages <span className="text-vc-mint">*</span>
+                                                                    </label>
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        data-testid={`travel-${attendeeIndex}-passport-blank-pages`}
+                                                                        value={attendee.passportBlankPages}
+                                                                        onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'passportBlankPages', e.target.value)}
+                                                                        className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_passportBlankPages`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                    />
+                                                                    {renderTravelError(`travel_${attendeeIndex}_passportBlankPages`)}
+                                                                    {blankPagesWarning && renderTravelWarning('At least 2 blank passport pages are required for a Saudi visa.')}
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        {renderVisaUpload(attendeeIndex, 'personalPhoto', 'Personal Photo', 'White background, face centred, taken within the last 6 months. JPG/PNG only, up to 5MB.', docs.personalPhotoName, '.jpg,.jpeg,.png')}
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">
+                                                                Email Address <span className="text-vc-mint">*</span>
+                                                            </label>
+                                                            <input
+                                                                type="email"
+                                                                data-testid={`travel-${attendeeIndex}-email`}
+                                                                value={attendee.email}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'email', e.target.value)}
+                                                                className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none transition-colors ${errors[`travel_${attendeeIndex}_email`] ? 'border-red-500 bg-red-500/5' : 'border-white/10 focus:border-vc-mint'}`}
+                                                                placeholder="Visa approval document will be sent here"
+                                                            />
+                                                            {renderTravelError(`travel_${attendeeIndex}_email`)}
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Departure City / Country</label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.departureCityCountry}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'departureCityCountry', e.target.value)}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                                placeholder="Optional"
+                                                            />
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Intended Airline</label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.intendedAirline}
+                                                                onChange={(e) => handleTravelAttendeeChange(attendeeIndex, 'intendedAirline', e.target.value)}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-vc-mint transition-colors"
+                                                                placeholder="e.g. Saudia, Flynas, Emirates, etc."
+                                                            />
+                                                            <p className="text-xs text-white/40">Some visa pathways only work when flying Saudia, Flynas, or Flyadeal.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {!isGccCitizen && (
+                                                        <div className="space-y-6 pt-2">
+                                                            <div className="p-4 rounded-xl bg-vc-mint/10 border border-vc-mint/20 text-sm text-white/70 leading-relaxed">
+                                                                These questions can unlock faster or cheaper visa pathways. Please do not skip them.
+                                                            </div>
+
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                <SimpleDropdown
+                                                                    options={['Yes', 'No']}
+                                                                    value={attendee.hasSaudiVisa}
+                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasSaudiVisa', val)}
+                                                                    label="Do you currently hold a valid Saudi eVisa or visit visa? *"
+                                                                    placeholder="Select"
+                                                                    error={errors[`travel_${attendeeIndex}_hasSaudiVisa`]}
+                                                                    testId={`travel-${attendeeIndex}-has-saudi-visa`}
+                                                                />
+                                                                <SimpleDropdown
+                                                                    options={['Yes', 'No']}
+                                                                    value={attendee.hasUsUkSchengenVisa}
+                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasUsUkSchengenVisa', val)}
+                                                                    label="Do you hold a valid US, UK, or Schengen visa or residence permit? *"
+                                                                    placeholder="Select"
+                                                                    error={errors[`travel_${attendeeIndex}_hasUsUkSchengenVisa`]}
+                                                                    testId={`travel-${attendeeIndex}-has-us-uk-schengen`}
+                                                                />
+                                                            </div>
+
+                                                            {attendee.hasSaudiVisa === 'Yes' && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <SimpleDropdown options={['eVisa', 'Embassy visit visa', 'Other']} value={attendee.saudiVisaType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaType', val)} label="Saudi Visa Type" placeholder="Select type" testId={`travel-${attendeeIndex}-saudi-visa-type`} />
+                                                                    <SimpleDropdown options={['Single', 'Multiple']} value={attendee.saudiVisaEntryType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaEntryType', val)} label="Single or Multiple Entry?" placeholder="Select" testId={`travel-${attendeeIndex}-saudi-visa-entry-type`} />
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Issue Date</label>
+                                                                        <DatePicker value={attendee.saudiVisaIssueDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaIssueDate', val)} testId={`travel-${attendeeIndex}-saudi-visa-issue-date`} />
+                                                                    </div>
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
+                                                                        <DatePicker value={attendee.saudiVisaExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaExpiryDate', val)} testId={`travel-${attendeeIndex}-saudi-visa-expiry-date`} />
+                                                                    </div>
+                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.saudiVisaUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'saudiVisaUsedBefore', val)} label="Used it to enter KSA before?" placeholder="Select" testId={`travel-${attendeeIndex}-saudi-visa-used-before`} />
+                                                                </div>
+                                                            )}
+
+                                                            {attendee.hasUsUkSchengenVisa === 'Yes' && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <SimpleDropdown options={['US', 'UK', 'Schengen']} value={attendee.usUkSchengenType} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenType', val)} label="Which one?" placeholder="Select" testId={`travel-${attendeeIndex}-us-uk-schengen-type`} />
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Expiry Date</label>
+                                                                        <DatePicker value={attendee.usUkSchengenExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenExpiryDate', val)} testId={`travel-${attendeeIndex}-us-uk-schengen-expiry-date`} />
+                                                                    </div>
+                                                                    <SimpleDropdown options={['Yes', 'No']} value={attendee.usUkSchengenUsedBefore} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'usUkSchengenUsedBefore', val)} label="Used it to travel to that country?" placeholder="Select" testId={`travel-${attendeeIndex}-us-uk-schengen-used-before`} />
+                                                                </div>
+                                                            )}
+
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                <SimpleDropdown
+                                                                    options={['Yes', 'No']}
+                                                                    value={attendee.hasGccResidency}
+                                                                    onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'hasGccResidency', val)}
+                                                                    label="Do you currently hold a GCC residency permit (iqama)? *"
+                                                                    placeholder="Select"
+                                                                    error={errors[`travel_${attendeeIndex}_hasGccResidency`]}
+                                                                    testId={`travel-${attendeeIndex}-has-gcc-residency`}
+                                                                />
+                                                            </div>
+
+                                                            {attendee.hasGccResidency === 'Yes' && (
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <SimpleDropdown options={gccResidencyOptions} value={attendee.gccResidencyCountry} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyCountry', val)} label="Which GCC Country? *" placeholder="Select country" error={errors[`travel_${attendeeIndex}_gccResidencyCountry`]} testId={`travel-${attendeeIndex}-gcc-residency-country`} />
+                                                                    <div className="space-y-2">
+                                                                        <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Residency Permit Expiry Date <span className="text-vc-mint">*</span></label>
+                                                                        <DatePicker value={attendee.gccResidencyExpiryDate} onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'gccResidencyExpiryDate', val)} error={errors[`travel_${attendeeIndex}_gccResidencyExpiryDate`]} testId={`travel-${attendeeIndex}-gcc-residency-expiry-date`} />
+                                                                        {renderTravelError(`travel_${attendeeIndex}_gccResidencyExpiryDate`)}
+                                                                    </div>
+                                                                    {renderVisaUpload(attendeeIndex, 'gccResidencyFront', 'Residency Permit (Iqama) - Front Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyFrontName)}
+                                                                    {renderVisaUpload(attendeeIndex, 'gccResidencyBack', 'Residency Permit (Iqama) - Back Side', 'Required in addition to passport bio-data page, JPG/PNG/PDF up to 5MB', docs.gccResidencyBackName)}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
 
                                     <div className={`glass-panel p-6 border transition-all ${errors.agreedToTerms ? 'border-vc-mint bg-vc-mint/10' : 'border-vc-mint/30 bg-vc-mint/5'}`}>
                                         <div className="flex items-start gap-4">

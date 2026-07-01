@@ -179,11 +179,17 @@ export const normalizeTravelVisaInfo = (
         maxTravelAttendees
     );
 
-    const hydrateAttendee = (savedValue: unknown, fallbackName: string): TravelAttendee => {
-        if (!savedValue) return createTravelAttendee(fallbackName);
+    const hydrateAttendee = (savedValue: unknown, fallbackName: string, index: number): TravelAttendee => {
+        const defaultSponsorship = index < 2 ? 'Sponsored' : 'Self-funded';
+        if (!savedValue) {
+            const base = createTravelAttendee(fallbackName);
+            base.sponsorshipStatus = defaultSponsorship;
+            return base;
+        }
 
         const saved = asRecord(savedValue);
         const base = createTravelAttendee(fallbackName);
+        base.sponsorshipStatus = defaultSponsorship;
         const isCleanShape = typeof saved.isGccCitizen === 'boolean' || Boolean(saved.passportDetails || saved.existingSaudiVisa);
 
         if (!isCleanShape) {
@@ -234,7 +240,7 @@ export const normalizeTravelVisaInfo = (
     };
 
     const attendees = Array.from({ length: attendingCount }, (_, index) =>
-        hydrateAttendee(existingAttendees[index], teamMembers[index]?.name || '')
+        hydrateAttendee(existingAttendees[index], teamMembers[index]?.name || '', index)
     );
 
     return { attendingCount, attendees };

@@ -39,10 +39,10 @@ interface ApplicationMaterial {
         alphaItems?: string[];
         nestedItems?: {
             title: string;
-            subItems: string[];
+            subItems: (string | React.ReactNode)[];
             nestedNote?: {
                 title: string;
-                items: string[];
+                items: (string | React.ReactNode)[];
             };
         }[];
         documents?: DocumentResource[];
@@ -253,6 +253,57 @@ const applicationMaterials: ApplicationMaterial[] = [
             brandedUrl: "/venture-craftee-supporting-data.html"
         },
         note: "Supporting data is used to enhance technical evaluation, but the absence of supporting data will not negatively affect eligibility. Emphasis is placed on clarity, relevance, and technical reasoning rather than volume or complexity."
+    },
+    {
+        number: 5,
+        title: "TRAVEL & VISA INFO",
+        format: "Website Form Section",
+        length: "Required for physical attendees",
+        purpose: "Collects travel, passport, and existing visa details to determine Saudi visa entry pathways and apply for visas on behalf of confirmed finalists.",
+        intro: "All data submitted through this form will be handled by the Logistics & Planning team and used only for visa processing purposes.",
+        content: {
+            title: "Requirements by Category:",
+            nestedItems: [
+                {
+                    title: "Sponsorship & Roster Limits",
+                    subItems: [
+                        <span>Sponsorship covers travel for a <strong className="text-vc-mint font-bold">maximum of 2 members</strong> per startup.</span>,
+                        <span>Additional team members can physically attend at their own expense (<strong className="text-vc-mint font-bold">Self-funded</strong>).</span>,
+                        <span><strong className="text-vc-mint font-bold uppercase">every</strong> attending member (whether sponsored or self-funded) must fill out the form <strong className="text-vc-mint font-bold">individually</strong>.</span>
+                    ]
+                },
+                {
+                    title: "GCC Citizens Requirements",
+                    subItems: [
+                        <span>Upload <strong className="text-vc-mint font-bold">National ID (front & back sides)</strong> - <strong className="text-vc-mint font-bold">No passport required</strong>.</span>,
+                        <span>Applicable to nationals of <strong className="text-white font-medium">Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, and UAE</strong>.</span>
+                    ]
+                },
+                {
+                    title: "Non-GCC Citizens Requirements",
+                    subItems: [
+                        <span>Upload <strong className="text-vc-mint font-bold">Passport Bio-data Page</strong> (main photo & details page).</span>,
+                        <span>Passport must have a <strong className="text-vc-mint font-bold">minimum of 2 blank pages</strong>.</span>,
+                        <span>Passport must be valid for <strong className="text-vc-mint font-bold">at least 6 months</strong> from October 1, 2026.</span>
+                    ]
+                },
+                {
+                    title: "Existing Visas & GCC Residency",
+                    subItems: [
+                        <span>Holders of valid <strong className="text-vc-mint font-bold">Saudi eVisa, US, UK, or Schengen visas</strong> can unlock <strong className="text-vc-mint font-bold">faster eVisa entry</strong>.</span>,
+                        <span><strong className="text-vc-mint font-bold">GCC residents (Iqama holders)</strong> must upload front & back copies of their residency permit <strong className="text-white font-medium">in addition to</strong> their passport bio-data page.</span>
+                    ]
+                },
+                {
+                    title: "Flight Details (Optional)",
+                    subItems: [
+                        <span>Departure City / Country and Intended Airline (<strong className="text-vc-mint font-bold">optional</strong> at time of application).</span>,
+                        <span>Helper: Certain Saudi visa pathways require flying on <strong className="text-vc-mint font-bold">Saudi-affiliated airlines (Saudia, Flynas, or Flyadeal)</strong>.</span>
+                    ]
+                }
+            ]
+        },
+        note: "Physical photo requirements: White background, face centred, taken within the last 6 months, JPG or PNG formats only up to 5MB."
     }
 ];
 
@@ -377,14 +428,16 @@ export default function MaterialsPage() {
                                             </div>
                                             <h3 className="text-xl md:text-2xl font-bold text-vc-mint tracking-tight uppercase">{material.title}</h3>
                                         </div>
-                                        <div className="flex flex-col items-start sm:items-end gap-2 text-left sm:text-right">
-                                            <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm font-bold text-white/40 uppercase tracking-widest whitespace-nowrap">
-                                                Format: {material.format}
+                                        {material.number !== 5 && (
+                                            <div className="flex flex-col items-start sm:items-end gap-2 text-left sm:text-right">
+                                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm font-bold text-white/40 uppercase tracking-widest whitespace-nowrap">
+                                                    Format: {material.format}
+                                                </div>
+                                                <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-xs sm:text-sm font-bold text-vc-mint uppercase tracking-widest whitespace-nowrap">
+                                                    Length: {material.length}
+                                                </div>
                                             </div>
-                                            <div className="px-3 py-1 rounded-full bg-vc-mint/5 border border-vc-mint/10 text-xs sm:text-sm font-bold text-vc-mint uppercase tracking-widest whitespace-nowrap">
-                                                Length: {material.length}
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-4">
