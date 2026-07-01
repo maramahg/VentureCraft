@@ -880,6 +880,12 @@ const ApplyPageContent = () => {
             validateFile(docFiles.gccResidencyBack, `travel_${idx}_gccResidencyBack`, allowedVisaUpload, 'Residency permit back side');
         });
 
+        // Enforce max 2 sponsored attendees
+        const sponsoredCount = formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length;
+        if (sponsoredCount > 2) {
+            newErrors.sponsorshipLimit = `Only 2 attendees can be sponsored. You currently have ${sponsoredCount}. Please change ${sponsoredCount - 2} attendee(s) to Self-funded.`;
+        }
+
         if (!formData.agreedToTerms) {
             newErrors.agreedToTerms = "You must agree to the Terms and Conditions to submit.";
         }
@@ -918,6 +924,14 @@ const ApplyPageContent = () => {
             return;
         }
         if (!validateStep3()) {
+            const sponsoredCount = formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length;
+            if (sponsoredCount > 2) {
+                const el = document.getElementById('sponsorship-limit-error');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
@@ -2570,13 +2584,12 @@ const ApplyPageContent = () => {
                                         />
                                         {renderTravelError('travelAttendingCount')}
                                         <p className="text-xs text-white/40">You may list up to {maxTravelAttendees} attendees. Only the first 2 sponsored attendees are covered.</p>
+                                        {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length > 2 && (
+                                            <div id="sponsorship-limit-error" className="w-full py-3 px-4 bg-red-600/20 border-l-4 border-red-500 text-red-400 text-sm leading-relaxed">
+                                                <em>Only 2 attendees can be sponsored. You currently have {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length} sponsored. Please change the extra attendee(s) to &quot;Self-funded&quot; before submitting.</em>
+                                            </div>
+                                        )}
                                     </div>
-
-                                    {formData.travelVisaInfo.attendees.filter(a => a.sponsorshipStatus === 'Sponsored').length > 2 && (
-                                        <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm leading-relaxed">
-                                            More than 2 attendees are marked Sponsored. Logistics/admin should review sponsorship assignment; additional attendees may attend at their own expense.
-                                        </div>
-                                    )}
 
                                     <div className="space-y-8">
                                         {formData.travelVisaInfo.attendees.map((attendee, attendeeIndex) => {
@@ -2667,7 +2680,16 @@ const ApplyPageContent = () => {
                                                             <SimpleDropdown
                                                                 options={['Sponsored', 'Self-funded']}
                                                                 value={attendee.sponsorshipStatus}
-                                                                onChange={(val) => handleTravelAttendeeChange(attendeeIndex, 'sponsorshipStatus', val)}
+                                                                onChange={(val) => {
+                                                                    if (val === 'Sponsored') {
+                                                                        const currentSponsored = formData.travelVisaInfo.attendees.filter((a, i) => i !== attendeeIndex && a.sponsorshipStatus === 'Sponsored').length;
+                                                                        if (currentSponsored >= 2) {
+                                                                            alert('Only 2 attendees are allowed to be sponsored. Please change an existing sponsored attendee to "Self-funded" first.');
+                                                                            return;
+                                                                        }
+                                                                    }
+                                                                    handleTravelAttendeeChange(attendeeIndex, 'sponsorshipStatus', val);
+                                                                }}
                                                                 label="Sponsorship Status *"
                                                                 placeholder="Select sponsorship status"
                                                                 error={errors[`travel_${attendeeIndex}_sponsorshipStatus`]}
