@@ -83,6 +83,10 @@ service cloud.firestore {
     match /outreach_participants/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
+      // Allow point increments for referrals
+      allow update: if request.auth != null 
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
+        && request.resource.data.points == resource.data.points + 10;
     }
 
     // Counters (Internal tracking)

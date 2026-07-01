@@ -1012,21 +1012,32 @@ const ApplyPageContent = () => {
             let assignedTeam = null;
             if (!isEditMode) {
                 try {
-                    const teams = ['A', 'B', 'C', 'D', 'E'];
-                    const teamCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+                    // Check if user is admin first to avoid permission error for regular users
+                    const [isAdminDoc, isSuperAdminDoc] = await Promise.all([
+                        getDoc(doc(db, 'admins', user.uid)),
+                        getDoc(doc(db, 'super_admins', user.uid))
+                    ]);
+                    const isUserAdmin = isAdminDoc.exists() || isSuperAdminDoc.exists();
 
-                    // Fetch current assignments
-                    const appsSnap = await getDocs(query(collection(db, 'applications'), where('assignedTeam', 'in', teams)));
-                    appsSnap.forEach(doc => {
-                        const data = doc.data();
-                        if (data.assignedTeam) {
-                            teamCounts[data.assignedTeam as string]++;
-                        }
-                    });
+                    if (isUserAdmin) {
+                        const teams = ['A', 'B', 'C', 'D', 'E'];
+                        const teamCounts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0, E: 0 };
 
-                    // Pick team with minimum count
-                    assignedTeam = teams.reduce((a, b) => teamCounts[a] <= teamCounts[b] ? a : b);
-                    console.log('AUTO_ASSIGNMENT: Assigning to Team', assignedTeam, teamCounts);
+                        // Fetch current assignments
+                        const appsSnap = await getDocs(query(collection(db, 'applications'), where('assignedTeam', 'in', teams)));
+                        appsSnap.forEach(doc => {
+                            const data = doc.data();
+                            if (data.assignedTeam) {
+                                teamCounts[data.assignedTeam as string]++;
+                            }
+                        });
+
+                        // Pick team with minimum count
+                        assignedTeam = teams.reduce((a, b) => teamCounts[a] <= teamCounts[b] ? a : b);
+                        console.log('AUTO_ASSIGNMENT: Assigning to Team', assignedTeam, teamCounts);
+                    } else {
+                        console.log('AUTO_ASSIGNMENT: User is not admin, skipping auto-assignment (remains unassigned).');
+                    }
                 } catch (assignErr) {
                     console.error('Error in auto-assignment:', assignErr);
                     assignedTeam = null; // Changed fallback to null to keep it unassigned until Admin rebalances
