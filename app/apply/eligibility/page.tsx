@@ -84,7 +84,7 @@ const eligibilityCriteria = [
             <div className="space-y-2">
                 <p>There is <strong className="text-vc-mint">no minimum or maximum limit</strong> on the number of team members.</p>
                 <p>You may apply as a solo founder or as a team of any size.</p>
-                <p className="text-vc-mint/80 font-medium italic text-sm">However, please note that if your team is selected as a finalist, only a maximum of 5 members will be able to represent the startup in the final competition.</p>
+                <p className="text-vc-mint/80 font-medium italic text-sm">All team members are welcome to travel and physically participate in the bootcamp and final competition; however, please note that Venture Craft will sponsor travel, visa coordination, and accommodation for a maximum of 2 members per team, and any additional members must be self-funded.</p>
             </div>
         ),
         notes: 'Encourages both individual innovators and large collaborative teams.'

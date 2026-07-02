@@ -2563,7 +2563,7 @@ const ApplyPageContent = () => {
                                             Travel & Visa Information
                                         </h3>
                                         <p className="text-sm text-white/50 mt-3 leading-relaxed">
-                                            Sponsorship only covers travel for a maximum of 2 members per startup. Every team member who plans to physically attend must complete this section individually.
+                                            Sponsorship only covers visa coordination, flights, and accommodation for a maximum of 2 members per startup. However, there is no limit to the number of members who can physically attend the in-person bootcamps and final competition; any additional members beyond the 2 sponsored ones must be self-funded. Every team member who plans to physically attend must complete this section individually.
                                             <Link href="/apply/materials#travel-&-visa-info" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Learn More</Link>
                                         </p>
                                         <p className="text-xs text-red-500 mt-1 italic">

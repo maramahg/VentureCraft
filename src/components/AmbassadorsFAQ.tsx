@@ -14,15 +14,18 @@ const faqData: FAQItem[] = [
     {
         id: 'eligibility',
         question: 'Who can apply to become an ambassador?',
-        answer: 'University students and recent graduates are welcome to apply.',
+        answer: (
+            <div className="space-y-2">
+                <p>University <strong className="text-vc-mint">students and recent graduates</strong> are welcome to apply.</p>
+            </div>
+        ),
     },
     {
         id: 'duration',
         question: 'When does the ambassador role end?',
         answer: (
             <div className="space-y-2">
-                <p>The official ambassador duties for the registration phase have now <strong className="text-vc-mint">concluded</strong> as registration is closed.</p>
-                <p className="text-vc-mint/80 font-medium italic text-sm">However, ambassadors remain part of the program community and continue to support the competition through the finals.</p>
+                <p>The ambassador program has <strong className="text-vc-mint">resumed</strong> alongside the competition relaunch. Active outreach and promotion duties will run from July 15, when new registrations open, through to the finals.</p>
             </div>
         ),
     },
@@ -31,7 +34,7 @@ const faqData: FAQItem[] = [
         question: 'Is a specific major required?',
         answer: (
             <div className="space-y-2">
-                <p>No, students from all majors are welcome.</p>
+                <p>No, students from <strong className="text-vc-mint">all majors</strong> are welcome.</p>
                 <p className="text-vc-mint/80 font-medium italic text-sm">However, being in an engineering or technology-related field may increase your chances of selection.</p>
             </div>
         ),
@@ -41,7 +44,7 @@ const faqData: FAQItem[] = [
         question: 'Is the work in-person?',
         answer: (
             <div className="space-y-2">
-                <p>No, the role is primarily online.</p>
+                <p>No, the role is primarily <strong className="text-vc-mint">online</strong>.</p>
                 <p className="text-vc-mint/80 font-medium italic text-sm">However, occasional on-campus activities at your university may be required.</p>
             </div>
         ),
@@ -49,14 +52,18 @@ const faqData: FAQItem[] = [
     {
         id: 'location',
         question: 'Do I need to be located at KFUPM?',
-        answer: 'No, your work will be within your own university only.',
+        answer: (
+            <div className="space-y-2">
+                <p>No, your work will be within your <strong className="text-vc-mint">own university only</strong>.</p>
+            </div>
+        ),
     },
     {
         id: 'ceremony',
         question: 'Is attending the final ceremony mandatory?',
         answer: (
             <div className="space-y-2">
-                <p>No, attendance is not mandatory.</p>
+                <p>No, attendance is <strong className="text-vc-mint">not mandatory</strong>.</p>
                 <p className="text-vc-mint/80 font-medium italic text-sm">Only the top three ambassadors (based on points) will be given the opportunity to attend the final ceremony.</p>
             </div>
         ),
@@ -64,25 +71,36 @@ const faqData: FAQItem[] = [
     {
         id: 'points',
         question: 'What are ambassador points?',
-        answer: 'Points are awarded for each completed task. These points are used to rank ambassadors.',
+        answer: (
+            <div className="space-y-2">
+                <p>Points are awarded for each completed task. These points are used to <strong className="text-vc-mint">rank ambassadors</strong>.</p>
+            </div>
+        ),
     },
     {
         id: 'difficulty',
         question: 'Are the tasks difficult or time-consuming?',
-        answer: 'No, the tasks are simple and manageable.',
+        answer: (
+            <div className="space-y-2">
+                <p>No, the tasks are <strong className="text-vc-mint">simple and manageable</strong>.</p>
+            </div>
+        ),
     },
     {
         id: 'on-ground',
         question: 'Is on-ground activity required?',
-        answer: 'Yes, in some cases you may be asked to help at booths or distribute posters to promote the competition.',
+        answer: (
+            <div className="space-y-2">
+                <p>Yes, in some cases you may be asked to help at booths or distribute posters to <strong className="text-vc-mint">promote the competition</strong>.</p>
+            </div>
+        ),
     },
     {
         id: 'competition-participation',
         question: 'Can I apply for ambassador and participate in the competition?',
         answer: (
             <div className="space-y-2">
-                <p>Registration for both the ambassador program and the competition is now <strong className="text-vc-mint">closed</strong>.</p>
-                <p className="text-vc-mint/80 font-medium italic text-sm">For those already selected, participating in both roles was permitted, provided that ambassadors received no preferential treatment in judging.</p>
+                <p>Yes, you can participate in <strong className="text-vc-mint">both</strong>, provided that ambassadors receive no preferential treatment. Portal updates for previous applicants are open now, and new registrations open July 15.</p>
             </div>
         ),
     },
