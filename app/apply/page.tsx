@@ -1584,7 +1584,7 @@ const ApplyPageContent = () => {
 
     if (!user) return null; // Prevent flicker before redirect
 
-    if (!canAccessRegistrationForm && !regLoading) {
+    if (!canAccessForm && !regLoading) {
         return (
             <main className="min-h-screen bg-[#001311] text-white flex flex-col items-center justify-center relative overflow-hidden px-6 pt-20 md:pt-32">
                 {/* Background Orbs */}
