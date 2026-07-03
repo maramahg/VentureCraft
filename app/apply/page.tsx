@@ -657,7 +657,18 @@ const ApplyPageContent = () => {
     };
 
     const handleTravelAttendeeCountChange = (count: number) => {
-        const attendingCount = Math.min(Math.max(1, count || 1), maxTravelAttendees);
+        if (isNaN(count)) {
+            setFormData(prev => ({
+                ...prev,
+                travelVisaInfo: {
+                    ...prev.travelVisaInfo,
+                    attendingCount: '' as any
+                }
+            }));
+            return;
+        }
+
+        const attendingCount = Math.min(Math.max(1, count), maxTravelAttendees);
         setFormData(prev => {
             const current = prev.travelVisaInfo.attendees || [];
             const attendees = Array.from({ length: attendingCount }, (_, index) => {
