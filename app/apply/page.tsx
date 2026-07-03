@@ -622,14 +622,14 @@ const ApplyPageContent = () => {
 
     // Sync step with URL for Navbar/Footer visibility
     useEffect(() => {
-        if (canAccessRegistrationForm) {
+        if (canAccessForm) {
             if (step > 0) {
                 router.push(`/apply?step=${step}${isLocalPreview ? '&preview=1' : ''}`, { scroll: false });
             } else {
                 router.push(`/apply${isLocalPreview ? '?preview=1' : ''}`, { scroll: false });
             }
         }
-    }, [step, router, canAccessRegistrationForm, isLocalPreview]);
+    }, [step, router, canAccessForm, isLocalPreview]);
 
     const handleTeamSizeChange = (size: number) => {
         const newSize = Math.max(1, size);
