@@ -82,6 +82,13 @@ body {
   text-shadow: 0 0 30px rgba(35, 188, 171, 0.4);
 }
 
+/* ===================== ARC CARD OFFSET (desktop only) ===================== */
+@media (min-width: 1024px) {
+  .arc-card {
+    margin-left: var(--arc-offset, 0px);
+  }
+}
+
 /* ===================== ANIMATED GRADIENT BORDER ===================== */
 @keyframes gradient-rotate {
   0%   { background-position: 0% 50%; }
