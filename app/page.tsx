@@ -29,7 +29,7 @@ export default function DesignA() {
       {/* 3. Competition journey — Pitch / Accelerate / Launch */}
       <CompetitionJourney />
 
-      {/* 4. Scroll-driven timeline — sticky globe, 6 phases */}
+      {/* 4. Scroll-driven timeline — branded phase indicator, 6 phases */}
       <StickyGlobeTimeline />
 
       {/* 5. Prize pool — $245K count-up, tier cards */}

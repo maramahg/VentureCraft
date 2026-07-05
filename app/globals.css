@@ -76,10 +76,10 @@ body {
 
 /* ===================== MINT GLOW ===================== */
 .mint-glow {
-  box-shadow: 0 0 40px rgba(79, 209, 197, 0.15), 0 0 80px rgba(79, 209, 197, 0.05);
+  box-shadow: 0 0 40px rgba(35, 188, 171, 0.15), 0 0 80px rgba(35, 188, 171, 0.05);
 }
 .mint-glow-text {
-  text-shadow: 0 0 30px rgba(79, 209, 197, 0.4);
+  text-shadow: 0 0 30px rgba(35, 188, 171, 0.4);
 }
 
 /* ===================== ANIMATED GRADIENT BORDER ===================== */

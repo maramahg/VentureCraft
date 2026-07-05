@@ -1,19 +1,13 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import dynamic from 'next/dynamic';
+import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import { competitionPhases } from '../../lib/competitionPhases';
 
-const Globe = dynamic(() => import('../ui/globe').then((m) => m.Globe), {
-  ssr: false,
-  loading: () => <div className="w-full h-full rounded-full bg-[#4FD1C5]/5 animate-pulse" />,
-});
-
 const statusColors: Record<string, string> = {
-  completed: '#4FD1C5',
-  active:    '#00A383',
-  upcoming:  'rgba(255,255,255,0.2)',
+  completed: '#23BCAB',
+  active:    '#23BCAB',
+  upcoming:  'rgba(245,250,250,0.2)',
 };
 
 const statusLabels: Record<string, string> = {
@@ -32,10 +26,26 @@ export default function StickyGlobeTimeline() {
   });
   const progressHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
+  const phaseCount = competitionPhases.length;
+  const activePhaseMotion = useTransform(scrollYProgress, (v) => {
+    const segment = 1 / phaseCount;
+    const idx = Math.floor(v / segment);
+    const localProgress = (v - idx * segment) / segment;
+    // Hold at current phase for 70% of segment, then transition in last 30%
+    if (localProgress < 0.7) {
+      return Math.min(phaseCount, idx + 1);
+    }
+    return Math.min(phaseCount, idx + 1 + (localProgress - 0.7) / 0.3);
+  });
+  useMotionValueEvent(activePhaseMotion, 'change', (latest) => {
+    const phase = Math.min(phaseCount, Math.max(1, Math.round(latest)));
+    setActivePhase(phase);
+  });
+
   return (
     <section
       className="relative section-padding"
-      style={{ background: 'linear-gradient(180deg, #00120F 0%, #001a15 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #072828 0%, #003E51 100%)' }}
     >
       {/* Section header */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 mb-16">
@@ -46,14 +56,14 @@ export default function StickyGlobeTimeline() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
+          <span className="text-[11px] uppercase tracking-[0.35em] text-[#23BCAB] font-bold mb-4 block">
             Competition Roadmap
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-5">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#F5FAFA] tracking-tight mb-5">
             Six Phases. One Destination.
           </h2>
-          <p className="text-white/45 text-lg max-w-xl mx-auto">
-            From idea submission to the final stage — every phase designed to push your venture further.
+          <p className="text-[#F5FAFA]/45 text-lg max-w-xl mx-auto">
+            Every phase is designed to push your venture further — from first submission to the global stage.
           </p>
         </motion.div>
       </div>
@@ -61,43 +71,84 @@ export default function StickyGlobeTimeline() {
       <div ref={containerRef} className="max-w-7xl mx-auto px-6 sm:px-10">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
 
-          {/* ── Globe (sticky on desktop) ── */}
-          <div className="lg:sticky lg:top-24 lg:w-[42%] flex flex-col items-center gap-6">
-            <div className="relative w-full aspect-square max-w-md">
-              {/* Halo */}
+          {/* ── Branded phase indicator (sticky on desktop) ── */}
+          <div className="lg:sticky lg:top-24 lg:w-[42%] flex flex-col items-center justify-center gap-8">
+            <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
+              {/* Brand gradient halo */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, rgba(0,163,131,0.12) 0%, transparent 65%)',
+                  background: 'radial-gradient(circle, rgba(35,188,171,0.15) 0%, transparent 65%)',
                 }}
               />
-              {/* Orbit rings */}
-              {[90, 94, 98].map((size, i) => (
+              {/* Concentric brand rings */}
+              {[88, 94, 100].map((size, i) => (
                 <div
                   key={i}
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none"
                   style={{
                     width: `${size}%`, height: `${size}%`,
-                    borderColor: `rgba(79,209,197,${0.07 - i * 0.02})`,
+                    borderColor: `rgba(35,188,171,${0.12 - i * 0.03})`,
                   }}
                 />
               ))}
-              <Globe className="w-full h-full" />
+
+              {/* Large phase number */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activePhase}
+                  initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative z-10 flex flex-col items-center"
+                >
+                  <span
+                    className="text-[120px] sm:text-[160px] font-black leading-none tracking-tighter"
+                    style={{
+                      background: 'linear-gradient(135deg, #23BCAB 0%, #F5FAFA 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    {String(activePhase).padStart(2, '0')}
+                  </span>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Phase count indicator */}
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                {competitionPhases.map((p) => (
+                  <div
+                    key={p.id}
+                    className="h-1 rounded-full transition-all duration-500"
+                    style={{
+                      width: p.id === activePhase ? 24 : 8,
+                      background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
 
-            {/* Active phase indicator */}
+            {/* Active phase label */}
             <div className="text-center">
-              <div className="text-[11px] uppercase tracking-[0.3em] text-white/30 font-bold mb-2">
-                Current Focus
+              <div className="text-[11px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mb-2">
+                Current Phase
               </div>
-              <motion.div
-                key={activePhase}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-lg font-black text-white"
-              >
-                {competitionPhases[activePhase - 1]?.title}
-              </motion.div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activePhase}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xl font-black text-[#F5FAFA]"
+                >
+                  {competitionPhases[activePhase - 1]?.title}
+                </motion.div>
+              </AnimatePresence>
               <div
                 className="text-xs font-bold mt-1"
                 style={{ color: statusColors[competitionPhases[activePhase - 1]?.status] }}
@@ -111,10 +162,10 @@ export default function StickyGlobeTimeline() {
           <div className="flex-1 flex gap-6">
             {/* Progress track */}
             <div className="hidden lg:flex flex-col items-center gap-0 pt-2">
-              <div className="relative w-px flex-1 bg-white/8">
+              <div className="relative w-px flex-1 bg-[#F5FAFA]/8">
                 <motion.div
                   style={{ height: progressHeight }}
-                  className="absolute top-0 left-0 w-full bg-gradient-to-b from-[#4FD1C5] to-[#00A383] origin-top"
+                  className="absolute top-0 left-0 w-full bg-gradient-to-b from-[#23BCAB] to-[#23BCAB]/60 origin-top"
                 />
               </div>
             </div>
@@ -131,13 +182,12 @@ export default function StickyGlobeTimeline() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: i * 0.08 }}
                     viewport={{ once: true, margin: '-10%' }}
-                    onViewportEnter={() => setActivePhase(phase.id)}
                     className={`relative rounded-2xl p-6 border transition-all duration-500 ${
                       isActive
-                        ? 'border-[#4FD1C5]/40 bg-[#4FD1C5]/5 mint-glow'
+                        ? 'border-[#23BCAB]/40 bg-[#23BCAB]/5 mint-glow'
                         : isCompleted
-                        ? 'border-[#4FD1C5]/15 bg-white/3'
-                        : 'border-white/6 bg-white/2'
+                        ? 'border-[#23BCAB]/15 bg-[#F5FAFA]/3'
+                        : 'border-[#F5FAFA]/6 bg-[#F5FAFA]/2'
                     }`}
                   >
                     {/* Phase number + status */}
@@ -147,7 +197,7 @@ export default function StickyGlobeTimeline() {
                           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border"
                           style={{
                             borderColor: statusColors[phase.status],
-                            color: isActive ? '#00120F' : statusColors[phase.status],
+                            color: isActive ? '#072828' : statusColors[phase.status],
                             background: isActive ? statusColors[phase.status] : 'transparent',
                           }}
                         >
@@ -167,21 +217,21 @@ export default function StickyGlobeTimeline() {
                       </span>
                     </div>
 
-                    <h3 className="text-xl font-black text-white mb-2">{phase.title}</h3>
-                    <p className="text-white/45 text-sm leading-relaxed mb-4">{phase.description}</p>
+                    <h3 className="text-xl font-black text-[#F5FAFA] mb-2">{phase.title}</h3>
+                    <p className="text-[#F5FAFA]/45 text-sm leading-relaxed mb-4">{phase.description}</p>
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="text-[11px] font-semibold text-white/30 uppercase tracking-wide">
+                      <div className="text-[11px] font-semibold text-[#F5FAFA]/30 uppercase tracking-wide">
                         {phase.dateText}
                       </div>
-                      <div className="text-xs text-[#4FD1C5]/70 font-semibold">
+                      <div className="text-xs text-[#23BCAB]/70 font-semibold">
                         → {phase.participantAction}
                       </div>
                     </div>
 
                     {/* Active indicator bar */}
                     {isActive && (
-                      <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#4FD1C5]/60 to-transparent" />
+                      <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
                     )}
                   </motion.div>
                 );
