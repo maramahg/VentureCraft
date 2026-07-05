@@ -36,18 +36,100 @@ html {
 }
 
 body {
-  background: linear-gradient(to bottom,
-      #001a18 0%,
-      #00423d 12%,
-      #006961 30%,
-      #008f84 50%,
-      #00A383 75%,
-      #4FD1C5 100%);
-  background-attachment: scroll;
+  background-color: #00120F;
   color: var(--color-vc-white);
   overflow-x: hidden;
   font-family: var(--font-sans);
   min-height: 100vh;
+}
+
+/* ===================== MARQUEE ===================== */
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-scroll 28s linear infinite;
+  will-change: transform;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ===================== SCRAMBLE TEXT ===================== */
+.scramble-char {
+  display: inline-block;
+  transition: color 0.08s ease;
+}
+
+/* ===================== SECTION SPACING ===================== */
+.section-padding {
+  padding-top: 7rem;
+  padding-bottom: 7rem;
+}
+@media (max-width: 768px) {
+  .section-padding {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* ===================== MINT GLOW ===================== */
+.mint-glow {
+  box-shadow: 0 0 40px rgba(79, 209, 197, 0.15), 0 0 80px rgba(79, 209, 197, 0.05);
+}
+.mint-glow-text {
+  text-shadow: 0 0 30px rgba(79, 209, 197, 0.4);
+}
+
+/* ===================== ANIMATED GRADIENT BORDER ===================== */
+@keyframes gradient-rotate {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animated-border {
+  background: linear-gradient(270deg, #4FD1C5, #00A383, #003833, #4FD1C5);
+  background-size: 400% 400%;
+  animation: gradient-rotate 4s ease infinite;
+}
+
+/* ===================== PRIZE ODOMETER ===================== */
+@keyframes digit-roll {
+  0%   { transform: translateY(100%); opacity: 0; }
+  20%  { transform: translateY(0);    opacity: 1; }
+  80%  { transform: translateY(0);    opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+.odometer-digit {
+  display: inline-block;
+  overflow: hidden;
+  height: 1em;
+}
+
+/* ===================== SHIMMER BUTTON ===================== */
+@keyframes shimmer {
+  0%   { transform: translateX(-150%) skewX(-15deg); }
+  100% { transform: translateX(250%) skewX(-15deg); }
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2.5s ease infinite;
+}
+
+/* ===================== FLOATING KEYWORD ===================== */
+@keyframes float-up {
+  0%   { transform: translateY(0) translateX(0);    opacity: 0; }
+  10%  { opacity: 0.06; }
+  90%  { opacity: 0.06; }
+  100% { transform: translateY(-80vh) translateX(20px); opacity: 0; }
+}
+.keyword-float {
+  animation: float-up linear infinite;
+  will-change: transform, opacity;
 }
 
 /* Glassmorphism Utilities */

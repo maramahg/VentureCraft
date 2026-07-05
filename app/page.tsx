@@ -1,69 +1,56 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { HeroScrollDemo } from "../components/HeroScrollDemo";
-import Footer from "../components/Footer";
+import ScrollProgress from '../components/ScrollProgress';
+import { VentureSignalHero } from '../components/home-a/VentureSignalHero';
+import Footer from '../components/Footer';
 
-// Lazy-load components to improve initial page weight
-const Prizes = dynamic(() => import("../components/Prizes"));
-const ThreePillarRow = dynamic(() => import("@/src/components/ThreePillarRow"));
-const AnnualTheme = dynamic(() => import("../components/AnnualTheme"));
-const Timeline = dynamic(() => import("../components/Timeline"));
-const CallToAction = dynamic(() => import("../components/CallToAction"));
+const ProofStrip        = dynamic(() => import('../components/home-a/ProofStrip'));
+const CompetitionJourney= dynamic(() => import('../components/home-a/CompetitionJourney'));
+const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
+const PrizePool         = dynamic(() => import('../components/home-a/PrizePool'));
+const VentureAreas      = dynamic(() => import('../components/home-a/VentureAreas'));
+const ProofWall         = dynamic(() => import('../components/home-a/ProofWall'));
+const GetInvolvedTabs   = dynamic(() => import('../components/home-a/GetInvolvedTabs'));
+const PartnersOrganizers= dynamic(() => import('../components/home-a/PartnersOrganizers'));
+const FinalCTA          = dynamic(() => import('../components/home-a/FinalCTA'));
 
-import Image from "next/image";
-import { useScroll, useTransform, motion } from "framer-motion";
-
-export default function Home() {
-  const { scrollY } = useScroll();
-  // Darken significantly as we scroll past the first screen height (approx 800px)
-  const bgOverlayOpacity = useTransform(scrollY, [0, 800], [0, 0.8]);
-
+export default function DesignA() {
   return (
-    <main className="min-h-screen relative flex flex-col overflow-x-hidden">
-      {/* Dynamic Background Overlay for darkening on scroll */}
-      <motion.div
-        className="fixed inset-0 bg-[#001a18] pointer-events-none z-0"
-        style={{ opacity: bgOverlayOpacity }}
-      />
+    <main className="min-h-screen flex flex-col overflow-clip" style={{ background: '#00120F' }}>
+      <ScrollProgress />
 
-      {/* Decorative Pattern - Top Left (Fixed) */}
-      <div className="fixed top-0 -left-20 md:-left-10 w-[200px] h-[400px] md:w-[300px] md:h-[600px] pointer-events-none z-0 opacity-[0.20] md:opacity-[0.35]">
-        <Image
-          src="/pattern-left-v2.png"
-          alt=""
-          width={300}
-          height={620}
-          className="object-contain w-full h-full"
-          style={{ objectPosition: 'left top' }}
-        />
-      </div>
+      {/* 1. Cinematic hero — globe, Dhahran signal arcs, scramble title, mouse parallax stats */}
+      <VentureSignalHero />
 
-      {/* Decorative Pattern - Bottom Right (Fixed) */}
-      <div className="fixed bottom-0 right-0 w-[150px] h-[150px] md:w-[250px] md:h-[250px] overflow-hidden pointer-events-none z-0">
-        <div className="relative w-full h-full opacity-[0.03] md:opacity-5">
-          <div className="absolute bottom-0 right-0 translate-x-8 translate-y-8 md:translate-x-12 md:translate-y-12">
-            <div className="absolute bottom-10 right-10 md:bottom-20 md:right-20 w-24 h-14 md:w-48 md:h-28 rounded-[1.5rem] md:rounded-[2rem] bg-white" />
-            <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 w-12 h-12 md:w-24 md:h-24 rounded-[0.75rem] md:rounded-[1.5rem] bg-vc-teal" />
-            <div className="absolute bottom-20 right-2 md:bottom-40 md:right-4 w-10 h-8 md:w-20 md:h-14 rounded-[0.75rem] md:rounded-[1.5rem] bg-white/70" />
-          </div>
-        </div>
-      </div>
+      {/* 2. Credibility strip — KFUPM/DTV + animated count-up stats */}
+      <ProofStrip />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col">
-        <HeroScrollDemo />
-        <Prizes />
-        <ThreePillarRow />
-        <AnnualTheme />
+      {/* 3. Competition journey — Pitch / Accelerate / Launch */}
+      <CompetitionJourney />
 
+      {/* 4. Scroll-driven timeline — sticky globe, 6 phases */}
+      <StickyGlobeTimeline />
 
+      {/* 5. Prize pool — $245K count-up, tier cards */}
+      <PrizePool />
 
-        <Timeline />
-        <CallToAction isClosed={true} />
+      {/* 6. Deep-tech focus areas */}
+      <VentureAreas />
 
-        <Footer />
-      </div>
+      {/* 7. Proof wall — bento credibility grid */}
+      <ProofWall />
+
+      {/* 8. Get involved — 5 animated tabs */}
+      <GetInvolvedTabs />
+
+      {/* 9. Partners & organizers */}
+      <PartnersOrganizers />
+
+      {/* 10. Final CTA */}
+      <FinalCTA />
+
+      <Footer />
     </main>
   );
 }

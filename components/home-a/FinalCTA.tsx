@@ -1,0 +1,82 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+
+export default function FinalCTA() {
+  return (
+    <section
+      className="relative overflow-hidden py-28"
+      style={{ background: 'linear-gradient(180deg, #00120F 0%, #001a15 60%, #00120F 100%)' }}
+    >
+      {/* Top line */}
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/20 to-transparent mb-0" />
+
+      {/* Ambient glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(79,209,197,0.05) 0%, transparent 70%)',
+        }}
+      />
+
+      <div className="relative max-w-4xl mx-auto px-6 sm:px-10 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+        >
+          {/* Status */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/8 bg-white/3 mb-8">
+            <motion.div
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]/50"
+            />
+            <span className="text-xs text-white/40 font-medium">
+              Applications closed for this cycle
+            </span>
+          </div>
+
+          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
+            Follow the{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#00A383]">
+              VentureCraft
+            </span>{' '}
+            journey.
+          </h2>
+
+          <p className="text-white/40 text-lg sm:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+            Applications are closed for this cycle. Stay connected for finalist announcements,
+            competition updates, and upcoming opportunities.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/timeline"
+              className="group px-8 py-4 rounded-full bg-[#4FD1C5] text-[#001A18] font-bold text-sm hover:bg-[#5ae0d4] transition-colors flex items-center gap-2"
+            >
+              View Timeline
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/contact"
+              className="px-8 py-4 rounded-full border border-white/12 text-white/70 font-bold text-sm hover:text-white hover:border-[#4FD1C5]/30 transition-all"
+            >
+              Contact the Team
+            </Link>
+            <Link
+              href="/contact"
+              className="px-8 py-4 rounded-full border border-[#4FD1C5]/15 text-[#4FD1C5]/80 font-bold text-sm hover:text-[#4FD1C5] hover:border-[#4FD1C5]/40 transition-all"
+            >
+              Become a Mentor
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
