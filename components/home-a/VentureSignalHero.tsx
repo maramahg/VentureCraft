@@ -177,13 +177,13 @@ export function VentureSignalHero() {
       >
         {/* Teal halo */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55vw] h-[55vw] max-w-[580px] max-h-[580px] rounded-full pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[42vw] h-[42vw] max-w-[440px] max-h-[440px] rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(0,163,131,0.1) 0%, transparent 70%)' }}
         />
 
         {/* Orbit rings — animating in 3D (desktop only: heavy for mobile perf) */}
         <div className="hidden lg:contents">
-          {[520, 640, 760].map((size, i) => (
+          {[400, 500, 600].map((size, i) => (
             <motion.div
               key={size}
               animate={{ rotate: 360 }}
@@ -204,7 +204,7 @@ export function VentureSignalHero() {
           animate={{ rotate: 360 }}
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
           className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden pointer-events-none"
-          style={{ width: 440, height: 440 }}
+          style={{ width: 340, height: 340 }}
         >
           <div
             className="absolute inset-0"
@@ -216,7 +216,7 @@ export function VentureSignalHero() {
         </motion.div>
 
         {/* Globe */}
-        <Globe className="w-full h-full scale-[0.8] sm:scale-[1.2] lg:scale-[1.35]" />
+        <Globe className="w-full h-full scale-[0.6] sm:scale-[0.9] lg:scale-[1.0]" />
 
         {/* Signal arcs — SVG overlay (desktop only: heavy for mobile perf) */}
         <svg

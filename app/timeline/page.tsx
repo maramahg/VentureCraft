@@ -1,9 +1,11 @@
+import Footer from '@/components/Footer';
+import StickyGlobeTimeline from '@/components/home-a/StickyGlobeTimeline';
+
 export default function TimelinePage() {
     return (
-        <div className="pt-24 min-h-screen flex items-center justify-center">
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-blue-500">
-                Timeline - Coming Soon
-            </h1>
-        </div>
+        <main className="pt-24 min-h-screen flex flex-col" style={{ background: '#0B2A24' }}>
+            <StickyGlobeTimeline />
+            <Footer />
+        </main>
     );
 }

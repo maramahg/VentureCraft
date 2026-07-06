@@ -1,127 +1,117 @@
-You are working on the VentureCraft website. The client likes the new visual direction and said the added images made the website feel more alive, but the homepage is now too crowded and the content order needs to be simplified.
+We need to revise the VentureCraft website again based on clarified client feedback.
+
+Important clarification:
+Do NOT delete any section, content, visual asset, or feature completely.
+
+The previous changes followed Ibrahim’s feedback too literally by removing sections to reduce homepage clutter. However, Arwa clarified that some of the removed sections were actually improving the website visually and making it feel alive. The issue is not the existence of the sections themselves; the issue is how crowded and heavy the homepage feels.
 
 Main goal:
-Reduce homepage clutter, improve storytelling, and make the page feel cleaner, lighter, and more focused without removing important information from the website.
+Restore the deleted / removed sections or visual moments, but redesign them in a lighter, more structured, and less overwhelming way.
 
-Use the VentureCraft brand guidelines strictly:
-- Keep the brand identity consistent with the approved palette: Dark Cyan #072828, Turquoise #23BCAB, Dark Azure #003E51, Dark Blue #21428F, and White #F5FAFA.
-- Use Poppins typography.
-- Keep the overall VentureCraft/KFUPM/DTV credibility feeling.
-- Do not introduce random new colors outside the brand system.
-- Blue should be used carefully as an accent, not as a sudden full-section color shift.
-Reference brand guideline: :contentReference[oaicite:0]{index=0}
-
-Client feedback summary:
-The homepage currently feels crowded because the user sees:
-1. Journey
-2. Six stages
-3. Prizes
-4. Deep Tech Areas
-5. By KFUPM
-6. Get Involved
-7. Organizers
-
-The images added life to the website, but the structure now feels heavy. We need to make the homepage calmer and more focused.
-
-Required new homepage order:
-1. Hero section
-   - Keep the hero strong, visual, and alive.
-   - Keep primary CTA: “Sign Up Now” or “Apply Now”.
-   - Keep secondary CTA only if useful, but avoid too many buttons.
-
-2. Financial Prizes section
-   - This should be the first major section after the hero.
-   - Make it visually strong because it is the main hook.
-   - Use clean prize cards, strong numbers, and minimal text.
-   - Avoid visual clutter.
-
-3. Competition Explanation / Six Stages section
-   - Explain the competition journey through the six stages.
-   - Make it simple, scannable, and easy to understand.
-   - Add a clear CTA after this section: “Sign Up Now” / “Join the Challenge” / “Apply Now”.
-   - If there is an existing “Journey” section and a separate “Six Stages” section, merge them into one clearer section or keep only the stronger one.
-
-4. Credibility section
-   - Show “By KFUPM”, DTV, and Deep Tech Venture-related credibility here.
-   - This section should add trust, not overload the page.
-   - Combine KFUPM, DTV, and Deep Tech Areas into one clean credibility block if possible.
-   - Use logos/cards in a calm layout.
-
-5. Contact Us / Final CTA
-   - End the homepage with a simple CTA and contact section.
-   - Keep it clean and direct.
-
-Move or reduce these sections from the homepage:
-- Get Involved
-- Organizers
-- Detailed Deep Tech Areas
-- Extra competition details
-- Long explanatory content
-
-Do not delete this information permanently. Move it into:
+Do not solve clutter by deletion.
+Solve clutter through:
+- Better hierarchy
+- Better spacing
+- Shorter visible text
+- Section summaries
 - Tabs
-- Separate pages
-- Expandable accordions
-- Modal after clicking Sign Up
-- Application/sign-up flow information screen
+- Accordions
+- Carousels
+- Compact cards
+- “Learn More” expansions
+- Better visual rhythm
+- Smaller visuals where needed
+- Cleaner transitions between sections
 
-Animation and transition fixes:
-1. Remove the random letters next to the globe that transform into “VentureCraft”.
-   - The client does not like the random characters.
-   - Replace with a cleaner transition.
-   - Better options:
-     a. Smooth fade/reveal from globe to VentureCraft logo.
-     b. Masked logo reveal.
-     c. Particles or subtle dots that organize into the logo.
-     d. Simple line/path animation inspired by the VentureCraft logo.
-   - The transition should feel premium, not chaotic.
+Core rule:
+Nothing should be removed permanently.
+If something feels too much for the homepage, keep it but present it in a lighter way, or make it available through tabs, accordion, modal, secondary view, or a dedicated details page linked clearly from the homepage.
 
-2. Fix the sudden blue color section in the middle.
-   - The blue currently appears too suddenly and feels off-brand.
-   - Do not use a large sudden blue background.
-   - Prefer white, dark cyan, or soft boxed sections.
-   - If blue must be used, contain it inside a card/box, badge, border, or small accent.
-   - Make transitions between background colors smoother and more intentional.
+Client interpretation:
+- Ibrahim wants the page to feel less crowded.
+- Arwa wants to keep the sections/visuals that made the website beautiful and alive.
+- The correct solution is to balance both:
+  keep all meaningful content and visuals, but redesign their presentation.
+
+Homepage direction:
+The homepage should still feel rich and impressive, but not overloaded.
+
+Keep / restore:
+1. Hero with globe
+   - Keep the globe because it adds identity and impact.
+   - Reduce its size if it dominates the screen.
+   - Make it elegant and balanced.
+
+2. Prizes
+   - Must appear early.
+   - Make it strong, attractive, and clear.
+
+3. Theme / Pillars
+   - Keep it because it is important.
+   - Show pillars clearly.
+   - Avoid long text blocks.
+   - Use compact cards or chips.
+   - Add expandable details or Learn More.
+
+4. Timeline / Stages
+   - Do not delete it.
+   - If it feels too long, redesign it as a compact timeline preview.
+   - Use horizontal scroll, vertical compact timeline, tabs, or step cards.
+   - Add “View full journey” for details.
+   - Keep the visual value of the section if it was beautiful before.
+
+5. Benefits / Additional Benefits
+   - Do not delete completely.
+   - If it feels secondary, make it compact.
+   - Present it as small cards, icon rows, or expandable content.
+   - It can be lower on the page, but it should not disappear.
+
+6. Goals / Vision
+   - Do not delete.
+   - Make it short and elegant.
+   - Could be merged visually with the intro or credibility section.
+
+7. KFUPM / DTV / Credibility
+   - Keep clear and visible.
+   - Should build trust without becoming too text-heavy.
+
+8. Organizers / Get Involved
+   - Do not remove permanently.
+   - If too heavy, make them compact or move details into accordions/cards.
+   - Keep access from homepage.
+
+Loading / transition:
+- Remove random letters if they feel chaotic.
+- Use VentureCraft logo elements instead.
+- Animate the logo pieces, or use the Zero Point → Bird → Arrow idea.
+- Keep it short, premium, and brand-related.
 
 Visual direction:
-- Keep the added images because they improved the website’s energy.
-- Reduce the number of competing visual elements per section.
-- Increase whitespace between sections.
-- Make each section have one clear message.
-- Avoid stacking too many cards, logos, and decorative elements together.
-- Make the homepage feel premium, clean, and focused.
+- Restore visual sections that added beauty.
+- Do not flatten the page too much.
+- Do not make it look empty or overly minimal.
+- The page should feel premium, alive, and intentional.
+- Use whitespace and hierarchy, not deletion.
 
-UX requirements:
-- Homepage should not feel like it is explaining everything at once.
-- User should quickly understand:
-  1. What VentureCraft is.
-  2. What they can win.
-  3. How the competition works.
-  4. Why KFUPM/DTV makes it credible.
-  5. How to apply/contact.
-- Keep all important information accessible, but move secondary details away from the main homepage flow.
+Important UX principle:
+Every section can stay, but not every section needs to have full detail visible immediately.
 
-Responsive requirements:
-- Mobile must feel lighter than desktop.
-- Prize cards should stack cleanly.
-- Six stages should become a simple vertical timeline or swipeable cards.
-- Logos should not crowd the screen.
-- Avoid large animated elements that hurt performance on mobile.
-
-Performance:
-- Reduce homepage weight.
-- Lazy-load below-the-fold images.
-- Optimize images.
-- Remove unnecessary heavy animations.
-- Ensure the page feels fast and smooth.
+Use progressive disclosure:
+- Show the headline
+- Show a short explanation
+- Show 3–4 key points
+- Hide deeper details under Learn More / accordion / tabs
 
 Acceptance criteria:
-- The first major section after hero is Financial Prizes.
-- Journey and Six Stages are not duplicated.
-- Homepage sections are reduced and reordered.
-- Get Involved, Organizers, and extra details are moved away from the main flow.
-- Random letters/globe transition is removed or replaced with a cleaner premium transition.
-- Sudden blue section is removed, softened, or boxed.
-- Brand colors and typography remain consistent.
-- The homepage feels less crowded but still alive.
-- No important content is deleted; it is only reorganized.
+- No section is permanently deleted.
+- Previously removed visual sections are reviewed and restored if they improved the site.
+- Homepage feels less crowded through layout and hierarchy, not deletion.
+- Prizes appear early.
+- Globe is kept but better balanced.
+- Timeline/stages are kept in a lighter format.
+- Theme/pillars are kept and clear.
+- Benefits are not removed, only simplified.
+- KFUPM/DTV credibility remains visible.
+- The site feels alive, not empty.
+- The final result satisfies both directions:
+  Ibrahim’s concern about clutter and Arwa’s concern about losing the beautiful parts.
