@@ -7,7 +7,7 @@ import { ventureAreaImages } from '../../lib/homepageImages';
 
 export default function VentureAreas() {
   return (
-    <section className="section-padding relative overflow-hidden" style={{ background: '#00120F' }}>
+    <section className="section-padding relative overflow-hidden" style={{ background: '#0B2A24' }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         {/* Header */}
         <motion.div
@@ -53,7 +53,7 @@ export default function VentureAreas() {
                       className="object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-500 scale-105 group-hover:scale-110 transition-transform"
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#00120F] via-[#00120F]/70 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B2A24] via-[#0B2A24]/70 to-transparent" />
                   </div>
                 )}
 

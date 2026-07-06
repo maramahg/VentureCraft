@@ -8,7 +8,7 @@ export default function ProofWall() {
   return (
     <section
       className="section-padding relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #00120F 0%, #001a15 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #0B2A24 0%, #123830 100%)' }}
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         {/* Header */}
@@ -75,7 +75,7 @@ export default function ProofWall() {
                 className="object-cover transition-transform duration-700 group-hover:scale-108"
                 sizes="(max-width: 768px) 50vw, 33vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#00120F]/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B2A24]/80 via-transparent to-transparent" />
               {/* Caption */}
               <div className="absolute bottom-3 left-3">
                 <span className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-bold bg-black/40 backdrop-blur-sm px-2 py-1 rounded">

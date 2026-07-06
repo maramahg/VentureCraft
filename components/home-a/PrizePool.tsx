@@ -106,7 +106,7 @@ export default function PrizePool() {
   return (
     <section
       className="section-padding relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #001a15 0%, #00120F 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #123830 0%, #0B2A24 100%)' }}
     >
       {/* Animated ambient glow */}
       <motion.div

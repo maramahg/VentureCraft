@@ -164,7 +164,7 @@ export function VentureSignalHero() {
   };
 
   return (
-    <section ref={containerRef} className="relative h-[115svh] overflow-hidden" style={{ background: '#00120F' }}>
+    <section ref={containerRef} className="relative h-[115svh] overflow-hidden" style={{ background: '#0B2A24' }}>
 
       {/* ── Background Image ── */}
       <div className="absolute inset-0 pointer-events-none">
@@ -176,8 +176,8 @@ export function VentureSignalHero() {
           sizes="100vw"
         />
         {/* Gradient overlays to ensure text/globe legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#00120F] via-[#00120F]/90 to-[#00120F]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#00120F] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B2A24] via-[#0B2A24]/90 to-[#0B2A24]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B2A24] via-transparent to-transparent" />
       </div>
 
       {/* ── Background grid ── */}

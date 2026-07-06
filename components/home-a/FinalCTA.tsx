@@ -8,7 +8,7 @@ export default function FinalCTA() {
   return (
     <section
       className="relative overflow-hidden py-28"
-      style={{ background: 'linear-gradient(180deg, #00120F 0%, #001a15 60%, #00120F 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #0B2A24 0%, #123830 60%, #0B2A24 100%)' }}
     >
       {/* Top line */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/20 to-transparent mb-0" />

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-vc-green-dark: #00201D;
-  --color-vc-green-medium: #003833;
+  --color-vc-green-dark: #0F3D36;
+  --color-vc-green-medium: #145850;
   --color-vc-teal: #00A383;
   --color-vc-mint: #4FD1C5;
   --color-vc-white: #ffffff;
@@ -31,12 +31,12 @@
 
 html {
   height: 100%;
-  background-color: #051111;
+  background-color: #0A211D;
   scroll-behavior: smooth !important;
 }
 
 body {
-  background-color: #00120F;
+  background-color: #0B2A24;
   color: var(--color-vc-white);
   overflow-x: hidden;
   font-family: var(--font-sans);

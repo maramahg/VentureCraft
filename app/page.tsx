@@ -17,7 +17,7 @@ const FinalCTA          = dynamic(() => import('../components/home-a/FinalCTA'))
 
 export default function DesignA() {
   return (
-    <main className="min-h-screen flex flex-col overflow-clip" style={{ background: '#00120F' }}>
+    <main className="min-h-screen flex flex-col overflow-clip" style={{ background: '#0B2A24' }}>
       <ScrollProgress />
 
       {/* 1. Cinematic hero — globe, Dhahran signal arcs, scramble title, mouse parallax stats */}

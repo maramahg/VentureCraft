@@ -499,7 +499,12 @@ function AdminDashboardContent() {
     };
 
     // Automatic Background Migration Effect
+    // NOTE: `applications` is refreshed via onSnapshot, including snapshots caused by
+    // this effect's own writes. Without a run-once guard, this can retrigger itself
+    // indefinitely (infinite Firestore write/read loop -> pegged CPU / browser hang).
+    const migrationAttemptedRef = useRef(false);
     useEffect(() => {
+        if (migrationAttemptedRef.current) return;
         if ((!isAdmin && !isSuperAdmin && !isUltimateJudge) || loading || applications.length === 0) return;
 
         const unassigned = applications.filter(app => !app.assignedTeam);
@@ -510,8 +515,10 @@ function AdminDashboardContent() {
         // 1. There are unassigned apps
         // 2. OR Team E is significantly under-populated (indicates a failed/partial migrate from 4 teams)
         if (unassigned.length > 0) {
+            migrationAttemptedRef.current = true;
             handleRedistributeTeams(unassigned);
         } else if (teamEApps.length < idealPerTeam - 5) { // Use a small buffer to avoid jitter
+            migrationAttemptedRef.current = true;
             console.log(`REBALANCE: Distribution is unbalanced (Team E has only ${teamEApps.length} apps). Redistributing all ${applications.length} apps...`);
             handleRedistributeTeams(applications);
         }

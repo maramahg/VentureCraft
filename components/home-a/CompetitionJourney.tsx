@@ -37,9 +37,9 @@ function JourneyCard({ stage, i }: { stage: typeof competitionJourneyStages[0]; 
             className="object-cover transition-transform duration-700 group-hover:scale-108"
             sizes="(max-width: 1024px) 100vw, 33vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#00120F] via-[#00120F]/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B2A24] via-[#0B2A24]/50 to-transparent" />
           <div className="absolute bottom-3 left-4">
-            <span className="text-[9px] uppercase tracking-[0.25em] text-[#4FD1C5]/70 font-bold bg-[#00120F]/60 backdrop-blur-sm px-2 py-1 rounded">
+            <span className="text-[9px] uppercase tracking-[0.25em] text-[#4FD1C5]/70 font-bold bg-[#0B2A24]/60 backdrop-blur-sm px-2 py-1 rounded">
               {stage.imageCaption}
             </span>
           </div>
@@ -87,7 +87,7 @@ export default function CompetitionJourney() {
   const lineWidth = useTransform(scrollYProgress, [0.1, 0.7], ['0%', '100%']);
 
   return (
-    <section className="section-padding relative overflow-hidden" style={{ background: '#00120F' }}>
+    <section className="section-padding relative overflow-hidden" style={{ background: '#0B2A24' }}>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,163,131,0.05) 0%, transparent 70%)' }}
@@ -126,7 +126,7 @@ export default function CompetitionJourney() {
               initial={{ scale: 0 }}
               animate={isInView ? { scale: 1 } : {}}
               transition={{ delay: 0.3 + i * 0.2, type: 'spring', stiffness: 300 }}
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-[#4FD1C5] bg-[#00120F]"
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-[#4FD1C5] bg-[#0B2A24]"
               style={{ left: `calc(${16.6 + i * 33.3}% - 8px)` }}
             >
               <div className="absolute inset-1 rounded-full bg-[#4FD1C5]" />
