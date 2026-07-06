@@ -12,7 +12,6 @@ const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlo
 const ProofWall          = dynamic(() => import('../components/home-a/ProofWall'));
 const ProofStrip         = dynamic(() => import('../components/home-a/ProofStrip'));
 const GoalsVisionTeaser  = dynamic(() => import('../components/home-a/GoalsVisionTeaser'));
-const BenefitsTeaser     = dynamic(() => import('../components/home-a/BenefitsTeaser'));
 const GetInvolvedTeaser  = dynamic(() => import('../components/home-a/GetInvolvedTeaser'));
 const PartnersTeaser     = dynamic(() => import('../components/home-a/PartnersTeaser'));
 const FinalCTA           = dynamic(() => import('../components/home-a/FinalCTA'));
@@ -58,16 +57,13 @@ export default function DesignA() {
       {/* 8. Goals / Vision — compact, elegant */}
       <GoalsVisionTeaser />
 
-      {/* 9. Additional Benefits — compact icon row */}
-      <BenefitsTeaser />
-
-      {/* 10. Lightweight teaser into the five Get Involved paths */}
+      {/* 9. Lightweight teaser into the five Get Involved paths */}
       <GetInvolvedTeaser />
 
-      {/* 11. Lightweight organizer/partner strip */}
+      {/* 10. Lightweight organizer/partner strip */}
       <PartnersTeaser />
 
-      {/* 12. Contact / Final CTA */}
+      {/* 11. Contact / Final CTA */}
       <FinalCTA />
 
       <Footer />

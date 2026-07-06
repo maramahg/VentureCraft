@@ -271,6 +271,21 @@ export default function ThemePillars() {
 
                 <div className="relative xl:absolute xl:top-16 text-center z-30 px-4 mt-8 xl:mt-0 max-w-4xl mx-auto pointer-events-none">
                     <div className="flex flex-col items-center mb-12">
+                        {/* Highlighted theme banner */}
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            viewport={{ once: true }}
+                            className="pointer-events-auto mb-5 inline-flex items-center gap-3 px-6 py-3 rounded-2xl border-2 border-[#4FD1C5]/30 bg-[#4FD1C5]/8 backdrop-blur-sm"
+                        >
+                            <span className="text-[10px] uppercase tracking-[0.3em] text-[#4FD1C5]/60 font-bold">2026 Theme</span>
+                            <span className="w-px h-4 bg-[#4FD1C5]/20" />
+                            <span className="text-lg sm:text-xl font-black text-[#4FD1C5] tracking-tight" style={{ textShadow: '0 0 20px rgba(79,209,197,0.4)' }}>
+                                Sustainable Energy
+                            </span>
+                        </motion.div>
+
                         <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold font-poppins uppercase tracking-tighter leading-tight text-white mb-4">
                             Theme Pillars
                         </h2>
