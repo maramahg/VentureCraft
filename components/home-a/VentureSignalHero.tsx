@@ -199,8 +199,14 @@ export function VentureSignalHero() {
         }}
       />
 
+      {/* ── Mobile-only shade to protect headline legibility over the globe ── */}
+      <div
+        className="absolute inset-x-0 top-0 h-[62%] sm:hidden pointer-events-none z-[5]"
+        style={{ background: 'linear-gradient(180deg, #0B2A24 0%, #0B2A24 65%, transparent 100%)' }}
+      />
+
       {/* ════ GLOBE SIDE ════ */}
-      <div style={{ perspective: '1200px' }} className="absolute top-0 right-0 w-full lg:w-[58%] h-full pointer-events-none">
+      <div style={{ perspective: '1200px' }} className="absolute inset-x-0 bottom-0 h-[42%] opacity-50 sm:opacity-100 sm:h-[60%] lg:top-0 lg:right-0 lg:bottom-auto lg:inset-x-auto lg:w-[58%] lg:h-full pointer-events-none">
       <motion.div
         style={{ scale: globeScale, opacity: globeOpacity, x: globeMX, y: globeMY, rotateY: globeRotateY, rotateX: globeRotateX, transformStyle: 'preserve-3d' }}
         className="w-full h-full flex items-center justify-center"
@@ -244,7 +250,7 @@ export function VentureSignalHero() {
         </motion.div>
 
         {/* Globe */}
-        <Globe className="w-full h-full scale-[1.05] sm:scale-[1.2] lg:scale-[1.35]" />
+        <Globe className="w-full h-full scale-[0.8] sm:scale-[1.2] lg:scale-[1.35]" />
 
         {/* Signal arcs — SVG overlay */}
         <svg

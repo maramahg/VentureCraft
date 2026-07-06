@@ -17,7 +17,7 @@ export default function PartnersOrganizers() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
             Institutional Partners
@@ -28,7 +28,7 @@ export default function PartnersOrganizers() {
         </motion.div>
 
         {/* Main organizers */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-10 sm:mb-16">
           {[
             {
               badge: 'Organized by',
@@ -57,7 +57,7 @@ export default function PartnersOrganizers() {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
               whileHover={{ y: -4 }}
-              className={`block rounded-3xl p-8 border transition-all duration-400 ${
+              className={`block rounded-3xl p-6 sm:p-8 border transition-all duration-400 ${
                 org.accent
                   ? 'border-[#4FD1C5]/25 bg-[#4FD1C5]/5'
                   : 'border-white/8 bg-white/3'

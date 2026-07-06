@@ -62,7 +62,7 @@ function PrizeCard({ prize, delay, triggered }: {
         {/* Top accent bar */}
         <div className="h-1 w-full relative z-10" style={{ background: prize.color }} />
 
-        <div className={`relative z-10 p-8 ${isLarge ? 'lg:p-10' : ''}`}>
+        <div className={`relative z-10 p-6 sm:p-8 ${isLarge ? 'lg:p-10' : ''}`}>
           {/* Rank + label */}
           <div className="flex items-center gap-3 mb-6">
             <span className="text-3xl font-black tracking-tight" style={{ color: prize.color }}>
@@ -76,7 +76,7 @@ function PrizeCard({ prize, delay, triggered }: {
 
           {/* Amount count-up */}
           <div className={`font-black text-white tracking-tighter leading-none mb-4 ${
-            isLarge ? 'text-6xl lg:text-7xl' : 'text-4xl lg:text-5xl'
+            isLarge ? 'text-5xl sm:text-6xl lg:text-7xl' : 'text-3xl sm:text-4xl lg:text-5xl'
           }`} style={{ fontVariantNumeric: 'tabular-nums' }}>
             {triggered ? formatted(count) : '$0K'}
           </div>
@@ -126,7 +126,7 @@ export default function PrizePool() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
             Prize Pool
@@ -134,7 +134,7 @@ export default function PrizePool() {
 
           {/* Huge count-up total */}
           <motion.div
-            className="text-7xl sm:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-none mb-3"
+            className="text-6xl sm:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-none mb-3"
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >
             <span style={{ filter: 'drop-shadow(0 0 40px rgba(79,209,197,0.25))' }}>

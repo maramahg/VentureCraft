@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react';
 export default function FinalCTA() {
   return (
     <section
-      className="relative overflow-hidden py-28"
+      className="relative overflow-hidden py-16 sm:py-28"
       style={{ background: 'linear-gradient(180deg, #0B2A24 0%, #123830 60%, #0B2A24 100%)' }}
     >
       {/* Top line */}
@@ -41,7 +41,7 @@ export default function FinalCTA() {
             </span>
           </div>
 
-          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
             Follow the{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#00A383]">
               VentureCraft
@@ -54,23 +54,23 @@ export default function FinalCTA() {
             competition updates, and upcoming opportunities.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
               href="/timeline"
-              className="group px-8 py-4 rounded-full bg-[#4FD1C5] text-[#001A18] font-bold text-sm hover:bg-[#5ae0d4] transition-colors flex items-center gap-2"
+              className="group px-8 py-3.5 sm:py-4 rounded-full bg-[#4FD1C5] text-[#001A18] font-bold text-sm hover:bg-[#5ae0d4] transition-colors flex items-center justify-center gap-2"
             >
               View Timeline
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/contact"
-              className="px-8 py-4 rounded-full border border-white/12 text-white/70 font-bold text-sm hover:text-white hover:border-[#4FD1C5]/30 transition-all"
+              className="px-8 py-3.5 sm:py-4 rounded-full border border-white/12 text-white/70 font-bold text-sm hover:text-white hover:border-[#4FD1C5]/30 transition-all text-center"
             >
               Contact the Team
             </Link>
             <Link
               href="/contact"
-              className="px-8 py-4 rounded-full border border-[#4FD1C5]/15 text-[#4FD1C5]/80 font-bold text-sm hover:text-[#4FD1C5] hover:border-[#4FD1C5]/40 transition-all"
+              className="px-8 py-3.5 sm:py-4 rounded-full border border-[#4FD1C5]/15 text-[#4FD1C5]/80 font-bold text-sm hover:text-[#4FD1C5] hover:border-[#4FD1C5]/40 transition-all text-center"
             >
               Become a Mentor
             </Link>

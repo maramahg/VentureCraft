@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue } from 'framer-motion';
 import { competitionPhases, CompetitionPhase } from '../../lib/competitionPhases';
 
@@ -18,6 +18,15 @@ const statusLabels: Record<string, string> = {
 export default function StickyGlobeTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activePhase, setActivePhase] = useState(1);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -49,26 +58,42 @@ export default function StickyGlobeTimeline() {
       <div
         ref={containerRef}
         className="max-w-7xl mx-auto px-6 sm:px-10"
-        style={{ minHeight: `${phaseCount * 70}vh` }}
+        style={{ minHeight: isDesktop ? `${phaseCount * 70}vh` : undefined }}
       >
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-start lg:sticky lg:top-24">
 
           {/* ── Left: phase summary ── */}
-          <div className="lg:w-[40%] flex flex-col gap-6">
+          <div className="lg:w-[40%] flex flex-col gap-6 w-full">
             <span className="text-[11px] uppercase tracking-[0.35em] text-[#23BCAB] font-bold">
               VentureCraft
             </span>
             <div>
-              <h2 className="text-4xl sm:text-5xl font-black text-[#F5FAFA] tracking-tight leading-[1.05]">
+              <h2 className="text-3xl sm:text-5xl font-black text-[#F5FAFA] tracking-tight leading-[1.1] sm:leading-[1.05]">
                 Six Phases.<br />One Destination.
               </h2>
-              <p className="text-[#F5FAFA]/45 text-base mt-4 max-w-sm">
+              <p className="text-[#F5FAFA]/45 text-sm sm:text-base mt-3 sm:mt-4 max-w-sm">
                 Every phase is designed to push your venture further — from first submission to the global stage.
               </p>
             </div>
 
-            {/* Circular progress indicator — rotating dial */}
-            <div className="relative w-44 h-44 flex items-center justify-center my-2">
+            {/* Compact mobile phase indicator */}
+            <div className="lg:hidden flex items-center gap-3 px-4 py-3 rounded-xl border border-[#23BCAB]/15 bg-[#F5FAFA]/[0.03]">
+              <span className="text-2xl font-black text-[#23BCAB] tracking-tighter leading-none">
+                {String(activePhase).padStart(2, '0')}
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#F5FAFA]/40 font-bold">
+                of {String(phaseCount).padStart(2, '0')} Phases
+              </span>
+              <div className="flex-1 flex items-center gap-1.5 justify-end">
+                {competitionPhases.map((p) => (
+                  <div key={p.id} className="h-1 rounded-full transition-all duration-500"
+                    style={{ width: p.id === activePhase ? 16 : 5, background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)' }} />
+                ))}
+              </div>
+            </div>
+
+            {/* Circular progress indicator — rotating dial (desktop only) */}
+            <div className="hidden lg:flex relative w-44 h-44 items-center justify-center my-2">
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.12) 0%, transparent 65%)' }}
@@ -121,16 +146,16 @@ export default function StickyGlobeTimeline() {
               </AnimatePresence>
             </div>
 
-            {/* Segmented progress */}
-            <div className="flex items-center gap-2">
+            {/* Segmented progress (desktop only — mobile shows it inline in the compact indicator above) */}
+            <div className="hidden lg:flex items-center gap-2">
               {competitionPhases.map((p) => (
                 <div key={p.id} className="h-1 rounded-full transition-all duration-500"
                   style={{ width: p.id === activePhase ? 24 : 8, background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)' }} />
               ))}
             </div>
 
-            {/* Current phase details */}
-            <div className="border-t border-[#F5FAFA]/8 pt-5">
+            {/* Current phase details (desktop only — mobile phase list below already shows full detail for the active phase) */}
+            <div className="hidden lg:block border-t border-[#F5FAFA]/8 pt-5">
               <div className="text-[11px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mb-2">
                 Current Phase
               </div>

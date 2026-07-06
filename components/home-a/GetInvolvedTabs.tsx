@@ -22,7 +22,7 @@ export default function GetInvolvedTabs() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-center mb-14"
+          className="text-center mb-10 sm:mb-14"
         >
           <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
             Hult Prize — Inspired
@@ -36,14 +36,14 @@ export default function GetInvolvedTabs() {
         </motion.div>
 
         {/* Tab list */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mb-12" role="tablist">
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-8 sm:mb-12" role="tablist">
           {getInvolvedTabs.map((tab) => (
             <button
               key={tab.id}
               role="tab"
               aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
+              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wide sm:tracking-widest transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-[#4FD1C5] text-[#001A18]'
                   : 'text-white/50 border border-white/10 hover:text-white hover:border-white/25'
@@ -63,7 +63,7 @@ export default function GetInvolvedTabs() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4, ease: [0.215, 0.61, 0.355, 1] }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center"
             >
               {/* Content side */}
               <div>
@@ -92,7 +92,7 @@ export default function GetInvolvedTabs() {
               </div>
 
               {/* Image side */}
-              <div className="relative h-72 lg:h-96 rounded-3xl overflow-hidden border border-white/6">
+              <div className="relative h-52 sm:h-72 lg:h-96 rounded-3xl overflow-hidden border border-white/6">
                 {img && (
                   <Image
                     src={img.src}

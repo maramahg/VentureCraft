@@ -30,14 +30,14 @@ export default function ProofWall() {
         </motion.div>
 
         {/* Bento grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[180px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[220px] sm:auto-rows-[180px]">
           {/* Organizer block — large */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="col-span-2 row-span-2 rounded-3xl border border-[#4FD1C5]/15 p-8 flex flex-col justify-between relative overflow-hidden"
+            className="col-span-1 sm:col-span-2 row-span-1 sm:row-span-2 rounded-3xl border border-[#4FD1C5]/15 p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden"
             style={{ background: 'rgba(0,163,131,0.07)' }}
           >
             <div>
@@ -64,8 +64,8 @@ export default function ProofWall() {
               transition={{ duration: 0.6, delay: i * 0.08 }}
               viewport={{ once: true }}
               className={`relative rounded-2xl overflow-hidden group border border-white/5 hover:border-[#4FD1C5]/20 transition-all duration-500 ${
-                i === 0 ? 'col-span-2 row-span-1' :
-                i === 2 ? 'col-span-1 row-span-2' : ''
+                i === 0 ? 'col-span-1 sm:col-span-2 row-span-1' :
+                i === 2 ? 'col-span-1 row-span-1 sm:row-span-2' : 'col-span-1'
               }`}
             >
               <Image
