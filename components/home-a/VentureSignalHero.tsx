@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import {
   motion,
   useScroll,
@@ -33,39 +33,6 @@ const SIGNAL_DESTINATIONS = [
   { lat: 19.07, lng: 72.87,   label: 'Mumbai'      },
   { lat: -23.55,lng: -46.63,  label: 'São Paulo'   },
 ];
-
-// Character scramble hook — reveals text with a random char effect
-function useScramble(text: string, trigger: boolean, duration = 1000) {
-  const [displayed, setDisplayed] = useState(text);
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
-
-  useEffect(() => {
-    if (!trigger) return;
-    let frame = 0;
-    const total = Math.ceil(duration / 40);
-    const timer = setInterval(() => {
-      frame++;
-      const progress = frame / total;
-      setDisplayed(
-        text
-          .split('')
-          .map((char, i) => {
-            if (char === ' ') return ' ';
-            if (i / text.length < progress) return char;
-            return chars[Math.floor(Math.random() * chars.length)];
-          })
-          .join('')
-      );
-      if (frame >= total) {
-        clearInterval(timer);
-        setDisplayed(text);
-      }
-    }, 40);
-    return () => clearInterval(timer);
-  }, [trigger]);  // eslint-disable-line
-
-  return displayed;
-}
 
 // Single floating stat card with mouse parallax
 function StatCard({
@@ -111,8 +78,6 @@ function StatCard({
 
 export function VentureSignalHero() {
   const containerRef = useRef<HTMLElement>(null);
-  const [scrambleTrigger, setScrambleTrigger] = useState(false);
-  const scrambledTitle = useScramble('VentureCraft', scrambleTrigger, 1200);
 
   // Scroll-driven exit animations
   const { scrollYProgress } = useScroll({
@@ -142,18 +107,15 @@ export function VentureSignalHero() {
 
   useEffect(() => {
     window.addEventListener('mousemove', onMouseMove);
-    // Trigger scramble 1.4s after mount
-    const t = setTimeout(() => setScrambleTrigger(true), 1400);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      clearTimeout(t);
     };
   }, [onMouseMove]);
 
   // Stagger variants
   const container = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.13, delayChildren: 0.5 } },
+    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
   };
   const item = {
     hidden:  { opacity: 0, y: 28, filter: 'blur(10px)' },
@@ -217,27 +179,29 @@ export function VentureSignalHero() {
           style={{ background: 'radial-gradient(circle, rgba(0,163,131,0.1) 0%, transparent 70%)' }}
         />
 
-        {/* Orbit rings — animating in 3D */}
-        {[520, 640, 760].map((size, i) => (
-          <motion.div
-            key={size}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20 + i * 8, repeat: Infinity, ease: 'linear' }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none"
-            style={{
-              width: size,
-              height: size,
-              borderColor: `rgba(79,209,197,${0.07 - i * 0.018})`,
-              transform: `translate(-50%, -50%) rotateX(${60 + i * 8}deg)`,
-            }}
-          />
-        ))}
+        {/* Orbit rings — animating in 3D (desktop only: heavy for mobile perf) */}
+        <div className="hidden lg:contents">
+          {[520, 640, 760].map((size, i) => (
+            <motion.div
+              key={size}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20 + i * 8, repeat: Infinity, ease: 'linear' }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none"
+              style={{
+                width: size,
+                height: size,
+                borderColor: `rgba(79,209,197,${0.07 - i * 0.018})`,
+                transform: `translate(-50%, -50%) rotateX(${60 + i * 8}deg)`,
+              }}
+            />
+          ))}
+        </div>
 
-        {/* Radar sweep */}
+        {/* Radar sweep (desktop only: heavy for mobile perf) */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden pointer-events-none"
+          className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden pointer-events-none"
           style={{ width: 440, height: 440 }}
         >
           <div
@@ -252,9 +216,9 @@ export function VentureSignalHero() {
         {/* Globe */}
         <Globe className="w-full h-full scale-[0.8] sm:scale-[1.2] lg:scale-[1.35]" />
 
-        {/* Signal arcs — SVG overlay */}
+        {/* Signal arcs — SVG overlay (desktop only: heavy for mobile perf) */}
         <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
@@ -299,14 +263,14 @@ export function VentureSignalHero() {
           <div className="w-2.5 h-2.5 rounded-full bg-[#4FD1C5] absolute -translate-x-1/2 -translate-y-1/2 shadow-[0_0_20px_rgba(79,209,197,0.9)]" />
         </motion.div>
 
-        {/* Destination pulsing nodes */}
+        {/* Destination pulsing nodes (desktop only: heavy for mobile perf) */}
         {SIGNAL_DESTINATIONS.slice(0, 5).map((dest, i) => (
           <motion.div
             key={dest.label}
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 2.2 + i * 0.18, duration: 0.4 }}
-            className="absolute pointer-events-none"
+            className="hidden lg:block absolute pointer-events-none"
             style={{
               top: `calc(50% + ${(dest.lat > 26 ? -12 : 12) * 0.38 * 4}px)`,
               left: `calc(50% + ${(dest.lng > 50 ? 22 : -22) * 0.38 * 4}px)`,
@@ -349,14 +313,16 @@ export function VentureSignalHero() {
             </span>
           </motion.div>
 
-          {/* Title with scramble */}
+          {/* Title — clean blur/fade reveal, no scramble */}
           <motion.h1
-            variants={item}
+            initial={{ opacity: 0, y: 24, filter: 'blur(14px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.9, delay: 0.15, ease: [0.215, 0.61, 0.355, 1] }}
             className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black tracking-tighter uppercase leading-[0.88] text-white mb-4"
             aria-label="VentureCraft"
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-[#4FD1C5]/80">
-              {scrambledTitle}
+              VentureCraft
             </span>
           </motion.h1>
 
@@ -431,10 +397,10 @@ export function VentureSignalHero() {
       </motion.div>
 
       {/* ── Floating stat cards (desktop only) ── */}
-      <StatCard stat={homepageStats[0]} className="top-[16%] right-[7%]"   delay={2.2} mouseX={mouseX} mouseY={mouseY} depth={22} />
-      <StatCard stat={homepageStats[2]} className="top-[36%] right-[2%]"   delay={2.4} mouseX={mouseX} mouseY={mouseY} depth={28} />
-      <StatCard stat={homepageStats[3]} className="bottom-[30%] right-[9%]" delay={2.6} mouseX={mouseX} mouseY={mouseY} depth={20} />
-      <StatCard stat={homepageStats[4]} className="bottom-[18%] right-[3%]" delay={2.8} mouseX={mouseX} mouseY={mouseY} depth={24} />
+      <StatCard stat={homepageStats[0]} className="top-[16%] right-[7%]"   delay={1.2} mouseX={mouseX} mouseY={mouseY} depth={22} />
+      <StatCard stat={homepageStats[2]} className="top-[36%] right-[2%]"   delay={1.4} mouseX={mouseX} mouseY={mouseY} depth={28} />
+      <StatCard stat={homepageStats[3]} className="bottom-[30%] right-[9%]" delay={1.6} mouseX={mouseX} mouseY={mouseY} depth={20} />
+      <StatCard stat={homepageStats[4]} className="bottom-[18%] right-[3%]" delay={1.8} mouseX={mouseX} mouseY={mouseY} depth={24} />
 
       {/* ── Scroll indicator ── */}
       <motion.div

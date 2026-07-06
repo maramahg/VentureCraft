@@ -6,6 +6,7 @@ import "./globals.css";
 import Cursor from "../components/Cursor";
 import Navbar from "../components/Navbar";
 import NavigationGuard from "../components/NavigationGuard";
+import SplashScreen from "../components/SplashScreen";
 import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} font - poppins antialiased`}
       >
+        <SplashScreen />
         <NavigationGuard>
           <Suspense fallback={null}>
             <Navbar />

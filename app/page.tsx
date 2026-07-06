@@ -5,49 +5,38 @@ import ScrollProgress from '../components/ScrollProgress';
 import { VentureSignalHero } from '../components/home-a/VentureSignalHero';
 import Footer from '../components/Footer';
 
-const ProofStrip        = dynamic(() => import('../components/home-a/ProofStrip'));
 const CompetitionJourney= dynamic(() => import('../components/home-a/CompetitionJourney'));
-const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
 const PrizePool         = dynamic(() => import('../components/home-a/PrizePool'));
-const VentureAreas      = dynamic(() => import('../components/home-a/VentureAreas'));
 const ProofWall         = dynamic(() => import('../components/home-a/ProofWall'));
-const GetInvolvedTabs   = dynamic(() => import('../components/home-a/GetInvolvedTabs'));
-const PartnersOrganizers= dynamic(() => import('../components/home-a/PartnersOrganizers'));
 const FinalCTA          = dynamic(() => import('../components/home-a/FinalCTA'));
+
+// Note: StickyGlobeTimeline, VentureAreas, GetInvolvedTabs and PartnersOrganizers
+// were removed from the homepage flow to reduce clutter per client feedback.
+// Their content has been reorganized, not deleted:
+// - StickyGlobeTimeline duplicated CompetitionJourney's six stages and is retired.
+// - VentureAreas (Deep Tech Focus Areas) now lives on /about/venture-craft, with a
+//   condensed teaser folded into ProofWall's credibility block.
+// - GetInvolvedTabs now lives on /about/venture-craft.
+// - PartnersOrganizers now lives on /sponsors.
 
 export default function DesignA() {
   return (
     <main className="min-h-screen flex flex-col overflow-clip" style={{ background: '#0B2A24' }}>
       <ScrollProgress />
 
-      {/* 1. Cinematic hero — globe, Dhahran signal arcs, scramble title, mouse parallax stats */}
+      {/* 1. Cinematic hero — globe, Dhahran signal arcs, mouse parallax stats */}
       <VentureSignalHero />
 
-      {/* 2. Credibility strip — KFUPM/DTV + animated count-up stats */}
-      <ProofStrip />
-
-      {/* 3. Competition journey — Pitch / Accelerate / Launch */}
-      <CompetitionJourney />
-
-      {/* 4. Scroll-driven timeline — branded phase indicator, 6 phases */}
-      <StickyGlobeTimeline />
-
-      {/* 5. Prize pool — $245K count-up, tier cards */}
+      {/* 2. Financial prizes — first major hook after the hero */}
       <PrizePool />
 
-      {/* 6. Deep-tech focus areas */}
-      <VentureAreas />
+      {/* 3. Competition journey / six stages — merged, single source of truth, with CTA */}
+      <CompetitionJourney />
 
-      {/* 7. Proof wall — bento credibility grid */}
+      {/* 4. Credibility — KFUPM/DTV + condensed Deep-Tech focus areas */}
       <ProofWall />
 
-      {/* 8. Get involved — 5 animated tabs */}
-      <GetInvolvedTabs />
-
-      {/* 9. Partners & organizers */}
-      <PartnersOrganizers />
-
-      {/* 10. Final CTA */}
+      {/* 5. Contact / Final CTA */}
       <FinalCTA />
 
       <Footer />

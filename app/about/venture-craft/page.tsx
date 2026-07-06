@@ -1,13 +1,14 @@
 'use client';
 
 import Footer from '@/components/Footer';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import ThemePillars from "@/components/ThemePillars";
 import AboutObjectives from "@/src/components/AboutObjectives";
 import AboutTargetAudience from "@/src/components/AboutTargetAudience";
 import CallToAction from "@/components/CallToAction";
+import VentureAreas from "@/components/home-a/VentureAreas";
+import GetInvolvedTabs from "@/components/home-a/GetInvolvedTabs";
 import { ExternalLink } from "lucide-react";
 
 const fadeInUp = {
@@ -83,7 +84,7 @@ export default function VentureCraftAboutPage() {
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-vc-mint font-bold underline underline-offset-4 decoration-vc-mint/30 hover:decoration-vc-mint transition-all duration-300 group"
                                     >
-                                        KFUPM's
+                                        KFUPM&apos;s
                                         <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                                     </a>{" "}
                                     premier international deep-tech startup competition,
@@ -110,6 +111,12 @@ export default function VentureCraftAboutPage() {
                 <AboutTargetAudience />
 
                 <ThemePillars />
+
+                {/* Deep-Tech Focus Areas — moved here from the homepage to reduce clutter */}
+                <VentureAreas />
+
+                {/* Get Involved — moved here from the homepage to reduce clutter */}
+                <GetInvolvedTabs />
 
                 <CallToAction showOnlyRegister />
             </div>

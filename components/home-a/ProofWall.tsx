@@ -2,7 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { proofWallImages } from '../../lib/homepageImages';
+import { ventureAreas } from '../../lib/ventureAreas';
 
 export default function ProofWall() {
   return (
@@ -104,6 +107,43 @@ export default function ProofWall() {
             </motion.div>
           ))}
         </div>
+
+        {/* Condensed Deep-Tech focus areas — full detail lives on /about/venture-craft */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="mt-10 rounded-3xl border border-white/6 p-6 sm:p-8"
+          style={{ background: 'rgba(0,40,35,0.3)' }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.3em] text-[#4FD1C5] font-bold mb-1">
+                2026 Theme — Sustainable Energy
+              </div>
+              <h3 className="text-lg font-black text-white">Deep-Tech Focus Areas</h3>
+            </div>
+            <Link
+              href="/about/venture-craft"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#4FD1C5]/80 hover:text-[#4FD1C5] transition-colors group shrink-0"
+            >
+              Explore all focus areas
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            {ventureAreas.map((area) => (
+              <span
+                key={area.id}
+                className="inline-flex items-center gap-2 text-xs font-semibold text-white/60 bg-white/4 px-3.5 py-2 rounded-full border border-white/6"
+              >
+                <span aria-hidden>{area.icon}</span>
+                {area.title}
+              </span>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );

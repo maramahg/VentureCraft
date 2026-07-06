@@ -8,11 +8,11 @@ import { ArrowRight } from 'lucide-react';
 import { competitionJourneyStages } from '../../lib/competitionPhases';
 import { use3DTilt } from '../../hooks/use3DTilt';
 
-function JourneyCard({ stage, i }: { stage: typeof competitionJourneyStages[0]; i: number }) {
+function JourneyCard({ stage, i, className = '' }: { stage: typeof competitionJourneyStages[0]; i: number; className?: string }) {
   const tilt = use3DTilt(10);
 
   return (
-    <div style={{ perspective: '900px' }}>
+    <div style={{ perspective: '900px' }} className={className}>
       <motion.div
         initial={{ opacity: 0, y: 50, filter: 'blur(8px)' }}
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -134,8 +134,23 @@ export default function CompetitionJourney() {
           ))}
         </div>
 
-        {/* 3D tilt cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        {/* Mobile/tablet: swipeable snap carousel */}
+        <div className="lg:hidden -mx-6 px-6 sm:-mx-10 sm:px-10 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {competitionJourneyStages.map((stage, i) => (
+            <JourneyCard
+              key={stage.id}
+              stage={stage}
+              i={i}
+              className="min-w-[85%] sm:min-w-[55%] shrink-0 snap-center"
+            />
+          ))}
+        </div>
+        <p className="lg:hidden text-center text-white/25 text-[11px] uppercase tracking-[0.2em] font-semibold mt-3">
+          Swipe to explore →
+        </p>
+
+        {/* Desktop: 3D tilt grid */}
+        <div className="hidden lg:grid grid-cols-3 gap-8">
           {competitionJourneyStages.map((stage, i) => (
             <JourneyCard key={stage.id} stage={stage} i={i} />
           ))}
@@ -146,9 +161,19 @@ export default function CompetitionJourney() {
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mt-12"
+          className="flex flex-col items-center gap-4 mt-14"
         >
-          <Link href="/apply" className="inline-flex items-center gap-2 text-sm font-bold text-[#4FD1C5] hover:text-white transition-colors group">
+          <Link
+            href="/apply"
+            className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95"
+          >
+            <div className="absolute inset-0 bg-[#4FD1C5] group-hover:bg-[#5ae0d4] transition-colors duration-300" />
+            <span className="relative text-[#001A18] flex items-center gap-2">
+              Apply Now
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+          <Link href="/apply" className="inline-flex items-center gap-2 text-sm font-bold text-[#4FD1C5]/70 hover:text-[#4FD1C5] transition-colors group">
             View full competition details
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
