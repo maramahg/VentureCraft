@@ -82,9 +82,8 @@ export const competitionJourneyStages = [
     description:
       'Submit your idea and articulate the problem your deep-tech venture is built to solve. This is where your journey begins.',
     phases: ['Idea Submission', 'Screening'],
-    // Temporary stock image. Replace with official VentureCraft photography when available.
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80',
-    imageAlt: 'Student founder presenting a startup idea in a modern innovation space',
+    image: '/images/kfupm/students.jpg',
+    imageAlt: 'KFUPM student team presenting their engineering project',
     imageCaption: 'Founder Pitch',
   },
   {
@@ -95,9 +94,8 @@ export const competitionJourneyStages = [
     description:
       'Refine your venture through screening, online bootcamps, mentorship sessions, and expert feedback from KFUPM and DTV.',
     phases: ['Online Bootcamp', 'Finalist Notification'],
-    // Temporary stock image. Replace with official VentureCraft photography when available.
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-    imageAlt: 'Team collaborating in a mentorship and venture building workshop',
+    image: '/images/kfupm/research-centers.png',
+    imageAlt: 'KFUPM Research & Innovation mentor guiding a student in the lab',
     imageCaption: 'Mentorship & Venture Building',
   },
   {
@@ -108,9 +106,8 @@ export const competitionJourneyStages = [
     description:
       'Compete in the final stage for funding, global exposure, and the support to move from research to market.',
     phases: ['Acceleration Program', 'Final Competition'],
-    // Temporary stock image. Replace with official VentureCraft photography when available.
-    image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80',
-    imageAlt: 'Founder on stage presenting at a major startup competition',
+    image: '/images/dtv/hero.png',
+    imageAlt: 'Dhahran Techno Valley innovation ecosystem experience',
     imageCaption: 'Competition Experience',
   },
 ];

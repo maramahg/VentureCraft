@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { ArrowRight, ArrowDown, Sparkles } from 'lucide-react';
 import { homepageStats } from '../../lib/homepageStats';
+import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 
 // Lazy-load the globe so it doesn't block first paint
 const Globe = dynamic(() => import('../ui/globe').then((m) => m.Globe), {
@@ -78,6 +79,7 @@ function StatCard({
 
 export function VentureSignalHero() {
   const containerRef = useRef<HTMLElement>(null);
+  const isRegistrationOpen = useRegistrationStatus();
 
   // Scroll-driven exit animations
   const { scrollYProgress } = useScroll({
@@ -131,8 +133,8 @@ export function VentureSignalHero() {
       {/* ── Background Image ── */}
       <div className="absolute inset-0 pointer-events-none">
         <Image
-          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1600&q=80"
-          alt="Deep-tech lab background"
+          src="/images/dtv/hero.png"
+          alt="Dhahran Techno Valley innovation ecosystem"
           fill
           className="object-cover opacity-30"
           sizes="100vw"
@@ -355,8 +357,8 @@ export function VentureSignalHero() {
           {/* CTAs */}
           <motion.div variants={item} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-7">
             <Link
-              href="/about"
-              id="hero-cta-explore"
+              href="/apply"
+              id="hero-cta-apply"
               className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95"
             >
               <div className="absolute inset-0 bg-[#4FD1C5] group-hover:bg-[#5ae0d4] transition-colors duration-300" />
@@ -365,17 +367,17 @@ export function VentureSignalHero() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </div>
               <span className="relative text-[#001A18] flex items-center gap-2">
-                Explore the Competition
+                {isRegistrationOpen ? 'Apply Now' : 'View Application Status'}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
 
             <Link
-              href="/timeline"
-              id="hero-cta-timeline"
+              href="/about"
+              id="hero-cta-explore"
               className="px-8 py-3.5 rounded-full text-[15px] font-bold text-white/70 hover:text-white border border-white/12 hover:border-[#4FD1C5]/35 transition-all duration-300"
             >
-              View Timeline
+              Explore the Competition
             </Link>
           </motion.div>
 
@@ -390,7 +392,7 @@ export function VentureSignalHero() {
               className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]/60"
             />
             <span className="text-xs text-white/40 font-medium">
-              Applications closed for this cycle
+              {isRegistrationOpen ? 'Applications are open now' : 'Applications closed for this cycle'}
             </span>
           </motion.div>
         </motion.div>

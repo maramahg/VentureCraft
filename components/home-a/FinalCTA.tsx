@@ -3,8 +3,10 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 
 export default function FinalCTA() {
+  const isRegistrationOpen = useRegistrationStatus();
   return (
     <section
       className="relative overflow-hidden py-16 sm:py-28"
@@ -37,7 +39,7 @@ export default function FinalCTA() {
               className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]/50"
             />
             <span className="text-xs text-white/40 font-medium">
-              Applications closed for this cycle
+              {isRegistrationOpen ? 'Applications are open now' : 'Applications closed for this cycle'}
             </span>
           </div>
 
@@ -50,16 +52,17 @@ export default function FinalCTA() {
           </h2>
 
           <p className="text-white/40 text-lg sm:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
-            Applications are closed for this cycle. Stay connected for finalist announcements,
-            competition updates, and upcoming opportunities.
+            {isRegistrationOpen
+              ? 'Applications are open. Submit your venture and take the first step toward the $245K prize pool.'
+              : 'Applications are closed for this cycle. Stay connected for finalist announcements, competition updates, and upcoming opportunities.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
-              href="/timeline"
+              href={isRegistrationOpen ? '/apply' : '/timeline'}
               className="group px-8 py-3.5 sm:py-4 rounded-full bg-[#4FD1C5] text-[#001A18] font-bold text-sm hover:bg-[#5ae0d4] transition-colors flex items-center justify-center gap-2"
             >
-              View Timeline
+              {isRegistrationOpen ? 'Apply Now' : 'View Timeline'}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link

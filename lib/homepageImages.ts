@@ -1,183 +1,178 @@
-// All images are temporary stock photos from Unsplash.
-// Replace with official VentureCraft photography when available.
-// Each image is marked with isTemporary: true for easy future identification.
+// Images sourced from KFUPM (kfupm.edu.sa) and DTV / Dhahran Techno Valley (dtv.sa) media.
 
 export interface HomepageImage {
   src: string;
   alt: string;
   caption: string;
   category: string;
-  isTemporary: true;
+  isTemporary: boolean;
   futureReplacementNote: string;
 }
 
 export const journeyImages = {
   pitch: {
-    src: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=900&q=85',
-    alt: 'Student founder presenting a startup idea in a modern innovation environment',
+    src: '/images/kfupm/students.jpg',
+    alt: 'KFUPM student team presenting their engineering project',
     caption: 'Founder Pitch',
     category: 'Competition Journey',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with official VentureCraft pitch session photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
   accelerate: {
-    src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&q=85',
-    alt: 'Team collaborating in a mentorship and venture building workshop session',
+    src: '/images/kfupm/research-centers.png',
+    alt: 'KFUPM Research & Innovation mentor guiding a student in the lab',
     caption: 'Mentorship & Venture Building',
     category: 'Competition Journey',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with official VentureCraft bootcamp photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
   launch: {
-    src: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=900&q=85',
-    alt: 'Entrepreneur presenting on stage at an international startup competition',
+    src: '/images/dtv/hero.png',
+    alt: 'Dhahran Techno Valley innovation ecosystem experience',
     caption: 'Competition Experience',
     category: 'Competition Journey',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with official VentureCraft final competition photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
 };
 
-// Temporary stock images. Replace with official VentureCraft photography when available.
 export const proofWallImages: HomepageImage[] = [
   {
-    src: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900&q=85',
-    alt: 'Researcher working with advanced technology in a university laboratory',
+    src: '/images/kfupm/research-centers.png',
+    alt: 'KFUPM Research & Innovation lab with robotics equipment',
     caption: 'Deep-Tech Innovation',
     category: 'Proof Wall',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with KFUPM lab photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   {
-    src: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=85',
-    alt: 'Students collaborating on a technology project in a modern university setting',
+    src: '/images/kfupm/entrepreneurship-ecosystem.jpeg',
+    alt: 'KFUPM Esteedamah solar car team showcasing their entrepreneurship project',
     caption: 'University Innovation Ecosystem',
     category: 'Proof Wall',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with VentureCraft team collaboration photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   {
-    src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=900&q=85',
-    alt: 'Expert mentor guiding a startup team through venture development strategy',
+    src: '/images/dtv/sustainability.jpg',
+    alt: 'Researcher conducting sustainable energy experiments in a DTV lab',
     caption: 'Acceleration Experience',
     category: 'Proof Wall',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with official mentor session photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   {
-    src: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=85',
-    alt: 'Modern research and innovation campus facility',
+    src: '/images/dtv/robotics.jpg',
+    alt: 'DTV robotics and drone research and development',
     caption: 'Research to Market',
     category: 'Proof Wall',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with KFUPM campus photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   {
-    src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=85',
-    alt: 'International startup community networking at a global entrepreneurship event',
+    src: '/images/kfupm/international-students.jpg',
+    alt: 'International KFUPM students holding flags in front of the KFUPM sign',
     caption: 'Global Startup Network',
     category: 'Proof Wall',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with VentureCraft event photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   {
-    src: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=900&q=85',
-    alt: 'Sustainable energy research and renewable technology development',
+    src: '/images/dtv/hero.png',
+    alt: 'Dhahran Techno Valley innovation ecosystem near the Khobar coastline',
     caption: 'Sustainable Energy Research',
     category: 'Proof Wall',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with deep-tech research photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
 ];
 
-// Temporary stock images. Replace with official VentureCraft photography when available.
 export const involvedImages = {
   compete: {
-    src: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=900&q=85',
-    alt: 'Student founders working together on a deep-tech startup venture',
+    src: '/images/kfupm/students.jpg',
+    alt: 'KFUPM student founders working together on a deep-tech project',
     caption: 'Founder Teams',
     category: 'Get Involved',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with VentureCraft participant photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
   mentor: {
-    src: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=900&q=85',
-    alt: 'Expert mentor providing guidance to startup founders in a professional setting',
+    src: '/images/kfupm/research-centers.png',
+    alt: 'KFUPM Research & Innovation mentor providing guidance in the lab',
     caption: 'Expert Mentorship',
     category: 'Get Involved',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with VentureCraft mentor photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
   sponsor: {
-    src: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=85',
-    alt: 'Corporate innovation partnership and ecosystem collaboration',
+    src: '/images/dtv/hero.png',
+    alt: 'Dhahran Techno Valley innovation and technology ecosystem',
     caption: 'Innovation Partnership',
     category: 'Get Involved',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with VentureCraft sponsor event photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
   ambassador: {
-    src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900&q=85',
-    alt: 'Student ambassador representing a university entrepreneurship community',
+    src: '/images/kfupm/international-students.jpg',
+    alt: 'KFUPM student ambassadors representing the university community',
     caption: 'Community Leadership',
     category: 'Get Involved',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with VentureCraft ambassador photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
   partner: {
-    src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=85',
-    alt: 'Institutional collaboration between universities and innovation organizations',
+    src: '/images/kfupm/hero.png',
+    alt: 'KFUPM community collaborating across the university ecosystem',
     caption: 'Institutional Collaboration',
     category: 'Get Involved',
-    isTemporary: true as const,
-    futureReplacementNote: 'Replace with VentureCraft partner event photography',
+    isTemporary: false as const,
+    futureReplacementNote: '',
   },
 };
 
-// Temporary stock images. Replace with official VentureCraft photography when available.
 export const ventureAreaImages: Record<string, HomepageImage> = {
   sustainableEnergy: {
-    src: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=700&q=80',
-    alt: 'Sustainable energy technology and renewable power research',
+    src: '/images/dtv/sustainability.jpg',
+    alt: 'Sustainable energy research inside a DTV lab',
     caption: 'Sustainable Energy',
     category: 'Venture Areas',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with relevant deep-tech photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   decarbonization: {
-    src: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=700&q=80',
-    alt: 'Industrial decarbonization and clean technology innovation',
+    src: '/images/kfupm/entrepreneurship-ecosystem.jpeg',
+    alt: 'KFUPM Esteedamah solar car team, a decarbonization and clean-tech venture',
     caption: 'Decarbonization',
     category: 'Venture Areas',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with relevant deep-tech photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   aiData: {
-    src: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=700&q=80',
-    alt: 'Artificial intelligence and data science for energy applications',
+    src: '/images/kfupm/research-centers.png',
+    alt: 'KFUPM Research & Innovation team working with robotics and data systems',
     caption: 'AI & Data for Energy',
     category: 'Venture Areas',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with relevant deep-tech photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
   robotics: {
-    src: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=700&q=80',
-    alt: 'Advanced robotics and industrial automation technology',
+    src: '/images/dtv/robotics.jpg',
+    alt: 'DTV robotics and drone research and development',
     caption: 'Robotics & Automation',
     category: 'Venture Areas',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with relevant deep-tech photography',
+    isTemporary: false,
+    futureReplacementNote: '',
   },
 };
 
 export const mosaicImages = {
   main: {
-    src: 'https://images.unsplash.com/photo-1542626991-cbc4e32524cc?w=1600&q=85',
-    alt: 'Tech ecosystem leaders collaborating on innovation',
+    src: '/images/kfupm/hero.png',
+    alt: 'KFUPM and DTV ecosystem leaders collaborating on innovation',
     caption: 'Ecosystem Leaders',
     category: 'Credibility Mosaic',
-    isTemporary: true,
-    futureReplacementNote: 'Replace with VentureCraft partners and judges',
+    isTemporary: false,
+    futureReplacementNote: '',
   }
 };
 

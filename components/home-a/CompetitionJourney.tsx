@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { competitionJourneyStages } from '../../lib/competitionPhases';
 import { use3DTilt } from '../../hooks/use3DTilt';
+import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 
 function JourneyCard({ stage, i, className = '' }: { stage: typeof competitionJourneyStages[0]; i: number; className?: string }) {
   const tilt = use3DTilt(10);
@@ -85,6 +86,31 @@ export default function CompetitionJourney() {
   const isInView = useInView(ref, { once: true, margin: '-5%' });
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const lineWidth = useTransform(scrollYProgress, [0.1, 0.7], ['0%', '100%']);
+  const isRegistrationOpen = useRegistrationStatus();
+
+  // Track which card is centered in the mobile swipe carousel to drive the pagination dots.
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeCard, setActiveCard] = useState(0);
+
+  useEffect(() => {
+    const container = carouselRef.current;
+    if (!container) return;
+    const cards = Array.from(container.children) as HTMLElement[];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+            const idx = cards.indexOf(entry.target as HTMLElement);
+            if (idx !== -1) setActiveCard(idx);
+          }
+        });
+      },
+      { root: container, threshold: [0.6] }
+    );
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section className="section-padding relative overflow-hidden" style={{ background: '#0B2A24' }}>
@@ -135,7 +161,10 @@ export default function CompetitionJourney() {
         </div>
 
         {/* Mobile/tablet: swipeable snap carousel */}
-        <div className="lg:hidden -mx-6 px-6 sm:-mx-10 sm:px-10 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          ref={carouselRef}
+          className="lg:hidden -mx-6 px-6 sm:-mx-10 sm:px-10 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {competitionJourneyStages.map((stage, i) => (
             <JourneyCard
               key={stage.id}
@@ -145,7 +174,21 @@ export default function CompetitionJourney() {
             />
           ))}
         </div>
-        <p className="lg:hidden text-center text-white/25 text-[11px] uppercase tracking-[0.2em] font-semibold mt-3">
+
+        {/* Pagination dots synced to the active card */}
+        <div className="lg:hidden flex items-center justify-center gap-2 mt-4">
+          {competitionJourneyStages.map((stage, i) => (
+            <div
+              key={stage.id}
+              className="h-1.5 rounded-full transition-all duration-300"
+              style={{
+                width: i === activeCard ? 20 : 6,
+                background: i === activeCard ? '#4FD1C5' : 'rgba(245,250,250,0.15)',
+              }}
+            />
+          ))}
+        </div>
+        <p className="lg:hidden text-center text-white/25 text-[11px] uppercase tracking-[0.2em] font-semibold mt-2">
           Swipe to explore →
         </p>
 
@@ -169,7 +212,7 @@ export default function CompetitionJourney() {
           >
             <div className="absolute inset-0 bg-[#4FD1C5] group-hover:bg-[#5ae0d4] transition-colors duration-300" />
             <span className="relative text-[#001A18] flex items-center gap-2">
-              Apply Now
+              {isRegistrationOpen ? 'Apply Now' : 'View Application Status'}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
