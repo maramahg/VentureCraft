@@ -89,28 +89,6 @@ export default function SplashScreen() {
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
           style={{ background: '#0B2A24' }}
         >
-          {/* Deep ambient glow — pulses throughout */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none z-10"
-            style={{
-              background:
-                'radial-gradient(ellipse 55% 50% at 50% 50%, rgba(79,209,197,0.18) 0%, transparent 70%)',
-            }}
-            animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.1, 0.9] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
-          {/* Secondary warm glow layer */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none z-10"
-            style={{
-              background:
-                'radial-gradient(ellipse 30% 25% at 50% 50%, rgba(0,163,131,0.12) 0%, transparent 60%)',
-            }}
-            animate={{ opacity: [0.3, 0.8, 0.3], scale: [1.1, 0.95, 1.1] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          />
-
           {/* Subtle dot grid pattern */}
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.06] z-10"
@@ -157,6 +135,17 @@ export default function SplashScreen() {
             className="absolute inset-0 flex items-center justify-center z-0 pb-[320px]"
           >
             <div className="relative w-[280px] h-[280px] sm:w-[360px] sm:h-[360px]">
+              {/* Framer Motion's `scale` on the parent creates a new CSS
+                  stacking context, which isolates `mix-blend-mode` below to
+                  only blend within this group rather than the real page
+                  background behind it. This solid patch (same color as the
+                  page background) gives the blend something correct to
+                  disappear against, so the video's dark backing color still
+                  reads as transparent. */}
+              <div
+                className="absolute inset-0"
+                style={{ background: '#0B2A24' }}
+              />
               <video
                 ref={videoRef}
                 src="/splash.mp4"
@@ -182,6 +171,18 @@ export default function SplashScreen() {
                 style={{
                   maskImage: 'radial-gradient(circle, black 40%, transparent 70%)',
                   WebkitMaskImage: 'radial-gradient(circle, black 40%, transparent 70%)',
+                  // The exported video has a solid near-black backing color
+                  // baked into every frame (it doesn't support alpha). That
+                  // backing color is darker than the splash background in
+                  // every channel, so `lighten` makes the video's background
+                  // pixels disappear into the page background/glow behind
+                  // it, leaving only the brighter logo artwork visible.
+                  mixBlendMode: 'lighten',
+                  // `contrast` brightens the logo's mid/highlight colors
+                  // while pushing the already-dark backing color even
+                  // darker (rather than lifting it, like `brightness`
+                  // would) — so it won't reintroduce the background seam.
+                  filter: 'contrast(1.3) saturate(1.15)',
                 }}
               />
             </div>
