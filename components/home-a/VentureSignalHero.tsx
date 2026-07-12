@@ -144,15 +144,6 @@ export function VentureSignalHero() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B2A24] via-transparent to-transparent" />
       </div>
 
-      {/* ── Background grid ── */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.035]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(79,209,197,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(79,209,197,0.6) 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
-        }}
-      />
 
       {/* ── Radial ambient ── */}
       <div
@@ -216,75 +207,7 @@ export function VentureSignalHero() {
         </motion.div>
 
         {/* Globe */}
-        <Globe className="w-full h-full scale-[0.6] sm:scale-[0.9] lg:scale-[1.0]" />
-
-        {/* Signal arcs — SVG overlay (desktop only: heavy for mobile perf) */}
-        <svg
-          className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          {SIGNAL_DESTINATIONS.map((dest, i) => {
-            const cx = 50 + (dest.lng > 50 ? 22 : -22) * 0.38;
-            const cy = 50 + (dest.lat > 26 ? -12 : 12) * 0.38;
-            const qx = 50 + (i % 2 === 0 ? 18 : -18);
-            const qy = 48 - i * 1.8;
-            return (
-              <motion.path
-                key={dest.label}
-                d={`M 50 50 Q ${qx} ${qy}, ${cx} ${cy}`}
-                fill="none"
-                stroke="rgba(79,209,197,0.25)"
-                strokeWidth="0.18"
-                strokeLinecap="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: [0, 0.7, 0.35] }}
-                transition={{
-                  pathLength: { duration: 1.8, delay: 1.6 + i * 0.18, ease: 'easeInOut' },
-                  opacity:    { duration: 0.8, delay: 1.6 + i * 0.18 },
-                }}
-              />
-            );
-          })}
-        </svg>
-
-        {/* Dhahran origin pulse */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        >
-          {/* outer pulse ring */}
-          <motion.div
-            animate={{ scale: [1, 3.5, 1], opacity: [0.5, 0, 0.5] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeOut' }}
-            className="w-4 h-4 rounded-full border-2 border-[#4FD1C5] absolute -translate-x-1/2 -translate-y-1/2"
-          />
-          {/* inner dot */}
-          <div className="w-2.5 h-2.5 rounded-full bg-[#4FD1C5] absolute -translate-x-1/2 -translate-y-1/2 shadow-[0_0_20px_rgba(79,209,197,0.9)]" />
-        </motion.div>
-
-        {/* Destination pulsing nodes (desktop only: heavy for mobile perf) */}
-        {SIGNAL_DESTINATIONS.slice(0, 5).map((dest, i) => (
-          <motion.div
-            key={dest.label}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 2.2 + i * 0.18, duration: 0.4 }}
-            className="hidden lg:block absolute pointer-events-none"
-            style={{
-              top: `calc(50% + ${(dest.lat > 26 ? -12 : 12) * 0.38 * 4}px)`,
-              left: `calc(50% + ${(dest.lng > 50 ? 22 : -22) * 0.38 * 4}px)`,
-            }}
-          >
-            <motion.div
-              animate={{ scale: [1, 2.5, 1], opacity: [0.6, 0, 0.6] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: i * 0.3 }}
-              className="w-2 h-2 rounded-full bg-[#4FD1C5]/60"
-            />
-          </motion.div>
-        ))}
+        <Globe className="w-full h-full scale-[0.52] sm:scale-[0.8] lg:scale-[0.88]" />
       </motion.div>
       </div>
 
@@ -297,30 +220,15 @@ export function VentureSignalHero() {
           variants={container}
           initial="hidden"
           animate="visible"
-          className="px-6 sm:px-10 lg:px-16 xl:px-20 max-w-xl"
+          className="px-6 sm:px-10 lg:px-16 xl:px-20 max-w-xl pt-10 md:pt-14 lg:pt-18"
         >
-          {/* Label */}
-          <motion.div
-            variants={item}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#4FD1C5]/20 bg-[#4FD1C5]/5 mb-8"
-          >
-            <motion.span
-              animate={{ rotate: [0, 14, -14, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <Sparkles className="w-3 h-3 text-[#4FD1C5]" />
-            </motion.span>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#4FD1C5] font-bold">
-              KFUPM &amp; DTV Present
-            </span>
-          </motion.div>
 
           {/* Title — clean blur/fade reveal, no scramble */}
           <motion.h1
             initial={{ opacity: 0, y: 24, filter: 'blur(14px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.9, delay: 0.15, ease: [0.215, 0.61, 0.355, 1] }}
-            className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black tracking-tighter uppercase leading-[0.88] text-white mb-4"
+            className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black tracking-tighter uppercase leading-[0.88] text-white mb-4 -ml-1 md:-ml-2 lg:-ml-3 xl:-ml-4"
             aria-label="VentureCraft"
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-[#4FD1C5]/80">
@@ -331,10 +239,9 @@ export function VentureSignalHero() {
           {/* Headline */}
           <motion.p
             variants={item}
-            className="text-xl sm:text-2xl font-bold text-white/85 leading-snug mb-5"
+            className="text-xl sm:text-2xl font-bold text-[#4FD1C5] leading-snug mb-5"
           >
-            Forge your deep-tech venture from{' '}
-            <span className="text-[#4FD1C5]">Dhahran to the world.</span>
+            Build Your Venture
           </motion.p>
 
           {/* Body */}
@@ -394,6 +301,33 @@ export function VentureSignalHero() {
             <span className="text-xs text-white/40 font-medium">
               {isRegistrationOpen ? 'Applications are open now' : 'Applications closed for this cycle'}
             </span>
+          </motion.div>
+
+          {/* Collaboration logos */}
+          <motion.div
+            variants={item}
+            className="mt-10 flex flex-col xl:items-start items-center gap-2 animate-in fade-in duration-700"
+          >
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-medium pt-2">In Collaboration With</span>
+            <div className="flex items-center gap-8">
+              <Link
+                href="https://www.kfupm.edu.sa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-500"
+              >
+                <Image src="/kfupm-logo.png" alt="KFUPM" width={128} height={32} className="h-7 md:h-8 w-auto object-contain" />
+              </Link>
+              <div className="w-px h-6 bg-white/30" />
+              <Link
+                href="https://dtv.sa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-500"
+              >
+                <Image src="/dtv-logo.png" alt="DTV" width={160} height={44} className="h-9 md:h-11 w-auto object-contain" />
+              </Link>
+            </div>
           </motion.div>
         </motion.div>
       </motion.div>
