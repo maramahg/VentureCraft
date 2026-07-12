@@ -13,7 +13,6 @@ const ProofWall          = dynamic(() => import('../components/home-a/ProofWall'
 const ProofStrip         = dynamic(() => import('../components/home-a/ProofStrip'));
 const GoalsVisionTeaser  = dynamic(() => import('../components/home-a/GoalsVisionTeaser'));
 const GetInvolvedTeaser  = dynamic(() => import('../components/home-a/GetInvolvedTeaser'));
-const PartnersTeaser     = dynamic(() => import('../components/home-a/PartnersTeaser'));
 const FinalCTA           = dynamic(() => import('../components/home-a/FinalCTA'));
 
 // Note: nothing is deleted — every section stays reachable.
@@ -58,9 +57,6 @@ export default function DesignA() {
 
       {/* 9. Lightweight teaser into the five Get Involved paths */}
       <GetInvolvedTeaser />
-
-      {/* 10. Lightweight organizer/partner strip */}
-      <PartnersTeaser />
 
       {/* 11. Contact / Final CTA */}
       <FinalCTA />
