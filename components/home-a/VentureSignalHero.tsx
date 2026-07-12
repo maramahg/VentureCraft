@@ -264,7 +264,7 @@ export function VentureSignalHero() {
             <Link
               href="/apply"
               id="hero-cta-apply"
-              className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
+              className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap inline-flex items-center justify-center"
             >
               <div className="absolute inset-0 bg-[#4FD1C5] group-hover:bg-[#5ae0d4] transition-colors duration-300" />
               {/* Shimmer */}
@@ -280,7 +280,7 @@ export function VentureSignalHero() {
             <Link
               href="/about"
               id="hero-cta-explore"
-              className="px-8 py-3.5 rounded-full text-[15px] font-bold text-white/70 hover:text-white border border-white/12 hover:border-[#4FD1C5]/35 transition-all duration-300 whitespace-nowrap"
+              className="px-8 py-3.5 rounded-full text-[15px] font-bold text-white/70 hover:text-white border border-white/12 hover:border-[#4FD1C5]/35 transition-all duration-300 whitespace-nowrap inline-flex items-center justify-center"
             >
               Explore the Competition
             </Link>
