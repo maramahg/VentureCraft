@@ -53,8 +53,7 @@ export default function GoalsVisionTeaser() {
             viewport={{ once: true }}
             className="lg:w-[40%] shrink-0"
           >
-            {/* Elegant accent bar */}
-            <div className="w-12 h-1 bg-[#4FD1C5] rounded-full mb-6" />
+
             
             <h2 className="text-4xl md:text-5xl font-black font-poppins uppercase tracking-tight text-white mb-4 leading-tight">
               Our Vision
