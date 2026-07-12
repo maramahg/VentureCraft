@@ -159,7 +159,7 @@ export default function KfupmDtvAboutPage() {
                                     className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-10 md:mb-12 w-full max-w-4xl mx-auto"
                                 >
                                     <motion.div variants={fadeInUp} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 md:p-8 hover:border-vc-teal/50 hover:bg-white/10 transition-all duration-300">
-                                        <p className="text-4xl md:text-5xl font-bold text-vc-mint mb-2 font-poppins">67th</p>
+                                        <p className="text-4xl md:text-5xl font-bold text-vc-mint mb-2 font-poppins">63rd</p>
                                         <p className="text-white/60 text-sm md:text-base font-poppins">QS World University Rankings 2026</p>
                                     </motion.div>
                                     <motion.div variants={fadeInUp} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 md:p-8 hover:border-vc-teal/50 hover:bg-white/10 transition-all duration-300">
@@ -167,7 +167,7 @@ export default function KfupmDtvAboutPage() {
                                         <p className="text-white/60 text-sm md:text-base font-poppins">Middle East and Africa Rankings by THE</p>
                                     </motion.div>
                                     <motion.div variants={fadeInUp} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 md:p-8 hover:border-vc-teal/50 hover:bg-white/10 transition-all duration-300">
-                                        <p className="text-4xl md:text-5xl font-bold text-vc-mint mb-2 font-poppins">5th</p>
+                                        <p className="text-4xl md:text-5xl font-bold text-vc-mint mb-2 font-poppins">4th</p>
                                         <p className="text-white/60 text-sm md:text-base font-poppins">Petroleum Engineering Ranking by QS</p>
                                     </motion.div>
                                 </motion.div>
