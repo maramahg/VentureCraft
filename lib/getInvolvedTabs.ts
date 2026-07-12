@@ -70,19 +70,4 @@ export const getInvolvedTabs: InvolvedTab[] = [
     ctaHref: '/ambassadors',
     imageKey: 'ambassador',
   },
-  {
-    id: 'partner',
-    label: 'Partner',
-    who: 'For universities, research institutions, accelerators, and organizations aligned with deep tech innovation.',
-    why: 'Build a formal collaboration with KFUPM and DTV — one of the most active deep tech ecosystems in the Gulf region.',
-    what: [
-      'Co host events and outreach programs',
-      'Refer qualified ventures from your network',
-      'Gain institutional-level partnership benefits',
-      'Collaborate on research-to-market pathways',
-    ],
-    cta: 'Explore Collaboration',
-    ctaHref: '/contact',
-    imageKey: 'partner',
-  },
 ];
