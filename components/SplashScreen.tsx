@@ -159,7 +159,7 @@ export default function SplashScreen() {
             <div className="relative w-[280px] h-[280px] sm:w-[360px] sm:h-[360px]">
               <video
                 ref={videoRef}
-                src="/splash.mov"
+                src="/splash.mp4"
                 autoPlay
                 muted
                 playsInline

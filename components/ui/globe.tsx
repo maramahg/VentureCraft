@@ -4,6 +4,17 @@ import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import * as THREE from "three";
 
+// three-globe (a dependency of react-globe.gl) unconditionally imports
+// `three/webgpu` for optional WebGPU support. That module reads
+// `self.GPUShaderStage` and later accesses `.VERTEX` on it without a null
+// check, which throws in any browser that doesn't expose the native
+// `GPUShaderStage` global (Safari, Firefox, most non-Chrome browsers).
+// Polyfilling it here — before react-globe.gl is ever imported — avoids the
+// crash without needing WebGPU at all, since this app only uses WebGL.
+if (typeof window !== "undefined" && !(window as any).GPUShaderStage) {
+  (window as any).GPUShaderStage = { VERTEX: 1, FRAGMENT: 2, COMPUTE: 4 };
+}
+
 // Dynamically import react-globe.gl to avoid SSR issues
 const GlobeTmpl = dynamic(() => import("react-globe.gl"), {
   ssr: false,
