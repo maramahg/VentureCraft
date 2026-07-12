@@ -3,6 +3,14 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { use3DTilt } from '../../hooks/use3DTilt';
+import { Award, Users, Plane, Globe, Network } from 'lucide-react';
+
+const BENEFITS = [
+  { text: 'Mentorship', icon: Users },
+  { text: 'Travel Support', icon: Plane },
+  { text: 'Visibility', icon: Globe },
+  { text: 'Networking', icon: Network },
+];
 
 const PRIZES = [
   { rank: '1st', label: 'Grand Prize',  amount: 100000, prefix: '$', color: '#4FD1C5', size: 'large'  as const },
@@ -65,24 +73,24 @@ function PrizeCard({ prize, delay, triggered }: {
         <div className={`relative z-10 p-6 sm:p-8 ${isLarge ? 'lg:p-10' : ''}`}>
           {/* Rank + label */}
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl font-black tracking-tight" style={{ color: prize.color }}>
+            <span className="text-3xl font-black tracking-tight font-sans" style={{ color: prize.color }}>
               {prize.rank}
             </span>
             <div className="h-px flex-1 opacity-20" style={{ background: prize.color }} />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/35 font-bold">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/35 font-bold font-sans">
               {prize.label}
             </span>
           </div>
 
           {/* Amount count-up */}
-          <div className={`font-black text-white tracking-tighter leading-none mb-4 ${
+          <div className={`font-black text-white tracking-tighter leading-none mb-4 font-poppins ${
             isLarge ? 'text-5xl sm:text-6xl lg:text-7xl' : 'text-3xl sm:text-4xl lg:text-5xl'
           }`} style={{ fontVariantNumeric: 'tabular-nums' }}>
             {triggered ? formatted(count) : '$0K'}
           </div>
 
           {isLarge && (
-            <p className="text-white/35 text-sm leading-relaxed">
+            <p className="text-white/35 text-sm leading-relaxed font-sans">
               Awarded to the venture with the strongest scientific foundation, market potential, and global impact.
             </p>
           )}
@@ -134,7 +142,7 @@ export default function PrizePool() {
 
           {/* Huge count-up total */}
           <motion.div
-            className="text-6xl sm:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-none mb-3"
+            className="text-6xl sm:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-none mb-3 font-poppins"
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >
             <span style={{ filter: 'drop-shadow(0 0 40px rgba(79,209,197,0.25))' }}>
@@ -155,15 +163,68 @@ export default function PrizePool() {
           ))}
         </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+        {/* Corporate Special Awards */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="text-center text-white/20 text-xs mt-10"
+          className="max-w-4xl mx-auto mb-16 px-4 mt-16"
         >
-          Additional category prizes and recognitions may be announced. Total prize pool: $245,000.
-        </motion.p>
+          <div className="relative overflow-hidden rounded-3xl border border-[#4FD1C5]/20 bg-[#00A383]/5 backdrop-blur-xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 group hover:bg-[#00A383]/10 transition-all duration-300">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#4FD1C5]/10 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(79,209,197,0.15)] border border-[#4FD1C5]/20">
+                <Award className="w-8 h-8 text-[#4FD1C5]" />
+              </div>
+              <div className="text-center md:text-left">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">Corporate Special Awards</h3>
+                <p className="text-white/40 text-xs sm:text-sm mt-2 max-w-md font-medium leading-relaxed">
+                  Awarded for outstanding innovation in sustainability, energy transition, and deep-tech alignment.
+                </p>
+              </div>
+            </div>
+            <div className="text-center md:text-right shrink-0">
+              <div className="text-4xl md:text-5xl font-black text-white">$15,000</div>
+              <div className="text-[#4FD1C5] font-black uppercase tracking-tighter text-sm mt-1">Per Award (X3)</div>
+            </div>
+
+            {/* Decorative background blur */}
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-[#4FD1C5]/5 rounded-full blur-3xl pointer-events-none" />
+          </div>
+        </motion.div>
+
+        {/* Additional Benefits */}
+        <div className="max-w-4xl mx-auto mt-16">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <h3 className="text-xl md:text-2xl font-black text-[#4FD1C5] uppercase tracking-widest">Additional Benefits</h3>
+          </motion.div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {BENEFITS.map((benefit, index) => (
+              <motion.div
+                key={benefit.text}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+                className="aspect-square flex flex-col items-center justify-center gap-3 md:gap-4 p-4 md:p-6 rounded-2xl bg-white/3 border border-white/6 hover:border-[#4FD1C5]/20 hover:bg-white/5 transition-all duration-300 group"
+              >
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#4FD1C5]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <benefit.icon className="w-6 h-6 md:w-7 md:h-7 text-[#4FD1C5]" />
+                </div>
+                <span className="text-white/80 font-bold text-center text-sm md:text-lg leading-tight uppercase tracking-wider">
+                  {benefit.text}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+
       </div>
     </section>
   );
