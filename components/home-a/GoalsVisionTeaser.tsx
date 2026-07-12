@@ -90,9 +90,7 @@ export default function GoalsVisionTeaser() {
                 }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
                 viewport={{ once: true }}
-                className={`group flex items-start gap-4 rounded-2xl border border-white/5 bg-white/[0.015] p-5 md:p-6 transition-all duration-300 cursor-default ${
-                  i === 4 ? 'sm:col-span-2' : ''
-                }`}
+                className="group flex items-start gap-4 rounded-2xl border border-white/5 bg-white/[0.015] p-5 md:p-6 transition-all duration-300 cursor-default"
               >
                 {/* Outlined index square */}
                 <div className="w-10 h-10 rounded-xl bg-[#4FD1C5]/10 border border-[#4FD1C5]/20 flex items-center justify-center shrink-0 mt-0.5 text-xs font-black text-[#4FD1C5] group-hover:bg-[#4FD1C5]/20 group-hover:shadow-[0_0_10px_rgba(79,209,197,0.3)] transition-all duration-300">
