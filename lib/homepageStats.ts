@@ -15,7 +15,7 @@ export const homepageStats: HomepageStat[] = [
   },
   {
     value: '100K',
-    prefix: 'Up to $',
+    prefix: '$',
     label: 'Grand Prize',
     numericValue: 100000,
   },

@@ -64,35 +64,11 @@ export default function ProofStrip() {
       <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/25 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col lg:flex-row items-center">
-
-          {/* Organizer badges */}
-          <div className="flex items-center justify-center gap-4 sm:gap-6 py-6 pr-0 lg:pr-8 border-b lg:border-b-0 lg:border-r border-white/6 shrink-0 w-full lg:w-auto flex-wrap">
-            <div className="flex flex-col items-center sm:items-start">
-              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/30 font-bold mb-1">Organized by</span>
-              <div className="flex items-center gap-3">
-                <div className="px-3 py-1.5 rounded-lg border border-[#4FD1C5]/20 bg-[#4FD1C5]/5">
-                  <span className="text-xs font-black text-[#4FD1C5] tracking-wider">KFUPM</span>
-                </div>
-              </div>
-            </div>
-            <div className="h-8 w-px bg-white/8" />
-            <div className="flex flex-col items-center sm:items-start">
-              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/30 font-bold mb-1">In collaboration with</span>
-              <div className="flex items-center gap-3">
-                <div className="px-3 py-1.5 rounded-lg border border-[#4FD1C5]/15 bg-[#4FD1C5]/4">
-                  <span className="text-xs font-black text-white/70 tracking-wider">DTV</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-nowrap items-center justify-items-center lg:justify-start flex-1 w-full">
-            {homepageStats.map((stat) => (
-              <StatItem key={stat.label} stat={stat} triggered={isInView} />
-            ))}
-          </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-nowrap items-center justify-items-center lg:justify-center w-full">
+          {homepageStats.map((stat) => (
+            <StatItem key={stat.label} stat={stat} triggered={isInView} />
+          ))}
         </div>
       </div>
 
