@@ -1,10 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import ScrollProgress from '../components/ScrollProgress';
 import { VentureSignalHero } from '../components/home-a/VentureSignalHero';
 import Footer from '../components/Footer';
-
 
 const PrizePool          = dynamic(() => import('../components/home-a/PrizePool'));
 const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
@@ -13,23 +11,10 @@ const GoalsVisionTeaser  = dynamic(() => import('../components/home-a/GoalsVisio
 const AnnualTheme        = dynamic(() => import('../components/AnnualTheme'));
 const FinalCTA           = dynamic(() => import('../components/home-a/FinalCTA'));
 
-// Note: nothing is deleted — every section stays reachable.
-// - StickyGlobeTimeline (6-phase rotating arc cards) is restored on the homepage
-//   AND also available at /timeline.
-// - VentureAreas (Deep Tech Focus Areas) lives on /about/venture-craft, with a
-//   condensed teaser folded into ProofWall's credibility block.
-// - GetInvolvedTabs (full interactive version) lives on /about/venture-craft;
-//   GetInvolvedTeaser is merged into FinalCTA to keep it seamless.
-// - PartnersOrganizers (full version) lives on /sponsors; PartnersTeaser gives
-//   it lightweight homepage visibility.
-// - AboutObjectives (full version) lives on /about/venture-craft;
-//   GoalsVisionTeaser gives it lightweight homepage visibility.
-
 export default function DesignA() {
   return (
     <main className="min-h-screen flex flex-col overflow-clip" style={{ background: '#0B2A24' }}>
-      <ScrollProgress />
-
+      
       {/* 1. Cinematic hero — globe, Dhahran signal arcs, mouse parallax stats */}
       <VentureSignalHero />
 
@@ -41,8 +26,6 @@ export default function DesignA() {
 
       {/* 4. Annual theme spotlight */}
       <AnnualTheme />
-
-
 
       {/* 6. Full 6-phase timeline — rotating stacked semi-circle arc cards */}
       <StickyGlobeTimeline />
