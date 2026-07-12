@@ -5,7 +5,7 @@ import ScrollProgress from '../components/ScrollProgress';
 import { VentureSignalHero } from '../components/home-a/VentureSignalHero';
 import Footer from '../components/Footer';
 
-const CompetitionJourney = dynamic(() => import('../components/home-a/CompetitionJourney'));
+
 const PrizePool          = dynamic(() => import('../components/home-a/PrizePool'));
 const ThemePillars       = dynamic(() => import('../components/ThemePillars'));
 const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
@@ -45,8 +45,7 @@ export default function DesignA() {
       {/* 4. Theme Pillars — 4 strategic pillars as they are on the site */}
       <ThemePillars />
 
-      {/* 5. Competition journey / three-stage overview, with link to full 6-phase timeline */}
-      <CompetitionJourney />
+
 
       {/* 6. Full 6-phase timeline — rotating stacked semi-circle arc cards */}
       <StickyGlobeTimeline />
