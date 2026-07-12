@@ -7,7 +7,6 @@ import Footer from '../components/Footer';
 
 
 const PrizePool          = dynamic(() => import('../components/home-a/PrizePool'));
-const ThemePillars       = dynamic(() => import('../components/ThemePillars'));
 const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
 const ProofWall          = dynamic(() => import('../components/home-a/ProofWall'));
 const ProofStrip         = dynamic(() => import('../components/home-a/ProofStrip'));
@@ -44,9 +43,6 @@ export default function DesignA() {
 
       {/* 4. Annual theme spotlight */}
       <AnnualTheme />
-
-      {/* 5. Theme Pillars — 4 strategic pillars */}
-      <ThemePillars />
 
 
 
