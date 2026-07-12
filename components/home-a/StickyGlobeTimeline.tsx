@@ -85,7 +85,8 @@ export default function StickyGlobeTimeline() {
 
   const currentPhase = phases[activePhase - 1];
   const circumference = 2 * Math.PI * 70; // ~439.82
-  const strokeDashoffset = useTransform(scrollYProgress, [0, 1], [circumference, 0]);
+  const activeProgress = (activePhase - 1) / (phaseCount - 1);
+  const currentOffset = circumference * (1 - activeProgress);
 
   return (
     <section
@@ -140,15 +141,15 @@ export default function StickyGlobeTimeline() {
             </div>
 
             {/* Circular progress indicator — rotating dial (desktop only) */}
-            <div className="hidden lg:flex relative w-44 h-44 items-center justify-center my-2 font-poppins">
+            <div className="hidden lg:flex relative w-44 h-44 items-center justify-center my-2">
               {/* Radial background glow */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.08) 0%, transparent 65%)' }}
               />
               
-              {/* SVG circular progress - absolutely positioned to center and overlap */}
-              <svg className="absolute inset-0 w-full h-full -rotate-90 transform pointer-events-none" viewBox="0 0 160 160">
+              {/* SVG circular progress - absolutely positioned top-0 left-0 to guarantee centering */}
+              <svg className="absolute top-0 left-0 w-full h-full -rotate-90 transform pointer-events-none" viewBox="0 0 160 160">
                 {/* Track circle */}
                 <circle
                   cx="80"
@@ -157,7 +158,7 @@ export default function StickyGlobeTimeline() {
                   className="stroke-white/10 fill-none"
                   strokeWidth="2"
                 />
-                {/* Active progress arc */}
+                {/* Active progress arc - animated discrete progress to lock perfectly on ticks */}
                 <motion.circle
                   cx="80"
                   cy="80"
@@ -165,9 +166,10 @@ export default function StickyGlobeTimeline() {
                   className="stroke-[#23BCAB] fill-none"
                   strokeWidth="3"
                   strokeLinecap="round"
+                  animate={{ strokeDashoffset: currentOffset }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
                   style={{
                     strokeDasharray: circumference,
-                    strokeDashoffset: strokeDashoffset,
                     filter: 'drop-shadow(0 0 4px rgba(35, 188, 171, 0.4))'
                   }}
                 />
@@ -192,22 +194,25 @@ export default function StickyGlobeTimeline() {
                 })}
               </div>
 
-              <AnimatePresence mode="wait">
-                <motion.div key={activePhase}
-                  initial={{ opacity: 0, scale: 0.8, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, scale: 1.1, filter: 'blur(8px)' }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative z-10 flex flex-col items-center">
-                  <span className="text-[64px] font-black leading-none tracking-tighter font-poppins"
-                    style={{ background: 'linear-gradient(135deg, #23BCAB 0%, #F5FAFA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                    {String(activePhase).padStart(2, '0')}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold font-poppins mt-1">
-                    of {String(phaseCount).padStart(2, '0')}
-                  </span>
-                </motion.div>
-              </AnimatePresence>
+              {/* Central text - absolutely positioned and centered inside parent */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                <AnimatePresence mode="wait">
+                  <motion.div key={activePhase}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.15 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col items-center justify-center"
+                  >
+                    <span className="text-[64px] font-black leading-tight tracking-tighter text-[#23BCAB] font-poppins">
+                      {String(activePhase).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold font-poppins mt-1">
+                      of {String(phaseCount).padStart(2, '0')}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* Desktop progress dots */}
