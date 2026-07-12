@@ -56,6 +56,28 @@ export default function SplashScreen() {
     };
   }, []);
 
+  // iOS Safari sometimes ignores the JSX `muted`/`autoplay` attributes and
+  // falls back to showing a native play button instead of autoplaying.
+  // Setting the properties imperatively (before calling play()) reliably
+  // forces silent autoplay once the <video> element is actually mounted.
+  useEffect(() => {
+    if (!visible) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+
+    const attemptPlay = () => {
+      video.muted = true;
+      video.play().catch(() => {
+        video.addEventListener('loadeddata', attemptPlay, { once: true });
+      });
+    };
+    attemptPlay();
+  }, [visible]);
+
   return (
     <AnimatePresence>
       {visible && (
@@ -141,6 +163,9 @@ export default function SplashScreen() {
                 autoPlay
                 muted
                 playsInline
+                preload="auto"
+                controls={false}
+                disablePictureInPicture
                 onTimeUpdate={(e) => {
                   const v = e.currentTarget;
                   if (v.duration > 0) {
