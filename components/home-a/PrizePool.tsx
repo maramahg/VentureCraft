@@ -43,6 +43,12 @@ function PrizeCard({ prize, delay, triggered }: {
   const isLarge = prize.size === 'large';
   const tilt = use3DTilt(isLarge ? 8 : 12);
 
+  const heightClass = prize.rank === '1st' 
+    ? 'min-h-[290px] sm:min-h-[310px]' 
+    : prize.rank === '2nd' 
+      ? 'min-h-[230px] sm:min-h-[250px]' 
+      : 'min-h-[170px] sm:min-h-[190px]';
+
   return (
     <div style={{ perspective: '900px' }}>
       <motion.div
@@ -52,7 +58,7 @@ function PrizeCard({ prize, delay, triggered }: {
         style={tilt.style}
         onMouseMove={tilt.onMouseMove}
         onMouseLeave={tilt.onMouseLeave}
-        className={`relative rounded-3xl overflow-hidden border transition-colors duration-500 cursor-default ${
+        className={`relative rounded-3xl overflow-hidden border transition-colors duration-500 cursor-default flex flex-col justify-between ${heightClass} ${
           isLarge ? 'border-[#4FD1C5]/30' : 'border-white/8'
         }`}
         whileHover={{ scale: 1.02 }}
@@ -70,7 +76,7 @@ function PrizeCard({ prize, delay, triggered }: {
         {/* Top accent bar */}
         <div className="h-1 w-full relative z-10" style={{ background: prize.color }} />
 
-        <div className={`relative z-10 p-6 sm:p-8 ${isLarge ? 'lg:p-10' : ''}`}>
+        <div className={`relative z-10 p-6 sm:p-8 flex-1 flex flex-col justify-between ${isLarge ? 'lg:p-10' : ''}`}>
           {/* Rank + label */}
           <div className="flex items-center gap-3 mb-6">
             <span className="text-3xl font-black tracking-tight font-sans" style={{ color: prize.color }}>
@@ -82,18 +88,21 @@ function PrizeCard({ prize, delay, triggered }: {
             </span>
           </div>
 
-          {/* Amount count-up */}
-          <div className={`font-black text-white tracking-tighter leading-none mb-4 font-poppins ${
-            isLarge ? 'text-5xl sm:text-6xl lg:text-7xl' : 'text-3xl sm:text-4xl lg:text-5xl'
-          }`} style={{ fontVariantNumeric: 'tabular-nums' }}>
-            {triggered ? formatted(count) : '$0K'}
-          </div>
+          {/* Bottom amount + description */}
+          <div className="mt-auto">
+            {/* Amount count-up */}
+            <div className={`font-black text-white tracking-tighter leading-none mb-4 font-poppins ${
+              isLarge ? 'text-5xl sm:text-6xl lg:text-7xl' : 'text-3xl sm:text-4xl lg:text-5xl'
+            }`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {triggered ? formatted(count) : '$0K'}
+            </div>
 
-          {isLarge && (
-            <p className="text-white/35 text-sm leading-relaxed font-sans">
-              Awarded to the venture with the strongest scientific foundation, market potential, and global impact.
-            </p>
-          )}
+            {isLarge && (
+              <p className="text-white/35 text-sm leading-relaxed font-sans">
+                Awarded to the venture with the strongest scientific foundation, market potential, and global impact.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* 3D depth — inner glow on tilt */}
@@ -160,7 +169,7 @@ export default function PrizePool() {
         </motion.div>
 
         {/* 3D tilt prize cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 sm:items-end gap-5">
           {PRIZES.map((prize, i) => (
             <PrizeCard key={prize.rank} prize={prize} delay={i * 0.15} triggered={isInView} />
           ))}
