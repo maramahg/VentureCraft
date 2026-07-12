@@ -70,7 +70,7 @@ export default function StickyGlobeTimeline() {
 
   return (
     <section
-      className="relative pt-20 sm:pt-28 lg:pt-32 pb-12"
+      className="relative pt-20 sm:pt-28 lg:pt-32 pb-6"
       style={{ background: 'linear-gradient(180deg, #072828 0%, #003E51 100%)' }}
     >
       <div
