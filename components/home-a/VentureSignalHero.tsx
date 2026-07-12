@@ -66,7 +66,7 @@ function StatCard({
         className="glass-card rounded-2xl px-4 py-3 border border-[#4FD1C5]/15 min-w-[120px] mint-glow"
         style={{ background: 'rgba(0,18,15,0.75)' }}
       >
-        <div className="text-2xl font-black text-white leading-none tracking-tight">
+        <div className="text-2xl font-black text-white leading-none tracking-tight font-poppins">
           {stat.prefix || ''}{stat.value}{stat.suffix || ''}
         </div>
         <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mt-1.5 font-semibold">
@@ -235,7 +235,7 @@ export function VentureSignalHero() {
               Venture Craft
             </span>
             <span className="block mt-2 text-xl sm:text-2xl md:text-3xl uppercase">
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] via-[#4FD1C5] to-[#4FD1C5] mr-2">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] via-[#4FD1C5] to-[#4FD1C5] mr-2 font-poppins">
                 100K
               </span>
               <span className="font-light tracking-[0.1em] text-white/40 ml-1">
@@ -316,14 +316,14 @@ export function VentureSignalHero() {
             <div className="relative group/stat">
               <div className="absolute -left-6 top-0 bottom-0 w-1 bg-[#4FD1C5] rounded-full opacity-60 group-hover/stat:opacity-100 transition-opacity duration-500" />
               <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
-                <span className="block text-xl sm:text-2xl font-black text-white mb-0.5">$245K</span>
+                <span className="block text-xl sm:text-2xl font-black text-white mb-0.5 font-poppins">$245K</span>
                 Prize Pool
               </div>
             </div>
             <div className="relative group/stat">
               <div className="absolute -left-6 top-0 bottom-0 w-1 bg-[#4FD1C5] rounded-full opacity-20 group-hover/stat:opacity-100 transition-opacity duration-500" />
               <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
-                <span className="block text-xl sm:text-2xl font-black text-white mb-0.5">Global</span>
+                <span className="block text-xl sm:text-2xl font-black text-white mb-0.5 font-poppins">Global</span>
                 Exposure
               </div>
             </div>

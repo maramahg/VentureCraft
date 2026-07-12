@@ -136,22 +136,25 @@ export default function PrizePool() {
           viewport={{ once: true }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
-            Prize Pool
-          </span>
+          <h2 className="text-4xl md:text-6xl font-black font-poppins uppercase tracking-tight text-white mb-4">
+            Prizes & Awards
+          </h2>
+          <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg max-w-2xl mx-auto mb-8">
+            Rewarding excellence in deep-tech innovation and sustainable solutions.
+          </p>
 
           {/* Huge count-up total */}
           <motion.div
-            className="text-6xl sm:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-none mb-3 font-poppins"
+            className="text-6xl sm:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-none mb-3 font-poppins mt-8"
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >
             <span style={{ filter: 'drop-shadow(0 0 40px rgba(79,209,197,0.25))' }}>
               ${isInView ? (totalCount / 1000).toFixed(0) : '0'}K
             </span>
           </motion.div>
-          <p className="text-2xl sm:text-3xl font-bold text-white/55 mb-3">Total Prize Pool</p>
-          <p className="text-white/30 text-base">
-            <span className="text-[#4FD1C5] font-bold">$100K Grand Prize</span>{' '}
+          <p className="text-2xl sm:text-3xl font-bold text-white/55 mb-3 font-sans">Total Prize Pool</p>
+          <p className="text-white/30 text-base font-sans">
+            <span className="text-[#4FD1C5] font-bold font-sans">$100K Grand Prize</span>{' '}
             for the most impactful deep-tech venture
           </p>
         </motion.div>

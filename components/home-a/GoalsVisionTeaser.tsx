@@ -25,12 +25,12 @@ export default function GoalsVisionTeaser() {
             viewport={{ once: true }}
             className="lg:w-[40%] shrink-0"
           >
-            <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-poppins uppercase tracking-tight text-white mb-4 leading-tight">
               Our Vision
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-4">
-              Empowering the next generation of deep-tech innovators.
             </h2>
+            <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg mb-4">
+              Empowering the next generation of deep-tech innovators.
+            </p>
             <p className="text-white/40 text-sm sm:text-base leading-relaxed mb-6">
               VentureCraft exists to turn bold student ideas into global impact —
               connecting talent, research, and industry through one competition.

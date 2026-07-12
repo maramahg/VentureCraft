@@ -286,7 +286,7 @@ export default function ThemePillars() {
                             </span>
                         </motion.div>
 
-                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold font-poppins uppercase tracking-tighter leading-tight text-white mb-4">
+                        <h2 className="text-4xl md:text-6xl font-black font-poppins uppercase tracking-tight text-white mb-4">
                             Theme Pillars
                         </h2>
 
@@ -302,22 +302,22 @@ export default function ThemePillars() {
                     </div>
 
                     {/* XL+: Scroll Deck */}
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden xl:block">
+                    <p className="text-[#4FD1C5] text-base md:text-lg font-bold mb-8 font-sans hidden xl:block">
                         Scroll to explore strategic themes
                     </p>
 
                     {/* LG: Grid View - No instruction needed or static text */}
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden lg:block xl:hidden">
+                    <p className="text-[#4FD1C5] text-base md:text-lg font-bold mb-8 font-sans hidden lg:block xl:hidden">
                         The core strategic pillars of our mission
                     </p>
 
                     {/* MD: Horizontal Scroll */}
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins hidden md:block lg:hidden">
+                    <p className="text-[#4FD1C5] text-base md:text-lg font-bold mb-8 font-sans hidden md:block lg:hidden">
                         Swipe to explore strategic themes
                     </p>
 
                     {/* SM: Mobile Stack */}
-                    <p className="text-vc-mint text-lg md:text-xl font-semibold mb-8 font-poppins md:hidden">
+                    <p className="text-[#4FD1C5] text-base md:text-lg font-bold mb-8 font-sans md:hidden">
                         Tap card to cycle
                     </p>
                 </div>

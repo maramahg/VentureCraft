@@ -64,14 +64,14 @@ export default function StickyGlobeTimeline() {
 
           {/* ── Left: phase summary ── */}
           <div className="lg:w-[40%] flex flex-col gap-6 w-full">
-            <span className="text-[11px] uppercase tracking-[0.35em] text-[#23BCAB] font-bold">
+            <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold">
               VentureCraft
             </span>
             <div>
-              <h2 className="text-3xl sm:text-5xl font-black text-[#F5FAFA] tracking-tight leading-[1.1] sm:leading-[1.05]">
+              <h2 className="text-3xl sm:text-5xl font-black font-poppins uppercase tracking-tight text-white leading-[1.1] sm:leading-[1.05]">
                 Six Phases.<br />One Destination.
               </h2>
-              <p className="text-[#F5FAFA]/45 text-sm sm:text-base mt-3 sm:mt-4 max-w-sm">
+              <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg mt-3 sm:mt-4 max-w-sm">
                 Every phase is designed to push your venture further — from first submission to the global stage.
               </p>
             </div>

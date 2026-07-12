@@ -22,12 +22,12 @@ export default function GetInvolvedTeaser() {
           className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8"
         >
           <div>
-            <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-3 block">
+            <h2 className="text-4xl md:text-6xl font-black font-poppins uppercase tracking-tight text-white mb-4">
               Get Involved
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Find your role in the journey.
             </h2>
+            <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg">
+              Find your role in the journey.
+            </p>
           </div>
           <Link
             href="/about/venture-craft"

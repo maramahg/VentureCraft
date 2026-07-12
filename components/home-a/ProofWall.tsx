@@ -22,14 +22,12 @@ export default function ProofWall() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
+          <h2 className="text-4xl md:text-6xl font-black font-poppins uppercase tracking-tight text-white mb-4">
             Credibility
-          </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-3xl">
-            Built by KFUPM.{' '}
-            <span className="text-[#4FD1C5]">Connected through DTV.</span>{' '}
-            Open to the world.
           </h2>
+          <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg max-w-3xl leading-relaxed">
+            Built by KFUPM. Connected through DTV. Open to the world.
+          </p>
         </motion.div>
 
         {/* Bento grid */}
