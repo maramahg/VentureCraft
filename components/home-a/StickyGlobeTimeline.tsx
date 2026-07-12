@@ -97,7 +97,7 @@ export default function StickyGlobeTimeline() {
       />
       {/* Bottom transition ribbon — fades from the section back into the page background */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none z-10"
+        className="absolute bottom-0 left-0 right-0 h-5 pointer-events-none z-10"
         style={{ background: 'linear-gradient(to top, #0B2A24 0%, transparent 100%)' }}
       />
       <div
