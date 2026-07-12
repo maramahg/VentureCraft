@@ -205,8 +205,8 @@ export default function StickyGlobeTimeline() {
                 background: 'radial-gradient(ellipse, rgba(35,188,171,0.1) 0%, transparent 70%)',
               }} />
 
-            {/* Desktop Stack Cards (Fan) */}
-            <div className="hidden lg:block relative w-[320px] h-[360px] preserve-3d z-10">
+            {/* Desktop: rotating arc carousel */}
+            <div className="hidden lg:block relative h-[560px]">
               {phases.map((phase) => (
                 <ArcPhaseCard
                   key={phase.id}
@@ -216,8 +216,8 @@ export default function StickyGlobeTimeline() {
               ))}
             </div>
 
-            {/* Mobile / Tablet: Single Card view with fade-in on change */}
-            <div className="lg:hidden relative w-[280px] sm:w-[320px] h-[320px] sm:h-[350px] z-10 flex items-center justify-center">
+            {/* Mobile/tablet: simple vertical stack, no arc */}
+            <div className="flex flex-col gap-4 lg:hidden">
               {phases.map((phase) => {
                 const isActive = phase.id === activePhase;
                 const isCompleted = phase.status === 'completed';
