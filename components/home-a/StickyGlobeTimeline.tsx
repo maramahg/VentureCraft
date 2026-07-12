@@ -84,6 +84,8 @@ export default function StickyGlobeTimeline() {
   const dialRotation = useTransform(activePhaseMotion, (v) => ((v - 1) / phaseCount) * 360);
 
   const currentPhase = phases[activePhase - 1];
+  const circumference = 2 * Math.PI * 70; // ~439.82
+  const strokeDashoffset = useTransform(scrollYProgress, [0, 1], [circumference, 0]);
 
   return (
     <section
@@ -123,10 +125,10 @@ export default function StickyGlobeTimeline() {
 
             {/* Compact mobile phase indicator */}
             <div className="lg:hidden flex items-center gap-3 px-4 py-3 rounded-xl border border-[#23BCAB]/15 bg-[#F5FAFA]/[0.03]">
-              <span className="text-2xl font-black text-[#23BCAB] tracking-tighter leading-none">
+              <span className="text-2xl font-black text-[#23BCAB] tracking-tighter leading-none font-poppins">
                 {String(activePhase).padStart(2, '0')}
               </span>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-[#F5FAFA]/40 font-bold">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#F5FAFA]/40 font-bold font-poppins">
                 of {String(phaseCount).padStart(2, '0')} Phases
               </span>
               <div className="flex-1 flex items-center gap-1.5 justify-end">
@@ -138,40 +140,54 @@ export default function StickyGlobeTimeline() {
             </div>
 
             {/* Circular progress indicator — rotating dial (desktop only) */}
-            <div className="hidden lg:flex relative w-44 h-44 items-center justify-center my-2">
+            <div className="hidden lg:flex relative w-44 h-44 items-center justify-center my-2 font-poppins">
+              {/* Radial background glow */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.12) 0%, transparent 65%)' }}
+                style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.08) 0%, transparent 65%)' }}
               />
-              {[88, 94, 100].map((s, i) => (
-                <div key={i} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none"
-                  style={{ width: `${s}%`, height: `${s}%`, borderColor: `rgba(35,188,171,${0.1 - i * 0.025})` }} />
-              ))}
+              
+              <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 160 160">
+                {/* Track circle */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  className="stroke-white/10 fill-none"
+                  strokeWidth="2"
+                />
+                {/* Active progress arc */}
+                <motion.circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  className="stroke-[#23BCAB] fill-none"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  style={{
+                    strokeDasharray: circumference,
+                    strokeDashoffset: strokeDashoffset,
+                    filter: 'drop-shadow(0 0 4px rgba(35, 188, 171, 0.4))'
+                  }}
+                />
+              </svg>
 
-              {/* Rotating dial: ticks + marker sweep around the ring as the phase advances */}
-              <motion.div
-                className="absolute inset-0 pointer-events-none"
-                style={{ rotate: dialRotation }}
-              >
-                {Array.from({ length: phaseCount }).map((_, i) => (
+              {/* Ticks around the ring representing each phase statically */}
+              {Array.from({ length: phaseCount }).map((_, i) => {
+                const angle = (360 / phaseCount) * i - 90; // Align with SVG circle start (-90deg is top)
+                const isPassed = activePhase > i;
+                return (
                   <div
                     key={i}
-                    className="absolute inset-0"
-                    style={{ transform: `rotate(${(360 / phaseCount) * i}deg)` }}
-                  >
-                    <div
-                      className="absolute left-1/2 -translate-x-1/2 rounded-full"
-                      style={{
-                        top: 2,
-                        width: i === 0 ? 8 : 4,
-                        height: i === 0 ? 8 : 4,
-                        background: i === 0 ? '#23BCAB' : 'rgba(245,250,250,0.25)',
-                        boxShadow: i === 0 ? '0 0 10px rgba(35,188,171,0.9)' : 'none',
-                      }}
-                    />
-                  </div>
-                ))}
-              </motion.div>
+                    className="absolute w-2 h-2 rounded-full transition-all duration-300 pointer-events-none"
+                    style={{
+                      transform: `rotate(${angle}deg) translate(70px) rotate(${-angle}deg)`,
+                      background: isPassed ? '#23BCAB' : 'rgba(255,255,255,0.25)',
+                      boxShadow: isPassed ? '0 0 8px rgba(35,188,171,0.8)' : 'none',
+                    }}
+                  />
+                );
+              })}
 
               <AnimatePresence mode="wait">
                 <motion.div key={activePhase}
@@ -180,11 +196,11 @@ export default function StickyGlobeTimeline() {
                   exit={{ opacity: 0, scale: 1.1, filter: 'blur(8px)' }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   className="relative z-10 flex flex-col items-center">
-                  <span className="text-[64px] font-black leading-none tracking-tighter"
+                  <span className="text-[64px] font-black leading-none tracking-tighter font-poppins"
                     style={{ background: 'linear-gradient(135deg, #23BCAB 0%, #F5FAFA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                     {String(activePhase).padStart(2, '0')}
                   </span>
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mt-1">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold font-poppins mt-1">
                     of {String(phaseCount).padStart(2, '0')}
                   </span>
                 </motion.div>
@@ -200,16 +216,16 @@ export default function StickyGlobeTimeline() {
             </div>
 
             {/* Current phase details (desktop only — mobile phase list below already shows full detail for the active phase) */}
-            <div className="hidden lg:block border-t border-[#F5FAFA]/8 pt-5">
-              <div className="text-[11px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mb-2">
+            <div className="hidden lg:block border-t border-[#F5FAFA]/8 pt-5 font-poppins">
+              <div className="text-[11px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mb-2 font-poppins">
                 Current Phase
               </div>
               <AnimatePresence mode="wait">
                 <motion.div key={activePhase}
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.3 }}>
-                  <div className="text-xl font-black text-[#F5FAFA]">{currentPhase?.title}</div>
-                  <div className="text-xs font-bold mt-1" style={{ color: statusColors[currentPhase?.status] }}>
+                  <div className="text-xl font-black text-[#F5FAFA] font-poppins">{currentPhase?.title}</div>
+                  <div className="text-xs font-bold mt-1 font-poppins" style={{ color: statusColors[currentPhase?.status] }}>
                     {statusLabels[currentPhase?.status]}
                   </div>
                 </motion.div>
@@ -275,7 +291,7 @@ export default function StickyGlobeTimeline() {
                       </span>
                     </div>
 
-                    <h3 className={`font-black text-[#F5FAFA] mb-2 ${isActive ? 'text-xl' : 'text-base'}`}>
+                    <h3 className={`font-black text-[#F5FAFA] mb-2 font-poppins ${isActive ? 'text-xl' : 'text-base'}`}>
                       {phase.title}
                     </h3>
                     {isActive && (
@@ -385,7 +401,7 @@ function PhaseCardBody({
         </span>
       </div>
 
-      <h3 className={`font-black text-[#F5FAFA] mb-2 ${isActive ? 'text-xl' : 'text-base'}`}>
+      <h3 className={`font-black text-[#F5FAFA] mb-2 font-poppins ${isActive ? 'text-xl' : 'text-base'}`}>
         {phase.title}
       </h3>
       {isActive && (
