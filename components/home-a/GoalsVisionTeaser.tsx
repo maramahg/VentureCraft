@@ -76,7 +76,7 @@ export default function GoalsVisionTeaser() {
           </motion.div>
 
           {/* Right Column: Clean Balanced Row Cards */}
-          <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex-1 w-full flex flex-wrap justify-center gap-4">
             {goals.map((g, i) => (
               <motion.div
                 key={g.title}
@@ -90,7 +90,7 @@ export default function GoalsVisionTeaser() {
                 }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
                 viewport={{ once: true }}
-                className="group flex items-start gap-4 rounded-2xl border border-white/5 bg-white/[0.015] p-5 md:p-6 transition-all duration-300 cursor-default"
+                className="group flex items-start gap-4 rounded-2xl border border-white/5 bg-white/[0.015] p-5 md:p-6 transition-all duration-300 cursor-default w-full sm:w-[calc(50%-8px)]"
               >
                 {/* Outlined index square */}
                 <div className="w-10 h-10 rounded-xl bg-[#4FD1C5]/10 border border-[#4FD1C5]/20 flex items-center justify-center shrink-0 mt-0.5 text-xs font-black text-[#4FD1C5] group-hover:bg-[#4FD1C5]/20 group-hover:shadow-[0_0_10px_rgba(79,209,197,0.3)] transition-all duration-300">
