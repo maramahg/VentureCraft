@@ -231,9 +231,7 @@ export function VentureSignalHero() {
             className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black tracking-tighter uppercase leading-[0.88] text-white mb-4 -ml-1 md:-ml-2 lg:-ml-3 xl:-ml-4"
             aria-label="VentureCraft"
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-[#4FD1C5]/80">
-              VentureCraft
-            </span>
+            VentureCraft
           </motion.h1>
 
           {/* Headline */}
@@ -266,7 +264,7 @@ export function VentureSignalHero() {
             <Link
               href="/apply"
               id="hero-cta-apply"
-              className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95"
+              className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap"
             >
               <div className="absolute inset-0 bg-[#4FD1C5] group-hover:bg-[#5ae0d4] transition-colors duration-300" />
               {/* Shimmer */}
@@ -282,7 +280,7 @@ export function VentureSignalHero() {
             <Link
               href="/about"
               id="hero-cta-explore"
-              className="px-8 py-3.5 rounded-full text-[15px] font-bold text-white/70 hover:text-white border border-white/12 hover:border-[#4FD1C5]/35 transition-all duration-300"
+              className="px-8 py-3.5 rounded-full text-[15px] font-bold text-white/70 hover:text-white border border-white/12 hover:border-[#4FD1C5]/35 transition-all duration-300 whitespace-nowrap"
             >
               Explore the Competition
             </Link>
