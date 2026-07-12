@@ -12,8 +12,6 @@ export default function FinalCTA() {
       className="relative overflow-hidden py-16 sm:py-28"
       style={{ background: 'linear-gradient(180deg, #0B2A24 0%, #123830 60%, #0B2A24 100%)' }}
     >
-      {/* Top line */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/20 to-transparent mb-0" />
 
       {/* Ambient glow */}
       <div
@@ -31,17 +29,6 @@ export default function FinalCTA() {
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
-          {/* Status */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/8 bg-white/3 mb-8">
-            <motion.div
-              animate={{ opacity: [1, 0.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]/50"
-            />
-            <span className="text-xs text-white/40 font-medium">
-              {isRegistrationOpen ? 'Applications are open now' : 'Applications closed for this cycle'}
-            </span>
-          </div>
 
           <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
             Follow the{' '}
