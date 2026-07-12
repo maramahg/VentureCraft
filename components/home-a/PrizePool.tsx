@@ -105,7 +105,7 @@ export default function PrizePool() {
 
   return (
     <section
-      className="section-padding relative overflow-hidden"
+      className="pt-28 pb-20 sm:pt-36 sm:pb-24 lg:pt-44 lg:pb-32 relative overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #123830 0%, #0B2A24 100%)' }}
     >
       {/* Animated ambient glow */}
@@ -143,7 +143,6 @@ export default function PrizePool() {
           </motion.div>
           <p className="text-2xl sm:text-3xl font-bold text-white/55 mb-3">Total Prize Pool</p>
           <p className="text-white/30 text-base">
-            Up to{' '}
             <span className="text-[#4FD1C5] font-bold">$100K Grand Prize</span>{' '}
             for the most impactful deep-tech venture
           </p>
