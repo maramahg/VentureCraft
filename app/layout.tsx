@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
-import { Poppins } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import Cursor from "../components/Cursor";
 import Navbar from "../components/Navbar";
@@ -13,6 +13,11 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
   variable: "--font-poppins",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} font - poppins antialiased`}
+        className={`${poppins.variable} ${inter.variable} font-sans antialiased`}
       >
         <SplashScreen />
         <NavigationGuard>

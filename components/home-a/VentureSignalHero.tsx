@@ -247,7 +247,7 @@ export function VentureSignalHero() {
           {/* Body */}
           <motion.p
             variants={item}
-            className="text-base sm:text-lg text-white/50 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-poppins"
+            className="text-base sm:text-lg text-white/50 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-sans"
           >
             An international deep-tech startup competition by{" "}
             <a
