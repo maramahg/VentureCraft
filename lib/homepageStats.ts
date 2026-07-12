@@ -32,9 +32,9 @@ export const homepageStats: HomepageStat[] = [
     numericValue: 50,
   },
   {
-    value: '6',
+    value: '7',
     label: 'Competition Phases',
-    numericValue: 6,
+    numericValue: 7,
   },
 ];
 
