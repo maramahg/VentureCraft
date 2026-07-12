@@ -294,8 +294,8 @@ export default function KfupmDtvAboutPage() {
                             transition={{ duration: 0.6 }}
                             className="text-center mb-10"
                         >
-                            <p className="text-vc-mint text-sm font-bold tracking-[0.3em] uppercase mb-2">Life at KFUPM &amp; DTV</p>
-                            <h2 className="text-2xl sm:text-3xl font-black font-poppins uppercase tracking-tighter text-white">Where Innovation Happens</h2>
+                            <p className="text-vc-mint text-sm font-bold tracking-[0.3em] uppercase mb-2">The Competition</p>
+                            <h2 className="text-2xl sm:text-3xl font-black font-poppins uppercase tracking-tighter text-white">Credibility in Action</h2>
                         </motion.div>
 
                         {/* Photo bento grid */}
