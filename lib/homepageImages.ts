@@ -148,7 +148,7 @@ export const ventureAreaImages: Record<string, HomepageImage> = {
     futureReplacementNote: '',
   },
   energyStorage: {
-    src: '/images/dtv/slide-02.jpg',
+    src: '/images/dtv/sustainability.jpg',
     alt: 'Energy storage research facility at Dhahran',
     caption: 'Energy Storage',
     category: 'Venture Areas',
@@ -172,7 +172,7 @@ export const ventureAreaImages: Record<string, HomepageImage> = {
     futureReplacementNote: '',
   },
   advancedMaterials: {
-    src: '/images/dtv/slide-04.jpg',
+    src: '/images/kfupm/research-centers.png',
     alt: 'Advanced materials development lab at DTV',
     caption: 'Advanced Materials',
     category: 'Venture Areas',
