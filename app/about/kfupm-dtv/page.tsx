@@ -374,7 +374,7 @@ export default function KfupmDtvAboutPage() {
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#001D1B]/80 via-transparent to-transparent" />
                                     <div className="absolute bottom-3 left-3">
-                                        <span className="text-[9px] uppercase tracking-[0.2em] text-white/70 font-bold bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
+                                        <span className="text-sm text-white/60 font-poppins">
                                             {img.caption}
                                         </span>
                                     </div>
