@@ -49,10 +49,11 @@ export default function VentureAreas() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: i * 0.07 }}
                 viewport={{ once: true }}
-                className="group relative rounded-2xl overflow-hidden border border-white/7 hover:border-[#4FD1C5]/25 transition-all duration-500 cursor-pointer flex flex-col"
+                className={`group relative rounded-2xl overflow-hidden border border-white/7 hover:border-[#4FD1C5]/25 transition-all duration-500 cursor-pointer flex flex-col ${
+                  area.featured && i === 0 ? 'sm:col-span-2' : ''
+                }`}
                 style={{
                   background: 'rgba(0,40,35,0.3)',
-                  gridColumn: area.featured && i === 0 ? 'span 2' : undefined,
                 }}
               >
                 {/* Background image if available */}

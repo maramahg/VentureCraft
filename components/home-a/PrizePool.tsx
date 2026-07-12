@@ -227,20 +227,20 @@ export default function PrizePool() {
             <h3 className="text-xl md:text-2xl font-black text-[#4FD1C5] uppercase tracking-widest">Additional Benefits</h3>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {BENEFITS.map((benefit, index) => (
               <motion.div
                 key={benefit.text}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.2 + index * 0.1 }}
-                className="aspect-square flex flex-col items-center justify-center gap-3 md:gap-4 p-4 md:p-6 rounded-2xl bg-white/3 border border-white/6 hover:border-[#4FD1C5]/20 hover:bg-white/5 transition-all duration-300 group"
+                transition={{ delay: index * 0.08, duration: 0.5 }}
+                className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.03] border border-white/6 hover:border-[#4FD1C5]/30 hover:bg-white/[0.06] transition-all duration-300 group cursor-default"
               >
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#4FD1C5]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <benefit.icon className="w-6 h-6 md:w-7 md:h-7 text-[#4FD1C5]" />
+                <div className="w-9 h-9 rounded-lg bg-[#4FD1C5]/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shrink-0">
+                  <benefit.icon className="w-4 h-4 text-[#4FD1C5]" />
                 </div>
-                <span className="text-white/80 font-bold text-center text-sm md:text-lg leading-tight uppercase tracking-wider">
+                <span className="text-white/85 font-black text-left text-xs uppercase tracking-widest font-poppins leading-none">
                   {benefit.text}
                 </span>
               </motion.div>

@@ -65,9 +65,14 @@ export default function ProofStrip() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-nowrap items-center justify-items-center lg:justify-center w-full">
-          {homepageStats.map((stat) => (
-            <StatItem key={stat.label} stat={stat} triggered={isInView} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 items-center justify-items-center w-full">
+          {homepageStats.map((stat, i) => (
+            <div 
+              key={stat.label} 
+              className={i === 4 ? "col-span-2 sm:col-span-4 md:col-span-1 w-full" : "w-full"}
+            >
+              <StatItem stat={stat} triggered={isInView} />
+            </div>
           ))}
         </div>
       </div>

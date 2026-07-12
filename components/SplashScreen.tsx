@@ -167,7 +167,7 @@ export default function SplashScreen() {
                   setProgress(100);
                   window.setTimeout(() => setVisible(false), 300);
                 }}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain pointer-events-none"
                 style={{
                   maskImage: 'radial-gradient(circle, black 40%, transparent 70%)',
                   WebkitMaskImage: 'radial-gradient(circle, black 40%, transparent 70%)',

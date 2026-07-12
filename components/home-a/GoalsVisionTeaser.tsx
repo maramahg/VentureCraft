@@ -74,8 +74,8 @@ export default function GoalsVisionTeaser() {
             </Link>
           </motion.div>
 
-          {/* Right Column: Clean Balanced Row Cards */}
-          <div className="flex-1 w-full flex flex-wrap justify-center gap-4">
+          {/* Right Column: Clean Balanced Grid Cards */}
+          <div className="flex-1 w-full grid grid-cols-2 gap-3 md:gap-4">
             {goals.map((g, i) => (
               <motion.div
                 key={g.title}
@@ -83,25 +83,27 @@ export default function GoalsVisionTeaser() {
                 whileInView={{ opacity: 1, y: 0 }}
                 whileHover={{ 
                   y: -4,
-                  borderColor: 'rgba(79, 209, 197, 0.3)',
+                  borderColor: 'rgba(79, 209, 197, 0.35)',
                   backgroundColor: 'rgba(255, 255, 255, 0.035)',
-                  boxShadow: '0 12px 24px -10px rgba(79, 209, 197, 0.06)'
+                  boxShadow: '0 12px 24px -10px rgba(79, 209, 197, 0.08)'
                 }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
                 viewport={{ once: true }}
-                className="group flex items-start gap-4 rounded-2xl border border-white/5 bg-white/[0.015] p-5 md:p-6 transition-all duration-300 cursor-default w-full sm:w-[calc(50%-8px)]"
+                className={`group flex flex-col items-center text-center gap-3.5 rounded-2xl border border-white/5 bg-white/[0.015] p-4 sm:p-5 md:p-6 transition-all duration-300 cursor-default ${
+                  i === 4 ? 'col-span-2' : 'col-span-1'
+                }`}
               >
                 {/* Outlined index square */}
-                <div className="w-10 h-10 rounded-xl bg-[#4FD1C5]/10 border border-[#4FD1C5]/20 flex items-center justify-center shrink-0 mt-0.5 text-xs font-black text-[#4FD1C5] group-hover:bg-[#4FD1C5]/20 group-hover:shadow-[0_0_10px_rgba(79,209,197,0.3)] transition-all duration-300">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#4FD1C5]/10 border border-[#4FD1C5]/20 flex items-center justify-center shrink-0 text-xs font-black text-[#4FD1C5] group-hover:bg-[#4FD1C5]/20 group-hover:shadow-[0_0_10px_rgba(79,209,197,0.3)] transition-all duration-300">
                   {g.id}
                 </div>
                 
                 {/* Content */}
-                <div className="flex-1">
-                  <h3 className="text-base md:text-lg font-black text-white mb-1 group-hover:text-[#4FD1C5] transition-colors duration-300">
+                <div className="flex flex-col items-center">
+                  <h3 className="text-sm sm:text-base md:text-lg font-black text-white mb-1 group-hover:text-[#4FD1C5] transition-colors duration-300 font-poppins">
                     {g.title}
                   </h3>
-                  <p className="text-xs md:text-sm text-white/40 leading-relaxed group-hover:text-white/50 transition-colors duration-300">
+                  <p className="text-[10px] sm:text-xs md:text-sm text-white/40 leading-relaxed group-hover:text-white/50 transition-colors duration-300">
                     {g.desc}
                   </p>
                 </div>

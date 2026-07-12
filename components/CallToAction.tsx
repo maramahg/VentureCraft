@@ -19,7 +19,7 @@ export default function CallToAction({
     title = "Want to register?",
     description = "Take the first step towards transforming your deep tech idea into a global solution.",
     registerHref = "/apply",
-    registerButtonText = "Register Now (Free)",
+    registerButtonText = "Register Now",
     onRegisterClick,
     isClosed = false
 }: CallToActionProps) {

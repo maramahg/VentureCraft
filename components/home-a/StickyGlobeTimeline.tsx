@@ -18,7 +18,7 @@ const phaseIcons: Record<string, LucideIcon> = {
 function PhaseIcon({ name }: { name: string }) {
   const Icon = phaseIcons[name];
   if (!Icon) return null;
-  return <Icon size={22} strokeWidth={2} color="#23BCAB" />;
+  return <Icon size={22} strokeWidth={2} className="text-[#23BCAB]" />;
 }
 
 const statusColors: Record<string, string> = {
@@ -35,12 +35,12 @@ const statusLabels: Record<string, string> = {
 export default function StickyGlobeTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activePhase, setActivePhase] = useState(1);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [phases, setPhases] = useState<CompetitionPhase[]>(competitionPhases);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    const update = () => setIsDesktop(mq.matches);
+    const mq = window.matchMedia('(max-width: 1024px)');
+    const update = () => setIsMobile(mq.matches);
     update();
     mq.addEventListener('change', update);
 
@@ -80,38 +80,36 @@ export default function StickyGlobeTimeline() {
     setActivePhase(Math.min(phaseCount, Math.max(1, Math.round(latest))));
   });
 
-  // Continuous rotation for the dial: 0deg at phase 1, 360deg once all phases are passed.
-  const dialRotation = useTransform(activePhaseMotion, (v) => ((v - 1) / phaseCount) * 360);
-
-  const currentPhase = phases[activePhase - 1];
   const circumference = 2 * Math.PI * 70; // ~439.82
   const activeProgress = (activePhase - 1) / (phaseCount - 1);
   const currentOffset = circumference * (1 - activeProgress);
+  const currentPhase = phases[activePhase - 1];
 
   return (
     <section
-      className="relative pt-20 sm:pt-28 lg:pt-32 pb-64"
+      className="relative pt-20 sm:pt-28 lg:pt-32 pb-44"
       style={{ background: 'linear-gradient(180deg, #072828 0%, #003E51 100%)' }}
     >
-      {/* Top transition ribbon — fades from the page background into the section */}
+      {/* Top transition ribbon */}
       <div
         className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-10"
         style={{ background: 'linear-gradient(to bottom, #0B2A24 0%, transparent 100%)' }}
       />
-      {/* Bottom transition ribbon — fades from the section back into the page background */}
+      {/* Bottom transition ribbon */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none z-10"
+        className="absolute bottom-0 left-0 right-0 h-44 pointer-events-none z-10"
         style={{ background: 'linear-gradient(to top, #0B2A24 0%, transparent 100%)' }}
       />
+
       <div
         ref={containerRef}
         className="max-w-7xl mx-auto px-6 sm:px-10"
-        style={{ minHeight: isDesktop ? `${phaseCount * 70}vh` : undefined }}
+        style={{ minHeight: `${phaseCount * 70}vh` }}
       >
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-start lg:sticky lg:top-24">
+        <div className="sticky top-20 sm:top-24 flex flex-col lg:flex-row gap-8 lg:gap-8 items-stretch lg:items-start w-full">
 
           {/* ── Left: phase summary ── */}
-          <div className="lg:w-[40%] flex flex-col gap-6 w-full">
+          <div className="lg:w-[40%] flex flex-col gap-5 w-full shrink-0">
             <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold">
               Timeline
             </span>
@@ -136,46 +134,22 @@ export default function StickyGlobeTimeline() {
 
             {/* Circular progress indicator — rotating dial (desktop only) */}
             <div className="hidden lg:flex relative w-44 h-44 items-center justify-center my-2">
-              {/* Radial background glow */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.08) 0%, transparent 65%)' }}
               />
-              
-              {/* SVG circular progress - absolutely centered with custom width and height */}
               <svg className="absolute w-44 h-44 -rotate-90 transform pointer-events-none" viewBox="0 0 160 160">
-                {/* Track circle */}
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  className="stroke-white/10 fill-none"
-                  strokeWidth="2"
-                />
-                {/* Active progress arc - animated discrete progress to lock perfectly */}
+                <circle cx="80" cy="80" r="70" className="stroke-white/10 fill-none" strokeWidth="2" />
                 <motion.circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  className="stroke-[#23BCAB] fill-none"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  animate={{ strokeDashoffset: currentOffset }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  style={{
-                    strokeDasharray: circumference,
-                    filter: 'drop-shadow(0 0 4px rgba(35, 188, 171, 0.4))'
-                  }}
+                  cx="80" cy="80" r="70" className="stroke-[#23BCAB] fill-none" strokeWidth="3" strokeLinecap="round"
+                  animate={{ strokeDashoffset: currentOffset }} transition={{ duration: 0.4, ease: "easeOut" }}
+                  style={{ strokeDasharray: circumference, filter: 'drop-shadow(0 0 4px rgba(35, 188, 171, 0.4))' }}
                 />
               </svg>
-
-              {/* Central text - absolutely centered inside the container to avoid offsets */}
               <div className="absolute flex flex-col items-center justify-center pointer-events-none z-10 text-center">
                 <AnimatePresence mode="wait">
                   <motion.div key={activePhase}
-                    initial={{ opacity: 0, scale: 0.85 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.15 }}
+                    initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.15 }}
                     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     className="flex flex-col items-center justify-center text-center"
                   >
@@ -190,7 +164,7 @@ export default function StickyGlobeTimeline() {
               </div>
             </div>
 
-            {/* Current phase details (desktop only — mobile phase list below already shows full detail for the active phase) */}
+            {/* Current phase details (desktop only) */}
             <div className="hidden lg:block border-t border-[#F5FAFA]/8 pt-5 font-poppins">
               <div className="text-[11px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mb-2 font-poppins">
                 Current Phase
@@ -208,8 +182,8 @@ export default function StickyGlobeTimeline() {
             </div>
           </div>
 
-          {/* ── Right: rotating semi-circle arc of phase cards ── */}
-          <div className="flex-1 relative w-full">
+          {/* ── Right: rotating semi-circle arc of phase cards (desktop & mobile) ── */}
+          <div className="flex-1 relative w-full mt-4 lg:mt-0">
             {/* Subtle radial glow behind active card area */}
             <div className="hidden lg:block absolute pointer-events-none"
               style={{
@@ -217,78 +191,16 @@ export default function StickyGlobeTimeline() {
                 background: 'radial-gradient(ellipse, rgba(35,188,171,0.1) 0%, transparent 70%)',
               }} />
 
-            {/* Desktop: rotating arc carousel */}
-            <div className="hidden lg:block relative h-[560px]">
+            {/* Rotating arc carousel — rendered on all screens */}
+            <div className="relative w-full h-[360px] sm:h-[480px] lg:h-[560px] overflow-hidden sm:overflow-visible">
               {phases.map((phase) => (
                 <ArcPhaseCard
                   key={phase.id}
                   phase={phase}
                   activePhaseMotion={activePhaseMotion}
+                  isMobile={isMobile}
                 />
               ))}
-            </div>
-
-            {/* Mobile/tablet: simple vertical stack, no arc */}
-            <div className="flex flex-col gap-4 lg:hidden">
-              {phases.map((phase) => {
-                const isActive = phase.id === activePhase;
-                const isCompleted = phase.status === 'completed';
-                return (
-                  <div
-                    key={phase.id}
-                    className={`relative rounded-2xl border transition-all duration-500 ${
-                      isActive
-                        ? 'border-[#23BCAB]/40 bg-[#23BCAB]/8 mint-glow p-6'
-                        : isCompleted
-                        ? 'border-[#23BCAB]/15 bg-[#F5FAFA]/3 p-5'
-                        : 'border-[#F5FAFA]/6 bg-[#F5FAFA]/2 p-5'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border"
-                          style={{
-                            borderColor: statusColors[phase.status],
-                            color: isActive ? '#072828' : statusColors[phase.status],
-                            background: isActive ? statusColors[phase.status] : 'transparent',
-                          }}>
-                          {phase.id}
-                        </div>
-          <PhaseIcon name={phase.icon} />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full border"
-                        style={{
-                          color: statusColors[phase.status],
-                          borderColor: `${statusColors[phase.status]}40`,
-                          background: `${statusColors[phase.status]}10`,
-                        }}>
-                        {statusLabels[phase.status]}
-                      </span>
-                    </div>
-
-                    <h3 className={`font-black text-[#F5FAFA] mb-2 font-poppins ${isActive ? 'text-xl' : 'text-base'}`}>
-                      {phase.title}
-                    </h3>
-                    {isActive && (
-                      <p className="text-[#F5FAFA]/45 text-sm leading-relaxed mb-4">{phase.description}</p>
-                    )}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-xs font-bold text-[#23BCAB] uppercase tracking-wide">
-                        {phase.dateText}
-                      </div>
-                      {!isActive && (
-                        <div className="text-xs text-[#23BCAB]/60 font-semibold">→ {phase.participantAction}</div>
-                      )}
-                    </div>
-                    {isActive && (
-                      <>
-                        <div className="text-xs text-[#23BCAB]/70 font-semibold mt-2">→ {phase.participantAction}</div>
-                        <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
-                      </>
-                    )}
-                  </div>
-                );
-              })}
             </div>
           </div>
 
@@ -298,23 +210,19 @@ export default function StickyGlobeTimeline() {
   );
 }
 
-/**
- * A single phase card positioned on a semi-circle arc, centered in its
- * parent. Cards fan outward and rotate away from the active card as the
- * distance (phase.id - activePhaseMotion) grows, mimicking a rolodex/fan
- * rotating in sync with page scroll.
- */
 function ArcPhaseCard({
   phase,
   activePhaseMotion,
+  isMobile,
 }: {
   phase: CompetitionPhase;
   activePhaseMotion: MotionValue<number>;
+  isMobile: boolean;
 }) {
   const relative = useTransform(activePhaseMotion, (v) => phase.id - v);
 
-  const y = useTransform(relative, (r) => r * 118);
-  const x = useTransform(relative, (r) => Math.sin(r * 0.4) * 90);
+  const y = useTransform(relative, (r) => (r * (isMobile ? 80 : 118)) - (isMobile ? 25 : 0));
+  const x = useTransform(relative, (r) => Math.sin(r * 0.4) * (isMobile ? 35 : 90));
   const rotate = useTransform(relative, (r) => r * 7);
   const scale = useTransform(relative, (r) => Math.max(0.72, 1 - Math.abs(r) * 0.14));
   const opacity = useTransform(relative, (r) => Math.max(0, 1 - Math.abs(r) * 0.4));
@@ -348,13 +256,13 @@ function PhaseCardBody({
     <div
       className={`relative rounded-2xl border transition-all duration-500 ${
         isActive
-          ? 'border-[#23BCAB]/40 bg-[#072828]/95 mint-glow p-6'
+          ? 'border-[#23BCAB]/40 bg-[#072828]/95 mint-glow p-5 sm:p-6 shadow-xl'
           : isCompleted
-          ? 'border-[#23BCAB]/15 bg-[#072828]/90 p-5'
-          : 'border-[#F5FAFA]/6 bg-[#072828]/90 p-5'
+          ? 'border-[#23BCAB]/15 bg-[#072828]/90 p-4 sm:p-5'
+          : 'border-[#F5FAFA]/6 bg-[#072828]/90 p-4 sm:p-5'
       }`}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2.5 sm:mb-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border"
             style={{
@@ -376,23 +284,23 @@ function PhaseCardBody({
         </span>
       </div>
 
-      <h3 className={`font-black text-[#F5FAFA] mb-2 font-poppins ${isActive ? 'text-xl' : 'text-base'}`}>
+      <h3 className={`font-black text-[#F5FAFA] mb-1.5 sm:mb-2 font-poppins ${isActive ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
         {phase.title}
       </h3>
       {isActive && (
-        <p className="text-[#F5FAFA]/45 text-sm leading-relaxed mb-4">{phase.description}</p>
+        <p className="text-[#F5FAFA]/45 text-xs sm:text-sm leading-relaxed mb-3.5 sm:mb-4">{phase.description}</p>
       )}
       <div className="flex items-center justify-between gap-2">
-        <div className="text-xs font-bold text-[#23BCAB] uppercase tracking-wide">
+        <div className="text-[10px] sm:text-xs font-bold text-[#23BCAB] uppercase tracking-wide">
           {phase.dateText}
         </div>
         {!isActive && (
-          <div className="text-xs text-[#23BCAB]/60 font-semibold">→ {phase.participantAction}</div>
+          <div className="text-[10px] sm:text-xs text-[#23BCAB]/60 font-semibold">→ {phase.participantAction}</div>
         )}
       </div>
       {isActive && (
         <>
-          <div className="text-xs text-[#23BCAB]/70 font-semibold mt-2">→ {phase.participantAction}</div>
+          <div className="text-[10px] sm:text-xs text-[#23BCAB]/70 font-semibold mt-1.5">→ {phase.participantAction}</div>
           <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
         </>
       )}
