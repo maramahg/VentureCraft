@@ -214,6 +214,7 @@ interface AmbassadorApplication {
     location?: string;
     reason?: string;
     experience?: string;
+    ambassadorId?: string | number | null;
 }
 
 
@@ -1936,10 +1937,12 @@ function AdminDashboardContent() {
 
     const filteredAmbassadorApps = useMemo(() => {
         return ambassadorApps.filter(app => {
+            const cleanSearch = ambSearchTerm.toLowerCase().replace('#', '').trim();
             const matchesSearch =
                 (app.name?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
                 (app.fullName?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
-                (app.email?.toLowerCase().includes(ambSearchTerm.toLowerCase()));
+                (app.email?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
+                (app.ambassadorId?.toString().includes(cleanSearch));
 
             const matchesStatus = ambStatusFilter === 'all' || app.status === ambStatusFilter;
             const matchesNationality = ambNationalityFilter === 'all' || app.nationality === ambNationalityFilter;
@@ -1982,9 +1985,11 @@ function AdminDashboardContent() {
 
     const filteredAmbassadorsList = useMemo(() => {
         return ambassadorsList.filter(user => {
+            const cleanSearch = ambSearchTerm.toLowerCase().replace('#', '').trim();
             const matchesSearch =
                 (user.displayName?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
-                (user.email?.toLowerCase().includes(ambSearchTerm.toLowerCase()));
+                (user.email?.toLowerCase().includes(ambSearchTerm.toLowerCase())) ||
+                (user.ambassadorId?.toString().includes(cleanSearch));
 
             const locStr = (user.location || '').toLowerCase();
             const isLocal = locStr.includes('saudi') || locStr === 'sa';
