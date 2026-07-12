@@ -105,7 +105,7 @@ export default function PrizePool() {
 
   return (
     <section
-      className="pt-28 pb-20 sm:pt-36 sm:pb-24 lg:pt-44 lg:pb-32 relative overflow-hidden"
+      className="pt-20 pb-16 sm:pt-28 sm:pb-24 lg:pt-32 lg:pb-28 relative overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #123830 0%, #0B2A24 100%)' }}
     >
       {/* Animated ambient glow */}
