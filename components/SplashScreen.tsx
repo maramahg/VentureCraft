@@ -124,24 +124,19 @@ export default function SplashScreen() {
                 ease: 'easeInOut',
               }}
             />
-          ))
-          }
+          ))}
 
-          {/* Splash video — centered, with edge gradient blending into bg */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: [0.215, 0.61, 0.355, 1] }}
-            className="absolute inset-0 flex items-center justify-center z-0 pb-[320px]"
-          >
-            <div className="relative w-[280px] h-[280px] sm:w-[360px] sm:h-[360px]">
-              {/* Framer Motion's `scale` on the parent creates a new CSS
-                  stacking context, which isolates `mix-blend-mode` below to
-                  only blend within this group rather than the real page
-                  background behind it. This solid patch (same color as the
-                  page background) gives the blend something correct to
-                  disappear against, so the video's dark backing color still
-                  reads as transparent. */}
+          {/* Unified Centered Flex Group */}
+          <div className="relative z-20 flex flex-col items-center justify-center text-center px-6">
+            
+            {/* Logo Video */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.215, 0.61, 0.355, 1] }}
+              className="relative w-[180px] h-[180px] sm:w-[240px] sm:h-[240px] mb-8"
+            >
+              {/* Solid backing to blend video into the page background */}
               <div
                 className="absolute inset-0"
                 style={{ background: '#0B2A24' }}
@@ -171,74 +166,65 @@ export default function SplashScreen() {
                 style={{
                   maskImage: 'radial-gradient(circle, black 40%, transparent 70%)',
                   WebkitMaskImage: 'radial-gradient(circle, black 40%, transparent 70%)',
-                  // The exported video has a solid near-black backing color
-                  // baked into every frame (it doesn't support alpha). That
-                  // backing color is darker than the splash background in
-                  // every channel, so `lighten` makes the video's background
-                  // pixels disappear into the page background/glow behind
-                  // it, leaving only the brighter logo artwork visible.
                   mixBlendMode: 'lighten',
-                  // `contrast` brightens the logo's mid/highlight colors
-                  // while pushing the already-dark backing color even
-                  // darker (rather than lifting it, like `brightness`
-                  // would) — so it won't reintroduce the background seam.
                   filter: 'contrast(1.3) saturate(1.15)',
                 }}
               />
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Brand name — shimmers in */}
-          <motion.span
-            initial={{ opacity: 0, y: 8, letterSpacing: '0.5em' }}
-            animate={{ opacity: 1, y: 0, letterSpacing: '0.35em' }}
-            transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
-            className="relative z-10 mt-32 text-lg uppercase font-black bg-clip-text text-transparent"
-            style={{
-              backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.2), #4FD1C5, rgba(255,255,255,0.2))',
-              backgroundSize: '200% auto',
-              animation: 'splash-shimmer 2.2s linear infinite',
-              filter: 'drop-shadow(0 0 12px rgba(79,209,197,0.3))',
-            }}
-          >
-            Venture Craft
-          </motion.span>
-
-          {/* Tagline under brand name */}
-          <motion.span
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 0.5, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6, ease: 'easeOut' }}
-            className="relative z-10 mt-2 text-[10px] uppercase tracking-[0.3em] font-medium text-white/30"
-          >
-            Build Your Venture
-          </motion.span>
-
-          {/* Determinate loading bar + percentage */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-            className="relative z-10 mt-10 w-64 flex flex-col items-center gap-3"
-          >
-            <div className="w-full h-[5px] rounded-full bg-white/8 overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{
-                  background: 'linear-gradient(90deg, #23BCAB, #4FD1C5)',
-                  boxShadow: '0 0 10px rgba(79,209,197,0.8)',
-                }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
-              />
-            </div>
-            <span
-              className="text-lg font-black tracking-tight text-white/60 tabular-nums"
-              style={{ fontVariantNumeric: 'tabular-nums' }}
+            {/* Brand name — shimmers in */}
+            <motion.span
+              initial={{ opacity: 0, y: 8, letterSpacing: '0.5em' }}
+              animate={{ opacity: 1, y: 0, letterSpacing: '0.35em' }}
+              transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
+              className="text-lg sm:text-xl uppercase font-black bg-clip-text text-transparent block font-poppins"
+              style={{
+                backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.2), #4FD1C5, rgba(255,255,255,0.2))',
+                backgroundSize: '200% auto',
+                animation: 'splash-shimmer 2.2s linear infinite',
+                filter: 'drop-shadow(0 0 12px rgba(79,209,197,0.3))',
+              }}
             >
-              {progress}%
-            </span>
-          </motion.div>
+              Venture Craft
+            </motion.span>
+
+            {/* Tagline under brand name */}
+            <motion.span
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 0.5, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6, ease: 'easeOut' }}
+              className="mt-2 text-[10px] sm:text-xs uppercase tracking-[0.3em] font-medium text-white/30 block font-poppins"
+            >
+              Build Your Venture
+            </motion.span>
+
+            {/* Determinate loading bar + percentage */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="mt-8 w-56 sm:w-64 flex flex-col items-center gap-3"
+            >
+              <div className="w-full h-[4px] sm:h-[5px] rounded-full bg-white/8 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{
+                    background: 'linear-gradient(90deg, #23BCAB, #4FD1C5)',
+                    boxShadow: '0 0 10px rgba(79,209,197,0.8)',
+                  }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                />
+              </div>
+              <span
+                className="text-base sm:text-lg font-black tracking-tight text-white/60 tabular-nums font-poppins"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
+                {progress}%
+              </span>
+            </motion.div>
+
+          </div>
 
           <style jsx>{`
             @keyframes splash-shimmer {
