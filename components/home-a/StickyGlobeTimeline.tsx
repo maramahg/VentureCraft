@@ -15,10 +15,10 @@ const phaseIcons: Record<string, LucideIcon> = {
   Trophy,
 };
 
-function PhaseIcon({ name, color }: { name: string; color: string }) {
+function PhaseIcon({ name }: { name: string }) {
   const Icon = phaseIcons[name];
   if (!Icon) return null;
-  return <Icon size={18} strokeWidth={2} style={{ color }} />;
+  return <Icon size={22} strokeWidth={2} color="#23BCAB" />;
 }
 
 const statusColors: Record<string, string> = {
@@ -100,14 +100,14 @@ export default function StickyGlobeTimeline() {
           {/* ── Left: phase summary ── */}
           <div className="lg:w-[40%] flex flex-col gap-6 w-full">
             <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold">
-              VentureCraft
+              Timeline
             </span>
             <div>
               <h2 className="text-3xl sm:text-5xl font-black font-poppins uppercase tracking-tight text-white leading-[1.1] sm:leading-[1.05]">
                 Seven Phases.<br />One Destination.
               </h2>
               <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg mt-3 sm:mt-4 max-w-sm">
-                Every phase is designed to push your venture further — from first submission to the global stage.
+                Every phase is designed to push your venture further, from first submission to the global stage.
               </p>
             </div>
 
@@ -253,7 +253,7 @@ export default function StickyGlobeTimeline() {
                           }}>
                           {phase.id}
                         </div>
-          <PhaseIcon name={phase.icon} color={statusColors[phase.status]} />
+          <PhaseIcon name={phase.icon} />
                       </div>
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full border"
                         style={{
@@ -272,7 +272,7 @@ export default function StickyGlobeTimeline() {
                       <p className="text-[#F5FAFA]/45 text-sm leading-relaxed mb-4">{phase.description}</p>
                     )}
                     <div className="flex items-center justify-between gap-2">
-                      <div className="text-[10px] font-semibold text-[#F5FAFA]/30 uppercase tracking-wide">
+                      <div className="text-xs font-bold text-[#23BCAB] uppercase tracking-wide">
                         {phase.dateText}
                       </div>
                       {!isActive && (
@@ -363,7 +363,7 @@ function PhaseCardBody({
             }}>
             {phase.id}
           </div>
-          <PhaseIcon name={phase.icon} color={statusColors[phase.status]} />
+          <PhaseIcon name={phase.icon} />
         </div>
         <span className="text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full border"
           style={{
@@ -382,7 +382,7 @@ function PhaseCardBody({
         <p className="text-[#F5FAFA]/45 text-sm leading-relaxed mb-4">{phase.description}</p>
       )}
       <div className="flex items-center justify-between gap-2">
-        <div className="text-[10px] font-semibold text-[#F5FAFA]/30 uppercase tracking-wide">
+        <div className="text-xs font-bold text-[#23BCAB] uppercase tracking-wide">
           {phase.dateText}
         </div>
         {!isActive && (
