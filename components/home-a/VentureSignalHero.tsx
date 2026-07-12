@@ -12,7 +12,7 @@ import {
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { ArrowRight, ArrowDown, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowDown, Sparkles, ExternalLink } from 'lucide-react';
 import { homepageStats } from '../../lib/homepageStats';
 import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 
@@ -228,83 +228,105 @@ export function VentureSignalHero() {
             initial={{ opacity: 0, y: 24, filter: 'blur(14px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.9, delay: 0.15, ease: [0.215, 0.61, 0.355, 1] }}
-            className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black tracking-tighter uppercase leading-[0.88] text-white mb-4 -ml-1 md:-ml-2 lg:-ml-3 xl:-ml-4"
+            className="text-4xl sm:text-5xl md:text-6xl xl:text-[4.5rem] font-bold tracking-tighter mb-4 font-poppins uppercase leading-[1.1] xl:leading-none -ml-1 md:-ml-2 lg:-ml-3 xl:-ml-4"
             aria-label="VentureCraft"
           >
-            VentureCraft
+            <span className="block text-white xs:whitespace-nowrap">
+              Venture Craft
+            </span>
+            <span className="block mt-2 text-xl sm:text-2xl md:text-3xl uppercase">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] via-[#4FD1C5] to-[#4FD1C5] mr-2">
+                100K
+              </span>
+              <span className="font-light tracking-[0.1em] text-white/40 ml-1">
+                COMPETITION
+              </span>
+            </span>
           </motion.h1>
-
-          {/* Headline */}
-          <motion.p
-            variants={item}
-            className="text-xl sm:text-2xl font-bold text-[#4FD1C5] leading-snug mb-5"
-          >
-            Build Your Venture
-          </motion.p>
 
           {/* Body */}
           <motion.p
             variants={item}
-            className="text-base sm:text-lg text-white/45 leading-relaxed mb-8 max-w-md"
+            className="text-base sm:text-lg text-white/50 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-poppins"
           >
-            An international startup competition for student-led science and technology
-            ventures, powered by KFUPM and DTV.
+            An international deep-tech startup competition by{" "}
+            <a
+              href="https://www.kfupm.edu.sa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[#4FD1C5] font-bold underline underline-offset-4 decoration-[#4FD1C5]/30 hover:decoration-[#4FD1C5] transition-all duration-300 group"
+            >
+              KFUPM
+              <ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+            </a>{" "}
+            in collaboration with{" "}
+            <a
+              href="https://dtv.sa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[#4FD1C5] font-bold underline underline-offset-4 decoration-[#4FD1C5]/30 hover:decoration-[#4FD1C5] transition-all duration-300 group"
+            >
+              DTV<ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+            </a>
+            {" "}, supporting student-led ventures building science and technology-based solutions with global impact.
           </motion.p>
 
-          {/* Prize badges */}
-          <motion.div variants={item} className="flex flex-wrap items-center gap-3 mb-9">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4FD1C5]/25 bg-gradient-to-r from-[#4FD1C5]/10 to-[#4FD1C5]/5 text-xs font-black tracking-wider uppercase text-[#4FD1C5] shadow-[0_0_15px_rgba(79,209,197,0.12)]">
-              $245K Prize Pool
-            </div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/20 bg-gradient-to-r from-amber-400/10 to-transparent text-xs font-black tracking-wider uppercase text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.08)]">
-              $100K Grand Prize
-            </div>
-          </motion.div>
-
           {/* CTAs */}
-          <motion.div variants={item} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-7">
-            <Link
-              href="/apply"
-              id="hero-cta-apply"
-              className="group relative px-8 py-3.5 rounded-full text-[15px] font-bold overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 whitespace-nowrap inline-flex items-center justify-center shrink-0"
-            >
-              <div className="absolute inset-0 bg-[#4FD1C5] group-hover:bg-[#5ae0d4] transition-colors duration-300" />
-              {/* Shimmer */}
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+          <motion.div
+            variants={item}
+            className="flex flex-col sm:flex-row items-center gap-4 justify-center xl:justify-start mb-10 xl:mb-12 relative z-50"
+          >
+            {isRegistrationOpen ? (
+              <Link
+                href="/apply"
+                className="group relative px-8 py-3.5 rounded-full text-base font-bold text-[#001D1B] transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(79,209,197,0.3)] hover:scale-105 active:scale-95 w-full sm:w-auto inline-flex items-center justify-center shrink-0"
+              >
+                <div className="absolute inset-0 bg-[#4FD1C5] transition-colors duration-300" />
+                <span className="relative flex items-center justify-center gap-2">
+                  Submit Your Idea <span className="text-xl sm:text-2xl group-hover:translate-x-1 transition-transform">→</span>
+                </span>
+              </Link>
+            ) : (
+              <div className="group relative px-8 py-3 sm:py-3.5 rounded-full text-base font-bold text-[#001D1B] transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(79,209,197,0.1)] opacity-80 w-full sm:w-auto inline-flex items-center justify-center shrink-0 cursor-not-allowed">
+                <div className="absolute inset-0 bg-[#4FD1C5]/50 transition-colors duration-300" />
+                <span className="relative flex items-center justify-center gap-2">
+                  Registration Closed
+                </span>
               </div>
-              <span className="relative text-[#001A18] flex items-center gap-2">
-                {isRegistrationOpen ? 'Apply Now' : 'View Application Status'}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
+            )}
 
             <Link
               href="/about"
-              id="hero-cta-explore"
-              className="px-8 py-3.5 rounded-full text-[15px] font-bold text-white/70 hover:text-white border border-white/12 hover:border-[#4FD1C5]/35 transition-all duration-300 whitespace-nowrap inline-flex items-center justify-center shrink-0"
+              className="group relative p-[1.5px] rounded-full overflow-hidden w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center justify-center shrink-0 cursor-pointer font-bold z-[100] pointer-events-auto"
             >
-              Explore the Competition
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/5 opacity-70 group-hover:from-white/40 group-hover:to-white/10 transition-all duration-300" />
+              <div className="relative px-8 py-2.5 sm:py-3 rounded-full bg-[#0D1B1A] flex items-center justify-center group-hover:bg-[#0D1B1A]/80 transition-all duration-300">
+                <span className="text-base text-white group-hover:text-[#4FD1C5] transition-colors relative z-10">
+                  Learn More
+                </span>
+              </div>
             </Link>
           </motion.div>
 
-          {/* Status pill */}
+          {/* Stats */}
           <motion.div
             variants={item}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${
-              isRegistrationOpen
-                ? 'bg-[#4FD1C5]/5 border-[#4FD1C5]/20 text-[#4FD1C5]'
-                : 'bg-red-950/40 border-red-500/30 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.06)]'
-            }`}
+            className="flex items-center justify-center xl:justify-start gap-12 sm:gap-14 xl:ml-6 mb-10"
           >
-            <div
-              className={`w-1.5 h-1.5 rounded-full ${
-                isRegistrationOpen ? 'bg-[#4FD1C5]' : 'bg-red-500'
-              }`}
-            />
-            <span className="text-xs font-bold uppercase tracking-wider">
-              {isRegistrationOpen ? 'Applications are open now' : 'Applications closed for this cycle'}
-            </span>
+            <div className="relative group/stat">
+              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-[#4FD1C5] rounded-full opacity-60 group-hover/stat:opacity-100 transition-opacity duration-500" />
+              <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
+                <span className="block text-xl sm:text-2xl font-black text-white mb-0.5">$245K</span>
+                Prize Pool
+              </div>
+            </div>
+            <div className="relative group/stat">
+              <div className="absolute -left-6 top-0 bottom-0 w-1 bg-[#4FD1C5] rounded-full opacity-20 group-hover/stat:opacity-100 transition-opacity duration-500" />
+              <div className="text-xs sm:text-sm uppercase tracking-widest text-white/40 group-hover/stat:text-white/60 transition-colors">
+                <span className="block text-xl sm:text-2xl font-black text-white mb-0.5">Global</span>
+                Exposure
+              </div>
+            </div>
           </motion.div>
 
           {/* Collaboration logos */}
