@@ -69,14 +69,14 @@ export default function FinalCTA() {
               >
                 <Link
                   href={tab.ctaHref}
-                  className="group flex flex-col justify-between h-full rounded-2xl border border-white/8 hover:border-[#4FD1C5]/30 bg-white/[0.03] hover:bg-[#4FD1C5]/[0.06] transition-all duration-300 p-4 sm:p-5 md:p-6 text-left"
+                  className="group flex flex-col justify-between items-center text-center h-full rounded-2xl border border-white/8 hover:border-[#4FD1C5]/30 bg-white/[0.03] hover:bg-[#4FD1C5]/[0.06] transition-all duration-300 p-3 sm:p-5 md:p-6"
                 >
-                  <span className="text-base md:text-lg font-black text-white group-hover:text-[#4FD1C5] transition-colors">
+                  <span className="text-base md:text-lg font-black text-white group-hover:text-[#4FD1C5] transition-colors font-poppins uppercase tracking-tight">
                     {tab.label}
                   </span>
-                  <span className="mt-4 flex items-center flex-wrap gap-1.5 text-xs font-bold text-white/35 group-hover:text-white/60 transition-colors">
+                  <span className="mt-4 flex items-center justify-center gap-1.5 text-[9px] sm:text-xs font-bold text-white/35 group-hover:text-white/60 transition-colors whitespace-nowrap font-poppins uppercase tracking-wider">
                     <span>{tab.cta}</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform shrink-0" />
+                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform shrink-0" />
                   </span>
                 </Link>
               </motion.div>
