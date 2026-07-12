@@ -38,6 +38,15 @@ export default function SplashScreen() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    // Force browser to not restore scroll position on reload
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    // Scroll to top instantly
+    window.scrollTo(0, 0);
+
     const show = () => setVisible(true);
     show();
 
