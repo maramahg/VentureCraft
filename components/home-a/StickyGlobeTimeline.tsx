@@ -132,12 +132,6 @@ export default function StickyGlobeTimeline() {
               <span className="text-[10px] uppercase tracking-[0.2em] text-[#F5FAFA]/40 font-bold font-poppins">
                 of {String(phaseCount).padStart(2, '0')} Phases
               </span>
-              <div className="flex-1 flex items-center gap-1.5 justify-end">
-                {phases.map((p) => (
-                  <div key={p.id} className="h-1 rounded-full transition-all duration-500"
-                    style={{ width: p.id === activePhase ? 16 : 5, background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)' }} />
-                ))}
-              </div>
             </div>
 
             {/* Circular progress indicator — rotating dial (desktop only) */}
@@ -148,8 +142,8 @@ export default function StickyGlobeTimeline() {
                 style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.08) 0%, transparent 65%)' }}
               />
               
-              {/* SVG circular progress - absolutely positioned top-0 left-0 to guarantee centering */}
-              <svg className="absolute top-0 left-0 w-full h-full -rotate-90 transform pointer-events-none" viewBox="0 0 160 160">
+              {/* SVG circular progress - absolutely centered with custom width and height */}
+              <svg className="absolute w-44 h-44 -rotate-90 transform pointer-events-none" viewBox="0 0 160 160">
                 {/* Track circle */}
                 <circle
                   cx="80"
@@ -158,7 +152,7 @@ export default function StickyGlobeTimeline() {
                   className="stroke-white/10 fill-none"
                   strokeWidth="2"
                 />
-                {/* Active progress arc - animated discrete progress to lock perfectly on ticks */}
+                {/* Active progress arc - animated discrete progress to lock perfectly */}
                 <motion.circle
                   cx="80"
                   cy="80"
@@ -175,52 +169,25 @@ export default function StickyGlobeTimeline() {
                 />
               </svg>
 
-              {/* Ticks around the ring - wrapped in absolute container centered with top-1/2 left-1/2 */}
-              <div className="absolute inset-0 pointer-events-none">
-                {Array.from({ length: phaseCount }).map((_, i) => {
-                  const angle = (360 / phaseCount) * i - 90; // Align with SVG circle start (-90deg is top)
-                  const isPassed = activePhase > i;
-                  return (
-                    <div
-                      key={i}
-                      className="absolute top-1/2 left-1/2 w-2 h-2 -ml-1 -mt-1 rounded-full transition-all duration-300"
-                      style={{
-                        transform: `rotate(${angle}deg) translate(70px) rotate(${-angle}deg)`,
-                        background: isPassed ? '#23BCAB' : 'rgba(255,255,255,0.25)',
-                        boxShadow: isPassed ? '0 0 8px rgba(35,188,171,0.8)' : 'none',
-                      }}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Central text - absolutely positioned and centered inside parent */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+              {/* Central text - absolutely centered inside the container to avoid offsets */}
+              <div className="absolute flex flex-col items-center justify-center pointer-events-none z-10 text-center">
                 <AnimatePresence mode="wait">
                   <motion.div key={activePhase}
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 1.15 }}
                     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-col items-center justify-center"
+                    className="flex flex-col items-center justify-center text-center"
                   >
-                    <span className="text-[64px] font-black leading-tight tracking-tighter text-[#23BCAB] font-poppins">
+                    <span className="text-[64px] font-black leading-none tracking-tighter text-[#23BCAB] font-poppins block py-1">
                       {String(activePhase).padStart(2, '0')}
                     </span>
-                    <span className="text-[10px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold font-poppins mt-1">
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold font-poppins mt-1 block">
                       of {String(phaseCount).padStart(2, '0')}
                     </span>
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </div>
-
-            {/* Desktop progress dots */}
-            <div className="hidden lg:flex items-center gap-2 mt-4 ml-2">
-              {phases.map((p) => (
-                <div key={p.id} className="h-1.5 rounded-full transition-all duration-500"
-                  style={{ width: p.id === activePhase ? 24 : 8, background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)' }} />
-              ))}
             </div>
 
             {/* Current phase details (desktop only — mobile phase list below already shows full detail for the active phase) */}
