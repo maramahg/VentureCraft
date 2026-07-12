@@ -1,9 +1,35 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+
+const quickLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'About', href: '/about/venture-craft' },
+    { name: 'Ambassadors', href: '/ambassadors' },
+    { name: 'Outreach Challenge', href: '/outreach-challenge' },
+    { name: 'Register', href: '/apply' },
+    { name: 'FAQ', href: '/apply/faq' },
+];
 
 export default function Footer() {
+    const [hiddenPages, setHiddenPages] = useState<string[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'navigation'), (doc) => {
+            if (doc.exists()) {
+                setHiddenPages(doc.data().hiddenRoutes || []);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const isLinkHidden = (href: string) => {
+        return hiddenPages.some(route => href === route || href.startsWith(route + '/'));
+    };
     return (
         <footer className="relative z-10 bg-[#0A1F1F] border-t border-[#39cc89]/20">
             {/* Main Footer Content */}
@@ -86,36 +112,13 @@ export default function Footer() {
                     <div className="flex flex-col items-center">
                         <h4 className="text-white font-semibold text-lg mb-6" style={{ marginBottom: '1.5rem' }}>Quick Links</h4>
                         <ul className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-                            <li>
-                                <Link href="/" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
-                                    Home
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/about/venture-craft" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
-                                    About
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/ambassadors" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
-                                    Ambassadors
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/outreach-challenge" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
-                                    Outreach Challenge
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/apply" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
-                                    Register
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/apply/faq" className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
-                                    FAQ
-                                </Link>
-                            </li>
+                            {quickLinks.filter(link => !isLinkHidden(link.href)).map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="text-[#9CA3AF] hover:text-[#39cc89] transition-colors duration-300 text-sm">
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 

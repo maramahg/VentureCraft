@@ -67,20 +67,26 @@ service cloud.firestore {
 
     // Helper: Registration Status
     function isRegistrationOpen() {
-      let reg = get(/databases/$(database)/documents/settings/registration).data;
-      return reg.get('isOpen', true) == true || reg.get('isAllowed', true) == true;
+      return !exists(/databases/$(database)/documents/settings/registration) || 
+             get(/databases/$(database)/documents/settings/registration).data.get('isOpen', true) == true || 
+             get(/databases/$(database)/documents/settings/registration).data.get('isAllowed', true) == true;
     }
 
     // Helper: Editing Allowed
     function isEditingAllowed() {
-      let edit = get(/databases/$(database)/documents/settings/editing).data;
-      return edit.get('isOpen', true) == true || edit.get('isAllowed', true) == true;
+      return !exists(/databases/$(database)/documents/settings/editing) || 
+             get(/databases/$(database)/documents/settings/editing).data.get('isOpen', true) == true || 
+             get(/databases/$(database)/documents/settings/editing).data.get('isAllowed', true) == true;
     }
     
     // Outreach Participants
     match /outreach_participants/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
+      // Allow point increments for referrals
+      allow update: if request.auth != null 
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
+        && request.resource.data.points == resource.data.points + 10;
     }
 
     // Counters (Internal tracking)
@@ -113,7 +119,7 @@ service cloud.firestore {
           isAdmin() ||
           isJudge()
         )
-        && (isEditingAllowed() || isRegistrationOpen() || isAdmin() || isJudge());
+        && (isEditingAllowed() || isAdmin() || isJudge());
       allow delete: if isAdmin();
     }
 

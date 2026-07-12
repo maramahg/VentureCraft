@@ -42,6 +42,7 @@ export default function ProfilePage() {
     // Application States
     const [application, setApplication] = useState<any>(null);
     const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
+    const [isEditingAllowed, setIsEditingAllowed] = useState(true);
     const [loadingApp, setLoadingApp] = useState(true);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,6 +71,7 @@ export default function ProfilePage() {
 
         let unsubscribeApp: () => void = () => { };
         let unsubscribeReg: () => void = () => { };
+        let unsubscribeEdit: () => void = () => { };
 
         const fetchProfileData = async () => {
             try {
@@ -188,6 +190,12 @@ export default function ProfilePage() {
                     }
                 });
 
+                unsubscribeEdit = onSnapshot(doc(db, 'settings', 'editing'), (snapshot) => {
+                    if (snapshot.exists()) {
+                        setIsEditingAllowed(snapshot.data().isAllowed ?? snapshot.data().isOpen ?? true);
+                    }
+                });
+
                 unsubscribeApp = onSnapshot(doc(db, 'applications', user.uid), (snapshot) => {
                     if (snapshot.exists()) {
                         setApplication({ id: snapshot.id, ...snapshot.data() });
@@ -208,6 +216,7 @@ export default function ProfilePage() {
 
         return () => {
             unsubscribeReg();
+            unsubscribeEdit();
             unsubscribeApp();
         };
     }, [user]);
@@ -420,7 +429,7 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
 
-                                    {isRegistrationOpen ? (
+                                    {isEditingAllowed ? (
                                         <Link
                                             href="/apply?step=1"
                                             className="w-full flex items-center justify-center gap-2 py-3 mt-2 rounded-xl bg-vc-mint text-[#001311] font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-vc-mint/10"
