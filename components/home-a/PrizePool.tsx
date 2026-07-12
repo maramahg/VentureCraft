@@ -49,6 +49,18 @@ function PrizeCard({ prize, delay, triggered }: {
       ? 'min-h-[230px] sm:min-h-[250px]' 
       : 'min-h-[170px] sm:min-h-[190px]';
 
+  const amountSizeClass = prize.rank === '1st' 
+    ? 'text-5xl sm:text-6xl lg:text-7xl' 
+    : prize.rank === '2nd' 
+      ? 'text-4xl sm:text-5xl lg:text-6xl' 
+      : 'text-3xl sm:text-4xl lg:text-5xl';
+
+  const rankSizeClass = prize.rank === '1st' 
+    ? 'text-3xl sm:text-4xl' 
+    : prize.rank === '2nd' 
+      ? 'text-2xl sm:text-3xl' 
+      : 'text-xl sm:text-2xl';
+
   return (
     <div style={{ perspective: '900px' }}>
       <motion.div
@@ -79,7 +91,7 @@ function PrizeCard({ prize, delay, triggered }: {
         <div className={`relative z-10 p-6 sm:p-8 flex-1 flex flex-col justify-between ${isLarge ? 'lg:p-10' : ''}`}>
           {/* Rank + label */}
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl font-black tracking-tight font-sans" style={{ color: prize.color }}>
+            <span className={`font-black tracking-tight font-sans ${rankSizeClass}`} style={{ color: prize.color }}>
               {prize.rank}
             </span>
             <div className="h-px flex-1 opacity-20" style={{ background: prize.color }} />
@@ -91,9 +103,7 @@ function PrizeCard({ prize, delay, triggered }: {
           {/* Bottom amount + description */}
           <div className="mt-auto">
             {/* Amount count-up */}
-            <div className={`font-black text-white tracking-tighter leading-none mb-4 font-poppins ${
-              isLarge ? 'text-5xl sm:text-6xl lg:text-7xl' : 'text-3xl sm:text-4xl lg:text-5xl'
-            }`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <div className={`font-black text-white tracking-tighter leading-none mb-4 font-poppins ${amountSizeClass}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {triggered ? formatted(count) : '$0K'}
             </div>
 
