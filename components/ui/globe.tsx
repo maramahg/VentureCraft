@@ -116,6 +116,45 @@ export function Globe({ className }: { className?: string }) {
           polygonStrokeColor={() => "#003833"}
           showGlobe={true}
           rendererConfig={{ antialias: true, alpha: true }}
+          htmlElementsData={[{ lat: 24.0, lng: 45.0 }]}
+          htmlElement={() => {
+            const el = document.createElement("div");
+            el.className = "select-none pointer-events-none";
+            el.style.width = "50px";
+            el.style.height = "50px";
+            el.innerHTML = `
+              <style>
+                @keyframes globe-pulse {
+                  0% { transform: scale(0.5); opacity: 0.8; }
+                  100% { transform: scale(1.8); opacity: 0; }
+                }
+              </style>
+              <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <!-- Glowing Ripple -->
+                <div style="
+                  position: absolute;
+                  width: 100%;
+                  height: 100%;
+                  border: 2px solid #4FD1C5;
+                  border-radius: 50%;
+                  animation: globe-pulse 2s infinite ease-out;
+                "></div>
+                <img 
+                  src="/logo.png" 
+                  alt="Venture Craft" 
+                  style="
+                    width: 32px;
+                    height: 32px;
+                    object-fit: contain;
+                    position: relative;
+                    z-index: 10;
+                    filter: drop-shadow(0 0 10px rgba(79,209,197,0.9));
+                  "
+                />
+              </div>
+            `;
+            return el;
+          }}
         />
       </div>
     </div>
