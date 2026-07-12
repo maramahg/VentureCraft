@@ -1295,18 +1295,18 @@ const ApplyPageContent = () => {
             category: 'Education',
             requirement: (
                 <div className="space-y-1">
-                    <p>The team leader and main co-founders must be actively pursuing or have completed a degree.</p>
+                    <p>The team leader and main co founders must be actively pursuing or have completed a degree.</p>
                     <p className="text-xs text-white/40 italic">Not mandatory, but recommended for other team members.</p>
                 </div>
             ),
-            notes: 'Ensures the competition targets high-potential early-stage talent.'
+            notes: 'Ensures the competition targets high potential early stage talent.'
         },
         {
             category: 'Startup Stage',
             requirement: (
                 <div className="space-y-2">
                     <p>The startup must be <strong className="text-vc-mint">no older than 5 years</strong> from its date of establishment.</p>
-                    <p>The competition is targeted <strong className="text-white font-bold">at early-stage startups</strong>, specifically:</p>
+                    <p>The competition is targeted <strong className="text-white font-bold">at early stage startups</strong>, specifically:</p>
                     <ul className="list-disc pl-5 space-y-1 text-white/70">
                         <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Ideation</span></li>
                         <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Pre-Seed</span></li>
@@ -1315,13 +1315,13 @@ const ApplyPageContent = () => {
                     <p>Startups at later stages may be deemed ineligible.</p>
                 </div>
             ),
-            notes: 'Keeps the competition aligned with emerging ventures and early-stage innovation.'
+            notes: 'Keeps the competition aligned with emerging ventures and early stage innovation.'
         },
         {
             category: 'Basis',
             requirement: (
                 <div className="space-y-2">
-                    <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology-based</strong>.</p>
+                    <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology based</strong>.</p>
                     <p>The proposed solution must align with <strong className="text-white">one</strong> of the competition’s four pillars:</p>
                     <ul className="list-disc pl-5 space-y-1 text-white/70">
                         <li><span className="text-vc-mint/80 font-semibold italic">Decarbonization Technologies</span></li>
@@ -1364,11 +1364,11 @@ const ApplyPageContent = () => {
     const rubrics = {
         screening1: {
             title: "Screening Round 1:",
-            description: "Round 1 Identifies the most promising science-based ideas and capable founding teams with clear articulation of problem, innovation, and feasibility. Based on part 1 of the application form along with the pitch deck and video pitch from part 3.",
+            description: "Round 1 Identifies the most promising science based ideas and capable founding teams with clear articulation of problem, innovation, and feasibility. Based on part 1 of the application form along with the pitch deck and video pitch from part 3.",
             criteria: [
                 { name: "Problem & Market Clarity", description: "Assesses whether the problem is clearly defined, significant, and grounded in a real, identifiable need. The team should articulate who experiences the problem, why it matters, and why it is worth solving now.", weight: 30 },
                 { name: "Solution & Innovation (Scientific / Technical Basis)", description: "Evaluates the novelty and originality of the proposed solution, including whether it is grounded in credible science or technology and meaningfully differentiated from existing approaches.", weight: 30 },
-                { name: "Early Business Logic", description: "Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high-level revenue logic.", weight: 20 },
+                { name: "Early Business Logic", description: "Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high level revenue logic.", weight: 20 },
                 { name: "Communication & Conviction", description: "Evaluates clarity, coherence, and persuasiveness of the pitch deck and the video pitch, including the team’s ability to explain the problem and solution clearly and confidently.", weight: 20 },
             ]
         },
@@ -1376,7 +1376,7 @@ const ApplyPageContent = () => {
             title: "Screening Round 2:",
             description: "Round 2 assesses the technical soundness, scientific rigor, and early validation of the proposed solution. Based on the executive summary and supporting data from part 3 in the application.",
             criteria: [
-                { name: "Technical Feasibility & Validation Approach", description: "Assesses whether the solution is technically feasible based on evidence provided (experimental, simulated, calculated, or well-reasoned theoretical). Teams are not penalized for lack of experimental data if assumptions are clearly justified.", weight: 25 },
+                { name: "Technical Feasibility & Validation Approach", description: "Assesses whether the solution is technically feasible based on evidence provided (experimental, simulated, calculated, or well reasoned theoretical). Teams are not penalized for lack of experimental data if assumptions are clearly justified.", weight: 25 },
                 { name: "Scientific Rigor & Quality of Reasoning", description: "Evaluates the soundness of scientific or engineering logic, clarity of assumptions, grounding in first principles or literature, and acknowledgment of limitations.", weight: 20 },
                 { name: "Commercial Logic & Market Credibility", description: "Assesses whether the team demonstrates a realistic understanding of the target market, customer value, and adoption pathway, consistent with the technical solution presented.", weight: 20 },
                 { name: "Scalability & Development Pathway", description: "Evaluates whether the team presents a logical roadmap from current concept to scalable implementation, including key technical and commercial milestones.", weight: 20 },
@@ -1442,7 +1442,7 @@ const ApplyPageContent = () => {
             extra: {
                 title: "Presentation & Recording Format:",
                 items: [
-                    "At least one co-founder or the team leader should appear in the video.",
+                    "At least one co founder or the team leader should appear in the video.",
                     "Participating members are encouraged to briefly introduce themselves and their roles."
                 ],
                 formats: {
@@ -1479,7 +1479,7 @@ const ApplyPageContent = () => {
             content: {
                 nestedItems: [
                     {
-                        title: "Conceptual or system-level descriptions",
+                        title: "Conceptual or system level descriptions",
                         subItems: [
                             "High-level system architecture, workflows, or process diagrams",
                             "Explanation of underlying scientific or engineering principles"
@@ -1488,7 +1488,7 @@ const ApplyPageContent = () => {
                     {
                         title: "Analytical or calculated results",
                         subItems: [
-                            "Engineering calculations, scaling estimates, or first-principles analysis",
+                            "Engineering calculations, scaling estimates, or first principles analysis",
                             "Order-of-magnitude estimates supporting feasibility"
                         ]
                     },
@@ -1508,7 +1508,7 @@ const ApplyPageContent = () => {
                         }
                     },
                     {
-                        title: "Prototype or proof-of-concept (if available)",
+                        title: "Prototype or proof of concept (if available)",
                         subItems: [
                             "Description of the prototype and its maturity level",
                             "Images, diagrams, or summarized test results"
@@ -2054,7 +2054,7 @@ const ApplyPageContent = () => {
                                         {errors.eligibilityProof && <p className="text-sm text-red-500 mt-2 ml-1 font-bold animate-in slide-in-from-top-1 duration-200">{errors.eligibilityProof}</p>}
                                         <p className="text-[11px] text-white/40 mt-3 ml-1 leading-relaxed">
                                             Provide evidence verifying your specific eligibility category (e.g. proof of enrollment, employment, or graduation).
-                                            <span className="ml-1">Not sure what to upload? Review the <Link href="/apply/eligibility#targeted-audience" target="_blank" className="text-vc-mint hover:underline font-medium">Targeted Audience profiles</Link> for guidance.</span>
+                                            <span className="ml-1">Not sure what to upload? Review the <Link href="/apply/eligibility#targeted audience" target="_blank" className="text-vc-mint hover:underline font-medium">Targeted Audience profiles</Link> for guidance.</span>
                                         </p>
                                         <p className="text-xs text-red-400 mt-2 ml-2 italic">
                                             * Please ensure you upload the correct document. Incorrect evidence may risk your application's eligibility.
@@ -2144,7 +2144,7 @@ const ApplyPageContent = () => {
                                             className="mt-1 accent-vc-mint h-4 w-4 shrink-0"
                                         />
                                         <span className={`text-base leading-relaxed transition-colors ${errors.eligibility ? 'text-red-400' : 'text-white/70'}`}>
-                                            I confirm that the team leader and/or co-founders are either actively pursuing or have completed an undergraduate degree.
+                                            I confirm that the team leader and/or co founders are either actively pursuing or have completed an undergraduate degree.
                                         </span>
                                     </label>
                                     {errors.eligibility && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.eligibility}</p>}
@@ -2467,7 +2467,7 @@ const ApplyPageContent = () => {
                                         />
                                         {errors.videoPitchUrl && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.videoPitchUrl}</p>}
                                         <p className="text-[11px] text-white/40 mt-2 ml-1 leading-relaxed">
-                                            A 3-5 minute unlisted YouTube video where the team leader or at least one co-founder appears and presents the pitch deck.
+                                            A 3-5 minute unlisted YouTube video where the team leader or at least one co founder appears and presents the pitch deck.
                                             <Link href="/apply/materials#video-pitch" target="_blank" className="text-vc-mint hover:underline font-medium ml-1">Need more info?</Link>
                                         </p>
                                     </div>

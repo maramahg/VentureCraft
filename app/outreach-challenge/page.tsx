@@ -240,7 +240,7 @@ const expectations = [
     },
     {
         title: "Community Introduction",
-        text: "Introducing the challenge to your peers, student organizations, and professional networks to identify high-potential startups.",
+        text: "Introducing the challenge to your peers, student organizations, and professional networks to identify high potential startups.",
         icon: <Users className="w-6 h-6" />
     },
     {
@@ -384,7 +384,7 @@ export default function OutreachChallengePage() {
                                 <h1 className="sr-only">Venture Craft Outreach Challenge</h1>
 
                                 <p className="text-white/70 text-base md:text-xl font-poppins max-w-2xl mx-auto leading-relaxed font-light text-center">
-                                    Help us drive innovation globally by identifying high-potential startups and supporting their journey into the Venture Craft ecosystem.
+                                    Help us drive innovation globally by identifying high potential startups and supporting their journey into the Venture Craft ecosystem.
                                 </p>
                             </motion.div>
 

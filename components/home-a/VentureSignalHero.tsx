@@ -249,7 +249,7 @@ export function VentureSignalHero() {
             variants={item}
             className="text-base sm:text-lg text-white/50 mb-8 max-w-xl mx-auto xl:mx-0 leading-relaxed font-sans"
           >
-            An international deep-tech startup competition by{" "}
+            An international deep tech startup competition by{" "}
             <a
               href="https://www.kfupm.edu.sa/"
               target="_blank"
@@ -268,7 +268,7 @@ export function VentureSignalHero() {
             >
               DTV<ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
             </a>
-            {" "}, supporting student-led ventures building science and technology-based solutions with global impact.
+            {" "}, supporting student led ventures building science and technology based solutions with global impact.
           </motion.p>
 
           {/* CTAs */}

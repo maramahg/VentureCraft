@@ -22,7 +22,7 @@ const audience = [
   {
     icon: Rocket,
     title: 'Academic Spinouts',
-    description: "Graduate students or researchers ready to commercialize lab-validated research."
+    description: "Graduate students or researchers ready to commercialize lab validated research."
   }
 ];
 

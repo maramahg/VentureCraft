@@ -45,7 +45,7 @@ const faqData: FAQItem[] = [
         question: 'Who can apply?',
         answer: (
             <div className="space-y-2">
-                <p>Applications are open to startups where the <strong className="text-vc-mint">team leader and/or main co-founders</strong> are current Bachelor’s, STEM Diploma, Master’s, and PhD students, as well as post-doctoral researchers and recent graduates (up to 5 years post-graduation).</p>
+                <p>Applications are open to startups where the <strong className="text-vc-mint">team leader and/or main co founders</strong> are current Bachelor’s, STEM Diploma, Master’s, and PhD students, as well as post-doctoral researchers and recent graduates (up to 5 years post-graduation).</p>
                 <p className="text-vc-mint/80 font-medium italic text-sm">Note: For other team members, these qualifications are highly recommended. See <Link href="/apply/eligibility" className="text-vc-mint hover:underline">Eligibility & Criteria</Link> for details.</p>
             </div>
         ),
@@ -94,7 +94,7 @@ const faqData: FAQItem[] = [
         question: 'Do all team members need to meet the eligibility requirements?',
         answer: (
             <div className="space-y-2">
-                <p>Only the <strong className="text-vc-mint">team leader and main co-founders</strong> are required to meet the specific eligibility criteria (such as education level).</p>
+                <p>Only the <strong className="text-vc-mint">team leader and main co founders</strong> are required to meet the specific eligibility criteria (such as education level).</p>
                 <p>Other team members, including professors, mentors, or industry experts, are welcome to join and support the startup without needing to meet these requirements.</p>
                 <p className="text-vc-mint/80 font-medium italic text-sm">Note: All team members, regardless of their role, must be at least 18 years old.</p>
             </div>

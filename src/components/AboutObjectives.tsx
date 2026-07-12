@@ -30,14 +30,14 @@ const objectives = [
           DTV
           <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity" />
         </a>{" "}
-        as a leading Global Deep-Tech Hub.
+        as a leading Global Deep Tech Hub.
       </>
     )
   },
   {
     icon: Sparkles,
     title: 'Talent',
-    description: 'Attract and nurture high-potential early-stage talent.'
+    description: 'Attract and nurture high potential early stage talent.'
   },
   {
     icon: Handshake,
@@ -112,7 +112,7 @@ export default function AboutObjectives() {
             Objectives
           </motion.h2>
           <p className="text-vc-mint text-base md:text-lg font-bold mb-8 font-poppins uppercase tracking-[0.3em]">
-            Empowering the next generation of deep-tech innovators
+            Empowering the next generation of deep tech innovators
           </p>
         </div>
 

@@ -24,7 +24,7 @@ const pillars = [
     {
         number: 1,
         title: "Decarbonization Technologies",
-        mission: "Reduce and eliminate greenhouse gas emissions through clean energy and low-carbon technologies.",
+        mission: "Reduce and eliminate greenhouse gas emissions through clean energy and low carbon technologies.",
         description: "This pillar focuses on technologies that directly address carbon emissions through clean energy generation, carbon removal, or emission elimination. It encompasses the fundamental shift from fossil fuels to clean energy sources and the technologies needed to capture or prevent emissions from entering the atmosphere.",
         icon: Zap,
         color: "vc-mint",
@@ -64,8 +64,8 @@ const pillars = [
     {
         number: 2,
         title: "Circular Economy & Resource Efficiency",
-        mission: "Minimize waste and maximize resource utilization through circular material systems and closed-loop industrial processes.",
-        description: "This pillar concentrates on transforming linear consumption models into circular systems where resources are continuously reused, recycled, or regenerated. It addresses the resource intensity of energy systems by creating closed-loop material flows and eliminating waste streams.",
+        mission: "Minimize waste and maximize resource utilization through circular material systems and closed loop industrial processes.",
+        description: "This pillar concentrates on transforming linear consumption models into circular systems where resources are continuously reused, recycled, or regenerated. It addresses the resource intensity of energy systems by creating closed loop material flows and eliminating waste streams.",
         icon: RefreshCcw,
         color: "blue-400",
         innovationAreas: [
@@ -75,7 +75,7 @@ const pillars = [
             },
             {
                 title: "Advanced Recycling",
-                items: ["Chemical recycling technologies", "AI-powered waste sorting", "Smart recycling infrastructure"]
+                items: ["Chemical recycling technologies", "AI powered waste sorting", "Smart recycling infrastructure"]
             },
             {
                 title: "Sustainable Materials",
@@ -91,7 +91,7 @@ const pillars = [
             },
             {
                 title: "Efficiency & Platforms",
-                items: ["AI-driven design reducing material use", "Repairable/Modular design", "Industrial symbiosis platforms"]
+                items: ["AI driven design reducing material use", "Repairable/Modular design", "Industrial symbiosis platforms"]
             }
         ],
         integrationDesc: "Ensures the resource sustainability and material security required to build and maintain sustainable energy systems.",
@@ -205,7 +205,7 @@ export default function ThemePage() {
                             Executive Overview
                         </h2>
                         <p className="text-white/60 leading-relaxed text-lg">
-                            The KFUPM Venture Craft competition embraces sustainable energy innovation through four distinct yet interconnected pillars. Our framework is intentionally broad to welcome early-stage startups from diverse disciplines such as AI, hardware, and clean technology, while providing a clear focus through structured innovation pathways.
+                            The KFUPM Venture Craft competition embraces sustainable energy innovation through four distinct yet interconnected pillars. Our framework is intentionally broad to welcome early stage startups from diverse disciplines such as AI, hardware, and clean technology, while providing a clear focus through structured innovation pathways.
                         </p>
                         <p className="text-white/40 mt-4 italic text-sm border-l-2 border-vc-mint/30 pl-4 text-left">
                             Each pillar addresses a critical dimension of the sustainable energy transition, ensuring comprehensive coverage while maintaining distinct boundaries and objectives.

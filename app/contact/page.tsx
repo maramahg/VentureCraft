@@ -105,7 +105,7 @@ export default function ContactPage() {
                     >
                         <div className="text-center space-y-2">
                             <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-vc-mint">Follow Our Journey</h2>
-                            <p className="text-xs md:text-sm text-white/40 font-medium leading-relaxed">Stay updated with our latest deep-tech insights and announcements.</p>
+                            <p className="text-xs md:text-sm text-white/40 font-medium leading-relaxed">Stay updated with our latest deep tech insights and announcements.</p>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">

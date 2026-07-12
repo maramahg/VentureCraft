@@ -66,4 +66,4 @@ export const ventureAreas: VentureArea[] = [
 ];
 
 export const ventureAreaDisclaimer =
-  'Ideal venture areas may include the following deep-tech and sustainable energy tracks:';
+  'Ideal venture areas may include the following deep tech and sustainable energy tracks:';

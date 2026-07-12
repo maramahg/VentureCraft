@@ -27,7 +27,7 @@ const standards = [
     {
         icon: <Rocket className="w-6 h-6" />,
         title: "Innovation & Entrepreneurship",
-        description: "A genuine interest in startups, deep-tech research, and sustainable industrial solutions."
+        description: "A genuine interest in startups, deep tech research, and sustainable industrial solutions."
     }
 ];
 

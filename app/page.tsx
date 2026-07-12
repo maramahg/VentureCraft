@@ -50,7 +50,7 @@ export default function DesignA() {
       {/* 6. Full 6-phase timeline — rotating stacked semi-circle arc cards */}
       <StickyGlobeTimeline />
 
-      {/* 7. Credibility — KFUPM/DTV + condensed Deep-Tech focus areas */}
+      {/* 7. Credibility — KFUPM/DTV + condensed Deep Tech focus areas */}
       <ProofWall />
 
       {/* 8. Goals / Vision — compact, elegant */}

@@ -33,7 +33,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-xl md:text-2xl text-white/60 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-            The global deep-tech startup competition powering sustainable energy innovation.
+            The global deep tech startup competition powering sustainable energy innovation.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">

@@ -12,7 +12,7 @@ const eligibilityCriteria = [
         requirement: (
             <div className="space-y-2">
                 <p>This year's challenge focuses on <strong className="text-vc-mint font-bold uppercase tracking-wider">Sustainable Energy</strong>.</p>
-                <p>We are looking for deep-tech solutions that power the future responsibly.</p>
+                <p>We are looking for deep tech solutions that power the future responsibly.</p>
             </div>
         ),
         notes: 'Aligns with the global mission for sustainability.'
@@ -30,18 +30,18 @@ const eligibilityCriteria = [
         category: 'Education',
         requirement: (
             <div className="space-y-2">
-                <p>The team leader and main co-founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> an undergraduate (Bachelor's) degree or a STEM Diploma.</p>
+                <p>The team leader and main co founders <strong className="text-vc-mint font-bold">must be actively pursuing or have completed</strong> an undergraduate (Bachelor's) degree or a STEM Diploma.</p>
                 <p className="text-sm text-white/50 italic">While not mandatory, this is highly recommended for all other team members.</p>
             </div>
         ),
-        notes: 'Ensures the competition targets high-potential early-stage talent.'
+        notes: 'Ensures the competition targets high potential early stage talent.'
     },
     {
         category: 'Startup Stage',
         requirement: (
             <div className="space-y-2">
                 <p>The startup must be <strong className="text-vc-mint">no older than 5 years</strong> from its date of establishment.</p>
-                <p>The competition is targeted <strong className="text-white font-bold">at early-stage startups</strong>, specifically:</p>
+                <p>The competition is targeted <strong className="text-white font-bold">at early stage startups</strong>, specifically:</p>
                 <ul className="list-disc pl-5 space-y-1 text-white/70">
                     <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Ideation</span></li>
                     <li><span className="text-vc-mint font-bold uppercase tracking-wider text-xs">Pre-Seed</span></li>
@@ -50,13 +50,13 @@ const eligibilityCriteria = [
                 <p>Startups at later stages may be deemed ineligible.</p>
             </div>
         ),
-        notes: 'Keeps the competition aligned with emerging ventures and early-stage innovation.'
+        notes: 'Keeps the competition aligned with emerging ventures and early stage innovation.'
     },
     {
         category: 'Basis',
         requirement: (
             <div className="space-y-2">
-                <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology-based</strong>.</p>
+                <p>The startup must be <strong className="text-vc-mint font-bold">science- or technology based</strong>.</p>
                 <p>The proposed solution must align with <strong className="text-white">at least one</strong> of the competition’s four pillars:</p>
                 <ul className="list-disc pl-5 space-y-1 text-white/70">
                     <li><span className="text-vc-mint/80 font-semibold italic">Decarbonization Technologies</span></li>
@@ -109,7 +109,7 @@ const additionalPoints = [
     {
         title: 'Member Eligibility',
         detail: (
-            <span>Only the <strong className="text-vc-mint">team leader and main co-founders</strong> are required to meet the specific <strong className="text-vc-mint">eligibility criteria</strong>. Other team members (professors, experts, or mentors) are welcome to support without meeting these requirements.</span>
+            <span>Only the <strong className="text-vc-mint">team leader and main co founders</strong> are required to meet the specific <strong className="text-vc-mint">eligibility criteria</strong>. Other team members (professors, experts, or mentors) are welcome to support without meeting these requirements.</span>
         ),
         reason: 'Encourages diverse team structures and expert involvement.'
     },
@@ -126,7 +126,7 @@ const targetAudience = [
     {
         category: "STEM Students & Recent Graduates (0-5 years) - Bachelor's / Diploma",
         description: "Individuals currently enrolled in a Bachelor's or STEM Diploma program, or those who have graduated in a STEM field within the last 5 years.",
-        profile: "Bachelor's and Diploma level innovators developing deep-tech solutions during their academic journey or early professional career.",
+        profile: "Bachelor's and Diploma level innovators developing deep tech solutions during their academic journey or early professional career.",
         evidence: "Official Enrollment Certificate, Student ID, Graduation Certificate, or Official Transcript (Bachelor's or Diploma Level)."
     },
     {
@@ -143,8 +143,8 @@ const targetAudience = [
     },
     {
         category: 'Academic Spinouts',
-        description: 'Graduate students or researchers with lab-validated prototypes but no formal company established yet.',
-        profile: 'Ready to transition research outcomes into commercial deep-tech startups.',
+        description: 'Graduate students or researchers with lab validated prototypes but no formal company established yet.',
+        profile: 'Ready to transition research outcomes into commercial deep tech startups.',
         evidence: 'University Spinout Letter, Lab Validation Report, or Tech-Disclosure Form.'
     }
 ];
@@ -191,7 +191,7 @@ export default function EligibilityPage() {
                         </div>
                     </div>
 
-                    <div id="targeted-audience" className="space-y-6 scroll-mt-[20vh]">
+                    <div id="targeted audience" className="space-y-6 scroll-mt-[20vh]">
                         <h3 className="text-xl font-bold text-vc-mint flex items-center gap-2">
                             <div className="w-2 h-8 bg-vc-mint rounded-full" />
                             Targeted Audience

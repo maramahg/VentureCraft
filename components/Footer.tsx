@@ -50,7 +50,7 @@ export default function Footer() {
                         <div className="flex flex-col items-center">
                             <p className="text-vc-mint font-black text-[10px] uppercase tracking-[0.3em] mb-2">Build Your Venture</p>
                             <p className="text-[#9CA3AF] text-sm leading-relaxed max-w-xs mx-auto">
-                                KFUPM's international deep-tech startup competition supporting innovation and global impact.
+                                KFUPM's international deep tech startup competition supporting innovation and global impact.
                             </p>
                         </div>
 

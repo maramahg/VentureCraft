@@ -23,7 +23,7 @@ const steps = [
     {
         icon: <Trophy className="w-8 h-8" />,
         title: "Climb the Ranking",
-        description: "The more Venture Coins you earn, the higher your rank. You can track your position in real-time on your profile.",
+        description: "The more Venture Coins you earn, the higher your rank. You can track your position in real time on your profile.",
         color: "text-vc-mint",
         bg: "bg-vc-mint/15",
         border: "border-vc-mint/40"

@@ -21,7 +21,7 @@ export default function VentureAreas() {
             2026 Theme — Sustainable Energy
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4">
-            Deep-Tech Focus Areas
+            Deep Tech Focus Areas
           </h2>
           <p className="text-white/40 text-base max-w-lg mx-auto">{ventureAreaDisclaimer}</p>
         </motion.div>

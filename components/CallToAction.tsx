@@ -17,7 +17,7 @@ interface CallToActionProps {
 export default function CallToAction({
     showOnlyRegister = false,
     title = "Want to register?",
-    description = "Take the first step towards transforming your deep-tech idea into a global solution.",
+    description = "Take the first step towards transforming your deep tech idea into a global solution.",
     registerHref = "/apply",
     registerButtonText = "Register Now (Free)",
     onRegisterClick,
@@ -47,7 +47,7 @@ export default function CallToAction({
                                 Want to learn more?
                             </h3>
                             <p className="text-white/70 mb-8 font-poppins text-lg text-balance">
-                                Discover our mission, vision, and the impact we aim to create in the deep-tech ecosystem.
+                                Discover our mission, vision, and the impact we aim to create in the deep tech ecosystem.
                             </p>
 
                             <Link

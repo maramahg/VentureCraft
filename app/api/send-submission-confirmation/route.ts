@@ -37,7 +37,7 @@ export async function POST(request: Request) {
                         <li>Our technical committee will perform a screening of your submission materials.</li>
                         <li>Evaluation is based on scientific rigor, technical feasibility, and market potential.</li>
                         <li>You will receive an update regarding your status via email.</li>
-                        <li>Follow our official channels for real-time announcements.</li>
+                        <li>Follow our official channels for real time announcements.</li>
                     </ul>
                 </div>
 

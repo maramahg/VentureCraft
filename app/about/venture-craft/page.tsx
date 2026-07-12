@@ -69,7 +69,7 @@ export default function VentureCraftAboutPage() {
                                     className="mb-12 md:mb-20 font-poppins uppercase tracking-tighter leading-tight text-white flex flex-col items-center"
                                 >
                                     <span className="text-vc-mint text-sm sm:text-base md:text-lg font-bold tracking-[0.2em] mb-4">
-                                        International Deep-Tech Startup Competition
+                                        International Deep Tech Startup Competition
                                     </span>
                                     <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black">
                                         What is Venture Craft?
@@ -87,9 +87,9 @@ export default function VentureCraftAboutPage() {
                                         KFUPM&apos;s
                                         <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                                     </a>{" "}
-                                    premier international deep-tech startup competition,
+                                    premier international deep tech startup competition,
                                     designed to inspire and empower the next generation of innovators. With a focus
-                                    on sustainability and cutting-edge technology, we bring together talented students,
+                                    on sustainability and cutting edge technology, we bring together talented students,
                                     researchers, and recent graduates from around the world to transform bold ideas
                                     into impactful solutions.
                                 </motion.p>
@@ -97,7 +97,7 @@ export default function VentureCraftAboutPage() {
                                 <motion.p variants={fadeInUp} className="text-white/60 text-lg sm:text-lg md:text-xl leading-relaxed font-poppins">
                                     Through a comprehensive program of mentorship, resources, and global exposure,
                                     Venture Craft provides participants with the tools they need to succeed in the
-                                    competitive landscape of deep-tech entrepreneurship. Join us and Build Your Venture.
+                                    competitive landscape of deep tech entrepreneurship. Join us and Build Your Venture.
                                 </motion.p>
                             </motion.div>
                         </div>
@@ -112,7 +112,7 @@ export default function VentureCraftAboutPage() {
 
                 <ThemePillars />
 
-                {/* Deep-Tech Focus Areas — moved here from the homepage to reduce clutter */}
+                {/* Deep Tech Focus Areas — moved here from the homepage to reduce clutter */}
                 <VentureAreas />
 
                 {/* Get Involved — moved here from the homepage to reduce clutter */}

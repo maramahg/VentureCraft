@@ -82,7 +82,7 @@ export default function RegistrationPage() {
                     transition={{ duration: 0.8, delay: 0.4 }}
                     className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
                 >
-                    Get ready to join the <span className="text-vc-mint">KFUPM Venture Craft</span> Challenge – an international deep-tech startup competition. Registration opens soon!
+                    Get ready to join the <span className="text-vc-mint">KFUPM Venture Craft</span> Challenge – an international deep tech startup competition. Registration opens soon!
                 </motion.p>
 
                 <motion.div

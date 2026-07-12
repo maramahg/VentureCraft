@@ -13,10 +13,10 @@ export const getInvolvedTabs: InvolvedTab[] = [
   {
     id: 'compete',
     label: 'Compete',
-    who: 'For student-led ventures building science and technology solutions with global impact.',
-    why: 'Access a $245K prize pool, world-class mentorship, and a direct path from research to market — powered by KFUPM and DTV.',
+    who: 'For student led ventures building science and technology solutions with global impact.',
+    why: 'Access a $245K prize pool, world class mentorship, and a direct path from research to market — powered by KFUPM and DTV.',
     what: [
-      'Submit your deep-tech startup idea',
+      'Submit your deep tech startup idea',
       'Receive structured mentorship and feedback',
       'Pitch to an international panel of judges',
       'Compete for $100K Grand Prize',
@@ -28,7 +28,7 @@ export const getInvolvedTabs: InvolvedTab[] = [
   {
     id: 'mentor',
     label: 'Mentor',
-    who: 'For industry experts, researchers, and entrepreneurs who want to shape the next generation of deep-tech founders.',
+    who: 'For industry experts, researchers, and entrepreneurs who want to shape the next generation of deep tech founders.',
     why: 'Guide promising ventures at a critical stage. Your expertise can help a student founder build something that matters.',
     what: [
       'Join a curated panel of 50+ mentors',
@@ -43,13 +43,13 @@ export const getInvolvedTabs: InvolvedTab[] = [
   {
     id: 'sponsor',
     label: 'Sponsor',
-    who: 'For companies and organizations committed to advancing deep-tech innovation and the next generation of entrepreneurs.',
+    who: 'For companies and organizations committed to advancing deep tech innovation and the next generation of entrepreneurs.',
     why: 'Gain visibility among 130+ countries of student founders, researchers, and institutional partners — all in one global platform.',
     what: [
       'Brand presence across all competition stages',
       'Direct access to top-performing ventures',
-      'Co-branding with KFUPM and DTV',
-      'Contribute to meaningful deep-tech impact',
+      'Co branding with KFUPM and DTV',
+      'Contribute to meaningful deep tech impact',
     ],
     cta: 'Partner With VentureCraft',
     ctaHref: '/contact',
@@ -58,7 +58,7 @@ export const getInvolvedTabs: InvolvedTab[] = [
   {
     id: 'ambassador',
     label: 'Ambassador',
-    who: 'For students and early-career professionals who want to represent VentureCraft in their university or community.',
+    who: 'For students and early career professionals who want to represent VentureCraft in their university or community.',
     why: 'Build leadership skills, expand your network, and help bring the VentureCraft opportunity to founders in your region.',
     what: [
       'Represent VentureCraft at your university',
@@ -73,10 +73,10 @@ export const getInvolvedTabs: InvolvedTab[] = [
   {
     id: 'partner',
     label: 'Partner',
-    who: 'For universities, research institutions, accelerators, and organizations aligned with deep-tech innovation.',
-    why: 'Build a formal collaboration with KFUPM and DTV — one of the most active deep-tech ecosystems in the Gulf region.',
+    who: 'For universities, research institutions, accelerators, and organizations aligned with deep tech innovation.',
+    why: 'Build a formal collaboration with KFUPM and DTV — one of the most active deep tech ecosystems in the Gulf region.',
     what: [
-      'Co-host events and outreach programs',
+      'Co host events and outreach programs',
       'Refer qualified ventures from your network',
       'Gain institutional-level partnership benefits',
       'Collaborate on research-to-market pathways',

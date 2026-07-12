@@ -91,8 +91,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     label: "Template",
                     sublabel: "Official Pitch Deck Guide",
-                    pdfUrl: "/samples/venture-craft-pitch-deck-template.pdf",
-                    pptxUrl: "/samples/venture-craft-pitch-deck-sample.pptx"
+                    pdfUrl: "/samples/venture-craft-pitch-deck template.pdf",
+                    pptxUrl: "/samples/venture-craft-pitch-deck sample.pptx"
                 },
                 {
                     label: "Sample",
@@ -100,8 +100,8 @@ const applicationMaterials: ApplicationMaterial[] = [
                     pdfUrl: "/samples/venture-craftee-pitch-deck.pdf"
                 }
             ],
-            templateUrl: "/samples/venture-craft-pitch-deck-template.pdf",
-            templatePptxUrl: "/samples/venture-craft-pitch-deck-sample.pptx",
+            templateUrl: "/samples/venture-craft-pitch-deck template.pdf",
+            templatePptxUrl: "/samples/venture-craft-pitch-deck sample.pptx",
             brandedUrl: "/venture-craftee-pitch-deck.html"
         }
     },
@@ -199,7 +199,7 @@ const applicationMaterials: ApplicationMaterial[] = [
             title: "Depending on the maturity of the idea, submissions may include:",
             nestedItems: [
                 {
-                    title: "Conceptual or system-level descriptions",
+                    title: "Conceptual or system level descriptions",
                     subItems: [
                         "High-level system architecture, workflows, or process diagrams",
                         "Explanation of underlying scientific or engineering principles"
@@ -208,7 +208,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                 {
                     title: "Analytical or calculated results",
                     subItems: [
-                        "Engineering calculations, scaling estimates, or first-principles analysis",
+                        "Engineering calculations, scaling estimates, or first principles analysis",
                         "Order-of-magnitude estimates supporting feasibility"
                     ]
                 },
@@ -228,7 +228,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                     }
                 },
                 {
-                    title: "Prototype or proof-of-concept (if available)",
+                    title: "Prototype or proof of concept (if available)",
                     subItems: [
                         "Description of the prototype and its maturity level",
                         "Images, diagrams, or summarized test results"

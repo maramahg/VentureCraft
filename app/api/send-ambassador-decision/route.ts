@@ -76,7 +76,7 @@ export async function POST(request: Request) {
             <p style="font-size: 16px; line-height: 1.6; color: #e2e8f0; margin-bottom: 32px;">
                  ${isAccepted
                 ? `Congratulations! We have carefully reviewed your application, and we are thrilled to officially invite you to join the <strong>Venture Craft Ambassadors Program</strong> as a <strong>${ambassadorType}</strong>. Your dedication to fostering innovation and your vision for community engagement stood out to our team.`
-                : `Thank you so much for your interest in the Venture Craft Ambassadors Program and for the effort you put into your application. It was a pleasure to learn about your background, goals, and your vision for the deep-tech ecosystem.`
+                : `Thank you so much for your interest in the Venture Craft Ambassadors Program and for the effort you put into your application. It was a pleasure to learn about your background, goals, and your vision for the deep tech ecosystem.`
             }
             </p>
             

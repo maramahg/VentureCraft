@@ -15,7 +15,7 @@ export const competitionPhases: CompetitionPhase[] = [
     id: 1,
     title: 'Idea Submission',
     description:
-      'Submit your startup idea and define the problem your deep-tech venture is built to solve. Applications are evaluated on innovation, impact, and scientific rigor.',
+      'Submit your startup idea and define the problem your deep tech venture is built to solve. Applications are evaluated on innovation, impact, and scientific rigor.',
     participantAction: 'Submit your venture application online.',
     status: 'completed',
     dateText: 'Applications closed for this cycle',
@@ -25,7 +25,7 @@ export const competitionPhases: CompetitionPhase[] = [
     id: 2,
     title: 'Screening',
     description:
-      'Expert reviewers evaluate submitted ideas against VentureCraft criteria — scientific foundation, market potential, team capability, and deep-tech relevance.',
+      'Expert reviewers evaluate submitted ideas against VentureCraft criteria — scientific foundation, market potential, team capability, and deep tech relevance.',
     participantAction: 'Await review results from the evaluation committee.',
     status: 'active',
     dateText: 'Currently in progress',
@@ -80,7 +80,7 @@ export const competitionJourneyStages = [
     number: '01',
     headline: 'Define Your Problem',
     description:
-      'Submit your idea and articulate the problem your deep-tech venture is built to solve. This is where your journey begins.',
+      'Submit your idea and articulate the problem your deep tech venture is built to solve. This is where your journey begins.',
     phases: ['Idea Submission', 'Screening'],
     image: '/images/kfupm/students.jpg',
     imageAlt: 'KFUPM student team presenting their engineering project',

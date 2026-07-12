@@ -135,7 +135,7 @@ export default function CompetitionJourney() {
             Your Competition Journey
           </h2>
           <p className="text-white/40 text-lg max-w-xl mx-auto">
-            Three stages. One mission. Build a deep-tech venture that changes the world.
+            Three stages. One mission. Build a deep tech venture that changes the world.
           </p>
         </motion.div>
 

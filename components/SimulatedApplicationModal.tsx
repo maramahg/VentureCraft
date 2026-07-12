@@ -183,7 +183,7 @@ export default function SimulatedApplicationModal({ isOpen, onClose }: Simulated
                                                 </div>
                                                 <div className="flex items-start gap-4 p-4 rounded-xl bg-vc-mint/5 border border-vc-mint/20">
                                                     <CheckCircle className="w-5 h-5 text-vc-mint shrink-0 mt-0.5" />
-                                                    <span className="text-sm text-white/80">I confirm that the team leader and/or co-founders are either actively pursuing or have completed an undergraduate degree.</span>
+                                                    <span className="text-sm text-white/80">I confirm that the team leader and/or co founders are either actively pursuing or have completed an undergraduate degree.</span>
                                                 </div>
                                             </div>
 

@@ -40,7 +40,7 @@ export const proofWallImages: HomepageImage[] = [
   {
     src: '/images/kfupm/research-centers.png',
     alt: 'KFUPM Research & Innovation lab with robotics equipment',
-    caption: 'Deep-Tech Innovation',
+    caption: 'Deep Tech Innovation',
     category: 'Proof Wall',
     isTemporary: false,
     futureReplacementNote: '',
@@ -90,7 +90,7 @@ export const proofWallImages: HomepageImage[] = [
 export const involvedImages = {
   compete: {
     src: '/images/kfupm/students.jpg',
-    alt: 'KFUPM student founders working together on a deep-tech project',
+    alt: 'KFUPM student founders working together on a deep tech project',
     caption: 'Founder Teams',
     category: 'Get Involved',
     isTemporary: false as const,

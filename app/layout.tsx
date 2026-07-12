@@ -22,7 +22,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Venture Craft | Build Your Venture",
-  description: "Venture Craft is KFUPM's premier international deep-tech startup competition, supporting innovation and global impact.",
+  description: "Venture Craft is KFUPM's premier international deep tech startup competition, supporting innovation and global impact.",
   metadataBase: new URL("https://kfupm-venturecraft.org/"),
 };
 

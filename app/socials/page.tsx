@@ -81,7 +81,7 @@ export default function SocialsPage() {
                         Connect with <span className="text-vc-mint">Venture Craft</span>
                     </h1>
                     <p className="text-white/60 text-sm font-medium">
-                        Follow us to stay updated on deep-tech innovation and startup opportunities.
+                        Follow us to stay updated on deep tech innovation and startup opportunities.
                     </p>
                 </motion.div>
 

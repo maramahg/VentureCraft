@@ -106,7 +106,7 @@ export default function ProofWall() {
           ))}
         </div>
 
-        {/* Condensed Deep-Tech focus areas — full detail lives on /about/venture-craft */}
+        {/* Condensed Deep Tech focus areas — full detail lives on /about/venture-craft */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -120,7 +120,7 @@ export default function ProofWall() {
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#4FD1C5] font-bold mb-1">
                 2026 Theme — Sustainable Energy
               </div>
-              <h3 className="text-lg font-black text-white">Deep-Tech Focus Areas</h3>
+              <h3 className="text-lg font-black text-white">Deep Tech Focus Areas</h3>
             </div>
             <Link
               href="/about/venture-craft"

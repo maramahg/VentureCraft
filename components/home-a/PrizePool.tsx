@@ -140,7 +140,7 @@ export default function PrizePool() {
             Prizes & Awards
           </h2>
           <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg max-w-2xl mx-auto mb-8">
-            Rewarding excellence in deep-tech innovation and sustainable solutions.
+            Rewarding excellence in deep tech innovation and sustainable solutions.
           </p>
 
           {/* Huge count-up total */}
@@ -155,7 +155,7 @@ export default function PrizePool() {
           <p className="text-2xl sm:text-3xl font-bold text-white/55 mb-3 font-sans">Total Prize Pool</p>
           <p className="text-white/30 text-base font-sans">
             <span className="text-[#4FD1C5] font-bold font-sans">$100K Grand Prize</span>{' '}
-            for the most impactful deep-tech venture
+            for the most impactful deep tech venture
           </p>
         </motion.div>
 
@@ -181,7 +181,7 @@ export default function PrizePool() {
               <div className="text-center md:text-left">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tight">Corporate Special Awards</h3>
                 <p className="text-white/40 text-xs sm:text-sm mt-2 max-w-md font-medium leading-relaxed">
-                  Awarded for outstanding innovation in sustainability, energy transition, and deep-tech alignment.
+                  Awarded for outstanding innovation in sustainability, energy transition, and deep tech alignment.
                 </p>
               </div>
             </div>

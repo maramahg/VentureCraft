@@ -275,7 +275,7 @@ export default function KfupmDtvAboutPage() {
                                             <ExternalLink className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                                         </a> is Saudi Arabia's leading hub for energy, sustainability, and
                                         innovation. In partnership with KFUPM and leading global corporations, DTV connects exceptional
-                                        research talent with tailored startup programs, early-stage funding, and a thriving innovation ecosystem.
+                                        research talent with tailored startup programs, early stage funding, and a thriving innovation ecosystem.
                                     </p>
                                 </motion.div>
                             </div>

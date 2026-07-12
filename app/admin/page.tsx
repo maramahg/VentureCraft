@@ -140,7 +140,7 @@ const RUBRICS = [
         label: 'Early Business Logic',
         weight: 0.2,
         maxPoints: 10,
-        description: 'Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high-level revenue logic.'
+        description: 'Assesses whether the team demonstrates a basic understanding of how the innovation creates value, including intended users, use cases, and high level revenue logic.'
     },
     {
         id: 'communicationConviction',
@@ -157,7 +157,7 @@ const RUBRICS_ROUND2 = [
         label: 'Technical Feasibility & Validation',
         weight: 0.25,
         maxPoints: 10,
-        description: 'Assesses whether the solution is technically feasible based on evidence provided (experimental, simulated, calculated, or well-reasoned theoretical).'
+        description: 'Assesses whether the solution is technically feasible based on evidence provided (experimental, simulated, calculated, or well reasoned theoretical).'
     },
     {
         id: 'scientificRigor',

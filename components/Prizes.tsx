@@ -64,7 +64,7 @@ export default function Prizes() {
                         transition={{ delay: 0.1 }}
                         className="text-vc-mint font-bold max-w-2xl mx-auto font-poppins"
                     >
-                        Rewarding excellence in deep-tech innovation and sustainable solutions.
+                        Rewarding excellence in deep tech innovation and sustainable solutions.
                     </motion.p>
                 </div>
 

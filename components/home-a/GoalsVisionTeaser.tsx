@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 const goals = [
-  { title: 'Global Hub',      desc: 'Establish KFUPM & DTV as a leading global deep-tech hub.' },
-  { title: 'Talent',          desc: 'Attract and nurture high-potential early-stage talent.' },
+  { title: 'Global Hub',      desc: 'Establish KFUPM & DTV as a leading global deep tech hub.' },
+  { title: 'Talent',          desc: 'Attract and nurture high potential early stage talent.' },
   { title: 'Connection',      desc: 'Bridge the gap between academia and industry.' },
   { title: 'Pipeline',        desc: 'Foster a robust and sustainable global startup pipeline.' },
   { title: 'Impact',          desc: 'Enable measurable global impact through innovation.' },
@@ -29,7 +29,7 @@ export default function GoalsVisionTeaser() {
               Our Vision
             </h2>
             <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg mb-4">
-              Empowering the next generation of deep-tech innovators.
+              Empowering the next generation of deep tech innovators.
             </p>
             <p className="text-white/40 text-sm sm:text-base leading-relaxed mb-6">
               VentureCraft exists to turn bold student ideas into global impact —

@@ -89,7 +89,7 @@ const benefits = [
     {
         icon: <Sparkles className="w-6 h-6" />,
         title: "Event Invitations",
-        description: "Get exclusive access to premium deep-tech events."
+        description: "Get exclusive access to premium deep tech events."
     },
     {
         icon: <Globe className="w-6 h-6" />,
@@ -216,7 +216,7 @@ export default function AmbassadorsPage() {
 
                                 <motion.div variants={fadeInUp} className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 font-poppins max-w-3xl mx-auto space-y-4">
                                     <p>
-                                        The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep-tech solutions within their communities.
+                                        The Venture Craft Ambassadors Program is a global initiative designed to engage passionate university students who actively promote innovation, entrepreneurship, and deep tech solutions within their communities.
                                     </p>
                                     <p>
                                         Ambassadors play a key role in expanding the reach of the Venture Craft Challenge by raising awareness, encouraging participation, and representing the initiative across universities and student ecosystems worldwide.
@@ -286,7 +286,7 @@ export default function AmbassadorsPage() {
                                         Ambassador Mission
                                     </motion.h2>
                                     <motion.p variants={fadeInUp} className="text-white/60 text-lg md:text-xl leading-relaxed font-poppins mb-10">
-                                        Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep-tech ideas into impactful solutions.
+                                        Building a diverse global community united by ambition, innovation, and a shared passion for transforming deep tech ideas into impactful solutions.
                                     </motion.p>
                                     <motion.p variants={fadeInUp} className="text-vc-mint/80 font-bold italic text-lg">
                                         Together, we Build Your Venture.

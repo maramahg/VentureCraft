@@ -12,12 +12,12 @@ const pillars = [
     {
         id: 2,
         title: "What is Venture Craft?",
-        content: "Venture Craft is an elite deep-tech startup competition that bridges the gap between scientific innovation and market-ready ventures. We provide founders with the mentorship, resources, and platform needed to scale high-impact solutions for the world's most pressing challenges."
+        content: "Venture Craft is an elite deep tech startup competition that bridges the gap between scientific innovation and market-ready ventures. We provide founders with the mentorship, resources, and platform needed to scale high-impact solutions for the world's most pressing challenges."
     },
     {
         id: 3,
         title: "Vision",
-        content: "To become a globally recognized deep-tech hub where student-led innovation transforms science and engineering into scalable ventures, delivering measurable and sustainable real-world impact."
+        content: "To become a globally recognized deep tech hub where student led innovation transforms science and engineering into scalable ventures, delivering measurable and sustainable real-world impact."
     },
 ];
 
