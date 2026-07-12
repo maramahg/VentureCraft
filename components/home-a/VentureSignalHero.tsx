@@ -218,7 +218,7 @@ export function VentureSignalHero() {
         {/* ════ GLOBE SIDE (FIRST ON MOBILE) ════ */}
         <div 
           style={{ perspective: '1200px' }} 
-          className="relative lg:absolute w-full lg:w-[58%] h-[340px] sm:h-[420px] lg:h-full lg:top-0 lg:right-0 pointer-events-none order-1 lg:order-none mt-20 lg:mt-0 flex items-center justify-center overflow-hidden"
+          className="relative lg:absolute w-full lg:w-[58%] h-[340px] sm:h-[420px] lg:h-full lg:top-0 lg:right-0 pointer-events-none order-1 lg:order-none mt-20 lg:mt-0 flex items-center justify-center overflow-hidden lg:-mt-24"
         >
           <motion.div
             style={{ 
@@ -286,7 +286,7 @@ export function VentureSignalHero() {
         {/* ════ TEXT SIDE (SECOND ON MOBILE) ════ */}
         <motion.div
           style={{ y: textY, opacity: textOpacity }}
-          className="relative lg:absolute lg:inset-y-0 lg:left-0 flex items-center z-20 w-full lg:w-[60%] order-2 lg:order-none min-h-[60vh] lg:min-h-0 pt-8 lg:pt-18 pb-16 lg:pb-0"
+          className="relative lg:absolute lg:inset-y-0 lg:left-0 flex items-center z-20 w-full lg:w-[60%] order-2 lg:order-none min-h-[60vh] lg:min-h-0 pt-8 lg:pt-18 pb-16 lg:pb-0 lg:-mt-24"
         >
           <motion.div
             variants={container}
