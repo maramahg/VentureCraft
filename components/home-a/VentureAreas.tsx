@@ -83,7 +83,7 @@ export default function VentureAreas() {
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-3 group-hover:text-[#4FD1C5] transition-colors duration-300 font-poppins uppercase tracking-tight">
                       {area.title}
                     </h3>
-                    <p className="text-white/50 text-sm sm:text-base leading-relaxed font-sans">
+                    <p className="text-white/50 text-sm sm:text-base leading-relaxed font-poppins">
                       {area.description}
                     </p>
                   </div>
