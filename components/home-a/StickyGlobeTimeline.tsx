@@ -19,12 +19,30 @@ export default function StickyGlobeTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activePhase, setActivePhase] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [phases, setPhases] = useState<CompetitionPhase[]>(competitionPhases);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
     const update = () => setIsDesktop(mq.matches);
     update();
     mq.addEventListener('change', update);
+
+    // Dynamically calculate phase statuses based on dates
+    const now = new Date();
+    const updated = competitionPhases.map(phase => {
+      if (!phase.startDate || !phase.endDate) return phase;
+      const start = new Date(phase.startDate);
+      const end = new Date(phase.endDate);
+      let status: 'completed' | 'active' | 'upcoming' = 'upcoming';
+      if (now >= start && now <= end) {
+        status = 'active';
+      } else if (now > end) {
+        status = 'completed';
+      }
+      return { ...phase, status };
+    });
+    setPhases(updated);
+
     return () => mq.removeEventListener('change', update);
   }, []);
 
@@ -33,7 +51,7 @@ export default function StickyGlobeTimeline() {
     offset: ['start start', 'end end'],
   });
 
-  const phaseCount = competitionPhases.length;
+  const phaseCount = phases.length;
   const activePhaseMotion = useTransform(scrollYProgress, (v) => {
     const segment = 1 / phaseCount;
     const idx = Math.floor(v / segment);
@@ -48,7 +66,7 @@ export default function StickyGlobeTimeline() {
   // Continuous rotation for the dial: 0deg at phase 1, 360deg once all phases are passed.
   const dialRotation = useTransform(activePhaseMotion, (v) => ((v - 1) / phaseCount) * 360);
 
-  const currentPhase = competitionPhases[activePhase - 1];
+  const currentPhase = phases[activePhase - 1];
 
   return (
     <section
@@ -69,7 +87,7 @@ export default function StickyGlobeTimeline() {
             </span>
             <div>
               <h2 className="text-3xl sm:text-5xl font-black font-poppins uppercase tracking-tight text-white leading-[1.1] sm:leading-[1.05]">
-                Six Phases.<br />One Destination.
+                Seven Phases.<br />One Destination.
               </h2>
               <p className="text-[#4FD1C5] font-bold font-sans text-base md:text-lg mt-3 sm:mt-4 max-w-sm">
                 Every phase is designed to push your venture further — from first submission to the global stage.
@@ -85,7 +103,7 @@ export default function StickyGlobeTimeline() {
                 of {String(phaseCount).padStart(2, '0')} Phases
               </span>
               <div className="flex-1 flex items-center gap-1.5 justify-end">
-                {competitionPhases.map((p) => (
+                {phases.map((p) => (
                   <div key={p.id} className="h-1 rounded-full transition-all duration-500"
                     style={{ width: p.id === activePhase ? 16 : 5, background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)' }} />
                 ))}
@@ -146,10 +164,10 @@ export default function StickyGlobeTimeline() {
               </AnimatePresence>
             </div>
 
-            {/* Segmented progress (desktop only — mobile shows it inline in the compact indicator above) */}
-            <div className="hidden lg:flex items-center gap-2">
-              {competitionPhases.map((p) => (
-                <div key={p.id} className="h-1 rounded-full transition-all duration-500"
+            {/* Desktop progress dots */}
+            <div className="hidden lg:flex items-center gap-2 mt-4 ml-2">
+              {phases.map((p) => (
+                <div key={p.id} className="h-1.5 rounded-full transition-all duration-500"
                   style={{ width: p.id === activePhase ? 24 : 8, background: p.id === activePhase ? '#23BCAB' : 'rgba(245,250,250,0.15)' }} />
               ))}
             </div>
@@ -187,9 +205,9 @@ export default function StickyGlobeTimeline() {
                 background: 'radial-gradient(ellipse, rgba(35,188,171,0.1) 0%, transparent 70%)',
               }} />
 
-            {/* Desktop: rotating arc carousel */}
-            <div className="hidden lg:block relative h-[560px]">
-              {competitionPhases.map((phase) => (
+            {/* Desktop Stack Cards (Fan) */}
+            <div className="hidden lg:block relative w-[320px] h-[360px] preserve-3d z-10">
+              {phases.map((phase) => (
                 <ArcPhaseCard
                   key={phase.id}
                   phase={phase}
@@ -198,9 +216,9 @@ export default function StickyGlobeTimeline() {
               ))}
             </div>
 
-            {/* Mobile/tablet: simple vertical stack, no arc */}
-            <div className="flex flex-col gap-4 lg:hidden">
-              {competitionPhases.map((phase) => {
+            {/* Mobile / Tablet: Single Card view with fade-in on change */}
+            <div className="lg:hidden relative w-[280px] sm:w-[320px] h-[320px] sm:h-[350px] z-10 flex items-center justify-center">
+              {phases.map((phase) => {
                 const isActive = phase.id === activePhase;
                 const isCompleted = phase.status === 'completed';
                 return (

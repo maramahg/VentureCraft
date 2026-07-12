@@ -8,6 +8,8 @@ export interface CompetitionPhase {
   status: PhaseStatus;
   dateText: string;
   icon: string; // emoji/icon identifier
+  startDate: string;
+  endDate: string;
 }
 
 export const competitionPhases: CompetitionPhase[] = [
@@ -20,6 +22,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'completed',
     dateText: 'July 15 to Aug 15',
     icon: '💡',
+    startDate: '2026-07-15T00:00:00',
+    endDate: '2026-08-15T23:59:59',
   },
   {
     id: 2,
@@ -30,6 +34,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'active',
     dateText: 'Aug 16 to Aug 26',
     icon: '🔍',
+    startDate: '2026-08-16T00:00:00',
+    endDate: '2026-08-26T23:59:59',
   },
   {
     id: 3,
@@ -40,6 +46,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'upcoming',
     dateText: 'Aug 30 to Sep 5',
     icon: '✅',
+    startDate: '2026-08-30T00:00:00',
+    endDate: '2026-09-05T23:59:59',
   },
   {
     id: 4,
@@ -50,6 +58,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'upcoming',
     dateText: 'Sep 6 to Sep 10',
     icon: '🚀',
+    startDate: '2026-09-06T00:00:00',
+    endDate: '2026-09-10T23:59:59',
   },
   {
     id: 5,
@@ -60,6 +70,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'upcoming',
     dateText: 'Sep 22 to Sep 25',
     icon: '✈️',
+    startDate: '2026-09-22T00:00:00',
+    endDate: '2026-09-25T23:59:59',
   },
   {
     id: 6,
@@ -70,6 +82,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'upcoming',
     dateText: 'Sep 26 to Sep 29',
     icon: '⚡',
+    startDate: '2026-09-26T00:00:00',
+    endDate: '2026-09-29T23:59:59',
   },
   {
     id: 7,
@@ -80,6 +94,8 @@ export const competitionPhases: CompetitionPhase[] = [
     status: 'upcoming',
     dateText: 'Sep 30 to Oct 1',
     icon: '🏆',
+    startDate: '2026-09-30T00:00:00',
+    endDate: '2026-10-01T23:59:59',
   },
 ];
 
