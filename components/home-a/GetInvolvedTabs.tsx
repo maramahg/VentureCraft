@@ -76,7 +76,7 @@ export default function GetInvolvedTabs() {
                 <ul className="space-y-3 mb-8">
                   {activeData.what.map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-[#4FD1C5] mt-2 shrink-0 shadow-[0_0_8px_#4FD1C5]" />
+                      <div className="w-2 h-2 rounded-full bg-[#4FD1C5] mt-2.5 shrink-0" />
                       <span className="text-white/60 text-base sm:text-lg font-sans">{item}</span>
                     </li>
                   ))}
