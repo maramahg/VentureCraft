@@ -32,6 +32,7 @@ export const ventureAreas: VentureArea[] = [
     description:
       'Advanced battery technologies, grid-scale storage systems, and novel materials enabling reliable, large-scale energy storage.',
     icon: '🔋',
+    imageKey: 'energyStorage',
   },
   {
     id: 'ai-data',
@@ -47,6 +48,7 @@ export const ventureAreas: VentureArea[] = [
     description:
       'Process innovation, smart manufacturing, and industrial efficiency technologies that reduce environmental footprint at scale.',
     icon: '🏭',
+    imageKey: 'industrialInnovation',
   },
   {
     id: 'advanced-materials',
@@ -54,6 +56,7 @@ export const ventureAreas: VentureArea[] = [
     description:
       'Next-generation materials science covering metamaterials, composites, and nanomaterials to enable breakthrough applications in energy and industry.',
     icon: '⚗️',
+    imageKey: 'advancedMaterials',
   },
   {
     id: 'robotics',
