@@ -192,7 +192,7 @@ export default function StickyGlobeTimeline() {
               }} />
 
             {/* Rotating arc carousel — rendered on all screens */}
-            <div className="relative w-full h-[360px] sm:h-[480px] lg:h-[560px] overflow-hidden sm:overflow-visible">
+            <div className="relative w-full h-[360px] sm:h-[480px] lg:h-[560px] overflow-visible">
               {phases.map((phase) => (
                 <ArcPhaseCard
                   key={phase.id}
@@ -222,11 +222,11 @@ function ArcPhaseCard({
   const relative = useTransform(activePhaseMotion, (v) => phase.id - v);
 
   const y = useTransform(relative, (r) => (r * (isMobile ? 80 : 118)) - (isMobile ? 25 : 0));
-  const x = useTransform(relative, (r) => Math.sin(r * 0.4) * (isMobile ? 35 : 90));
-  const rotate = useTransform(relative, (r) => r * 7);
+  const x = useTransform(relative, (r) => isMobile ? 0 : Math.sin(r * 0.4) * 90);
+  const rotate = useTransform(relative, (r) => isMobile ? 0 : r * 7);
   const scale = useTransform(relative, (r) => Math.max(0.72, 1 - Math.abs(r) * 0.14));
   const opacity = useTransform(relative, (r) => Math.max(0, 1 - Math.abs(r) * 0.4));
-  const blur = useTransform(relative, (r) => `blur(${Math.min(6, Math.abs(r) * 2.5)}px)`);
+  const blur = useTransform(relative, (r) => isMobile ? 'none' : `blur(${Math.min(6, Math.abs(r) * 2.5)}px)`);
   const zIndex = useTransform(relative, (r) => Math.round(100 - Math.abs(r) * 10));
 
   return (
