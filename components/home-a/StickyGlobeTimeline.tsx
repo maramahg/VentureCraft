@@ -147,7 +147,8 @@ export default function StickyGlobeTimeline() {
                 style={{ background: 'radial-gradient(circle, rgba(35,188,171,0.08) 0%, transparent 65%)' }}
               />
               
-              <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 160 160">
+              {/* SVG circular progress - absolutely positioned to center and overlap */}
+              <svg className="absolute inset-0 w-full h-full -rotate-90 transform pointer-events-none" viewBox="0 0 160 160">
                 {/* Track circle */}
                 <circle
                   cx="80"
@@ -172,22 +173,24 @@ export default function StickyGlobeTimeline() {
                 />
               </svg>
 
-              {/* Ticks around the ring representing each phase statically */}
-              {Array.from({ length: phaseCount }).map((_, i) => {
-                const angle = (360 / phaseCount) * i - 90; // Align with SVG circle start (-90deg is top)
-                const isPassed = activePhase > i;
-                return (
-                  <div
-                    key={i}
-                    className="absolute w-2 h-2 rounded-full transition-all duration-300 pointer-events-none"
-                    style={{
-                      transform: `rotate(${angle}deg) translate(70px) rotate(${-angle}deg)`,
-                      background: isPassed ? '#23BCAB' : 'rgba(255,255,255,0.25)',
-                      boxShadow: isPassed ? '0 0 8px rgba(35,188,171,0.8)' : 'none',
-                    }}
-                  />
-                );
-              })}
+              {/* Ticks around the ring - wrapped in absolute container centered with top-1/2 left-1/2 */}
+              <div className="absolute inset-0 pointer-events-none">
+                {Array.from({ length: phaseCount }).map((_, i) => {
+                  const angle = (360 / phaseCount) * i - 90; // Align with SVG circle start (-90deg is top)
+                  const isPassed = activePhase > i;
+                  return (
+                    <div
+                      key={i}
+                      className="absolute top-1/2 left-1/2 w-2 h-2 -ml-1 -mt-1 rounded-full transition-all duration-300"
+                      style={{
+                        transform: `rotate(${angle}deg) translate(70px) rotate(${-angle}deg)`,
+                        background: isPassed ? '#23BCAB' : 'rgba(255,255,255,0.25)',
+                        boxShadow: isPassed ? '0 0 8px rgba(35,188,171,0.8)' : 'none',
+                      }}
+                    />
+                  );
+                })}
+              </div>
 
               <AnimatePresence mode="wait">
                 <motion.div key={activePhase}
