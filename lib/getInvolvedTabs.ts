@@ -19,7 +19,7 @@ export const getInvolvedTabs: InvolvedTab[] = [
       'Submit your deep-tech startup idea',
       'Receive structured mentorship and feedback',
       'Pitch to an international panel of judges',
-      'Compete for up to $100K Grand Prize',
+      'Compete for $100K Grand Prize',
     ],
     cta: 'View Competition Details',
     ctaHref: '/apply',

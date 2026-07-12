@@ -251,12 +251,16 @@ export function VentureSignalHero() {
             ventures, powered by KFUPM and DTV.
           </motion.p>
 
-          {/* Prize line */}
-          <motion.div variants={item} className="flex items-center gap-3 mb-9">
-            <div className="h-px w-6 bg-[#4FD1C5]/50" />
-            <span className="text-sm font-bold text-[#4FD1C5]">$245K Prize Pool</span>
-            <span className="text-white/20">•</span>
-            <span className="text-sm font-semibold text-white/55">Up to $100K Grand Prize</span>
+          {/* Prize badges */}
+          <motion.div variants={item} className="flex flex-wrap items-center gap-3 mb-9">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4FD1C5]/25 bg-gradient-to-r from-[#4FD1C5]/10 to-[#4FD1C5]/5 text-xs font-black tracking-wider uppercase text-[#4FD1C5] shadow-[0_0_15px_rgba(79,209,197,0.12)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]" />
+              $245K Prize Pool
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/20 bg-gradient-to-r from-amber-400/10 to-transparent text-xs font-black tracking-wider uppercase text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.08)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              $100K Grand Prize
+            </div>
           </motion.div>
 
           {/* CTAs */}
@@ -289,14 +293,18 @@ export function VentureSignalHero() {
           {/* Status pill */}
           <motion.div
             variants={item}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/4 border border-white/8"
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${
+              isRegistrationOpen
+                ? 'bg-[#4FD1C5]/5 border-[#4FD1C5]/20 text-[#4FD1C5]'
+                : 'bg-red-950/40 border-red-500/30 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.06)]'
+            }`}
           >
-            <motion.div
-              animate={{ opacity: [1, 0.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]/60"
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                isRegistrationOpen ? 'bg-[#4FD1C5]' : 'bg-red-500'
+              }`}
             />
-            <span className="text-xs text-white/40 font-medium">
+            <span className="text-xs font-bold uppercase tracking-wider">
               {isRegistrationOpen ? 'Applications are open now' : 'Applications closed for this cycle'}
             </span>
           </motion.div>
