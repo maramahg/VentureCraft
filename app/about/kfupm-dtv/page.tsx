@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import CallToAction from '@/components/CallToAction';
 import { ExternalLink } from 'lucide-react';
+import { proofWallImages } from '@/lib/homepageImages';
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -280,6 +281,79 @@ export default function KfupmDtvAboutPage() {
                                 </motion.div>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                {/* Gallery & Impact Section */}
+                <section className="relative py-16 overflow-hidden border-t border-white/5">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="text-center mb-10"
+                        >
+                            <p className="text-vc-mint text-sm font-bold tracking-[0.3em] uppercase mb-2">Life at KFUPM &amp; DTV</p>
+                            <h2 className="text-2xl sm:text-3xl font-black font-poppins uppercase tracking-tighter text-white">Where Innovation Happens</h2>
+                        </motion.div>
+
+                        {/* Photo bento grid */}
+                        <motion.div
+                            variants={staggerContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, margin: '-80px' }}
+                            className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px] mb-6"
+                        >
+                            {proofWallImages.map((img, i) => (
+                                <motion.div
+                                    key={i}
+                                    variants={fadeInUp}
+                                    className={`relative overflow-hidden group border border-white/10 hover:border-vc-teal/50 transition-all duration-500 rounded-2xl md:rounded-3xl ${
+                                        i === 0 ? 'col-span-2 row-span-1' :
+                                        i === 2 ? 'col-span-1 row-span-2' : 'col-span-1'
+                                    }`}
+                                >
+                                    <Image
+                                        src={img.src}
+                                        alt={img.alt}
+                                        fill
+                                        className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#001D1B]/80 via-transparent to-transparent" />
+                                    <div className="absolute bottom-3 left-3">
+                                        <span className="text-[9px] uppercase tracking-[0.2em] text-white/70 font-bold bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
+                                            {img.caption}
+                                        </span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+
+                        {/* Stat cards row */}
+                        <motion.div
+                            variants={staggerContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            className="grid grid-cols-2 gap-4"
+                        >
+                            {[
+                                { num: '130+', label: 'Countries Represented' },
+                                { num: '50+',  label: 'Expert Mentors' },
+                            ].map((s) => (
+                                <motion.div
+                                    key={s.num}
+                                    variants={fadeInUp}
+                                    className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 md:p-8 hover:border-vc-teal/50 hover:bg-white/10 transition-all duration-300 flex flex-col justify-center"
+                                >
+                                    <p className="text-4xl md:text-5xl font-bold text-vc-mint mb-2 font-poppins">{s.num}</p>
+                                    <p className="text-white/60 text-sm md:text-base font-poppins">{s.label}</p>
+                                </motion.div>
+                            ))}
+                        </motion.div>
                     </div>
                 </section>
 

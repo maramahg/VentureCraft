@@ -8,7 +8,6 @@ import Footer from '../components/Footer';
 
 const PrizePool          = dynamic(() => import('../components/home-a/PrizePool'));
 const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
-const ProofWall          = dynamic(() => import('../components/home-a/ProofWall'));
 const ProofStrip         = dynamic(() => import('../components/home-a/ProofStrip'));
 const GoalsVisionTeaser  = dynamic(() => import('../components/home-a/GoalsVisionTeaser'));
 const GetInvolvedTeaser  = dynamic(() => import('../components/home-a/GetInvolvedTeaser'));
@@ -49,10 +48,7 @@ export default function DesignA() {
       {/* 6. Full 6-phase timeline — rotating stacked semi-circle arc cards */}
       <StickyGlobeTimeline />
 
-      {/* 7. Credibility — KFUPM/DTV + condensed Deep Tech focus areas */}
-      <ProofWall />
-
-      {/* 8. Goals / Vision — compact, elegant */}
+      {/* 7. Goals / Vision — compact, elegant */}
       <GoalsVisionTeaser />
 
       {/* 9. Lightweight teaser into the five Get Involved paths */}
