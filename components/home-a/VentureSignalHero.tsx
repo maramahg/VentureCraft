@@ -248,10 +248,10 @@ export function VentureSignalHero() {
         <Globe className="w-full h-full scale-[0.52] sm:scale-[0.8] lg:scale-[0.88]" />
 
         {/* Orbiting 3D Stat Cards */}
-        <OrbitStatCard stat={homepageStats[0]} baseAngle={0}   yOffset={-140} radius={230} orbitValue={orbitValue} delay={1.2} />
-        <OrbitStatCard stat={homepageStats[2]} baseAngle={90}  yOffset={-50}  radius={230} orbitValue={orbitValue} delay={1.4} />
-        <OrbitStatCard stat={homepageStats[3]} baseAngle={180} yOffset={50}   radius={230} orbitValue={orbitValue} delay={1.6} />
-        <OrbitStatCard stat={homepageStats[4]} baseAngle={270} yOffset={140}  radius={230} orbitValue={orbitValue} delay={1.8} />
+        <OrbitStatCard stat={homepageStats[0]} baseAngle={0}   yOffset={-140} radius={300} orbitValue={orbitValue} delay={1.2} />
+        <OrbitStatCard stat={homepageStats[2]} baseAngle={90}  yOffset={-50}  radius={300} orbitValue={orbitValue} delay={1.4} />
+        <OrbitStatCard stat={homepageStats[3]} baseAngle={180} yOffset={50}   radius={300} orbitValue={orbitValue} delay={1.6} />
+        <OrbitStatCard stat={homepageStats[4]} baseAngle={270} yOffset={140}  radius={300} orbitValue={orbitValue} delay={1.8} />
       </motion.div>
       </div>
 
