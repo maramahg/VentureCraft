@@ -8,6 +8,7 @@ import {
   useMotionValue,
   useSpring,
   MotionValue,
+  animate,
 } from 'framer-motion';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -35,54 +36,69 @@ const SIGNAL_DESTINATIONS = [
   { lat: -23.55,lng: -46.63,  label: 'São Paulo'   },
 ];
 
-// Single floating stat card with mouse parallax + soft zero-gravity float
-function StatCard({
+// Single 3D orbiting stat card
+function OrbitStatCard({
   stat,
-  className,
+  baseAngle,
+  yOffset,
+  radius = 240,
+  orbitValue,
   delay,
-  mouseX,
-  mouseY,
-  depth = 15,
-  floatDuration = 5,
-  floatDelay = 0,
 }: {
   stat: (typeof homepageStats)[0];
-  className: string;
+  baseAngle: number;
+  yOffset: number;
+  radius?: number;
+  orbitValue: MotionValue<number>;
   delay: number;
-  mouseX: MotionValue<number>;
-  mouseY: MotionValue<number>;
-  depth?: number;
-  floatDuration?: number;
-  floatDelay?: number;
 }) {
-  const x = useTransform(mouseX, [-0.5, 0.5], [-depth, depth]);
-  const y = useTransform(mouseY, [-0.5, 0.5], [-depth, depth]);
+  // Calculate this card's current orbit Y-rotation angle
+  const angle = useTransform(orbitValue, (v) => v + baseAngle);
+  // Counter-rotate around Y so the card face stays parallel to the screen view
+  const counterRotateY = useTransform(angle, (v) => -v);
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.8, delay, ease: [0.215, 0.61, 0.355, 1] }}
-      style={{ x, y }}
-      className={`absolute hidden xl:block ${className}`}
+      initial={{ opacity: 0, scale: 0.3 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1.0, delay, ease: 'easeOut' }}
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        y: yOffset,
+        rotateY: angle,
+        transformStyle: 'preserve-3d',
+        pointerEvents: 'auto',
+      }}
+      className="hidden xl:block -ml-[65px] -mt-[35px]"
     >
       <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{
-          duration: floatDuration,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: floatDelay,
+        style={{
+          transformStyle: 'preserve-3d',
+          z: radius,
+          rotateY: counterRotateY,
         }}
-        className="glass-card rounded-2xl px-5 py-3 border border-[#4FD1C5]/20 min-w-[130px] mint-glow shadow-lg"
-        style={{ background: 'rgba(0,18,15,0.85)' }}
       >
-        <div className="text-2xl font-black text-white leading-none tracking-tight font-poppins">
-          {stat.prefix || ''}{stat.value}{stat.suffix || ''}
-        </div>
-        <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mt-1.5 font-semibold">
-          {stat.label}
-        </div>
+        {/* Soft float effect inside the orbiting space */}
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{
+            duration: 4.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: baseAngle * 0.01,
+          }}
+          className="glass-card rounded-2xl px-4 py-2.5 border border-[#4FD1C5]/20 min-w-[130px] mint-glow shadow-xl select-none"
+          style={{ background: 'rgba(0,18,15,0.85)' }}
+        >
+          <div className="text-xl font-black text-white leading-none tracking-tight font-poppins">
+            {stat.prefix || ''}{stat.value}{stat.suffix || ''}
+          </div>
+          <div className="text-[9px] uppercase tracking-[0.2em] text-white/40 mt-1 font-semibold">
+            {stat.label}
+          </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
@@ -91,6 +107,17 @@ function StatCard({
 export function VentureSignalHero() {
   const containerRef = useRef<HTMLElement>(null);
   const isRegistrationOpen = useRegistrationStatus();
+
+  // Orbit value for the 3D rotating stat cards
+  const orbitValue = useMotionValue(0);
+  useEffect(() => {
+    const controls = animate(orbitValue, 360, {
+      ease: 'linear',
+      duration: 35,
+      repeat: Infinity,
+    });
+    return () => controls.stop();
+  }, [orbitValue]);
 
   // Scroll-driven exit animations
   const { scrollYProgress } = useScroll({
@@ -219,6 +246,12 @@ export function VentureSignalHero() {
 
         {/* Globe */}
         <Globe className="w-full h-full scale-[0.52] sm:scale-[0.8] lg:scale-[0.88]" />
+
+        {/* Orbiting 3D Stat Cards */}
+        <OrbitStatCard stat={homepageStats[0]} baseAngle={0}   yOffset={-140} radius={230} orbitValue={orbitValue} delay={1.2} />
+        <OrbitStatCard stat={homepageStats[2]} baseAngle={90}  yOffset={-50}  radius={230} orbitValue={orbitValue} delay={1.4} />
+        <OrbitStatCard stat={homepageStats[3]} baseAngle={180} yOffset={50}   radius={230} orbitValue={orbitValue} delay={1.6} />
+        <OrbitStatCard stat={homepageStats[4]} baseAngle={270} yOffset={140}  radius={230} orbitValue={orbitValue} delay={1.8} />
       </motion.div>
       </div>
 
@@ -369,15 +402,7 @@ export function VentureSignalHero() {
         </motion.div>
       </motion.div>
 
-      {/* ── Floating stat cards surrounding the globe (desktop only) ── */}
-      {/* Top-Left of Globe */}
-      <StatCard stat={homepageStats[0]} className="top-[22%] right-[44%]" delay={1.2} mouseX={mouseX} mouseY={mouseY} depth={18} floatDuration={5.0} floatDelay={0.0} />
-      {/* Top-Right of Globe */}
-      <StatCard stat={homepageStats[2]} className="top-[16%] right-[8%]"  delay={1.4} mouseX={mouseX} mouseY={mouseY} depth={24} floatDuration={6.0} floatDelay={0.8} />
-      {/* Bottom-Left of Globe */}
-      <StatCard stat={homepageStats[3]} className="bottom-[26%] right-[42%]" delay={1.6} mouseX={mouseX} mouseY={mouseY} depth={16} floatDuration={5.5} floatDelay={0.4} />
-      {/* Bottom-Right of Globe */}
-      <StatCard stat={homepageStats[4]} className="bottom-[22%] right-[6%]" delay={1.8} mouseX={mouseX} mouseY={mouseY} depth={20} floatDuration={6.5} floatDelay={1.2} />
+
 
       {/* ── Scroll indicator ── */}
       <motion.div
