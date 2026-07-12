@@ -185,9 +185,6 @@ export default function StickyGlobeTimeline() {
                   <div className="text-xs font-bold mt-1" style={{ color: statusColors[currentPhase?.status] }}>
                     {statusLabels[currentPhase?.status]}
                   </div>
-                  <p className="text-[#F5FAFA]/40 text-sm leading-relaxed mt-3 max-w-sm">
-                    {currentPhase?.description}
-                  </p>
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -261,9 +258,15 @@ export default function StickyGlobeTimeline() {
                       <div className="text-[10px] font-semibold text-[#F5FAFA]/30 uppercase tracking-wide">
                         {phase.dateText}
                       </div>
+                      {!isActive && (
+                        <div className="text-xs text-[#23BCAB]/60 font-semibold">→ {phase.participantAction}</div>
+                      )}
                     </div>
                     {isActive && (
-                      <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
+                      <>
+                        <div className="text-xs text-[#23BCAB]/70 font-semibold mt-2">→ {phase.participantAction}</div>
+                        <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
+                      </>
                     )}
                   </div>
                 );
@@ -365,9 +368,15 @@ function PhaseCardBody({
         <div className="text-[10px] font-semibold text-[#F5FAFA]/30 uppercase tracking-wide">
           {phase.dateText}
         </div>
+        {!isActive && (
+          <div className="text-xs text-[#23BCAB]/60 font-semibold">→ {phase.participantAction}</div>
+        )}
       </div>
       {isActive && (
-        <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
+        <>
+          <div className="text-xs text-[#23BCAB]/70 font-semibold mt-2">→ {phase.participantAction}</div>
+          <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
+        </>
       )}
     </div>
   );
