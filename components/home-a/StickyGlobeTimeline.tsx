@@ -87,7 +87,7 @@ export default function StickyGlobeTimeline() {
 
   return (
     <section
-      className="relative pt-20 sm:pt-28 lg:pt-32 pb-6"
+      className="relative pt-20 sm:pt-28 lg:pt-32 pb-20"
       style={{ background: 'linear-gradient(180deg, #072828 0%, #003E51 100%)' }}
     >
       {/* Top transition ribbon — fades from the page background into the section */}
@@ -97,7 +97,7 @@ export default function StickyGlobeTimeline() {
       />
       {/* Bottom transition ribbon — fades from the section back into the page background */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-5 pointer-events-none z-10"
+        className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
         style={{ background: 'linear-gradient(to top, #0B2A24 0%, transparent 100%)' }}
       />
       <div
