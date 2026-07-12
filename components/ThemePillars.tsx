@@ -111,7 +111,7 @@ function Card({
                 <div className="absolute inset-0 flex items-center justify-center">
                     <Image
                         src="/logo.png"
-                        alt="VentureCraft"
+                        alt="Venture Craft"
                         width={180}
                         height={45}
                         className="w-[70%] h-auto opacity-100 transition-opacity"

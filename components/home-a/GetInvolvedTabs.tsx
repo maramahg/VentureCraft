@@ -31,7 +31,7 @@ export default function GetInvolvedTabs() {
             Get Involved
           </h2>
           <p className="text-white/40 text-lg max-w-xl mx-auto">
-            VentureCraft is built by a community. Find your role in the journey.
+            Venture Craft is built by a community. Find your role in the journey.
           </p>
         </motion.div>
 

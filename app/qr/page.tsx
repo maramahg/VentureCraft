@@ -59,7 +59,7 @@ export default function QRPage() {
                 ctx.drawImage(img, 0, 0, 1000, 1000);
                 const pngFile = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
-                downloadLink.download = 'VentureCraft-QR.png';
+                downloadLink.download = 'Venture-Craft-QR.png';
                 downloadLink.href = pngFile;
                 downloadLink.click();
             }
@@ -114,7 +114,7 @@ export default function QRPage() {
                         Venture Craft <span className="text-vc-mint">QR</span> Panel
                     </h1>
                     <p className="text-white/60 font-poppins max-w-2xl mx-auto">
-                        Official persistent QR codes for VentureCraft. These codes will never expire and point to our official platforms.
+                        Official persistent QR codes for Venture Craft. These codes will never expire and point to our official platforms.
                     </p>
                 </div>
 
@@ -162,7 +162,7 @@ export default function QRPage() {
                                         ctx.drawImage(img, 0, 0, 1000, 1000);
                                         const pngFile = canvas.toDataURL('image/png');
                                         const downloadLink = document.createElement('a');
-                                        downloadLink.download = 'VentureCraft-Official-QR.png';
+                                        downloadLink.download = 'Venture-Craft-Official-QR.png';
                                         downloadLink.href = pngFile;
                                         downloadLink.click();
                                     }
@@ -219,7 +219,7 @@ export default function QRPage() {
                                         ctx.drawImage(img, 0, 0, 1000, 1000);
                                         const pngFile = canvas.toDataURL('image/png');
                                         const downloadLink = document.createElement('a');
-                                        downloadLink.download = 'VentureCraft-Socials-QR.png';
+                                        downloadLink.download = 'Venture-Craft-Socials-QR.png';
                                         downloadLink.href = pngFile;
                                         downloadLink.click();
                                     }
@@ -276,7 +276,7 @@ export default function QRPage() {
                                         ctx.drawImage(img, 0, 0, 1000, 1000);
                                         const pngFile = canvas.toDataURL('image/png');
                                         const downloadLink = document.createElement('a');
-                                        downloadLink.download = 'VentureCraft-Outreach-Challenge-QR.png';
+                                        downloadLink.download = 'Venture-Craft-Outreach-Challenge-QR.png';
                                         downloadLink.href = pngFile;
                                         downloadLink.click();
                                     }

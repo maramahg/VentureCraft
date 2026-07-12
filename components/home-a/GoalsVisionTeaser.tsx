@@ -32,14 +32,14 @@ export default function GoalsVisionTeaser() {
               Empowering the next generation of deep tech innovators.
             </p>
             <p className="text-white/40 text-sm sm:text-base leading-relaxed mb-6">
-              VentureCraft exists to turn bold student ideas into global impact —
+              Venture Craft exists to turn bold student ideas into global impact —
               connecting talent, research, and industry through one competition.
             </p>
             <Link
               href="/about/venture-craft"
               className="inline-flex items-center gap-2 text-sm font-bold text-[#4FD1C5]/80 hover:text-[#4FD1C5] transition-colors group"
             >
-              Learn more about VentureCraft
+              Learn more about Venture Craft
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </motion.div>

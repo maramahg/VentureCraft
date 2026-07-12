@@ -25,7 +25,7 @@ export default function Hero() {
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
             <span className="block text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-vc-mint/50">
-              VentureCraft
+              Venture Craft
             </span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-vc-teal via-vc-mint to-white mt-2 drop-shadow-[0_0_15px_rgba(0,163,131,0.5)]">
               100K

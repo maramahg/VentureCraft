@@ -23,7 +23,7 @@ export default function PartnersOrganizers() {
             Institutional Partners
           </span>
           <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-5">
-            The Organizations Behind VentureCraft
+            The Organizations Behind Venture Craft
           </h2>
         </motion.div>
 

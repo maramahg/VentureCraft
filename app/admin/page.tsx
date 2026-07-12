@@ -2901,7 +2901,7 @@ function AdminDashboardContent() {
                                     </div>
 
                                     <button
-                                        onClick={() => downloadQR('qr-main-website', 'VentureCraft-Official-QR')}
+                                        onClick={() => downloadQR('qr-main-website', 'Venture-Craft-Official-QR')}
                                         className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-mint text-vc-green-dark font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-mint/20"
                                     >
                                         <Download className="w-5 h-5" />
@@ -2933,7 +2933,7 @@ function AdminDashboardContent() {
                                     </div>
 
                                     <button
-                                        onClick={() => downloadQR('qr-socials-linktree', 'VentureCraft-Socials-QR')}
+                                        onClick={() => downloadQR('qr-socials-linktree', 'Venture-Craft-Socials-QR')}
                                         className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-vc-teal text-white font-bold rounded-2xl hover:scale-105 transition-all shadow-xl shadow-vc-teal/20"
                                     >
                                         <Download className="w-5 h-5" />

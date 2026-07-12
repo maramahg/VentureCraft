@@ -229,7 +229,7 @@ export function VentureSignalHero() {
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.9, delay: 0.15, ease: [0.215, 0.61, 0.355, 1] }}
             className="text-4xl sm:text-5xl md:text-6xl xl:text-[4.5rem] font-bold tracking-tighter mb-4 font-poppins uppercase leading-[1.1] xl:leading-none -ml-1 md:-ml-2 lg:-ml-3 xl:-ml-4"
-            aria-label="VentureCraft"
+            aria-label="Venture Craft"
           >
             <span className="block text-white whitespace-nowrap">
               Venture Craft

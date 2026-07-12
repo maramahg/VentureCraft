@@ -193,7 +193,7 @@ export default function SplashScreen() {
             initial={{ opacity: 0, y: 8, letterSpacing: '0.5em' }}
             animate={{ opacity: 1, y: 0, letterSpacing: '0.35em' }}
             transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
-            className="relative z-10 mt-32 text-lg uppercase tracking-[0.35em] font-black bg-clip-text text-transparent"
+            className="relative z-10 mt-32 text-lg uppercase font-black bg-clip-text text-transparent"
             style={{
               backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.2), #4FD1C5, rgba(255,255,255,0.2))',
               backgroundSize: '200% auto',
@@ -201,7 +201,7 @@ export default function SplashScreen() {
               filter: 'drop-shadow(0 0 12px rgba(79,209,197,0.3))',
             }}
           >
-            VentureCraft
+            Venture Craft
           </motion.span>
 
           {/* Tagline under brand name */}

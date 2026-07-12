@@ -35,7 +35,7 @@ export default function FinalCTA() {
             <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
               Follow the{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#00A383]">
-                VentureCraft
+                Venture Craft
               </span>{' '}
               journey.
             </h2>
