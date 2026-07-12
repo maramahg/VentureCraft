@@ -10,7 +10,6 @@ const PrizePool          = dynamic(() => import('../components/home-a/PrizePool'
 const StickyGlobeTimeline = dynamic(() => import('../components/home-a/StickyGlobeTimeline'));
 const ProofStrip         = dynamic(() => import('../components/home-a/ProofStrip'));
 const GoalsVisionTeaser  = dynamic(() => import('../components/home-a/GoalsVisionTeaser'));
-const GetInvolvedTeaser  = dynamic(() => import('../components/home-a/GetInvolvedTeaser'));
 const AnnualTheme        = dynamic(() => import('../components/AnnualTheme'));
 const FinalCTA           = dynamic(() => import('../components/home-a/FinalCTA'));
 
@@ -20,7 +19,7 @@ const FinalCTA           = dynamic(() => import('../components/home-a/FinalCTA')
 // - VentureAreas (Deep Tech Focus Areas) lives on /about/venture-craft, with a
 //   condensed teaser folded into ProofWall's credibility block.
 // - GetInvolvedTabs (full interactive version) lives on /about/venture-craft;
-//   GetInvolvedTeaser gives it lightweight homepage visibility.
+//   GetInvolvedTeaser is merged into FinalCTA to keep it seamless.
 // - PartnersOrganizers (full version) lives on /sponsors; PartnersTeaser gives
 //   it lightweight homepage visibility.
 // - AboutObjectives (full version) lives on /about/venture-craft;
@@ -51,10 +50,7 @@ export default function DesignA() {
       {/* 7. Goals / Vision — compact, elegant */}
       <GoalsVisionTeaser />
 
-      {/* 9. Lightweight teaser into the five Get Involved paths */}
-      <GetInvolvedTeaser />
-
-      {/* 11. Contact / Final CTA */}
+      {/* 11. Contact / Final CTA (including merged role-based Get Involved paths) */}
       <FinalCTA />
 
       <Footer />

@@ -4,32 +4,33 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
+import { getInvolvedTabs } from '../../lib/getInvolvedTabs';
 
 export default function FinalCTA() {
   const isRegistrationOpen = useRegistrationStatus();
+
   return (
     <section
-      className="relative overflow-hidden py-16 sm:py-28"
+      className="relative overflow-hidden py-20 sm:py-32"
       style={{ background: 'linear-gradient(180deg, #0B2A24 0%, #123830 60%, #0B2A24 100%)' }}
     >
-
       {/* Ambient glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(79,209,197,0.05) 0%, transparent 70%)',
+            'radial-gradient(ellipse 60% 60% at 50% 40%, rgba(79,209,197,0.06) 0%, transparent 70%)',
         }}
       />
 
-      <div className="relative max-w-4xl mx-auto px-6 sm:px-10 text-center">
+      <div className="relative max-w-5xl mx-auto px-6 sm:px-10 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
-
+          {/* Main headline */}
           <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
             Follow the{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#00A383]">
@@ -38,12 +39,44 @@ export default function FinalCTA() {
             journey.
           </h2>
 
-          <p className="text-white/40 text-lg sm:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+          <p className="text-white/40 text-lg sm:text-xl max-w-2xl mx-auto mb-14 leading-relaxed">
             {isRegistrationOpen
               ? 'Applications are open. Submit your venture and take the first step toward the $245K prize pool.'
               : 'Applications are closed for this cycle. Stay connected for finalist announcements, competition updates, and upcoming opportunities.'}
           </p>
 
+          {/* Divider label */}
+          <p className="text-[#4FD1C5] font-bold text-sm uppercase tracking-[0.25em] mb-5">
+            Find your role in the journey
+          </p>
+
+          {/* Role cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-12">
+            {getInvolvedTabs.map((tab, i) => (
+              <motion.div
+                key={tab.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: i * 0.06 }}
+                viewport={{ once: true }}
+              >
+                <Link
+                  href={tab.ctaHref}
+                  className="group flex flex-col justify-between h-full rounded-2xl border border-white/8 hover:border-[#4FD1C5]/30 bg-white/[0.03] hover:bg-[#4FD1C5]/[0.06] transition-all duration-300 p-4 text-left"
+                >
+                  <span className="text-sm font-black text-white group-hover:text-[#4FD1C5] transition-colors">
+                    {tab.label}
+                  </span>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/35 group-hover:text-white/60 transition-colors">
+                    {tab.cta}
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
               href={isRegistrationOpen ? '/apply' : '/timeline'}
