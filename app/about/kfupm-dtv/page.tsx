@@ -284,6 +284,56 @@ export default function KfupmDtvAboutPage() {
                     </div>
                 </section>
 
+                {/* The Partnership Bridge Section */}
+                <section className="relative min-h-[50vh] flex items-center py-12 overflow-hidden border-t border-white/5 bg-[#001D1B]/50">
+                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
+                            >
+                                The Partnership Bridge
+                            </motion.h2>
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.3, duration: 0.6 }}
+                                className="text-vc-mint/80 text-lg sm:text-lg md:text-xl leading-relaxed mb-10 font-poppins"
+                            >
+                                Venture Craft is more than a competition; it is a collaborative powerhouse linking
+                                <span className="text-white font-bold"> Academia</span>,
+                                <span className="text-white font-bold ml-1">Industry</span>, and
+                                <span className="text-white font-bold ml-1">Government</span>.
+                            </motion.p>
+
+                            <motion.div
+                                variants={staggerContainer}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true, margin: "-50px" }}
+                                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                            >
+                                <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-vc-teal/50 transition-all duration-300">
+                                    <h3 className="text-xl font-bold text-vc-mint mb-2 font-poppins">University</h3>
+                                    <p className="text-sm text-white/50 font-poppins">World-class research & talent pipeline from KFUPM.</p>
+                                </motion.div>
+                                <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-vc-teal/50 transition-all duration-300">
+                                    <h3 className="text-xl font-bold text-vc-mint mb-2 font-poppins">Industry</h3>
+                                    <p className="text-sm text-white/50 font-poppins">Market access & mentorship from DTV partners.</p>
+                                </motion.div>
+                                <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-vc-teal/50 transition-all duration-300">
+                                    <h3 className="text-xl font-bold text-vc-mint mb-2 font-poppins">Government</h3>
+                                    <p className="text-sm text-white/50 font-poppins">Strategic alignment with Vision 2030 goals.</p>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Gallery & Impact Section */}
                 <section className="relative py-16 overflow-hidden border-t border-white/5">
                     <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
@@ -354,56 +404,6 @@ export default function KfupmDtvAboutPage() {
                                 </motion.div>
                             ))}
                         </motion.div>
-                    </div>
-                </section>
-
-                {/* The Partnership Bridge Section */}
-                <section className="relative min-h-[50vh] flex items-center py-12 overflow-hidden border-t border-white/5 bg-[#001D1B]/50">
-                    <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <motion.h2
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6 }}
-                                className="text-xl sm:text-2xl md:text-3xl lg:text-[2.75rem] font-bold mb-8 font-poppins uppercase tracking-tighter leading-tight text-white pb-6 border-b border-vc-mint/20"
-                            >
-                                The Partnership Bridge
-                            </motion.h2>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.3, duration: 0.6 }}
-                                className="text-vc-mint/80 text-lg sm:text-lg md:text-xl leading-relaxed mb-10 font-poppins"
-                            >
-                                Venture Craft is more than a competition; it is a collaborative powerhouse linking
-                                <span className="text-white font-bold"> Academia</span>,
-                                <span className="text-white font-bold ml-1">Industry</span>, and
-                                <span className="text-white font-bold ml-1">Government</span>.
-                            </motion.p>
-
-                            <motion.div
-                                variants={staggerContainer}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, margin: "-50px" }}
-                                className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                            >
-                                <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-vc-teal/50 transition-all duration-300">
-                                    <h3 className="text-xl font-bold text-vc-mint mb-2 font-poppins">University</h3>
-                                    <p className="text-sm text-white/50 font-poppins">World-class research & talent pipeline from KFUPM.</p>
-                                </motion.div>
-                                <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-vc-teal/50 transition-all duration-300">
-                                    <h3 className="text-xl font-bold text-vc-mint mb-2 font-poppins">Industry</h3>
-                                    <p className="text-sm text-white/50 font-poppins">Market access & mentorship from DTV partners.</p>
-                                </motion.div>
-                                <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-vc-teal/50 transition-all duration-300">
-                                    <h3 className="text-xl font-bold text-vc-mint mb-2 font-poppins">Government</h3>
-                                    <p className="text-sm text-white/50 font-poppins">Strategic alignment with Vision 2030 goals.</p>
-                                </motion.div>
-                            </motion.div>
-                        </div>
                     </div>
                 </section>
 
