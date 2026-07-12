@@ -4,6 +4,17 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ventureAreas, ventureAreaDisclaimer } from '../../lib/ventureAreas';
 import { ventureAreaImages } from '../../lib/homepageImages';
+import { Sun, Leaf, Battery, Cpu, Factory, FlaskConical, Bot, LucideIcon } from 'lucide-react';
+
+const areaIcons: Record<string, LucideIcon> = {
+  'sustainable-energy': Sun,
+  'decarbonization': Leaf,
+  'energy-storage': Battery,
+  'ai-data': Cpu,
+  'industrial-innovation': Factory,
+  'advanced-materials': FlaskConical,
+  'robotics': Bot,
+};
 
 export default function VentureAreas() {
   return (
@@ -17,19 +28,20 @@ export default function VentureAreas() {
           viewport={{ once: true }}
           className="text-center mb-5"
         >
-          <span className="text-[11px] uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block">
-            2026 Theme — Sustainable Energy
+          <span className="text-[12px] sm:text-sm uppercase tracking-[0.35em] text-[#4FD1C5] font-bold mb-4 block font-poppins">
+            2026 Theme: Sustainable Energy
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4 font-poppins uppercase">
             Deep Tech Focus Areas
           </h2>
-          <p className="text-white/40 text-base max-w-lg mx-auto">{ventureAreaDisclaimer}</p>
+          <p className="text-white/50 text-base sm:text-lg max-w-2xl mx-auto font-sans">{ventureAreaDisclaimer}</p>
         </motion.div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-14">
           {ventureAreas.map((area, i) => {
             const img = area.imageKey ? ventureAreaImages[area.imageKey] : null;
+            const IconComponent = areaIcons[area.id];
             return (
               <motion.div
                 key={area.id}
@@ -37,7 +49,7 @@ export default function VentureAreas() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: i * 0.07 }}
                 viewport={{ once: true }}
-                className="group relative rounded-2xl overflow-hidden border border-white/7 hover:border-[#4FD1C5]/25 transition-all duration-500 cursor-pointer"
+                className="group relative rounded-2xl overflow-hidden border border-white/7 hover:border-[#4FD1C5]/25 transition-all duration-500 cursor-pointer flex flex-col"
                 style={{
                   background: 'rgba(0,40,35,0.3)',
                   gridColumn: area.featured && i === 0 ? 'span 2' : undefined,
@@ -57,14 +69,24 @@ export default function VentureAreas() {
                   </div>
                 )}
 
-                <div className="relative p-6">
-                  <div className="text-3xl mb-4">{area.icon}</div>
-                  <h3 className="text-base font-black text-white mb-2 group-hover:text-[#4FD1C5] transition-colors duration-300">
-                    {area.title}
-                  </h3>
-                  <p className="text-white/40 text-sm leading-relaxed">
-                    {area.description}
-                  </p>
+                <div className="relative p-6 sm:p-8 flex-1 flex flex-col justify-between z-10">
+                  <div>
+                    {/* Mint Blue Icon */}
+                    <div className="mb-5">
+                      {IconComponent ? (
+                        <IconComponent size={36} strokeWidth={1.5} className="text-[#4FD1C5]" />
+                      ) : (
+                        <div className="text-3xl">{area.icon}</div>
+                      )}
+                    </div>
+                    
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-3 group-hover:text-[#4FD1C5] transition-colors duration-300 font-poppins uppercase tracking-tight">
+                      {area.title}
+                    </h3>
+                    <p className="text-white/50 text-sm sm:text-base leading-relaxed font-sans">
+                      {area.description}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Hover border glow */}

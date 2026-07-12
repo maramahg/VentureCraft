@@ -52,7 +52,7 @@ export const ventureAreas: VentureArea[] = [
     id: 'advanced-materials',
     title: 'Advanced Materials',
     description:
-      'Next-generation materials science — from metamaterials and composites to nanomaterials — enabling breakthrough applications in energy and industry.',
+      'Next-generation materials science covering metamaterials, composites, and nanomaterials to enable breakthrough applications in energy and industry.',
     icon: '⚗️',
   },
   {
