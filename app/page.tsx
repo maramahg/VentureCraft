@@ -13,6 +13,7 @@ const ProofWall          = dynamic(() => import('../components/home-a/ProofWall'
 const ProofStrip         = dynamic(() => import('../components/home-a/ProofStrip'));
 const GoalsVisionTeaser  = dynamic(() => import('../components/home-a/GoalsVisionTeaser'));
 const GetInvolvedTeaser  = dynamic(() => import('../components/home-a/GetInvolvedTeaser'));
+const AnnualTheme        = dynamic(() => import('../components/AnnualTheme'));
 const FinalCTA           = dynamic(() => import('../components/home-a/FinalCTA'));
 
 // Note: nothing is deleted — every section stays reachable.
@@ -41,7 +42,10 @@ export default function DesignA() {
       {/* 3. Financial prizes — first major hook after the hero */}
       <PrizePool />
 
-      {/* 4. Theme Pillars — 4 strategic pillars as they are on the site */}
+      {/* 4. Annual theme spotlight */}
+      <AnnualTheme />
+
+      {/* 5. Theme Pillars — 4 strategic pillars */}
       <ThemePillars />
 
 

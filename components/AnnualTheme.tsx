@@ -82,7 +82,7 @@ export default function AnnualTheme() {
                                     <div className="h-px w-24 bg-vc-mint/30 mx-auto" />
 
                                     <p className="text-white/60 text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed font-light">
-                                        Each year, Venture Craft unites the world’s most ambitious founders under a <span className="text-white font-medium">singular global challenge</span>. This year, we focus on the frontier of <span className="text-vc-mint font-medium italic">Sustainable Energy</span>, accelerating deep tech solutions that power the future responsibly.
+                                        Each year, Venture Craft unites the world’s most ambitious founders under a <span className="text-white font-medium">singular global challenge</span>. This year, we focus on the frontier of <span className="text-vc-mint font-medium italic">Sustainable Energy</span>, accelerating deep-tech solutions that power the future responsibly.
                                     </p>
                                 </div>
 
