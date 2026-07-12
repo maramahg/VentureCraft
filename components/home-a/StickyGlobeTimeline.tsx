@@ -3,6 +3,23 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue } from 'framer-motion';
 import { competitionPhases, CompetitionPhase } from '../../lib/competitionPhases';
+import { Lightbulb, Search, BadgeCheck, Rocket, Plane, Zap, Trophy, LucideIcon } from 'lucide-react';
+
+const phaseIcons: Record<string, LucideIcon> = {
+  Lightbulb,
+  Search,
+  BadgeCheck,
+  Rocket,
+  Plane,
+  Zap,
+  Trophy,
+};
+
+function PhaseIcon({ name, color }: { name: string; color: string }) {
+  const Icon = phaseIcons[name];
+  if (!Icon) return null;
+  return <Icon size={18} strokeWidth={2} style={{ color }} />;
+}
 
 const statusColors: Record<string, string> = {
   completed: '#23BCAB',
@@ -236,7 +253,7 @@ export default function StickyGlobeTimeline() {
                           }}>
                           {phase.id}
                         </div>
-                        <span className="text-lg">{phase.icon}</span>
+          <PhaseIcon name={phase.icon} color={statusColors[phase.status]} />
                       </div>
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full border"
                         style={{
@@ -346,7 +363,7 @@ function PhaseCardBody({
             }}>
             {phase.id}
           </div>
-          <span className="text-lg">{phase.icon}</span>
+          <PhaseIcon name={phase.icon} color={statusColors[phase.status]} />
         </div>
         <span className="text-[10px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full border"
           style={{

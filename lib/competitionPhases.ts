@@ -7,7 +7,7 @@ export interface CompetitionPhase {
   participantAction: string;
   status: PhaseStatus;
   dateText: string;
-  icon: string; // emoji/icon identifier
+  icon: string; // Lucide icon component name
   startDate: string;
   endDate: string;
 }
@@ -21,7 +21,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Submit your venture application online.',
     status: 'completed',
     dateText: 'July 15 to Aug 15',
-    icon: '💡',
+    icon: 'Lightbulb',
     startDate: '2026-07-15T00:00:00',
     endDate: '2026-08-15T23:59:59',
   },
@@ -33,7 +33,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Await review results from the evaluation committee.',
     status: 'active',
     dateText: 'Aug 16 to Aug 26',
-    icon: '🔍',
+    icon: 'Search',
     startDate: '2026-08-16T00:00:00',
     endDate: '2026-08-26T23:59:59',
   },
@@ -45,7 +45,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Confirm your participation and submit requested details.',
     status: 'upcoming',
     dateText: 'Aug 30 to Sep 5',
-    icon: '✅',
+    icon: 'BadgeCheck',
     startDate: '2026-08-30T00:00:00',
     endDate: '2026-09-05T23:59:59',
   },
@@ -57,7 +57,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Attend workshops, connect with mentors, refine your pitch.',
     status: 'upcoming',
     dateText: 'Sep 6 to Sep 10',
-    icon: '🚀',
+    icon: 'Rocket',
     startDate: '2026-09-06T00:00:00',
     endDate: '2026-09-10T23:59:59',
   },
@@ -69,7 +69,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Prepare your travel visa documents and final presentation.',
     status: 'upcoming',
     dateText: 'Sep 22 to Sep 25',
-    icon: '✈️',
+    icon: 'Plane',
     startDate: '2026-09-22T00:00:00',
     endDate: '2026-09-25T23:59:59',
   },
@@ -81,7 +81,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Iterate, refine, and prepare for Demo Day.',
     status: 'upcoming',
     dateText: 'Sep 26 to Sep 29',
-    icon: '⚡',
+    icon: 'Zap',
     startDate: '2026-09-26T00:00:00',
     endDate: '2026-09-29T23:59:59',
   },
@@ -93,7 +93,7 @@ export const competitionPhases: CompetitionPhase[] = [
     participantAction: 'Deliver your final pitch and compete for funding.',
     status: 'upcoming',
     dateText: 'Sep 30 to Oct 1',
-    icon: '🏆',
+    icon: 'Trophy',
     startDate: '2026-09-30T00:00:00',
     endDate: '2026-10-01T23:59:59',
   },
