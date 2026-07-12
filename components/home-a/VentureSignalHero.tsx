@@ -35,7 +35,7 @@ const SIGNAL_DESTINATIONS = [
   { lat: -23.55,lng: -46.63,  label: 'São Paulo'   },
 ];
 
-// Single floating stat card with mouse parallax
+// Single floating stat card with mouse parallax + soft zero-gravity float
 function StatCard({
   stat,
   className,
@@ -43,6 +43,8 @@ function StatCard({
   mouseX,
   mouseY,
   depth = 15,
+  floatDuration = 5,
+  floatDelay = 0,
 }: {
   stat: (typeof homepageStats)[0];
   className: string;
@@ -50,6 +52,8 @@ function StatCard({
   mouseX: MotionValue<number>;
   mouseY: MotionValue<number>;
   depth?: number;
+  floatDuration?: number;
+  floatDelay?: number;
 }) {
   const x = useTransform(mouseX, [-0.5, 0.5], [-depth, depth]);
   const y = useTransform(mouseY, [-0.5, 0.5], [-depth, depth]);
@@ -62,9 +66,16 @@ function StatCard({
       style={{ x, y }}
       className={`absolute hidden xl:block ${className}`}
     >
-      <div
-        className="glass-card rounded-2xl px-4 py-3 border border-[#4FD1C5]/15 min-w-[120px] mint-glow"
-        style={{ background: 'rgba(0,18,15,0.75)' }}
+      <motion.div
+        animate={{ y: [0, -12, 0] }}
+        transition={{
+          duration: floatDuration,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: floatDelay,
+        }}
+        className="glass-card rounded-2xl px-5 py-3 border border-[#4FD1C5]/20 min-w-[130px] mint-glow shadow-lg"
+        style={{ background: 'rgba(0,18,15,0.85)' }}
       >
         <div className="text-2xl font-black text-white leading-none tracking-tight font-poppins">
           {stat.prefix || ''}{stat.value}{stat.suffix || ''}
@@ -72,7 +83,7 @@ function StatCard({
         <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mt-1.5 font-semibold">
           {stat.label}
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -358,11 +369,15 @@ export function VentureSignalHero() {
         </motion.div>
       </motion.div>
 
-      {/* ── Floating stat cards (desktop only) ── */}
-      <StatCard stat={homepageStats[0]} className="top-[16%] right-[7%]"   delay={1.2} mouseX={mouseX} mouseY={mouseY} depth={22} />
-      <StatCard stat={homepageStats[2]} className="top-[36%] right-[2%]"   delay={1.4} mouseX={mouseX} mouseY={mouseY} depth={28} />
-      <StatCard stat={homepageStats[3]} className="bottom-[30%] right-[9%]" delay={1.6} mouseX={mouseX} mouseY={mouseY} depth={20} />
-      <StatCard stat={homepageStats[4]} className="bottom-[18%] right-[3%]" delay={1.8} mouseX={mouseX} mouseY={mouseY} depth={24} />
+      {/* ── Floating stat cards surrounding the globe (desktop only) ── */}
+      {/* Top-Left of Globe */}
+      <StatCard stat={homepageStats[0]} className="top-[22%] right-[44%]" delay={1.2} mouseX={mouseX} mouseY={mouseY} depth={18} floatDuration={5.0} floatDelay={0.0} />
+      {/* Top-Right of Globe */}
+      <StatCard stat={homepageStats[2]} className="top-[16%] right-[8%]"  delay={1.4} mouseX={mouseX} mouseY={mouseY} depth={24} floatDuration={6.0} floatDelay={0.8} />
+      {/* Bottom-Left of Globe */}
+      <StatCard stat={homepageStats[3]} className="bottom-[26%] right-[42%]" delay={1.6} mouseX={mouseX} mouseY={mouseY} depth={16} floatDuration={5.5} floatDelay={0.4} />
+      {/* Bottom-Right of Globe */}
+      <StatCard stat={homepageStats[4]} className="bottom-[22%] right-[6%]" delay={1.8} mouseX={mouseX} mouseY={mouseY} depth={20} floatDuration={6.5} floatDelay={1.2} />
 
       {/* ── Scroll indicator ── */}
       <motion.div
