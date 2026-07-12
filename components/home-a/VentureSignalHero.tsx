@@ -254,11 +254,9 @@ export function VentureSignalHero() {
           {/* Prize badges */}
           <motion.div variants={item} className="flex flex-wrap items-center gap-3 mb-9">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#4FD1C5]/25 bg-gradient-to-r from-[#4FD1C5]/10 to-[#4FD1C5]/5 text-xs font-black tracking-wider uppercase text-[#4FD1C5] shadow-[0_0_15px_rgba(79,209,197,0.12)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4FD1C5]" />
               $245K Prize Pool
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/20 bg-gradient-to-r from-amber-400/10 to-transparent text-xs font-black tracking-wider uppercase text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.08)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
               $100K Grand Prize
             </div>
           </motion.div>
