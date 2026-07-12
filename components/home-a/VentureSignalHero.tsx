@@ -214,13 +214,13 @@ export function VentureSignalHero() {
       {/* ════ TEXT SIDE ════ */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
-        className="relative h-screen flex items-center z-20 lg:w-[50%]"
+        className="relative h-screen flex items-center z-20 w-full lg:w-[60%]"
       >
         <motion.div
           variants={container}
           initial="hidden"
           animate="visible"
-          className="px-6 sm:px-10 lg:px-16 xl:px-20 max-w-xl pt-10 md:pt-14 lg:pt-18"
+          className="px-6 sm:px-10 lg:pl-16 lg:pr-4 xl:pl-20 xl:pr-6 max-w-2xl pt-10 md:pt-14 lg:pt-18"
         >
 
           {/* Title — clean blur/fade reveal, no scramble */}
@@ -231,7 +231,7 @@ export function VentureSignalHero() {
             className="text-4xl sm:text-5xl md:text-6xl xl:text-[4.5rem] font-bold tracking-tighter mb-4 font-poppins uppercase leading-[1.1] xl:leading-none -ml-1 md:-ml-2 lg:-ml-3 xl:-ml-4"
             aria-label="VentureCraft"
           >
-            <span className="block text-white xs:whitespace-nowrap">
+            <span className="block text-white whitespace-nowrap">
               Venture Craft
             </span>
             <span className="block mt-2 text-xl sm:text-2xl md:text-3xl uppercase">
