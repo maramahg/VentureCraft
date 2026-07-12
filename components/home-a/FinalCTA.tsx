@@ -75,29 +75,6 @@ export default function FinalCTA() {
               </motion.div>
             ))}
           </div>
-
-          {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
-            <Link
-              href={isRegistrationOpen ? '/apply' : '/timeline'}
-              className="group px-8 py-3.5 sm:py-4 rounded-full bg-[#4FD1C5] text-[#001A18] font-bold text-sm hover:bg-[#5ae0d4] transition-colors flex items-center justify-center gap-2"
-            >
-              {isRegistrationOpen ? 'Apply Now' : 'View Timeline'}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="/contact"
-              className="px-8 py-3.5 sm:py-4 rounded-full border border-white/12 text-white/70 font-bold text-sm hover:text-white hover:border-[#4FD1C5]/30 transition-all text-center"
-            >
-              Contact the Team
-            </Link>
-            <Link
-              href="/contact"
-              className="px-8 py-3.5 sm:py-4 rounded-full border border-[#4FD1C5]/15 text-[#4FD1C5]/80 font-bold text-sm hover:text-[#4FD1C5] hover:border-[#4FD1C5]/40 transition-all text-center"
-            >
-              Become a Mentor
-            </Link>
-          </div>
         </motion.div>
       </div>
     </section>
