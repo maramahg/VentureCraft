@@ -88,9 +88,9 @@ function PrizeCard({ prize, delay, triggered }: {
         {/* Top accent bar */}
         <div className="h-1 w-full relative z-10" style={{ background: prize.color }} />
 
-        <div className={`relative z-10 p-6 sm:p-8 flex-1 flex flex-col justify-between ${isLarge ? 'lg:p-10' : ''}`}>
+        <div className={`relative z-10 p-6 sm:p-8 flex-1 flex flex-col ${isLarge ? 'lg:p-10' : ''}`}>
           {/* Rank + label */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-4 flex-none">
             <span className={`font-black tracking-tight font-sans ${rankSizeClass}`} style={{ color: prize.color }}>
               {prize.rank}
             </span>
@@ -100,19 +100,21 @@ function PrizeCard({ prize, delay, triggered }: {
             </span>
           </div>
 
-          {/* Bottom amount + description */}
-          <div className="mt-auto">
-            {/* Amount count-up */}
-            <div className={`font-black text-white tracking-tighter leading-none mb-4 font-poppins ${amountSizeClass}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {/* Vertically centered Amount */}
+          <div className="flex-1 flex flex-col justify-center py-2">
+            <div className={`font-black text-white tracking-tighter leading-none font-poppins ${amountSizeClass}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {triggered ? formatted(count) : '$0K'}
             </div>
+          </div>
 
-            {isLarge && (
+          {/* Bottom description */}
+          {isLarge && (
+            <div className="flex-none mt-2">
               <p className="text-white/35 text-sm leading-relaxed font-sans">
                 Awarded to the venture with the strongest scientific foundation, market potential, and global impact.
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* 3D depth — inner glow on tilt */}
