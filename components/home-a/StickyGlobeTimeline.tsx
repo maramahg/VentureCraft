@@ -41,9 +41,11 @@ export default function StickyGlobeTimeline() {
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1024px)');
-    const update = () => setIsMobile(mq.matches);
+    const touchQuery = window.matchMedia('(pointer: coarse)');
+    const update = () => setIsMobile(mq.matches || touchQuery.matches);
     update();
     mq.addEventListener('change', update);
+    touchQuery.addEventListener('change', update);
 
     // Dynamically calculate phase statuses based on dates
     const now = new Date();
@@ -61,7 +63,10 @@ export default function StickyGlobeTimeline() {
     });
     setPhases(updated);
 
-    return () => mq.removeEventListener('change', update);
+    return () => {
+      mq.removeEventListener('change', update);
+      touchQuery.removeEventListener('change', update);
+    };
   }, []);
 
   const { scrollYProgress } = useScroll({
