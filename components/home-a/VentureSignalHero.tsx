@@ -78,13 +78,13 @@ function OrbitStatCard({
             ease: 'easeInOut',
             delay: baseAngle * 0.01,
           }}
-          className="glass-card rounded-xl px-2 py-1.5 sm:rounded-2xl sm:px-4 sm:py-2.5 border border-[#4FD1C5]/20 min-w-[96px] sm:min-w-[130px] mint-glow shadow-xl select-none"
-          style={{ background: 'rgba(0,18,15,0.85)' }}
+          className="rounded-xl px-2.5 py-2 sm:rounded-2xl sm:px-4 sm:py-3 border border-[#4FD1C5]/25 min-w-[96px] sm:min-w-[130px] shadow-[0_12px_30px_rgba(0,0,0,0.7)] backdrop-blur-md select-none"
+          style={{ background: 'linear-gradient(135deg, rgba(2,14,12,0.85) 0%, rgba(1,6,5,0.93) 100%)' }}
         >
-          <div className="text-sm sm:text-xl font-black text-white leading-none tracking-tight font-poppins">
+          <div className="text-sm sm:text-xl font-black font-poppins leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#23BCAB] drop-shadow-[0_0_8px_rgba(79,209,197,0.2)]">
             {stat.prefix || ''}{stat.value}{stat.suffix || ''}
           </div>
-          <div className="text-[7px] sm:text-[9px] uppercase tracking-[0.2em] text-white/40 mt-1 font-semibold">
+          <div className="text-[7px] sm:text-[9px] uppercase tracking-[0.2em] text-white/70 mt-1 font-bold font-poppins">
             {stat.label}
           </div>
         </motion.div>
@@ -280,7 +280,7 @@ export function VentureSignalHero() {
             <OrbitStatCard stat={homepageStats[0]} baseAngle={0}   yOffset={dimensions.isMobile ? -75 : -140} radius={orbitRadius} orbitValue={orbitValue} delay={1.2} />
             <OrbitStatCard stat={homepageStats[2]} baseAngle={90}  yOffset={dimensions.isMobile ? -25 : -50}  radius={orbitRadius} orbitValue={orbitValue} delay={1.4} />
             <OrbitStatCard stat={homepageStats[3]} baseAngle={180} yOffset={dimensions.isMobile ? 25 : 50}   radius={orbitRadius} orbitValue={orbitValue} delay={1.6} />
-            <OrbitStatCard stat={homepageStats[4]} baseAngle={270} yOffset={dimensions.isMobile ? 75 : 140}  radius={orbitRadius} orbitValue={orbitValue} delay={1.8} />
+            <OrbitStatCard stat={homepageStats[1]} baseAngle={270} yOffset={dimensions.isMobile ? 75 : 140}  radius={orbitRadius} orbitValue={orbitValue} delay={1.8} />
           </motion.div>
         </div>
 

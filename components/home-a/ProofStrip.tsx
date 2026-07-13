@@ -2,7 +2,6 @@
 
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import Image from 'next/image';
 import { homepageStats } from '../../lib/homepageStats';
 
 // Count-up hook
@@ -37,13 +36,13 @@ function StatItem({ stat, triggered }: { stat: (typeof homepageStats)[0]; trigge
   };
 
   return (
-    <div className="flex flex-col items-center text-center px-3 sm:px-6 py-5">
-      <div className="text-xl sm:text-3xl font-black text-white tracking-tight leading-none">
+    <div className="flex flex-col items-center text-center px-3 sm:px-6 py-6 transition-all duration-300 hover:scale-105 group cursor-default">
+      <div className="text-2xl sm:text-4xl font-black font-poppins tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#23BCAB] drop-shadow-[0_0_12px_rgba(79,209,197,0.15)] group-hover:from-white group-hover:to-[#4FD1C5] transition-all duration-300">
         {stat.prefix || ''}
         {triggered ? format(raw) : '0'}
         {stat.suffix || ''}
       </div>
-      <div className="text-[9px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.22em] text-white/40 font-semibold mt-2">
+      <div className="text-[9px] sm:text-[11px] uppercase tracking-[0.2em] text-white/40 font-bold font-poppins mt-2 group-hover:text-white/60 transition-colors duration-300">
         {stat.label}
       </div>
     </div>
@@ -57,15 +56,26 @@ export default function ProofStrip() {
   return (
     <section
       ref={ref}
-      className="relative z-10 overflow-hidden"
-      style={{ background: 'rgba(0,12,10,0.95)' }}
+      className="relative z-10 overflow-hidden backdrop-blur-md border-y border-white/5 shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
+      style={{
+        background: 'linear-gradient(180deg, rgba(2,12,10,0.82) 0%, rgba(1,6,5,0.88) 100%)',
+      }}
     >
-      {/* Mint top border */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/25 to-transparent" />
+      {/* Ambient background glow inside the ribbon */}
+      <div
+        className="absolute inset-0 pointer-events-none animate-pulse"
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(79,209,197,0.05) 0%, transparent 60%)',
+          animationDuration: '6s'
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Mint top border line with glow */}
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/30 to-transparent shadow-[0_0_8px_rgba(79,209,197,0.3)]" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 items-center justify-items-center w-full">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 items-center justify-items-center w-full divide-x divide-white/[0.04] sm:divide-x-0 md:divide-x md:divide-white/[0.04]">
           {homepageStats.map((stat, i) => (
             <div 
               key={stat.label} 
@@ -77,8 +87,8 @@ export default function ProofStrip() {
         </div>
       </div>
 
-      {/* Mint bottom border */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/15 to-transparent" />
+      {/* Mint bottom border line with glow */}
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#4FD1C5]/20 to-transparent shadow-[0_0_6px_rgba(79,209,197,0.2)]" />
     </section>
   );
 }
