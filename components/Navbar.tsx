@@ -220,6 +220,18 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="fixed top-0 w-full z-50 px-4 py-4 md:py-6"
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        const link = target.closest('a');
+        if (link) {
+          if (typeof window !== 'undefined') {
+            if ('scrollRestoration' in window.history) {
+              window.history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+          }
+        }
+      }}
     >
       <div className="max-w-7xl mx-auto">
         <div className="glass-panel px-6 py-3 flex items-center justify-between !backdrop-blur-md">
