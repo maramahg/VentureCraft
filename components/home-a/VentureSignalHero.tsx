@@ -195,7 +195,7 @@ export function VentureSignalHero() {
           src="/images/dtv/hero.png"
           alt="Dhahran Techno Valley innovation ecosystem"
           fill
-          className="object-cover opacity-30"
+          className="object-cover opacity-[0.24] filter grayscale contrast-[1.2] brightness-[0.7] mix-blend-luminosity"
           sizes="100vw"
           priority
         />
