@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue, useSpring } from 'framer-motion';
 import { competitionPhases, CompetitionPhase } from '../../lib/competitionPhases';
 import { Lightbulb, Search, BadgeCheck, Rocket, Plane, Zap, Trophy, LucideIcon } from 'lucide-react';
 
@@ -68,8 +68,15 @@ export default function StickyGlobeTimeline() {
     offset: ['start start', 'end end'],
   });
 
+  const smoothScrollProgress = useSpring(scrollYProgress, {
+    damping: 25,
+    stiffness: 110,
+    mass: 0.2,
+    restDelta: 0.001
+  });
+
   const phaseCount = phases.length;
-  const activePhaseMotion = useTransform(scrollYProgress, (v) => {
+  const activePhaseMotion = useTransform(smoothScrollProgress, (v) => {
     const segment = 1 / phaseCount;
     const idx = Math.floor(v / segment);
     const localProgress = (v - idx * segment) / segment;
