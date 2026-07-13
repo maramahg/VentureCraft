@@ -190,13 +190,14 @@ export function VentureSignalHero() {
     >
 
       {/* ── Background Image ── */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-x-0 top-0 h-[100vh] lg:h-full pointer-events-none">
         <Image
           src="/images/dtv/hero.png"
           alt="Dhahran Techno Valley innovation ecosystem"
           fill
           className="object-cover opacity-30"
           sizes="100vw"
+          priority
         />
         {/* Gradient overlays to ensure text/globe legibility */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B2A24] via-[#0B2A24]/90 to-[#0B2A24]/40" />

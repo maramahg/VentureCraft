@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, MotionValue, useSpring, useMotionValue, animate } from 'framer-motion';
 import { competitionPhases, CompetitionPhase } from '../../lib/competitionPhases';
 import { Lightbulb, Search, BadgeCheck, Rocket, Plane, Zap, Trophy, LucideIcon } from 'lucide-react';
 
@@ -18,7 +18,7 @@ const phaseIcons: Record<string, LucideIcon> = {
 function PhaseIcon({ name }: { name: string }) {
   const Icon = phaseIcons[name];
   if (!Icon) return null;
-  return <Icon size={22} strokeWidth={2} className="text-[#23BCAB]" />;
+  return <Icon className="w-5 h-5 text-[#23BCAB]" />;
 }
 
 const statusColors: Record<string, string> = {
@@ -35,6 +35,7 @@ const statusLabels: Record<string, string> = {
 export default function StickyGlobeTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activePhase, setActivePhase] = useState(1);
+  const [mobileActivePhase, setMobileActivePhase] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
   const [phases, setPhases] = useState<CompetitionPhase[]>(competitionPhases);
 
@@ -76,16 +77,44 @@ export default function StickyGlobeTimeline() {
   });
 
   const phaseCount = phases.length;
-  const activePhaseMotion = useTransform(smoothScrollProgress, (v) => {
+
+  // Writable MotionValue representing the current animated active phase (starts at 1)
+  const activePhaseMotion = useMotionValue(1);
+
+  // Desktop scroll progress mapping
+  const desktopPhaseProgress = useTransform(smoothScrollProgress, (v) => {
     const segment = 1 / phaseCount;
     const idx = Math.floor(v / segment);
     const localProgress = (v - idx * segment) / segment;
     if (localProgress < 0.7) return Math.min(phaseCount, idx + 1);
     return Math.min(phaseCount, idx + 1 + (localProgress - 0.7) / 0.3);
   });
+
+  // Track desktop scroll values and set activePhaseMotion
+  useMotionValueEvent(desktopPhaseProgress, 'change', (latest) => {
+    if (!isMobile) {
+      activePhaseMotion.set(latest);
+    }
+  });
+
+  // Track mobile clicks/taps and animate activePhaseMotion smoothly
+  useEffect(() => {
+    if (isMobile) {
+      animate(activePhaseMotion, mobileActivePhase, {
+        type: 'spring',
+        damping: 25,
+        stiffness: 110,
+        mass: 0.2,
+      });
+    }
+  }, [mobileActivePhase, isMobile, activePhaseMotion]);
+
+  // Keep the numeric activePhase state synchronized for indicators
   useMotionValueEvent(activePhaseMotion, 'change', (latest) => {
     setActivePhase(Math.min(phaseCount, Math.max(1, Math.round(latest))));
   });
+
+
 
   const circumference = 2 * Math.PI * 70; // ~439.82
   const activeProgress = (activePhase - 1) / (phaseCount - 1);
@@ -111,7 +140,7 @@ export default function StickyGlobeTimeline() {
       <div
         ref={containerRef}
         className="max-w-7xl mx-auto px-6 sm:px-10"
-        style={{ minHeight: `${phaseCount * 70}vh` }}
+        style={{ minHeight: isMobile ? 'auto' : `${phaseCount * 70}vh` }}
       >
         <div className="sticky top-20 sm:top-24 flex flex-col lg:flex-row gap-8 lg:gap-8 items-stretch lg:items-start w-full">
 
@@ -171,19 +200,23 @@ export default function StickyGlobeTimeline() {
               </div>
             </div>
 
-            {/* Current phase details (desktop only) */}
-            <div className="hidden lg:block border-t border-[#F5FAFA]/8 pt-5 font-poppins">
-              <div className="text-[11px] uppercase tracking-[0.3em] text-[#F5FAFA]/30 font-bold mb-2 font-poppins">
-                Current Phase
-              </div>
+            {/* Desktop only active phase label */}
+            <div className="hidden lg:block">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-[#F5FAFA]/30 font-bold font-poppins block mb-2">Current Phase</span>
               <AnimatePresence mode="wait">
-                <motion.div key={activePhase}
-                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.3 }}>
-                  <div className="text-xl font-black text-[#F5FAFA] font-poppins">{currentPhase?.title}</div>
-                  <div className="text-xs font-bold mt-1 font-poppins" style={{ color: statusColors[currentPhase?.status] }}>
-                    {statusLabels[currentPhase?.status]}
-                  </div>
+                <motion.div
+                  key={activePhase}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <h3 className="text-xl font-black text-[#F5FAFA] font-poppins leading-none mb-1.5 uppercase">
+                    {currentPhase?.title}
+                  </h3>
+                  <span className="text-xs font-bold text-[#23BCAB] uppercase tracking-wider block font-poppins">
+                    {currentPhase?.status === 'active' ? 'IN PROGRESS' : currentPhase?.status.toUpperCase()}
+                  </span>
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -206,9 +239,42 @@ export default function StickyGlobeTimeline() {
                   phase={phase}
                   activePhaseMotion={activePhaseMotion}
                   isMobile={isMobile}
+                  onCardClick={() => {
+                    if (isMobile) {
+                      setMobileActivePhase((prev) => (prev < phaseCount ? prev + 1 : 1));
+                    }
+                  }}
                 />
               ))}
             </div>
+
+            {/* Mobile tap prompt and navigation buttons */}
+            {isMobile && (
+              <div className="relative z-30 flex flex-col items-center gap-3 mt-8">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-[#23BCAB] font-black bg-[#23BCAB]/10 px-3 py-1.5 rounded-full font-poppins">
+                  Tap Card to Next Phase
+                </span>
+                <div className="flex items-center gap-6 mt-1">
+                  <button
+                    onClick={() => setMobileActivePhase((prev) => Math.max(1, prev - 1))}
+                    disabled={mobileActivePhase === 1}
+                    className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/50 disabled:opacity-20 active:bg-white/5 font-bold transition-all"
+                  >
+                    ←
+                  </button>
+                  <span className="text-xs font-bold text-white/60 font-poppins">
+                    {mobileActivePhase} / {phaseCount}
+                  </span>
+                  <button
+                    onClick={() => setMobileActivePhase((prev) => Math.min(phaseCount, prev + 1))}
+                    disabled={mobileActivePhase === phaseCount}
+                    className="w-10 h-10 rounded-full border border-[#23BCAB]/25 flex items-center justify-center text-[#23BCAB] disabled:opacity-20 active:bg-[#23BCAB]/10 font-bold transition-all"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
@@ -221,12 +287,20 @@ function ArcPhaseCard({
   phase,
   activePhaseMotion,
   isMobile,
+  onCardClick,
 }: {
   phase: CompetitionPhase;
   activePhaseMotion: MotionValue<number>;
   isMobile: boolean;
+  onCardClick?: () => void;
 }) {
   const relative = useTransform(activePhaseMotion, (v) => phase.id - v);
+  const [isActive, setIsActive] = useState(() => {
+    return Math.round(activePhaseMotion.get()) === phase.id;
+  });
+  useMotionValueEvent(activePhaseMotion, 'change', (latest) => {
+    setIsActive(Math.round(latest) === phase.id);
+  });
 
   const y = useTransform(relative, (r) => (r * (isMobile ? 80 : 118)) - (isMobile ? 25 : 0));
   const x = useTransform(relative, (r) => isMobile ? 0 : Math.sin(r * 0.4) * 90);
@@ -238,31 +312,30 @@ function ArcPhaseCard({
 
   return (
     <motion.div
-      className="absolute top-1/2 left-1/2 w-[92%] sm:w-[420px] -translate-x-1/2 -translate-y-1/2"
+      className={`absolute top-1/2 left-1/2 w-[92%] sm:w-[420px] -translate-x-1/2 -translate-y-1/2 cursor-pointer ${
+        isMobile && !isActive ? 'pointer-events-none' : 'pointer-events-auto'
+      }`}
       style={{ x, y, rotate, scale, opacity, filter: blur, zIndex }}
+      onClick={onCardClick}
     >
-      <PhaseCardBody phase={phase} activePhaseMotion={activePhaseMotion} />
+      <PhaseCardBody phase={phase} isActiveCard={isActive} />
     </motion.div>
   );
 }
 
 function PhaseCardBody({
   phase,
-  activePhaseMotion,
+  isActiveCard,
 }: {
   phase: CompetitionPhase;
-  activePhaseMotion: MotionValue<number>;
+  isActiveCard: boolean;
 }) {
-  const [isActive, setIsActive] = useState(false);
-  useMotionValueEvent(activePhaseMotion, 'change', (latest) => {
-    setIsActive(Math.round(latest) === phase.id);
-  });
   const isCompleted = phase.status === 'completed';
 
   return (
     <div
       className={`relative rounded-2xl border transition-all duration-500 ${
-        isActive
+        isActiveCard
           ? 'border-[#23BCAB]/40 bg-[#072828]/95 mint-glow p-5 sm:p-6 shadow-xl'
           : isCompleted
           ? 'border-[#23BCAB]/15 bg-[#072828]/90 p-4 sm:p-5'
@@ -274,8 +347,8 @@ function PhaseCardBody({
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border"
             style={{
               borderColor: statusColors[phase.status],
-              color: isActive ? '#072828' : statusColors[phase.status],
-              background: isActive ? statusColors[phase.status] : 'transparent',
+              color: isActiveCard ? '#072828' : statusColors[phase.status],
+              background: isActiveCard ? statusColors[phase.status] : 'transparent',
             }}>
             {phase.id}
           </div>
@@ -291,21 +364,21 @@ function PhaseCardBody({
         </span>
       </div>
 
-      <h3 className={`font-black text-[#F5FAFA] mb-1.5 sm:mb-2 font-poppins ${isActive ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
+      <h3 className={`font-black text-[#F5FAFA] mb-1.5 sm:mb-2 font-poppins ${isActiveCard ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
         {phase.title}
       </h3>
-      {isActive && (
+      {isActiveCard && (
         <p className="text-[#F5FAFA]/45 text-xs sm:text-sm leading-relaxed mb-3.5 sm:mb-4">{phase.description}</p>
       )}
       <div className="flex items-center justify-between gap-2">
         <div className="text-[10px] sm:text-xs font-bold text-[#23BCAB] uppercase tracking-wide">
           {phase.dateText}
         </div>
-        {!isActive && (
+        {!isActiveCard && (
           <div className="text-[10px] sm:text-xs text-[#23BCAB]/60 font-semibold">→ {phase.participantAction}</div>
         )}
       </div>
-      {isActive && (
+      {isActiveCard && (
         <>
           <div className="text-[10px] sm:text-xs text-[#23BCAB]/70 font-semibold mt-1.5">→ {phase.participantAction}</div>
           <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-[#23BCAB]/60 to-transparent" />
