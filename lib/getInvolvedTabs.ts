@@ -12,7 +12,7 @@ export interface InvolvedTab {
 export const getInvolvedTabs: InvolvedTab[] = [
   {
     id: 'compete',
-    label: 'Compete',
+    label: 'Startup Founder',
     who: 'For student led ventures building science and technology solutions with global impact.',
     why: 'Access a $245K prize pool, world class mentorship, and a direct path from research to market — powered by KFUPM and DTV.',
     what: [
@@ -21,13 +21,13 @@ export const getInvolvedTabs: InvolvedTab[] = [
       'Pitch to an international panel of judges',
       'Compete for $100K Grand Prize',
     ],
-    cta: 'View Details',
+    cta: 'Register to Compete!',
     ctaHref: '/apply',
     imageKey: 'compete',
   },
   {
     id: 'mentor',
-    label: 'Mentor',
+    label: 'Expert Mentor',
     who: 'For industry experts, researchers, and entrepreneurs who want to shape the next generation of deep tech founders.',
     why: 'Guide promising ventures at a critical stage. Your expertise can help a student founder build something that matters.',
     what: [
@@ -36,13 +36,13 @@ export const getInvolvedTabs: InvolvedTab[] = [
       'Evaluate and support shortlisted ventures',
       'Connect with KFUPM and DTV innovation networks',
     ],
-    cta: 'Support Founders',
+    cta: 'Become a Mentor!',
     ctaHref: '/contact',
     imageKey: 'mentor',
   },
   {
     id: 'sponsor',
-    label: 'Sponsor',
+    label: 'Partner & Sponsor',
     who: 'For companies and organizations committed to advancing deep tech innovation and the next generation of entrepreneurs.',
     why: 'Gain visibility among 130+ countries of student founders, researchers, and institutional partners — all in one global platform.',
     what: [
@@ -51,13 +51,13 @@ export const getInvolvedTabs: InvolvedTab[] = [
       'Co branding with KFUPM and DTV',
       'Contribute to meaningful deep tech impact',
     ],
-    cta: 'Partner With Us',
+    cta: 'Sponsor the Future!',
     ctaHref: '/contact',
     imageKey: 'sponsor',
   },
   {
     id: 'ambassador',
-    label: 'Ambassador',
+    label: 'Student Ambassador',
     who: 'For students and early career professionals who want to represent Venture Craft in their university or community.',
     why: 'Build leadership skills, expand your network, and help bring the Venture Craft opportunity to founders in your region.',
     what: [
@@ -66,7 +66,7 @@ export const getInvolvedTabs: InvolvedTab[] = [
       'Earn recognition and exclusive opportunities',
       'Be part of a global ambassador community',
     ],
-    cta: 'Represent Us',
+    cta: 'Join the Movement!',
     ctaHref: '/ambassadors',
     imageKey: 'ambassador',
   },
