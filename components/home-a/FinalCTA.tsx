@@ -31,13 +31,15 @@ export default function FinalCTA() {
           viewport={{ once: true }}
         >
           {/* Main headline */}
-          <div className="max-w-3xl mx-auto mb-14">
-            <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6">
-              Follow the{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#00A383] whitespace-nowrap">
-                Venture Craft
-              </span>{' '}
-              journey.
+          <div className="max-w-5xl mx-auto mb-14 text-center">
+            <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-tight mb-6 font-poppins uppercase text-center">
+              FOLLOW THE <br />
+              <span className="whitespace-nowrap">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4FD1C5] to-[#00A383]">
+                  VENTURE CRAFT
+                </span>{' '}
+                JOURNEY
+              </span>
             </h2>
 
             <p className="text-white/40 text-lg sm:text-xl leading-relaxed">
