@@ -12,9 +12,10 @@ const BENEFITS = [
   { text: 'Networking', icon: Network },
 ];
 
+// Reordered in standard podium order: [2nd, 1st, 3rd]
 const PRIZES = [
-  { rank: '1st', label: 'Grand Prize',  amount: 100000, prefix: '$', color: '#4FD1C5', size: 'large'  as const },
   { rank: '2nd', label: 'Second Place', amount: 60000,  prefix: '$', color: '#00A383', size: 'medium' as const },
+  { rank: '1st', label: 'Grand Prize',  amount: 100000, prefix: '$', color: '#4FD1C5', size: 'large'  as const },
   { rank: '3rd', label: 'Third Place',  amount: 40000,  prefix: '$', color: '#ccfbf1', size: 'medium' as const },
 ];
 
@@ -43,23 +44,26 @@ function PrizeCard({ prize, delay, triggered }: {
   const isLarge = prize.size === 'large';
   const tilt = use3DTilt(isLarge ? 8 : 12);
 
+  // Responsive heights tailored for mobile, tablet, and desktop viewports
   const heightClass = prize.rank === '1st' 
-    ? 'min-h-[290px] sm:min-h-[310px]' 
+    ? 'h-[210px] xs:h-[250px] sm:h-[310px]' 
     : prize.rank === '2nd' 
-      ? 'min-h-[230px] sm:min-h-[250px]' 
-      : 'min-h-[170px] sm:min-h-[190px]';
+      ? 'h-[165px] xs:h-[195px] sm:h-[250px]' 
+      : 'h-[125px] xs:h-[145px] sm:h-[190px]';
 
+  // Responsive font sizes for the amount value
   const amountSizeClass = prize.rank === '1st' 
-    ? 'text-5xl sm:text-6xl lg:text-7xl' 
+    ? 'text-2xl xs:text-3xl sm:text-5xl lg:text-7xl' 
     : prize.rank === '2nd' 
-      ? 'text-4xl sm:text-5xl lg:text-6xl' 
-      : 'text-3xl sm:text-4xl lg:text-5xl';
+      ? 'text-xl xs:text-2xl sm:text-4xl lg:text-6xl' 
+      : 'text-lg xs:text-xl sm:text-3xl lg:text-5xl';
 
+  // Responsive font sizes for the rank
   const rankSizeClass = prize.rank === '1st' 
-    ? 'text-3xl sm:text-4xl' 
+    ? 'text-xl xs:text-2xl sm:text-3xl lg:text-4xl' 
     : prize.rank === '2nd' 
-      ? 'text-2xl sm:text-3xl' 
-      : 'text-xl sm:text-2xl';
+      ? 'text-lg xs:text-xl sm:text-2xl lg:text-3xl' 
+      : 'text-base xs:text-lg sm:text-xl lg:text-2xl';
 
   return (
     <div style={{ perspective: '900px' }}>
@@ -70,7 +74,7 @@ function PrizeCard({ prize, delay, triggered }: {
         style={tilt.style}
         onMouseMove={tilt.onMouseMove}
         onMouseLeave={tilt.onMouseLeave}
-        className={`relative rounded-3xl overflow-hidden border transition-colors duration-500 cursor-default flex flex-col justify-between ${heightClass} ${
+        className={`relative rounded-xl sm:rounded-3xl overflow-hidden border transition-colors duration-500 cursor-default flex flex-col justify-between ${heightClass} ${
           isLarge ? 'border-[#4FD1C5]/30' : 'border-white/8'
         }`}
         whileHover={{ scale: 1.02 }}
@@ -88,29 +92,28 @@ function PrizeCard({ prize, delay, triggered }: {
         {/* Top accent bar */}
         <div className="h-1 w-full relative z-10" style={{ background: prize.color }} />
 
-        <div className={`relative z-10 p-6 sm:p-8 flex-1 flex flex-col ${isLarge ? 'lg:p-10' : ''}`}>
+        <div className={`relative z-10 p-2.5 xs:p-3 sm:p-8 flex-1 flex flex-col justify-between items-center text-center ${isLarge ? 'lg:p-10' : ''}`}>
           {/* Rank + label */}
-          <div className="flex items-center gap-3 mb-4 flex-none">
+          <div className="flex flex-col items-center justify-center text-center mb-2 sm:mb-4 flex-none w-full">
             <span className={`font-black tracking-tight font-sans ${rankSizeClass}`} style={{ color: prize.color }}>
               {prize.rank}
             </span>
-            <div className="h-px flex-1 opacity-20" style={{ background: prize.color }} />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/35 font-bold font-sans">
+            <span className="text-[7px] xs:text-[9px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.25em] text-white/35 font-bold font-sans mt-0.5 sm:mt-1">
               {prize.label}
             </span>
           </div>
 
           {/* Vertically centered Amount */}
-          <div className="flex-1 flex flex-col justify-center py-2">
+          <div className="flex-1 flex flex-col justify-center items-center text-center py-2 w-full">
             <div className={`font-black text-white tracking-tighter leading-none font-poppins ${amountSizeClass}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
               {triggered ? formatted(count) : '$0K'}
             </div>
           </div>
 
-          {/* Bottom description */}
+          {/* Bottom description (hidden on mobile to preserve layout space) */}
           {isLarge && (
-            <div className="flex-none mt-2">
-              <p className="text-white/35 text-sm leading-relaxed font-sans">
+            <div className="hidden sm:block mt-2 flex-none text-center">
+              <p className="text-white/35 text-xs sm:text-sm leading-relaxed font-sans max-w-xs mx-auto">
                 Awarded to the venture with the strongest scientific foundation, market potential, and global impact.
               </p>
             </div>
@@ -119,7 +122,7 @@ function PrizeCard({ prize, delay, triggered }: {
 
         {/* 3D depth — inner glow on tilt */}
         <div
-          className="absolute inset-0 rounded-3xl pointer-events-none opacity-0 hover:opacity-100 transition-opacity duration-400"
+          className="absolute inset-0 rounded-xl sm:rounded-3xl pointer-events-none opacity-0 hover:opacity-100 transition-opacity duration-400"
           style={{ boxShadow: `inset 0 0 60px ${prize.color}10` }}
         />
       </motion.div>
@@ -180,8 +183,8 @@ export default function PrizePool() {
           </p>
         </motion.div>
 
-        {/* 3D tilt prize cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 sm:items-end gap-5">
+        {/* 3D tilt prize cards — rendered always as a podium */}
+        <div className="grid grid-cols-3 items-end gap-2.5 sm:gap-5 max-w-4xl mx-auto">
           {PRIZES.map((prize, i) => (
             <PrizeCard key={prize.rank} prize={prize} delay={i * 0.15} triggered={isInView} />
           ))}
@@ -247,7 +250,6 @@ export default function PrizePool() {
             ))}
           </div>
         </div>
-
 
       </div>
     </section>
