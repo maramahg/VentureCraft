@@ -14,7 +14,7 @@ export default function GetInvolvedTabs() {
   const img = involvedImages[activeData.imageKey as keyof typeof involvedImages];
 
   return (
-    <section className="section-padding relative" style={{ background: '#0B2A24' }}>
+    <section className="section-padding relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         {/* Header */}
         <motion.div

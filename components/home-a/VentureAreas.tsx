@@ -18,7 +18,7 @@ const areaIcons: Record<string, LucideIcon> = {
 
 export default function VentureAreas() {
   return (
-    <section className="section-padding relative overflow-hidden" style={{ background: '#0B2A24' }}>
+    <section className="section-padding relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-10">
         {/* Header */}
         <motion.div

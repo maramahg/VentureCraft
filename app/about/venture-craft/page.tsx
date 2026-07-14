@@ -6,7 +6,7 @@ import Image from 'next/image';
 import ThemePillars from "@/components/ThemePillars";
 import AboutObjectives from "@/src/components/AboutObjectives";
 import AboutTargetAudience from "@/src/components/AboutTargetAudience";
-import CallToAction from "@/components/CallToAction";
+
 import VentureAreas from "@/components/home-a/VentureAreas";
 import GetInvolvedTabs from "@/components/home-a/GetInvolvedTabs";
 import { ExternalLink } from "lucide-react";
@@ -118,7 +118,7 @@ export default function VentureCraftAboutPage() {
                 {/* Get Involved — moved here from the homepage to reduce clutter */}
                 <GetInvolvedTabs />
 
-                <CallToAction showOnlyRegister />
+
             </div>
             <Footer />
         </main>
