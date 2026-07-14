@@ -3550,11 +3550,18 @@ function AdminDashboardContent() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {[
-                                    { name: 'Venture Craft About', path: '/about/venture-craft', description: 'Main introductory page' },
+                                    { name: 'Home Page', path: '/', description: 'Home / landing page' },
+                                    { name: 'What is Venture Craft?', path: '/about/venture-craft', description: 'Main introductory page' },
                                     { name: '2026 Theme', path: '/about/theme', description: 'Competition theme details' },
-                                    { name: 'Ambassadors', path: '/ambassadors', description: 'Ambassador program page' },
+                                    { name: 'KFUPM & DTV', path: '/about/kfupm-dtv', description: 'About KFUPM and Dhahran Techno Valley' },
+                                    { name: 'Eligibility & Criteria', path: '/apply/eligibility', description: 'Rules and requirements for startups' },
+                                    { name: 'Judging Rubrics', path: '/apply/rubrics', description: 'How applications are evaluated' },
+                                    { name: 'Application Materials', path: '/apply/materials', description: 'Submission guidelines and deliverables' },
+                                    { name: 'FAQ', path: '/apply/faq', description: 'Frequently asked questions' },
+                                    { name: 'Apply Now Portal', path: '/apply', description: 'Main application form submission page' },
+                                    { name: 'Ambassadors Page', path: '/ambassadors', description: 'Ambassador program info & applications' },
                                     { name: 'Outreach Challenge', path: '/outreach-challenge', description: 'Social media challenge page' },
-                                    { name: 'Main Application', path: '/apply', description: 'Startup application portal' },
+                                    { name: 'Contact Us', path: '/contact', description: 'Contact and inquiry forms' },
                                 ].map((page) => {
                                     const isHidden = hiddenPages.includes(page.path);
                                     return (
