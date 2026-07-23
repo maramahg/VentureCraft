@@ -2209,7 +2209,24 @@ function AdminDashboardContent() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3 text-white tracking-tight">
-                                {isAdmin ? 'Admin Dashboard' : isOutreachLead ? 'Outreach Hub' : isAmbassadorLead ? 'Ambassador Command' : isUltimateJudge ? 'Ultimate Judge' : isSupervisor ? `Team ${judgeTeam} Supervisor` : `Team ${judgeTeam} Evaluator`}
+                                {activeTab === 'startups'
+                                    ? 'Startup Applications'
+                                    : activeTab === 'ambassadors'
+                                        ? 'Ambassador Management'
+                                        : activeTab === 'judges'
+                                            ? 'Judges Network'
+                                            : activeTab === 'outreach'
+                                                ? 'Outreach Hub'
+                                                : activeTab === 'supervisor-view'
+                                                    ? `Team ${judgeTeam || ''} Supervisor View`
+                                                    : activeTab === 'broadcast'
+                                                        ? 'Email & Broadcast Center'
+                                                        : activeTab === 'qr'
+                                                            ? 'QR Code Generator'
+                                                            : activeTab === 'page-management'
+                                                                ? 'Page & Access Management'
+                                                                : 'Management Dashboard'
+                                }
                             </h1>
                             <p className="text-vc-mint/60 uppercase tracking-[0.3em] font-bold text-[10px] flex items-center gap-2">
                                 <Shield className="w-3 h-3" />
