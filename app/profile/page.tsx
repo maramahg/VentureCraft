@@ -570,7 +570,7 @@ export default function ProfilePage() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {(isAdmin || userAllowedTabs.includes('startups')) && (
                                         <Link
-                                            href="/admin"
+                                            href="/admin?tab=startups"
                                             className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-vc-mint/40 hover:bg-vc-mint/5 transition-all flex items-center justify-between group"
                                         >
                                             <div className="flex items-center gap-3">

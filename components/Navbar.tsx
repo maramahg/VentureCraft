@@ -388,7 +388,7 @@ export default function Navbar() {
                                 <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Management</p>
                                  {(isAdmin || userAllowedTabs.includes('startups')) && (
                                   <Link
-                                    href="/admin"
+                                    href="/admin?tab=startups"
                                     onClick={() => setIsProfileOpen(false)}
                                     className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
                                   >
@@ -617,9 +617,9 @@ export default function Navbar() {
 
                         {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead || userAllowedTabs.length > 0) && (
                           <>
-                            {(isAdmin || userAllowedTabs.includes('startups')) && (
+                             {(isAdmin || userAllowedTabs.includes('startups')) && (
                               <Link
-                                href="/admin"
+                                href="/admin?tab=startups"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
                                 onClick={() => setIsOpen(false)}
                               >
@@ -639,7 +639,7 @@ export default function Navbar() {
                             )}
                             {isJudge && !isSupervisor && !isAdmin && !userAllowedTabs.includes('startups') && (
                               <Link
-                                href="/admin"
+                                href="/admin?tab=startups"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
                                 onClick={() => setIsOpen(false)}
                               >

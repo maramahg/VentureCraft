@@ -835,40 +835,34 @@ function AdminDashboardContent() {
     useEffect(() => {
         if (loading) return; // Wait until auth & permissions finish loading
 
-        const tab = searchParams.get('tab');
+        const requestedTab = searchParams.get('tab') || 'startups';
 
-        // Handle forcing for specific roles if needed (unless explicitly granted tab access)
-        if (isJudge && !isUltimateJudge && !isSupervisor && !userAllowedTabs.includes(activeTab)) {
-            if (activeTab !== 'startups' && activeTab !== 'supervisor-view') setActiveTab('startups');
-            return;
-        }
-        if (isAmbassadorLead && !userAllowedTabs.includes(activeTab)) {
-            if (activeTab !== 'ambassadors') setActiveTab('ambassadors');
-            return;
-        }
+        // Check if user is authorized to access the requested tab
+        const isPermitted =
+            isAdmin ||
+            isSuperAdmin ||
+            userAllowedTabs.includes(requestedTab) ||
+            (requestedTab === 'startups' && (isJudge || isUltimateJudge)) ||
+            (requestedTab === 'ambassadors' && isAmbassadorLead) ||
+            (requestedTab === 'outreach' && isOutreachLead) ||
+            (requestedTab === 'judges' && isJudge) ||
+            (requestedTab === 'supervisor-view' && isSupervisor);
 
-        if (isOutreachLead && !tab && !userAllowedTabs.includes(activeTab)) {
-            if (activeTab !== 'outreach') setActiveTab('outreach');
-            return;
-        }
-
-        // Sync state with URL parameter if it exists and changed
-        if (!tab) {
-            if (activeTab !== 'startups') {
-                const defaultTab = (userAllowedTabs.length > 0 && !isAdmin && !isJudge && !isAmbassadorLead && !isOutreachLead)
-                    ? (userAllowedTabs[0] as any)
-                    : 'startups';
-                if (activeTab !== defaultTab) setActiveTab(defaultTab);
+        if (isPermitted) {
+            if (activeTab !== requestedTab) setActiveTab(requestedTab as any);
+        } else {
+            // Fallback to user's primary allowed tab if requested tab is forbidden
+            let fallback: any = 'startups';
+            if (userAllowedTabs.length > 0) {
+                fallback = userAllowedTabs[0];
+            } else if (isAmbassadorLead) {
+                fallback = 'ambassadors';
+            } else if (isOutreachLead) {
+                fallback = 'outreach';
+            } else if (isJudge) {
+                fallback = 'startups';
             }
-        } else if (['startups', 'ambassadors', 'qr', 'broadcast', 'judges', 'outreach', 'page-management', 'supervisor-view'].includes(tab)) {
-            // Restricted Tabs Control: Super Admins or users with explicitly granted tabs can access restricted tabs
-            const restrictedTabs = ['qr', 'broadcast', 'page-management'];
-            const isCustomAllowed = userAllowedTabs.includes(tab);
-            if (restrictedTabs.includes(tab) && !isSuperAdmin && !isCustomAllowed) {
-                if (activeTab !== 'startups') setActiveTab('startups');
-            } else if (activeTab !== tab) {
-                setActiveTab(tab as any);
-            }
+            if (activeTab !== fallback) setActiveTab(fallback);
         }
     }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead, isSuperAdmin, userAllowedTabs, isAdmin, loading]);
 
