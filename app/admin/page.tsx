@@ -910,25 +910,70 @@ function AdminDashboardContent() {
         if (!isSuperAdmin || activeTab !== 'page-management') return;
         const fetchUsersForPerms = async () => {
             try {
-                const usersSnap = await getDocs(query(collection(db, 'users'), limit(100)));
-                const list: UserProfile[] = [];
+                const userMap = new Map<string, UserProfile>();
+
+                // 1. Fetch from 'users' collection (without limit)
+                const usersSnap = await getDocs(collection(db, 'users'));
                 usersSnap.forEach(d => {
                     const data = d.data();
-                    list.push({
+                    const email = data.email || '';
+                    userMap.set(d.id, {
                         id: d.id,
-                        displayName: data.displayName || data.name || data.fullName || 'Unnamed User',
-                        email: data.email || '',
+                        displayName: data.displayName || data.name || data.fullName || email.split('@')[0] || 'Unnamed User',
+                        email: email,
                         role: data.role || 'user',
                         location: data.location || ''
                     });
                 });
-                setAllUsersListForPerms(list);
+
+                // 2. Aggregate from startup applications
+                applications.forEach(app => {
+                    const id = app.userId || app.id;
+                    if (id && !userMap.has(id)) {
+                        userMap.set(id, {
+                            id: id,
+                            displayName: app.teamMembers?.[0]?.name || app.startupName || app.leaderEmail?.split('@')[0] || 'Applicant',
+                            email: app.leaderEmail || '',
+                            role: 'applicant',
+                            location: app.location || ''
+                        });
+                    }
+                });
+
+                // 3. Aggregate from judges
+                allJudges.forEach(j => {
+                    if (j.id && !userMap.has(j.id)) {
+                        userMap.set(j.id, {
+                            id: j.id,
+                            displayName: j.displayName || j.email?.split('@')[0] || 'Judge',
+                            email: j.email || '',
+                            role: `judge (${j.role || 'evaluator'})`,
+                        });
+                    }
+                });
+
+                // 4. Aggregate from ambassadors
+                ambassadorsList.forEach(a => {
+                    if (a.id && !userMap.has(a.id)) {
+                        userMap.set(a.id, {
+                            id: a.id,
+                            displayName: a.displayName || a.email?.split('@')[0] || 'Ambassador',
+                            email: a.email || '',
+                            role: a.role || 'ambassador',
+                        });
+                    }
+                });
+
+                const sortedList = Array.from(userMap.values()).sort((a, b) =>
+                    (a.displayName || a.email).localeCompare(b.displayName || b.email)
+                );
+                setAllUsersListForPerms(sortedList);
             } catch (err) {
                 console.error("Error fetching users list for perms:", err);
             }
         };
         fetchUsersForPerms();
-    }, [isSuperAdmin, activeTab]);
+    }, [isSuperAdmin, activeTab, applications, allJudges, ambassadorsList]);
 
     const handleSelectUserForPerms = async (user: UserProfile) => {
         setSelectedUserForPerms(user);
@@ -3721,12 +3766,20 @@ function AdminDashboardContent() {
                                 <div className="glass-panel p-6 border-white/10 space-y-6">
                                     {/* User Search & Selection */}
                                     <div>
-                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Search & Select Target User</label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">Search & Select Target User</label>
+                                            <span className="text-[10px] font-bold text-vc-mint/60 uppercase tracking-wider">
+                                                {allUsersListForPerms.filter(u =>
+                                                    (u.displayName?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase()) ||
+                                                    (u.email?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase())
+                                                ).length} Users Found
+                                            </span>
+                                        </div>
                                         <div className="relative mb-4">
                                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                                             <input
                                                 type="text"
-                                                placeholder="Search user by name or email..."
+                                                placeholder="Search user by name, email, or enter UID..."
                                                 value={permUserSearchTerm}
                                                 onChange={(e) => setPermUserSearchTerm(e.target.value)}
                                                 className="w-full bg-white/5 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-vc-mint transition-all"
@@ -3734,13 +3787,38 @@ function AdminDashboardContent() {
                                         </div>
 
                                         {/* Filtered User Cards / List */}
-                                        <div className="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                        <div className="max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                            {permUserSearchTerm.trim().length > 0 && !allUsersListForPerms.some(u => u.email.toLowerCase() === permUserSearchTerm.trim().toLowerCase() || u.id === permUserSearchTerm.trim()) && (
+                                                <div
+                                                    onClick={() => handleSelectUserForPerms({
+                                                        id: permUserSearchTerm.trim(),
+                                                        displayName: permUserSearchTerm.trim(),
+                                                        email: permUserSearchTerm.trim(),
+                                                        role: 'custom user'
+                                                    })}
+                                                    className="p-3 rounded-xl border border-dashed border-vc-mint/40 bg-vc-mint/5 hover:bg-vc-mint/10 transition-all cursor-pointer flex items-center justify-between mb-2"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-vc-mint text-vc-green-dark flex items-center justify-center text-xs font-black">
+                                                            +
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-bold text-vc-mint">Configure access for custom UID / Email</p>
+                                                            <p className="text-[10px] text-white/40">{permUserSearchTerm.trim()}</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-vc-mint/20 text-vc-mint">
+                                                        Select
+                                                    </span>
+                                                </div>
+                                            )}
+
                                             {allUsersListForPerms
                                                 .filter(u =>
                                                     (u.displayName?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase()) ||
-                                                    (u.email?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase())
+                                                    (u.email?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase()) ||
+                                                    (u.id?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase())
                                                 )
-                                                .slice(0, 15)
                                                 .map(user => {
                                                     const isSelected = selectedUserForPerms?.id === user.id;
                                                     return (
@@ -3755,7 +3833,7 @@ function AdminDashboardContent() {
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-xs font-bold text-white leading-none mb-0.5">{user.displayName}</p>
-                                                                    <p className="text-[10px] text-white/40">{user.email}</p>
+                                                                    <p className="text-[10px] text-white/40">{user.email || user.id}</p>
                                                                 </div>
                                                             </div>
                                                             <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-white/5 text-white/40">
