@@ -50,6 +50,7 @@ export default function Navbar() {
   const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
   const [isAmbassador, setIsAmbassador] = useState(false);
   const [isOutreachLead, setIsOutreachLead] = useState(false);
+  const [userAllowedTabs, setUserAllowedTabs] = useState<string[]>([]);
   const [authLoading, setAuthLoading] = useState(true);
   const [hiddenPages, setHiddenPages] = useState<string[]>([]);
   const pathname = usePathname();
@@ -137,6 +138,7 @@ export default function Navbar() {
       if (!user) {
         setIsAdmin(false);
         setIsAmbassador(false);
+        setUserAllowedTabs([]);
         return;
       }
       try {
@@ -190,12 +192,21 @@ export default function Navbar() {
         // 5. Check if Outreach Leader
         const outreachLeadDoc = await getDoc(doc(db, 'outreach_leaders', user.uid));
         setIsOutreachLead(outreachLeadDoc.exists());
+
+        // 6. Check custom user permissions
+        const userPermDoc = await getDoc(doc(db, 'user_permissions', user.uid));
+        if (userPermDoc.exists()) {
+          setUserAllowedTabs(userPermDoc.data().allowedTabs || []);
+        } else {
+          setUserAllowedTabs([]);
+        }
       } catch (error) {
         console.error('Role check failed:', error);
         setIsAdmin(false);
         setIsSuperAdmin(false);
         setIsAmbassador(false);
         setIsOutreachLead(false);
+        setUserAllowedTabs([]);
       }
     };
     checkRole();
@@ -372,10 +383,10 @@ export default function Navbar() {
                               My Profile
                             </Link>
 
-                            {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead) && (
+                            {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead || userAllowedTabs.length > 0) && (
                               <div className="mt-1 pt-1 border-t border-white/10">
                                 <p className="px-5 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Management</p>
-                                 {isAdmin && (
+                                 {(isAdmin || userAllowedTabs.includes('startups')) && (
                                   <Link
                                     href="/admin"
                                     onClick={() => setIsProfileOpen(false)}
@@ -387,7 +398,7 @@ export default function Navbar() {
                                     Startup Applications
                                   </Link>
                                 )}
-                                {isSupervisor && (
+                                {(isSupervisor || userAllowedTabs.includes('supervisor-view')) && (
                                   <Link
                                     href="/admin?tab=supervisor-view"
                                     onClick={() => setIsProfileOpen(false)}
@@ -399,7 +410,7 @@ export default function Navbar() {
                                     Supervisor View
                                   </Link>
                                 )}
-                                {isJudge && !isSupervisor && !isAdmin && (
+                                {isJudge && !isSupervisor && !isAdmin && !userAllowedTabs.includes('startups') && (
                                   <Link
                                     href="/admin"
                                     onClick={() => setIsProfileOpen(false)}
@@ -411,7 +422,7 @@ export default function Navbar() {
                                     Startup Applications
                                   </Link>
                                 )}
-                                {(isAdmin || isAmbassadorLead || isOutreachLead) && (
+                                {(isAdmin || isAmbassadorLead || isOutreachLead || userAllowedTabs.includes('ambassadors')) && (
                                   <Link
                                     href="/admin?tab=ambassadors"
                                     onClick={() => setIsProfileOpen(false)}
@@ -423,7 +434,7 @@ export default function Navbar() {
                                     Ambassador Management
                                   </Link>
                                 )}
-                                {(isAdmin || isUltimateJudge) && (
+                                {(isAdmin || isUltimateJudge || userAllowedTabs.includes('judges')) && (
                                   <Link
                                     href="/admin?tab=judges"
                                     onClick={() => setIsProfileOpen(false)}
@@ -436,7 +447,7 @@ export default function Navbar() {
                                   </Link>
                                 )}
 
-                                {isSuperAdmin && (
+                                {(isSuperAdmin || userAllowedTabs.includes('page-management')) && (
                                   <Link
                                     href="/admin?tab=page-management"
                                     onClick={() => setIsProfileOpen(false)}
@@ -449,31 +460,32 @@ export default function Navbar() {
                                   </Link>
                                 )}
 
-                                {isSuperAdmin && (
-                                  <>
-                                    <Link
-                                      href="/qr"
-                                      onClick={() => setIsProfileOpen(false)}
-                                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                    >
-                                      <div className="w-[18px] flex justify-center">
-                                        <QrCode size={14} className="text-vc-mint" />
-                                      </div>
-                                      QR Generator
-                                    </Link>
-                                    <Link
-                                      href="/admin?tab=broadcast"
-                                      onClick={() => setIsProfileOpen(false)}
-                                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
-                                    >
-                                      <div className="w-[18px] flex justify-center">
-                                        <Mail size={14} className="text-vc-mint" />
-                                      </div>
-                                      Email Center
-                                    </Link>
-                                  </>
+                                {(isSuperAdmin || userAllowedTabs.includes('qr')) && (
+                                  <Link
+                                    href="/qr"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <QrCode size={14} className="text-vc-mint" />
+                                    </div>
+                                    QR Generator
+                                  </Link>
                                 )}
-                                {(isAdmin || isOutreachLead) && (
+                                {(isSuperAdmin || userAllowedTabs.includes('broadcast')) && (
+                                  <Link
+                                    href="/admin?tab=broadcast"
+                                    onClick={() => setIsProfileOpen(false)}
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/5 transition-all"
+                                  >
+                                    <div className="w-[18px] flex justify-center">
+                                      <Mail size={14} className="text-vc-mint" />
+                                    </div>
+                                    Email Center
+                                  </Link>
+                                )}
+
+                                {(isAdmin || isOutreachLead || userAllowedTabs.includes('outreach')) && (
                                   <Link
                                     href="/admin?tab=outreach"
                                     onClick={() => setIsProfileOpen(false)}
@@ -603,9 +615,9 @@ export default function Navbar() {
                           My Profile
                         </Link>
 
-                        {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead) && (
+                        {(isAdmin || isJudge || isAmbassadorLead || isOutreachLead || userAllowedTabs.length > 0) && (
                           <>
-                            {isAdmin && (
+                            {(isAdmin || userAllowedTabs.includes('startups')) && (
                               <Link
                                 href="/admin"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -615,7 +627,7 @@ export default function Navbar() {
                                 Startup Applications
                               </Link>
                             )}
-                            {isSupervisor && (
+                            {(isSupervisor || userAllowedTabs.includes('supervisor-view')) && (
                               <Link
                                 href="/admin?tab=supervisor-view"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -625,7 +637,7 @@ export default function Navbar() {
                                 Supervisor View
                               </Link>
                             )}
-                            {isJudge && !isSupervisor && !isAdmin && (
+                            {isJudge && !isSupervisor && !isAdmin && !userAllowedTabs.includes('startups') && (
                               <Link
                                 href="/admin"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -635,7 +647,7 @@ export default function Navbar() {
                                 Startup Applications
                               </Link>
                             )}
-                            {(isAdmin || isAmbassadorLead || isOutreachLead) && (
+                            {(isAdmin || isAmbassadorLead || isOutreachLead || userAllowedTabs.includes('ambassadors')) && (
                               <Link
                                 href="/admin?tab=ambassadors"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -645,7 +657,7 @@ export default function Navbar() {
                                 Ambassador Management
                               </Link>
                             )}
-                            {(isAdmin || isUltimateJudge) && (
+                            {(isAdmin || isUltimateJudge || userAllowedTabs.includes('judges')) && (
                               <Link
                                 href="/admin?tab=judges"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -655,7 +667,7 @@ export default function Navbar() {
                                 Judges
                               </Link>
                             )}
-                            {isSuperAdmin && (
+                            {(isSuperAdmin || userAllowedTabs.includes('page-management')) && (
                               <Link
                                 href="/admin?tab=page-management"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
@@ -665,27 +677,27 @@ export default function Navbar() {
                                 Page Management
                               </Link>
                             )}
-                            {isSuperAdmin && (
-                              <>
-                                <Link
-                                  href="/qr"
-                                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                                  onClick={() => setIsOpen(false)}
-                                >
-                                  <QrCode size={20} />
-                                  QR Generator
-                                </Link>
-                                <Link
-                                  href="/admin?tab=broadcast"
-                                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
-                                  onClick={() => setIsOpen(false)}
-                                >
-                                  <Mail size={20} />
-                                  Email Center
-                                </Link>
-                              </>
+                            {(isSuperAdmin || userAllowedTabs.includes('qr')) && (
+                              <Link
+                                href="/qr"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <QrCode size={20} />
+                                QR Generator
+                              </Link>
                             )}
-                            {(isAdmin || isOutreachLead) && (
+                            {(isSuperAdmin || userAllowedTabs.includes('broadcast')) && (
+                              <Link
+                                href="/admin?tab=broadcast"
+                                className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Mail size={20} />
+                                Email Center
+                              </Link>
+                            )}
+                            {(isAdmin || isOutreachLead || userAllowedTabs.includes('outreach')) && (
                               <Link
                                 href="/admin?tab=outreach"
                                 className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-vc-mint"

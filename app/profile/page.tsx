@@ -21,6 +21,7 @@ export default function ProfilePage() {
     const [isJudge, setIsJudge] = useState(false);
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [isAmbassador, setIsAmbassador] = useState(false);
+    const [userAllowedTabs, setUserAllowedTabs] = useState<string[]>([]);
     const [displayName, setDisplayName] = useState('');
     const [linkedin, setLinkedin] = useState('');
     const [portfolio, setPortfolio] = useState('');
@@ -84,15 +85,16 @@ export default function ProfilePage() {
                     setPortfolio(data.portfolio || '');
                 }
 
-                // Check Roles
-                const [superAdminDoc, adminDoc, judgeDoc, leadDoc, uDoc, ambDoc, outDoc] = await Promise.all([
+                // Check Roles & Permissions
+                const [superAdminDoc, adminDoc, judgeDoc, leadDoc, uDoc, ambDoc, outDoc, userPermDoc] = await Promise.all([
                     getDoc(doc(db, 'super_admins', user.uid)),
                     getDoc(doc(db, 'admins', user.uid)),
                     getDoc(doc(db, 'judges', user.uid)),
                     getDoc(doc(db, 'ambassadors_lead', user.uid)),
                     getDoc(doc(db, 'users', user.uid)),
                     getDoc(doc(db, 'ambassadors', user.uid)),
-                    getDoc(doc(db, 'outreach_participants', user.uid))
+                    getDoc(doc(db, 'outreach_participants', user.uid)),
+                    getDoc(doc(db, 'user_permissions', user.uid))
                 ]);
                 
                 const isSAdmin = superAdminDoc.exists();
@@ -100,6 +102,7 @@ export default function ProfilePage() {
                 if (adminDoc.exists() || isSAdmin) setIsAdmin(true);
                 if (judgeDoc.exists()) setIsJudge(true);
                 if (leadDoc.exists()) setIsAmbassadorLead(true);
+                if (userPermDoc.exists()) setUserAllowedTabs(userPermDoc.data().allowedTabs || []);
 
                 let userIsAmbassador = false;
                 let userIsOutreach = false;
@@ -554,6 +557,146 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                                 <div className="h-4" /> {/* Spacer */}
+                            </div>
+                        )}
+
+                        {/* Management & Admin Dashboards (For Authorized Users) */}
+                        {(isAdmin || isSuperAdmin || isJudge || isAmbassadorLead || userAllowedTabs.length > 0) && (
+                            <div className="space-y-4 pt-4 border-t border-white/10 mb-8">
+                                <div className="flex items-center justify-between px-1">
+                                    <h3 className="text-sm font-black uppercase tracking-[0.2em] text-vc-mint">Management Dashboards</h3>
+                                    <Shield className="w-4 h-4 text-vc-mint/40" />
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {(isAdmin || userAllowedTabs.includes('startups')) && (
+                                        <Link
+                                            href="/admin"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-vc-mint/40 hover:bg-vc-mint/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-vc-mint/10 flex items-center justify-center text-vc-mint">
+                                                    <Rocket className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-vc-mint transition-colors">Startup Applications</p>
+                                                    <p className="text-[10px] text-white/30">Ecosystem & applicant screening</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {(isAdmin || isAmbassadorLead || userAllowedTabs.includes('ambassadors')) && (
+                                        <Link
+                                            href="/admin?tab=ambassadors"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/40 hover:bg-blue-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-blue-400/10 flex items-center justify-center text-blue-400">
+                                                    <Trophy className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">Ambassador Management</p>
+                                                    <p className="text-[10px] text-white/30">Applications & ambassador directory</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {(isAdmin || isJudge || userAllowedTabs.includes('judges')) && (
+                                        <Link
+                                            href="/admin?tab=judges"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-400/40 hover:bg-purple-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-purple-400/10 flex items-center justify-center text-purple-400">
+                                                    <Shield className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-purple-400 transition-colors">Judges Network</p>
+                                                    <p className="text-[10px] text-white/30">Evaluator rosters & team progress</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {(isAdmin || userAllowedTabs.includes('outreach')) && (
+                                        <Link
+                                            href="/admin?tab=outreach"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-yellow-400/40 hover:bg-yellow-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-yellow-400/10 flex items-center justify-center text-yellow-400">
+                                                    <Hash className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-yellow-400 transition-colors">Outreach Challenge</p>
+                                                    <p className="text-[10px] text-white/30">Leaderboards & participant tracking</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {userAllowedTabs.includes('supervisor-view') && (
+                                        <Link
+                                            href="/admin?tab=supervisor-view"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-teal-400/40 hover:bg-teal-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-teal-400/10 flex items-center justify-center text-teal-400">
+                                                    <Shield className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-teal-400 transition-colors">Supervisor View</p>
+                                                    <p className="text-[10px] text-white/30">Team scoring & evaluation queue</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {(isSuperAdmin || userAllowedTabs.includes('broadcast')) && (
+                                        <Link
+                                            href="/admin?tab=broadcast"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-orange-400/40 hover:bg-orange-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-orange-400/10 flex items-center justify-center text-orange-400">
+                                                    <Mail className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-orange-400 transition-colors">Email & Broadcast Center</p>
+                                                    <p className="text-[10px] text-white/30">Send user announcements</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {(isSuperAdmin || userAllowedTabs.includes('qr')) && (
+                                        <Link
+                                            href="/qr"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-400/40 hover:bg-emerald-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-emerald-400/10 flex items-center justify-center text-emerald-400">
+                                                    <Hash className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">QR Code Generator</p>
+                                                    <p className="text-[10px] text-white/30">Download PNG vector QR codes</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                    {(isSuperAdmin || userAllowedTabs.includes('page-management')) && (
+                                        <Link
+                                            href="/admin?tab=page-management"
+                                            className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-pink-400/40 hover:bg-pink-400/5 transition-all flex items-center justify-between group"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-pink-400/10 flex items-center justify-center text-pink-400">
+                                                    <Shield className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white group-hover:text-pink-400 transition-colors">Page & Access Management</p>
+                                                    <p className="text-[10px] text-white/30">Route visibility & user permissions</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    )}
+                                </div>
                             </div>
                         )}
 

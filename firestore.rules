@@ -186,5 +186,11 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Granular User Dashboard Permissions
+    match /user_permissions/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
+      allow write: if isSuperAdmin();
+    }
+
   }
 }

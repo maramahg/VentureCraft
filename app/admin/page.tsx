@@ -440,6 +440,15 @@ function AdminDashboardContent() {
     const [isSupervisor, setIsSupervisor] = useState(false);
     const [isAmbassadorLead, setIsAmbassadorLead] = useState(false);
     const [isOutreachLead, setIsOutreachLead] = useState(false);
+    const [userAllowedTabs, setUserAllowedTabs] = useState<string[]>([]);
+
+    // User Permissions Management State (Super Admin)
+    const [permUserSearchTerm, setPermUserSearchTerm] = useState('');
+    const [allUsersListForPerms, setAllUsersListForPerms] = useState<UserProfile[]>([]);
+    const [selectedUserForPerms, setSelectedUserForPerms] = useState<UserProfile | null>(null);
+    const [selectedUserPerms, setSelectedUserPerms] = useState<string[]>([]);
+    const [savingUserPerms, setSavingUserPerms] = useState(false);
+
     const [allJudges, setAllJudges] = useState<JudgeMember[]>([]);
     const [judgeNames, setJudgeNames] = useState<Record<string, string>>({});
     const [judgeContacts, setJudgeContacts] = useState<Record<string, { name: string; email: string }>>({});
@@ -843,17 +852,23 @@ function AdminDashboardContent() {
 
         // Sync state with URL parameter if it exists and changed
         if (!tab) {
-            if (activeTab !== 'startups') setActiveTab('startups');
+            if (activeTab !== 'startups') {
+                const defaultTab = (userAllowedTabs.length > 0 && !isAdmin && !isJudge && !isAmbassadorLead && !isOutreachLead)
+                    ? (userAllowedTabs[0] as any)
+                    : 'startups';
+                if (activeTab !== defaultTab) setActiveTab(defaultTab);
+            }
         } else if (['startups', 'ambassadors', 'qr', 'broadcast', 'judges', 'outreach', 'page-management', 'supervisor-view'].includes(tab)) {
-            // Restricted Tabs Control: Only Super Admins can access 'qr', 'broadcast', and 'page-management'
+            // Restricted Tabs Control: Super Admins or users with explicitly granted tabs can access restricted tabs
             const restrictedTabs = ['qr', 'broadcast', 'page-management'];
-            if (restrictedTabs.includes(tab) && !isSuperAdmin) {
+            const isCustomAllowed = userAllowedTabs.includes(tab);
+            if (restrictedTabs.includes(tab) && !isSuperAdmin && !isCustomAllowed) {
                 if (activeTab !== 'startups') setActiveTab('startups');
             } else if (activeTab !== tab) {
                 setActiveTab(tab as any);
             }
         }
-    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead, isSuperAdmin]);
+    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead, isSuperAdmin, userAllowedTabs, isAdmin]);
 
 
     // Listen for Page Visibility Settings
@@ -890,6 +905,76 @@ function AdminDashboardContent() {
         }
     };
 
+    // User Permissions Management Helpers (Super Admin)
+    useEffect(() => {
+        if (!isSuperAdmin || activeTab !== 'page-management') return;
+        const fetchUsersForPerms = async () => {
+            try {
+                const usersSnap = await getDocs(query(collection(db, 'users'), limit(100)));
+                const list: UserProfile[] = [];
+                usersSnap.forEach(d => {
+                    const data = d.data();
+                    list.push({
+                        id: d.id,
+                        displayName: data.displayName || data.name || data.fullName || 'Unnamed User',
+                        email: data.email || '',
+                        role: data.role || 'user',
+                        location: data.location || ''
+                    });
+                });
+                setAllUsersListForPerms(list);
+            } catch (err) {
+                console.error("Error fetching users list for perms:", err);
+            }
+        };
+        fetchUsersForPerms();
+    }, [isSuperAdmin, activeTab]);
+
+    const handleSelectUserForPerms = async (user: UserProfile) => {
+        setSelectedUserForPerms(user);
+        try {
+            const permDoc = await getDoc(doc(db, 'user_permissions', user.id));
+            if (permDoc.exists()) {
+                setSelectedUserPerms(permDoc.data().allowedTabs || []);
+            } else {
+                setSelectedUserPerms([]);
+            }
+        } catch (err) {
+            console.error("Error fetching user permissions:", err);
+            setSelectedUserPerms([]);
+        }
+    };
+
+    const handleToggleTabPerm = (tabKey: string) => {
+        if (selectedUserPerms.includes(tabKey)) {
+            setSelectedUserPerms(selectedUserPerms.filter(t => t !== tabKey));
+        } else {
+            setSelectedUserPerms([...selectedUserPerms, tabKey]);
+        }
+    };
+
+    const handleSaveUserPermissions = async () => {
+        if (!selectedUserForPerms) return;
+        setSavingUserPerms(true);
+        try {
+            await setDoc(doc(db, 'user_permissions', selectedUserForPerms.id), {
+                allowedTabs: selectedUserPerms,
+                updatedAt: new Date(),
+                updatedBy: auth.currentUser?.email || 'Super Admin'
+            }, { merge: true });
+
+            setToast({
+                message: `Dashboard permissions saved for ${selectedUserForPerms.displayName || selectedUserForPerms.email}!`,
+                type: 'success'
+            });
+        } catch (err: any) {
+            console.error("Error saving user permissions:", err);
+            setToast({ message: `Failed to save permissions: ${err.message}`, type: 'error' });
+        } finally {
+            setSavingUserPerms(false);
+        }
+    };
+
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -900,12 +985,13 @@ function AdminDashboardContent() {
 
             try {
                 const uid = user.uid;
-                const [superAdminDoc, adminDoc, judgeDoc, leadDoc, outreachLeadDoc] = await Promise.all([
+                const [superAdminDoc, adminDoc, judgeDoc, leadDoc, outreachLeadDoc, userPermDoc] = await Promise.all([
                     getDoc(doc(db, 'super_admins', uid)),
                     getDoc(doc(db, 'admins', uid)),
                     getDoc(doc(db, 'judges', uid)),
                     getDoc(doc(db, 'ambassadors_lead', uid)),
-                    getDoc(doc(db, 'outreach_leaders', uid))
+                    getDoc(doc(db, 'outreach_leaders', uid)),
+                    getDoc(doc(db, 'user_permissions', uid))
                 ]);
 
                 let hasAnyRole = false;
@@ -944,8 +1030,14 @@ function AdminDashboardContent() {
                     hasAnyRole = true;
                 }
 
-                if (!hasAnyRole) {
-                    // If no role found
+                let customAllowedTabs: string[] = [];
+                if (userPermDoc.exists()) {
+                    customAllowedTabs = userPermDoc.data().allowedTabs || [];
+                    setUserAllowedTabs(customAllowedTabs);
+                }
+
+                if (!hasAnyRole && customAllowedTabs.length === 0) {
+                    // If no role found and no explicitly granted tabs
                     setError('Access Denied: You do not have admin or evaluator privileges.');
                     router.push('/');
                     return;
@@ -2074,7 +2166,7 @@ function AdminDashboardContent() {
         );
     }
 
-    if (!isAdmin && !isJudge && !isAmbassadorLead && !isOutreachLead) return null;
+    if (!isAdmin && !isJudge && !isAmbassadorLead && !isOutreachLead && userAllowedTabs.length === 0) return null;
 
     return (
         <main className="min-h-screen bg-[#001311] text-white pt-32 pb-12">
@@ -3612,6 +3704,155 @@ function AdminDashboardContent() {
                                 <p className="text-[11px] text-white/40 italic leading-relaxed">
                                     Toggling a page to <span className="text-red-500 font-bold">Hidden</span> will remove it from the global navigation bar and activate a security guard that redirects any non-admin users attempting to access the direct URL back to the home page.
                                 </p>
+                            </div>
+
+                            {/* User Dashboard Access Manager Section */}
+                            <div className="pt-8 border-t border-white/10 space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20 shadow-lg shadow-purple-500/5">
+                                        <Shield className="w-7 h-7" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-white tracking-tight leading-none mb-2 font-poppins">User Dashboard Access Manager</h2>
+                                        <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-black italic">Grant Specific Dashboard Access Permissions to Users</p>
+                                    </div>
+                                </div>
+
+                                <div className="glass-panel p-6 border-white/10 space-y-6">
+                                    {/* User Search & Selection */}
+                                    <div>
+                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Search & Select Target User</label>
+                                        <div className="relative mb-4">
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                            <input
+                                                type="text"
+                                                placeholder="Search user by name or email..."
+                                                value={permUserSearchTerm}
+                                                onChange={(e) => setPermUserSearchTerm(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-vc-mint transition-all"
+                                            />
+                                        </div>
+
+                                        {/* Filtered User Cards / List */}
+                                        <div className="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                            {allUsersListForPerms
+                                                .filter(u =>
+                                                    (u.displayName?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase()) ||
+                                                    (u.email?.toLowerCase() || '').includes(permUserSearchTerm.toLowerCase())
+                                                )
+                                                .slice(0, 15)
+                                                .map(user => {
+                                                    const isSelected = selectedUserForPerms?.id === user.id;
+                                                    return (
+                                                        <div
+                                                            key={user.id}
+                                                            onClick={() => handleSelectUserForPerms(user)}
+                                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${isSelected ? 'bg-vc-mint/10 border-vc-mint shadow-md' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${isSelected ? 'bg-vc-mint text-vc-green-dark' : 'bg-white/10 text-white/60'}`}>
+                                                                    {user.displayName?.charAt(0) || 'U'}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-xs font-bold text-white leading-none mb-0.5">{user.displayName}</p>
+                                                                    <p className="text-[10px] text-white/40">{user.email}</p>
+                                                                </div>
+                                                            </div>
+                                                            <span className="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-white/5 text-white/40">
+                                                                {user.role || 'user'}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                        </div>
+                                    </div>
+
+                                    {/* Dashboard Permission Toggles for Selected User */}
+                                    {selectedUserForPerms ? (
+                                        <div className="pt-6 border-t border-white/10 space-y-6">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                                                <div>
+                                                    <p className="text-xs font-bold text-white uppercase tracking-widest mb-0.5">Configuring Access For:</p>
+                                                    <p className="text-base font-bold text-vc-mint">{selectedUserForPerms.displayName} <span className="text-xs font-normal text-white/40">({selectedUserForPerms.email})</span></p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedUserPerms(['startups', 'ambassadors', 'outreach', 'judges', 'supervisor-view', 'broadcast', 'qr', 'page-management'])}
+                                                        className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white hover:bg-white/20 rounded-xl transition-all"
+                                                    >
+                                                        Select All
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setSelectedUserPerms([])}
+                                                        className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl transition-all"
+                                                    >
+                                                        Clear All
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                {[
+                                                    { key: 'startups', label: 'Startup Ecosystem Oversight', icon: Rocket, color: 'text-vc-mint', desc: 'Full application review, screening & global registration settings' },
+                                                    { key: 'ambassadors', label: 'Ambassador Command', icon: GraduationCap, color: 'text-blue-400', desc: 'Ambassador applications, directory & rewards' },
+                                                    { key: 'outreach', label: 'Outreach Challenge Hub', icon: Trophy, color: 'text-yellow-400', desc: 'Outreach leaderboard & referral tracking' },
+                                                    { key: 'judges', label: 'Judge Network Oversight', icon: Shield, color: 'text-purple-400', desc: 'Judge rosters, team assignments & evaluation progress' },
+                                                    { key: 'supervisor-view', label: 'Team Evaluation Queue', icon: FileText, color: 'text-teal-400', desc: 'Team evaluation queues & scoring rubrics' },
+                                                    { key: 'broadcast', label: 'Communication Command', icon: Bell, color: 'text-orange-400', desc: 'Broadcast emails & announcement system' },
+                                                    { key: 'qr', label: 'QR Generator', icon: QrCode, color: 'text-emerald-400', desc: 'Generate high-res PNG QR codes for platform URLs' },
+                                                    { key: 'page-management', label: 'Page Visibility & Access', icon: Layout, color: 'text-pink-400', desc: 'Toggle public route visibility and user access controls' }
+                                                ].map(tabItem => {
+                                                    const isGranted = selectedUserPerms.includes(tabItem.key);
+                                                    const IconComponent = tabItem.icon;
+                                                    return (
+                                                        <div
+                                                            key={tabItem.key}
+                                                            onClick={() => handleToggleTabPerm(tabItem.key)}
+                                                            className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${isGranted ? 'bg-vc-mint/10 border-vc-mint shadow-lg shadow-vc-mint/5' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+                                                        >
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isGranted ? 'bg-vc-mint/20 text-vc-mint' : 'bg-white/5 text-white/30'}`}>
+                                                                    <IconComponent className="w-5 h-5" />
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    className={`w-11 h-6 rounded-full transition-all relative ${isGranted ? 'bg-vc-mint shadow-[0_0_12px_rgba(57,204,137,0.4)]' : 'bg-white/10'}`}
+                                                                >
+                                                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isGranted ? 'right-1' : 'left-1'}`} />
+                                                                </button>
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="text-xs font-bold text-white mb-1">{tabItem.label}</h4>
+                                                                <p className="text-[10px] text-white/30 italic leading-snug">{tabItem.desc}</p>
+                                                            </div>
+                                                            <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[9px] uppercase font-bold tracking-wider">
+                                                                <span className={isGranted ? 'text-vc-mint' : 'text-white/20'}>
+                                                                    {isGranted ? 'Access Granted' : 'Access Restricted'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            <div className="flex justify-end pt-2">
+                                                <button
+                                                    onClick={handleSaveUserPermissions}
+                                                    disabled={savingUserPerms}
+                                                    className="px-8 py-3.5 bg-vc-mint text-vc-green-dark rounded-2xl font-bold hover:bg-vc-mint/90 transition-all flex items-center gap-2 shadow-lg shadow-vc-mint/10 disabled:opacity-50"
+                                                >
+                                                    {savingUserPerms ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                                    <span>Save User Access Permissions</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="p-6 bg-white/5 border border-white/10 rounded-2xl text-center">
+                                            <Shield className="w-8 h-8 text-white/20 mx-auto mb-2" />
+                                            <p className="text-xs text-white/40">Select a user above to configure their individual dashboard access permissions.</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
