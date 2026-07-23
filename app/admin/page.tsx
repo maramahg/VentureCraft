@@ -833,19 +833,21 @@ function AdminDashboardContent() {
 
 
     useEffect(() => {
+        if (loading) return; // Wait until auth & permissions finish loading
+
         const tab = searchParams.get('tab');
 
-        // Handle forcing for specific roles if needed
-        if (isJudge && !isUltimateJudge && !isSupervisor) {
+        // Handle forcing for specific roles if needed (unless explicitly granted tab access)
+        if (isJudge && !isUltimateJudge && !isSupervisor && !userAllowedTabs.includes(activeTab)) {
             if (activeTab !== 'startups' && activeTab !== 'supervisor-view') setActiveTab('startups');
             return;
         }
-        if (isAmbassadorLead) {
+        if (isAmbassadorLead && !userAllowedTabs.includes(activeTab)) {
             if (activeTab !== 'ambassadors') setActiveTab('ambassadors');
             return;
         }
 
-        if (isOutreachLead && !tab) {
+        if (isOutreachLead && !tab && !userAllowedTabs.includes(activeTab)) {
             if (activeTab !== 'outreach') setActiveTab('outreach');
             return;
         }
@@ -868,7 +870,7 @@ function AdminDashboardContent() {
                 setActiveTab(tab as any);
             }
         }
-    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead, isSuperAdmin, userAllowedTabs, isAdmin]);
+    }, [searchParams, activeTab, isJudge, isUltimateJudge, isSupervisor, isAmbassadorLead, isOutreachLead, isSuperAdmin, userAllowedTabs, isAdmin, loading]);
 
 
     // Listen for Page Visibility Settings
@@ -1184,7 +1186,7 @@ function AdminDashboardContent() {
 
     // Fetch All Judges for Ultimate Judge Oversight
     useEffect(() => {
-        if (!isAdmin && !isJudge) return;
+        if (!isAdmin && !isJudge && !userAllowedTabs.includes('judges')) return;
 
         const fetchJudgesDirectory = async () => {
             try {
@@ -1199,12 +1201,10 @@ function AdminDashboardContent() {
                 const contactsMap: Record<string, { name: string; email: string; phone: string }> = {};
 
                 await Promise.all(judgesList.map(async (j) => {
-                    // Start with data potentially already in the judge document
                     let name = j.displayName || `Judge (${j.id.substring(0, 8)})`;
                     let email = j.email || '';
                     let phone = j.phoneNumber || '';
 
-                    // Fallback to users collection if fields are missing
                     if (!j.displayName || !j.email || !j.phoneNumber) {
                         const userDoc = await getDoc(doc(db, 'users', j.id));
                         if (userDoc.exists()) {
@@ -1221,8 +1221,6 @@ function AdminDashboardContent() {
 
                 console.log(`Resolved info for ${judgesList.length} judges`);
                 setJudgeNames(namesMap);
-                // Note: judgeContacts state might need updating if used elsewhere, 
-                // but let's ensure allJudges has the data.
                 setAllJudges(judgesList.map(j => ({
                     ...j,
                     displayName: namesMap[j.id],
@@ -1235,7 +1233,7 @@ function AdminDashboardContent() {
         };
 
         fetchJudgesDirectory();
-    }, [isAdmin, isJudge, isUltimateJudge]);
+    }, [isAdmin, isJudge, isUltimateJudge, userAllowedTabs]);
 
     const toggleScreening2 = async () => {
         setUpdatingScreening2(true);
@@ -1281,7 +1279,7 @@ function AdminDashboardContent() {
     }, [selectedApp]);
 
     useEffect(() => {
-        if (loading || (!isAdmin && !isJudge)) return;
+        if (loading || (!isAdmin && !isJudge && !userAllowedTabs.includes('startups') && !userAllowedTabs.includes('supervisor-view'))) return;
 
         // Build query based on role and active tab
         let q;
@@ -1292,8 +1290,8 @@ function AdminDashboardContent() {
                 collection(db, 'applications'),
                 where('assignedTeam', '==', judgeTeam)
             );
-        } else if (isAdmin || isUltimateJudge) {
-            // Admins and Ultimate Judges see all applications in the startups tab
+        } else if (isAdmin || isUltimateJudge || userAllowedTabs.includes('startups')) {
+            // Admins, Ultimate Judges, and users with startup tab permission see all applications
             q = query(collection(db, 'applications'), orderBy('submittedAt', 'desc'));
         } else if (isJudge && !isUltimateJudge) {
             // Regular Supervisors (non-admin) filter by their team by default
@@ -1320,10 +1318,10 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isJudge, isUltimateJudge, judgeTeam, loading, activeTab]);
+    }, [isAdmin, isJudge, isUltimateJudge, judgeTeam, loading, activeTab, userAllowedTabs]);
 
     useEffect(() => {
-        if (!isAdmin) return;
+        if (!isAdmin && !userAllowedTabs.includes('page-management')) return;
 
         const fetchUserCount = async () => {
             try {
@@ -1336,12 +1334,11 @@ function AdminDashboardContent() {
         };
 
         fetchUserCount();
-        // We only fetch this once per session/admin visit to save quota
-    }, [isAdmin]);
+    }, [isAdmin, userAllowedTabs]);
 
     // Fetch Ambassador Applications
     useEffect(() => {
-        if (!(isAdmin || isAmbassadorLead || isOutreachLead) || activeTab !== 'ambassadors') return;
+        if (!(isAdmin || isAmbassadorLead || isOutreachLead || userAllowedTabs.includes('ambassadors')) || activeTab !== 'ambassadors') return;
 
         console.log(`FETCHING: ambassador_applications (isAdmin=${isAdmin}, isAmbassadorLead=${isAmbassadorLead}, isOutreachLead=${isOutreachLead})`);
         const q = query(collection(db, 'ambassador_applications'), orderBy('submittedAt', 'desc'));
@@ -1359,11 +1356,11 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isAmbassadorLead, isOutreachLead, activeTab]);
+    }, [isAdmin, isAmbassadorLead, isOutreachLead, activeTab, userAllowedTabs]);
 
     // Fetch Current Ambassadors
     useEffect(() => {
-        if (!(isAdmin || isAmbassadorLead || isOutreachLead) || activeTab !== 'ambassadors') return;
+        if (!(isAdmin || isAmbassadorLead || isOutreachLead || userAllowedTabs.includes('ambassadors')) || activeTab !== 'ambassadors') return;
 
         console.log(`FETCHING: ambassadors (isAdmin=${isAdmin}, isAmbassadorLead=${isAmbassadorLead}, isOutreachLead=${isOutreachLead})`);
         const q = query(collection(db, 'ambassadors'));
@@ -1373,7 +1370,6 @@ function AdminDashboardContent() {
             const userPromises = snapshot.docs.map(async (docRef) => {
                 const data = docRef.data();
 
-                // If name AND ID are already there (cached), use it
                 if ((data.displayName || data.name) && data.ambassadorId) {
                     return {
                         id: docRef.id,
@@ -1385,7 +1381,6 @@ function AdminDashboardContent() {
                     };
                 }
 
-                // Fallback: Fetch missing info from users collection
                 try {
                     const userSnap = await getDoc(doc(db, 'users', docRef.id));
                     if (userSnap.exists()) {
@@ -1414,7 +1409,6 @@ function AdminDashboardContent() {
             });
 
             const users = await Promise.all(userPromises);
-            // Re-sort client side by points since we resolved names asynchronously
             const sortedUsers = (users as UserProfile[]).sort((a, b) => (b.points || 0) - (a.points || 0));
             setAmbassadorsList(sortedUsers);
         }, (error) => {
@@ -1423,11 +1417,11 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isAmbassadorLead, isOutreachLead, activeTab]);
+    }, [isAdmin, isAmbassadorLead, isOutreachLead, activeTab, userAllowedTabs]);
 
     // Fetch Outreach Participants
     useEffect(() => {
-        if (!(isAdmin || isOutreachLead) || activeTab !== 'outreach') return;
+        if (!(isAdmin || isOutreachLead || userAllowedTabs.includes('outreach')) || activeTab !== 'outreach') return;
 
         console.log('FETCHING: outreach_participants collection...');
         const q = query(collection(db, 'outreach_participants'));
@@ -1443,7 +1437,7 @@ function AdminDashboardContent() {
         });
 
         return () => unsubscribe();
-    }, [isAdmin, isOutreachLead, activeTab]);
+    }, [isAdmin, isOutreachLead, activeTab, userAllowedTabs]);
 
     const fetchHistory = async (userId: string, userName: string) => {
         setHistoryUser({ id: userId, name: userName });

@@ -78,11 +78,21 @@ service cloud.firestore {
              get(/databases/$(database)/documents/settings/editing).data.get('isOpen', true) == true || 
              get(/databases/$(database)/documents/settings/editing).data.get('isAllowed', true) == true;
     }
+
+    // Helper: Check if user has explicit granular dashboard permission
+    function hasDashboardPermission(tabKey) {
+      return request.auth != null && (
+        isSuperAdmin() || (
+          exists(/databases/$(database)/documents/user_permissions/$(request.auth.uid)) &&
+          tabKey in get(/databases/$(database)/documents/user_permissions/$(request.auth.uid)).data.get('allowedTabs', [])
+        )
+      );
+    }
     
     // Outreach Participants
     match /outreach_participants/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead());
+      allow write: if request.auth != null && (isAdmin() || isAmbassadorLead() || isOutreachLead() || hasDashboardPermission('outreach'));
       // Allow point increments for referrals
       allow update: if request.auth != null 
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
@@ -102,6 +112,8 @@ service cloud.firestore {
         (resource != null && request.auth.uid == resource.data.userId) || 
         isAdmin() || 
         isUltimateJudge() || 
+        hasDashboardPermission('startups') ||
+        hasDashboardPermission('supervisor-view') ||
         (isJudge() && resource != null && resource.data.get('assignedTeam', '') == get(/databases/$(database)/documents/judges/$(request.auth.uid)).data.get('team', ''))
       );
       allow create: if request.auth != null 
@@ -111,30 +123,34 @@ service cloud.firestore {
           request.auth.uid == docId || 
           request.auth.uid == resource.data.userId || 
           isAdmin() || 
-          isJudge()
+          isJudge() ||
+          hasDashboardPermission('startups') ||
+          hasDashboardPermission('supervisor-view')
         ) 
         && (
-          // If modifying screening data, MUST be Admin or Judge
+          // If modifying screening data, MUST be Admin or Judge or Have Permission
           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['screening'])) ||
           isAdmin() ||
-          isJudge()
+          isJudge() ||
+          hasDashboardPermission('startups') ||
+          hasDashboardPermission('supervisor-view')
         )
-        && (isEditingAllowed() || isAdmin() || isJudge());
-      allow delete: if isAdmin();
+        && (isEditingAllowed() || isAdmin() || isJudge() || hasDashboardPermission('startups'));
+      allow delete: if isAdmin() || hasDashboardPermission('startups');
     }
 
     // Ambassador Applications
     match /ambassador_applications/{docId} {
-      allow read: if request.auth != null && (isAmbassadorManager() || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
-      allow write: if request.auth != null && (isAmbassadorManager() || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
-      allow delete: if request.auth != null && isAmbassadorManager();
+      allow read: if request.auth != null && (isAmbassadorManager() || hasDashboardPermission('ambassadors') || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
+      allow write: if request.auth != null && (isAmbassadorManager() || hasDashboardPermission('ambassadors') || request.auth.uid == docId || (resource != null && request.auth.uid == resource.data.userId));
+      allow delete: if request.auth != null && (isAmbassadorManager() || hasDashboardPermission('ambassadors'));
       allow create: if request.auth != null;
     }
 
     // Ambassadors Collection (Public Profiles)
     match /ambassadors/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || isAmbassadorManager());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAmbassadorManager() || hasDashboardPermission('ambassadors'));
       // Allow point increments for referrals
       allow update: if request.auth != null 
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
@@ -143,8 +159,8 @@ service cloud.firestore {
 
     // Users Collection (Profiles)
     match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAmbassadorManager() || isJudge());
-      allow write: if request.auth != null && (request.auth.uid == userId || isAmbassadorManager());
+      allow read: if request.auth != null && (request.auth.uid == userId || isAmbassadorManager() || isJudge() || isSuperAdmin() || hasDashboardPermission('page-management') || hasDashboardPermission('ambassadors') || hasDashboardPermission('judges'));
+      allow write: if request.auth != null && (request.auth.uid == userId || isAmbassadorManager() || hasDashboardPermission('page-management') || hasDashboardPermission('ambassadors'));
       allow create: if request.auth != null;
       // Allow point increments for referrals
       allow update: if request.auth != null 
@@ -168,8 +184,8 @@ service cloud.firestore {
 
     // Judges Collection
     match /judges/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isJudge());
-      allow write: if isAdmin();
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isJudge() || hasDashboardPermission('judges'));
+      allow write: if isAdmin() || hasDashboardPermission('judges');
     }
 
     // Role verification collections
