@@ -156,7 +156,6 @@
       "parameters": {
         "operation": "pdf",
         "binaryPropertyName": "pitchDeckFile",
-        "destinationKey": "pitchDeckText",
         "options": {}
       },
       "id": "extract-pitch-deck-text",
@@ -168,9 +167,18 @@
     },
     {
       "parameters": {
+        "jsCode": "const input = $input.first();\nconst json = { ...input.json };\njson.pitchDeckText = json.text || '';\ndelete json.text;\nreturn [{ json, binary: input.binary }];"
+      },
+      "id": "save-pitch-deck-text",
+      "name": "Save Pitch Deck Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 310, 100 ]
+    },
+    {
+      "parameters": {
         "operation": "pdf",
         "binaryPropertyName": "execSummaryFile",
-        "destinationKey": "execSummaryText",
         "options": {}
       },
       "id": "extract-exec-summary-text",
@@ -182,9 +190,18 @@
     },
     {
       "parameters": {
+        "jsCode": "const input = $input.first();\nconst json = { ...input.json };\njson.execSummaryText = json.text || '';\ndelete json.text;\nreturn [{ json, binary: input.binary }];"
+      },
+      "id": "save-exec-summary-text",
+      "name": "Save Exec Summary Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 530, 100 ]
+    },
+    {
+      "parameters": {
         "operation": "pdf",
         "binaryPropertyName": "supportingDataFile",
-        "destinationKey": "supportingDataText",
         "options": {}
       },
       "id": "extract-supporting-data-text",
@@ -193,6 +210,16 @@
       "typeVersion": 1,
       "continueOnFail": true,
       "position": [ 640, 100 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first();\nconst json = { ...input.json };\njson.supportingDataText = json.text || '';\ndelete json.text;\nreturn [{ json, binary: input.binary }];"
+      },
+      "id": "save-supporting-data-text",
+      "name": "Save Supporting Data Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 750, 100 ]
     },
     {
       "parameters": {
@@ -268,7 +295,7 @@
     {
       "parameters": {
         "mode": "combine",
-        "combinationMode": "multiplex",
+        "combineBy": "combineByPosition",
         "options": {}
       },
       "id": "merge-stage-b-runs",
@@ -324,9 +351,12 @@
     "Download Pitch Deck": { "main": [ [ { "node": "Download Exec Summary", "type": "main", "index": 0 } ] ] },
     "Download Exec Summary": { "main": [ [ { "node": "Download Supporting Data", "type": "main", "index": 0 } ] ] },
     "Download Supporting Data": { "main": [ [ { "node": "Extract Pitch Deck Text", "type": "main", "index": 0 } ] ] },
-    "Extract Pitch Deck Text": { "main": [ [ { "node": "Extract Exec Summary Text", "type": "main", "index": 0 } ] ] },
-    "Extract Exec Summary Text": { "main": [ [ { "node": "Extract Supporting Data Text", "type": "main", "index": 0 } ] ] },
-    "Extract Supporting Data Text": { "main": [ [ { "node": "Build Stage A Prompt", "type": "main", "index": 0 } ] ] },
+    "Extract Pitch Deck Text": { "main": [ [ { "node": "Save Pitch Deck Text", "type": "main", "index": 0 } ] ] },
+    "Save Pitch Deck Text": { "main": [ [ { "node": "Extract Exec Summary Text", "type": "main", "index": 0 } ] ] },
+    "Extract Exec Summary Text": { "main": [ [ { "node": "Save Exec Summary Text", "type": "main", "index": 0 } ] ] },
+    "Save Exec Summary Text": { "main": [ [ { "node": "Extract Supporting Data Text", "type": "main", "index": 0 } ] ] },
+    "Extract Supporting Data Text": { "main": [ [ { "node": "Save Supporting Data Text", "type": "main", "index": 0 } ] ] },
+    "Save Supporting Data Text": { "main": [ [ { "node": "Build Stage A Prompt", "type": "main", "index": 0 } ] ] },
     "Build Stage A Prompt": { "main": [ [ { "node": "OpenAI Stage A - Evidence Extraction", "type": "main", "index": 0 } ] ] },
     "OpenAI Stage A - Evidence Extraction": { "main": [ [ { "node": "Parse Stage A Response", "type": "main", "index": 0 } ] ] },
     "Parse Stage A Response": {
