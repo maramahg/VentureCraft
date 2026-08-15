@@ -91,7 +91,7 @@ export default function RegistrationPage() {
                     transition={{ duration: 0.8, delay: 0.6 }}
                     className="glass-panel px-6 py-3 rounded-2xl border border-vc-mint/20 bg-white/5 backdrop-blur-xl inline-flex items-center mb-12"
                 >
-                    <p className="text-xl md:text-2xl font-bold text-white tracking-wide">February 1, 2026</p>
+                    <p className="text-xl md:text-2xl font-bold text-white tracking-wide">Announcing Soon</p>
                 </motion.div>
 
                 <div className="mt-12 w-full max-w-4xl mx-auto px-4 relative z-20">

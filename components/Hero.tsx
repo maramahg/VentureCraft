@@ -20,7 +20,7 @@ export default function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-vc-teal opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-vc-teal"></span>
             </span>
-            Registration Open for 2026
+            Registration Opening Soon
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
@@ -47,7 +47,7 @@ export default function Hero() {
 
           <div className="mt-12 flex items-center justify-center lg:justify-start gap-8 text-white/40">
             <div className="text-sm">
-              <span className="block text-2xl font-bold text-vc-mint mb-1">April 1st</span>
+              <span className="block text-xl font-bold text-vc-mint mb-1">Announcing Soon</span>
               Deadline
             </div>
             <div className="w-px h-12 bg-white/10"></div>

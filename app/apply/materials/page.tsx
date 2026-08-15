@@ -284,7 +284,7 @@ const applicationMaterials: ApplicationMaterial[] = [
                     subItems: [
                         <span>Upload <strong className="text-vc-mint font-bold">Passport Bio-data Page</strong> (main photo & details page).</span>,
                         <span>Passport must have a <strong className="text-vc-mint font-bold">minimum of 2 blank pages</strong>.</span>,
-                        <span>Passport must be valid for <strong className="text-vc-mint font-bold">at least 6 months</strong> from October 1, 2026.</span>
+                        <span>Passport must be valid for <strong className="text-vc-mint font-bold">at least 6 months</strong> from the final event dates.</span>
                     ]
                 },
                 {

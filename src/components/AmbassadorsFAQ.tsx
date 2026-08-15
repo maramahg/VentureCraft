@@ -25,7 +25,7 @@ const faqData: FAQItem[] = [
         question: 'When does the ambassador role end?',
         answer: (
             <div className="space-y-2">
-                <p>The ambassador program has <strong className="text-vc-mint">resumed</strong> alongside the competition relaunch. Active outreach and promotion duties will run from July 15, when new registrations open, through to the finals.</p>
+                <p>The ambassador program has <strong className="text-vc-mint">resumed</strong> alongside the competition relaunch. Active outreach and promotion duties will run according to the updated competition schedule, which will be announced soon.</p>
             </div>
         ),
     },
@@ -100,7 +100,7 @@ const faqData: FAQItem[] = [
         question: 'Can I apply for ambassador and participate in the competition?',
         answer: (
             <div className="space-y-2">
-                <p>Yes, you can participate in <strong className="text-vc-mint">both</strong>, provided that ambassadors receive no preferential treatment. Portal updates for previous applicants are open now, and new registrations open July 15.</p>
+                <p>Yes, you can participate in <strong className="text-vc-mint">both</strong>, provided that ambassadors receive no preferential treatment. Dates for application registration and portal updates will be announced soon.</p>
             </div>
         ),
     },

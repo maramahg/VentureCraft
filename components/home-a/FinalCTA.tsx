@@ -47,7 +47,7 @@ export default function FinalCTA() {
                 'Applications are open. Submit your venture and take the first step toward the $245K prize pool.'
               ) : (
                 <>
-                  Applications open <span className="text-[#4FD1C5] font-bold">July 15</span> for the next cycle. Stay connected for finalist announcements, competition updates, and upcoming opportunities.
+                  Applications open <span className="text-[#4FD1C5] font-bold">soon</span> for the next cycle. Stay connected for finalist announcements, competition updates, and upcoming opportunities.
                 </>
               )}
             </p>

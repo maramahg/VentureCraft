@@ -29,13 +29,13 @@ export default function Timeline() {
 
   const nodes: TimelineNode[] = useMemo(
     () => [
-      { id: 1, top: { title: 'Idea Submission', dates: 'July 15 - Aug 15', description: 'Launch your journey. Submit your initial concept for review by our technical committee.' } },
-      { id: 2, bottom: { title: 'Screening\n(round 1&2)', dates: 'Aug 16 - Aug 26', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
-      { id: 3, top: { title: 'Finalist\nConfirmation', dates: 'Aug 30 - Sep 5', description: 'Confirmed finalists receive their advancement notice and prepare for the next stage.' } },
-      { id: 4, bottom: { title: 'Online Bootcamp', dates: 'Sep 6 - Sep 10', description: 'A virtual deep-dive into startup fundamentals, IP strategy, and go-to-market planning.' } },
-      { id: 5, top: { title: 'Finalist Notification\n& Travel', dates: 'Sep 22 - Sep 25', description: 'Selected teams receive travel coordination details for the in-person acceleration program.' } },
-      { id: 6, bottom: { title: 'In-Person\nAcceleration', dates: 'Sep 26 - Sep 29', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
-      { id: 7, top: { title: 'Final Competition', dates: 'Sep 30 - Oct 1', description: 'Pitch your venture to global investors and energy leaders for the grand prize and partnership deals.' } },
+      { id: 1, top: { title: 'Idea Submission', dates: 'Announcing Soon', description: 'Launch your journey. Submit your initial concept for review by our technical committee.' } },
+      { id: 2, bottom: { title: 'Screening\n(round 1&2)', dates: 'Announcing Soon', description: 'Expert technical and business validation. Top innovators advance to the next stage of the competition.' } },
+      { id: 3, top: { title: 'Finalist\nConfirmation', dates: 'Announcing Soon', description: 'Confirmed finalists receive their advancement notice and prepare for the next stage.' } },
+      { id: 4, bottom: { title: 'Online Bootcamp', dates: 'Announcing Soon', description: 'A virtual deep-dive into startup fundamentals, IP strategy, and go-to-market planning.' } },
+      { id: 5, top: { title: 'Finalist Notification\n& Travel', dates: 'Announcing Soon', description: 'Selected teams receive travel coordination details for the in-person acceleration program.' } },
+      { id: 6, bottom: { title: 'In-Person\nAcceleration', dates: 'Announcing Soon', description: 'Hands-on mentoring and site visits to stress-test your solution in a real-world ecosystem.' } },
+      { id: 7, top: { title: 'Final Competition', dates: 'Announcing Soon', description: 'Pitch your venture to global investors and energy leaders for the grand prize and partnership deals.' } },
     ],
     []
   );

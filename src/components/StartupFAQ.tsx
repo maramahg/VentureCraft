@@ -17,7 +17,7 @@ const faqData: FAQItem[] = [
         question: 'Has the competition been delayed, and what is the new date?',
         answer: (
             <div className="space-y-2">
-                <p>The competition is officially <strong className="text-vc-mint">back</strong>! We have launched a revised timeline with the main final events scheduled for September and October 2026. Please refer to the Timeline section on our homepage for detailed phase dates.</p>
+                <p>The competition is officially <strong className="text-vc-mint">back</strong>! We will be announcing the revised timeline and phase dates soon. Please refer to the Timeline section on our homepage and stay tuned to our official channels for updates.</p>
             </div>
         ),
     },
@@ -26,7 +26,7 @@ const faqData: FAQItem[] = [
         question: 'When is the application deadline?',
         answer: (
             <div className="space-y-2">
-                <p>The application deadline is <strong className="text-vc-mint">August 15, 2026</strong>. Previous applicants can update their applications until this date. General registration for new participants will open on <strong className="text-vc-mint">July 15</strong> and close on <strong className="text-vc-mint">August 15</strong>.</p>
+                <p>Registration and submission deadlines will be <strong className="text-vc-mint">announced soon</strong>. Please stay tuned for official updates regarding upcoming registration and submission dates.</p>
             </div>
         ),
     },
@@ -35,8 +35,8 @@ const faqData: FAQItem[] = [
         question: 'Can I edit my application after submission?',
         answer: (
             <div className="space-y-2">
-                <p>Yes, the application editing portal has been <strong className="text-vc-mint">reopened exclusively for previous applicants</strong> until <strong className="text-vc-mint">August 15, 2026</strong>.</p>
-                <p className="text-white/70">You are highly encouraged to log in, refine your startup details, upload any updated pitch or video materials, and complete the newly added Travel & Visa section.</p>
+                <p>Details and key dates for application editing will be <strong className="text-vc-mint">announced soon</strong>.</p>
+                <p className="text-white/70">You will be able to log in, refine your startup details, upload any updated pitch or video materials, and complete any required sections once editing opens.</p>
             </div>
         ),
     },
